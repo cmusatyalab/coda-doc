@@ -8,9 +8,11 @@
 
 <mansect>DESCRIPTION<P>
 <bf>vice-setup</bf> is actually a family of scripts designed to setup
-a Coda server based on question-answer responses.  The most critical
-question asked needed for the vice-setup family of scripts to work 
-properly is:
+a Coda server based on question-answer responses.  <bf>vice-setup</bf>
+is designed to be called by the users, while the others are meant
+to be called from with <bf>vice-setup</bf>.  The most critical
+question asked (needed for the vice-setup family of scripts to work 
+properly) is:
 <p>
 <tscreen><verb>
 Is this the master server, aka the SCM machine? (y/n) 
@@ -26,14 +28,12 @@ sequence of scripts to be called:
 <item><bf>vice-setup-srvdir</bf>
 </itemize>
 <p>
-where as answering ``no'' causes only
+where as answering ``no'' causes only the following scripts to run:
 
 <itemize>
 <item><bf>vice-setup-rvm</bf>
 <item><bf>vice-setup-srvdir</bf>
 </itemize>
-<p>
-to be run.
 <p>
 
 <mansect>OVERVIEW<p>
@@ -53,17 +53,51 @@ and <em>/vice/vol/remote</em> if they do not already exist.
 <item>Records the hostname in <em>/vice/hostname</em>.
 </itemize>
 
-<tag/vice-setup-scm/
-TO BE COMPLETED
+<tag><bf>vice-setup-scm</bf></tag>
+This is only run if ``yes'' is give as an answer to the SCM question.
+<itemize>
+<item>Prompts for the Coda Server id and Creates up the
+file <em>/vice/db/servers</em> with this information.
+<item>Creates <em>/vice/db/scm</em> with the hostname of the SCM machine
+being setup.
+<item>Creates <em>/vice/db/VSGDB</em> with the root volume number
+``E0000100''.
+<item>Prompts for the name of the root volume and stores this information in 
+<em>/vice/db/ROOTVOLUME</em>.
+</itemize>
 
-<tag/vice-setup=user/
-TO BE COMPLETED
-
-<tag/vice-setup-rvm/
-TO BE COMPLETED
-
-<tag/vice-setup-srvdir/
-TO BE COMPLETED
+<tag><bf>vice-setup-user</bf></tag>
+This script is only run by <bf>vice-setup</bf> when the machine
+is designated as the SCM.
+<itemize>
+<item>This sets up the System:Administrator group and Coda user
+``admin'' then initializes <em>/vice/db/vice.pdb</em>.
+<item>Creates <em>/vice/db/passwd.coda</em> needed to setup 
+initial the password system.
+<item>Creates <em>/vice/db/auth.pw</em>.
+</itemize>
+<tag><bf>vice-setup-rvm</bf></tag>
+<itemize>
+<item> Prompts for the RVM&lowbar;LOG device.
+<item> Prompts for the size of the RVM&lowbar;LOG device.
+<item> Prompts for the RVM&lowbar;DATA device.
+<item> Prompts for the RVM&lowbar;DATA size based on default values.
+These values must be type exactly right to be excepted.  For example,
+22M must be type exact "22M".
+<item> initializes the RVM&lowbar;LOG and RVM&lowbar;DATA devices
+based on the values given for RVM initialization.
+<item> Creates /vice/srv.conf with the values given for RVM.
+</itemize>
+<tag><bf>vice-setup-srvdir</bf></tag>
+This script sets up the data storage area for a Coda service.
+<itemize>
+<item> Prompts for the location a data storage area (default
+is /vicepa).
+<item> Creates the empty file <em>/vicepa/FTREEDB</em> which must exist for
+<bf>makeftree</bf> to function.
+<item> Creates <em>/vice/db/vicetab</em>.
+<item> Initializes The data storage area with <bf>makeftree</bf>.
+</itemize>
 
 </descrip>
 
@@ -73,9 +107,29 @@ please see the chapter ``Installing a Coda Server'' in the Coda Manual.
 <mansect>BUGS<p>
 Many of which the highlights are:
 <itemize>
+
+<item><bf>vice-setup-scm</bf> does not actually create the ROOTVOLUME
+it prompts for.  It only sets up the accounting files that point the
+server(s) to the root volume.  The actual volume must be created
+after the server is start for the first time with <bf>createvol&lowbar;rep</bf>.
 <item><bf>vice-setup-rvm</bf> will not warn you if run a second time after
 setting up an otherwise working server.  This essentially causes all
 data stored on the Coda server in question to be wiped out.
+
+<item><bf>vice-setup-user</bf> There is no flexibility in
+setting up an administrative user called anything other than
+``admin''.
+
+<item><bf>vice-setup-user</bf> There is a security hole in 
+<bf>initpw</bf> that could allow unauthorized Coda ``admin'' 
+access and/or denial of service if an unauthorized  user gains 
+root access to the SCM.
+
+<item><bf>vice-setup-user</bf> A user ``admin'' with a uid of 500
+must exist on each client that needs to have admin access to
+Coda.  There is no practical way to test for this.  The hard-coding 
+of UID 500 may cause additional trouble at some sites.
+
 <item><bf>vice-setup-rvm</bf> will add entries to <em>/vice/srv.conf</em>
 each time it is run without removing the previous contents.  If more than
 one line of server information is present in <em>srv.conf</em>, a 
@@ -83,16 +137,27 @@ one line of server information is present in <em>srv.conf</em>, a
 lines in <em>srv.conf</em> are treated as a single set of command line
 arguments to <bf>srv</bf>.  Essentially, the resulting error is made
 sufficiently out of context that it is difficult to spot.
-<item><bf>vice-setup</bf> does not determine the host ip address.
+
+<item><bf>vice-setup</bf> does not determine the host IP address.
+
 <item>Error messages returned by the scripts or the programs called
 from within the scripts do not jump out and bark out you.  Instead, 
 errors are easily missed while running the scripts and these errors 
 tend to come back and bite you later.
-<item>If a non-SCM server is being setup, you still must respond
+
+<item>NOT QUIT RIGHT: If a non-SCM server is being setup, you still must respond
 with tokens to <bf>vice-setup</bf> when asked.  However, <bf>auth2</bf>,
 <bf>updateclnt</bf> and <bf>updatesrv</bf> must be started manually
 on a non-SCM to suck down the real versions of these files from
 the actual SCM.  This error in logic can be misleading.
+
+<item>On non-SCM Servers, the following files on the SCM must be
+edited or copied from the SCM manually before running 
+<bf>vice-setup</bf>:<p>
+<em>/vice/db/services</em><p>
+<em>/vice/db/hosts</em><p>
+to complete the setup of a non-SCM server.
+
 </itemize>
 
 <mansect>FILES<p>
@@ -100,13 +165,20 @@ the actual SCM.  This error in logic can be misleading.
 <em>/vice/vol/VolumeList</em> VolumeList of the server.<p>
 <em>/vice/db/scm</em> The SCM hostname.<p>
 <em>/vice/hostname</em> The hosts hostname.<p>
-<em>/vice/srv.conf</em> The <bf>srv</bf> configuration file.
-
+<em>/vice/srv.conf</em> The <bf>srv</bf> configuration file.<p>
+<em>/vice/db/services</em><p>
+<em>/vice/db/ROOTVOLUME</em><p>
+<em>/vice/db/VSGDB</em><p>
+<em>/vice/db/vice.pfc</em><p>
+<em>/vice/db/vice.pdb</em><p>
+<p>
 And many more files are touched by these scripts than are listed here.
 
 <mansect>SEE ALSO<P>
 srv (8), rvmutl (8), rdsinit (8), auth2 (8), authmom (8), updatemon (8),
-updatesrv (8), updateclnt (8), startserver (8), srv.conf (8)
+updatesrv (8), updateclnt (8), startserver (8), srv.conf (8), createvol_rep (8),
+pwd2pdb (8), initpw (8), makeftree (8), vicetab (5)
+
 <p> 
 Coda Manual: ``Installing A Coda Server''<p>
 The RVM Manual<p>
