@@ -155,8 +155,8 @@ To reset it use zero for the <em>level</em> argument.  The rpc2 debug level is s
 
 <descrip>
 <tag><bf>setlogparms</bf> <em>&lt;volume-ID&gt;</em> 
-&lsqb;<em>&lt;reson&gt;</em> &lt;4 | 0&gt;&rsqb; 
-&lsqb;<em>&lt;logsize&gt;</em> <em>&lt;size&gt;</em>&rsqb;</tag> Turn on
+&lsqb;<em>reson</em> &lt;4 | 0&gt;&rsqb; 
+&lsqb;<em>logsize</em> <em>&lt;size&gt;</em>&rsqb;</tag> Turn on
 resolution or change the log size for a volume.  The volume ID can be either
 the replicated ID or the non-replicated ID.  Resolution is turned on by
 specifying 4 after <em>reson</em> and can be turned off by specifying 0.  The
