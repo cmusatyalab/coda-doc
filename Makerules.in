@@ -73,7 +73,7 @@ distclean:
 	sgml2html $?
 
 %.ps: %.sgml
-	sgml2latex -p $?
+	sgml2latex --output=ps $?
 
 %.sgml.cntr: %.sgml
 	  $(create_container) $?

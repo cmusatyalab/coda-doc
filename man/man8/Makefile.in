@@ -25,10 +25,9 @@ MANPAGEFILES = au.8 \
                pwd2pdb.8 \
                readdump.8 \
                replay.8 \
-               srv.8 \
+               codasrv.8 \
                startserver.8 \
                updateclnt.8 \
-               updatemon.8 \
                updatesrv.8 \
                venus.8 \
                volutil.8 \

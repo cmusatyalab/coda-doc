@@ -1,11 +1,12 @@
-
 <manpage TITLE="repair" SECTNUM=1>
 <mansect>NAME 
  <P>repair - repair conflicts in the Coda file system
 
 
 <mansect>SYNOPSIS<P>
-repair<P>
+<bf>repair</bf> &lsqb;-d&rsqb;<p>
+<bf>repair</bf> &lsqb;-allowclear&rsqb;<p>
+<bf>repair</bf> &lsqb;&lt;object_in_conflict&gt; &lt;fix_file&gt; &lt;repair_options&gt;&rsqb;<p> 
 
 
 <mansect>DESCRIPTION
@@ -16,16 +17,24 @@ Server-server conflicts are conflicting mutations performed on
 partitioned servers that can not be automatically resolved.
 Local-global conflicts are caused by mutations performed on a
 disconnected client that are in conflict with the global server state.
-
+<p>
 <bf>Repair</bf> uses the <em>ci</em> command interpreter to present its user
-interface. Several instructions may appear on a single line separated
+interface or <tt>repair</tt> commands may be invoked from the command line. 
+Several instructions may appear on a single line separated
 by semicolons. You can abbreviate command, variable, and help topic
 names. To send output into a file, end the command line with
-&gt;filename.
-
-To use the repair tool, first type <bf>repair</bf> and then use the
-following commands to start and terminate a repair session or obtain
-help information:
+&gt; filename.
+<p>
+To use the repair tool interactively, type <bf>repair</bf> at the command
+prompt.
+<p>
+Server-Server conflicts can be repaired from the command line without 
+entering interactive mode.   This is useful if you need to repair many 
+conflicts within a volume at a time and wish to write a shell script.  
+Please see the <bf>EXAMPLES</bf> section for examples on 
+invoking complete repair sequences from the command line.
+<p>
+A description of the <bf>repair</bf> command follows:
 
 <descrip>
 <tag><bf>beginrepair</bf> <em>object</em></tag> verifies that
@@ -34,10 +43,12 @@ indicate whether the current repair session is for server-server
 conflict or local-global conflict.<P> For a server-server repair
 session, this command locks the corresponding volume and and mounts
 its individual replicas read-only. It will inform the users to only
-use the <bf>comparedirs</bf>, <bf>dorepair</bf> and <bf>removeinc</bf> commands to
-repair the conflict.<P> For a local-global repair session, both local
+use the <bf>comparedirs</bf>, <bf>dorepair</bf> and <bf>removeinc</bf> 
+commands to repair the conflict.<P> For a local-global repair session, 
+both local
 and global replicas of <em>object</em> are visible at
-<em>object/local</em> (read-only) and <em>object/global</em> (mutable and serving
+<em>object/local</em> (read-only) and <em>object/global</em> 
+(mutable and serving
 as the workspace for storing the repair result for <em>object</em>). You
 need to iterate through the current sessions <em>local-mutations-list</em>
 containing all the local updates to <em>object</em> and its descendants.
@@ -55,7 +66,7 @@ on the relevant global replicas. To speed up the iteration, the
 <em>local-mutations-list</em> is exhausted or the first replay failure.
 Similarly, the <bf>discardalllocal</bf> command repeats <bf>discardlocal</bf>
 until exhausting the <em>local-mutations-list</em>. You can use external
-tools such as <em>emacs</em> to make direct update on needed replicas under
+tools such as <em>emacs</em> to make direct updates on needed replicas under
 <em>object/global</em>. Use the <bf>quit</bf> command to either commit or abort
 the session.
 <P></descrip>
@@ -78,7 +89,11 @@ as if this repair session has never happened.
 Use the following commands to repair a server-server conflict:
 
 <descrip>
-<tag><bf>comparedirs</bf> <em>object</em> <em>fixfile</em></tag> compares
+<tag><bf>comparedirs</bf> <em>object</em> <em>fixfile</em> 
+<em>&lsqb;-acl &lt;user&gt; &lt;rwlikda &gt; &rsqb;</em>
+<em>&lsqb;-mode &lt;newmode&gt; &rsqb;</em>
+<em>&lsqb;-owner &lt;username&gt; &rsqb;</em>
+</tag> compares
 the mounted read-only replicas of a directory in conflict and prints
 the repair commands in fixfile to make the replicas identical. To
 print out the repair commands on your terminal give stdout as the
@@ -141,6 +156,17 @@ be removed as long as its replicas are identical. If the owner or the
 ACL of the directory replicas are different, you have to repair the
 conflict first.
 <P></descrip>
+<descrip>
+<tag><bf>clearinc</bf> <em>object</em></tag> compares the mounted
+read only replicas of a directory in conflict and if the replicas are
+identical it clears the inconsistency flag of the replicas. Otherwise
+it will inform you about the inequality of the replicas. You should
+run the <bf>comparedirs</bf> command to find out the cause of conflict.
+This command should be used only for directories. Files and symbolic
+links are cleared of their inconsistency with the <bf>dorepair</bf>
+command.
+<P>
+</descrip>
 
 The following commands are used only for repairing local-global
 conflicts: 
@@ -235,16 +261,6 @@ been done earlier on this object (or on another object in the same
 volume).
 <P></descrip>
 
-<descrip>
-<tag><bf>clearinc</bf> <em>object</em></tag> compares the mounted
-read only replicas of a directory in conflict and if the replicas are
-identical it clears the inconsistency flag of the replicas. Otherwise
-it will inform you about the inequality of the replicas. You should
-run the <bf>comparedirs</bf> command to find out the cause of conflict.
-This command should be used only for directories. Files and symbolic
-links are cleared of their inconsistency with the <bf>dorepair</bf>
-command.
-<P></descrip>
 
 <descrip>
 <tag><bf>unlockvolume</bf> <em>pathname</em></tag> tells Venus to unlock
@@ -257,8 +273,24 @@ example, if your aborted repair occurred on another workstation, or if
 you were not repairing the volume in the first place.
 <P></descrip>
 
+<mansect>EXAMPLES<P>
+<p>
+This will cause repair to examine the object "<tt>common</tt>",
+generate a fix file for it and in addition to the contents of the
+fix file, set the acl's for hmpierce on all of the replica.
 
-
+<tscreen><verb>
+  repair common /tmp/fix -acl hmpierce all
+</verb></tscreen>
+<p>
+The same repair would look like this in interactive mode:
+<tscreen><verb>
+repair> beginrepair common
+repair> comparedirs common /tmp/fix -acl hmpierce all
+repair> dorepair common /tmp/fix 
+repair> endrepair
+repair> quit
+</verb></tscreen>
 
 <mansect>SEE ALSO<P>
 ci (3)
@@ -273,5 +305,7 @@ Puneet Kumar, 1991, Substantially revised
 Joshua Raiff, 1993, Created man page
 
 Qi Lu, 1995, Added local-global repair commands and revised man page
+
+Henry M. Pierce, 1998, updated for command line options.
 
 </manpage>

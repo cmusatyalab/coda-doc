@@ -358,7 +358,7 @@ trace-driven simulator, Venus requires the following files:
 </verb></tscreen>
 If you don't intend to use Venus as a simulator, you could construct a dummy <tt>libtrace.a</tt> with
 empty routines to avoid unresolved references.   You do need <tt>tracelib.h</tt> though.
-<tag/Plumber/ <tt>malloc</tt> The Coda makefiles allow you to build versions of <tt>venus</tt> and <tt>srv</tt> 
+<tag/Plumber/ <tt>malloc</tt> The Coda makefiles allow you to build versions of <tt>venus</tt> and <tt>codasrv</tt> 
 that use a special <tt>malloc</tt> to help detect memory leaks.  The following files are needed
 for this:
 <tscreen><verb>

@@ -203,14 +203,14 @@ rvm_offset_t;
    implemented as function call -- or simple add if 
    machine has 64-bit integer operations */
 #define RVM_ADD_OFFSETS(x,y) \
-    rvm_add_offsets(&(x),&(y))
+    rvm_add_offsets(&amp;(x),&amp;(y))
 
 /* add rvm_length to rvm_offset; return result (length+offset)
    as rvm_offset_t
    implemented as function call -- or simple add if
    machine has 64-bit integer operations */
 #define RVM_ADD_LENGTH_TO_OFFSET(x,y) \
-    rvm_add_length_to_offset(&(x),(y))
+    rvm_add_length_to_offset(&amp;(x),(y))
 
 /* add rvm_length_t to vm address; returns address (char *)
    always implemented as simple add */
@@ -221,14 +221,14 @@ rvm_offset_t;
    implemented as function call -- or simple subtract if
    machine has 64-bit integer operations */
 #define RVM_SUB_OFFSETS(x,y) \
-    rvm_sub_offsets(&(x),&(y))
+    rvm_sub_offsets(&amp;(x),&amp;(y))
 
 /* subtract rvm_length from rvm_offset; return result (offset-length)
    as rvm_offset_t
    implemented as function call or simple subtract if
    machine has 64-bit integer operations  */
 #define RVM_SUB_LENGTH_FROM_OFFSET(x,y) \
-    rvm_sub_length_from_offset(&(x),(y))
+    rvm_sub_length_from_offset(&amp;(x),(y))
 
 /* subtract rvm_length_t from vm address; returns address (char *)
    always implemented as simple subtract */
@@ -273,11 +273,11 @@ rvm_offset_t;
 
 /* return rvm_offset x rounded up to next integral page-size offset */
 #define RVM_ROUND_OFFSET_UP_TO_PAGE_SIZE(x)  \
-    rvm_rnd_offset_up_to_page(&(x))
+    rvm_rnd_offset_up_to_page(&amp;(x))
 
 /* return rvm_offset x rounded down to integral page-size offset */
 #define RVM_ROUND_OFFSET_DOWN_TO_PAGE_SIZE(x)  \
-    rvm_rnd_offset_dn_to_page(&(x))
+    rvm_rnd_offset_dn_to_page(&amp;(x))
 </verb>
 &newpage;
 <verb>

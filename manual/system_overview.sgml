@@ -35,9 +35,9 @@ below.
 
 <table>
 <tabular ca=ll>
-<bf>File Server Process</bf>| The <em>srv</em> process interacts with the venus
-process on clients.  Together they fulfill user requests for shared data stored 
-on the server.   When started, the server process will salvage the
+<bf>File Server Process</bf>| The <em>codasrv</em> process interacts with 
+the venus process on clients.  Together they fulfill user requests for shared 
+data stored on the server.   When started, the server process will salvage the
 file system.   The presence of a file called <tt>SHUTDOWN</tt> in the 
 <tt>/vice/srv</tt> directory indicates that the server process
 exited normally. @
@@ -47,8 +47,8 @@ if the password is correct.   However, passwords may only be changed
 at the SCM.  Hence,  
 the password database is read-only replicated to all servers and the SCM 
 maintains the read-write replica.  Changes to the password file are 
-updated automatically through the <em>update</em> process described below. 
-If auth2 exits for any reason, the <em>authmon</em> process restarts it. 
+updated automatically through the <em>updateclnt/updatesrv</em> processes
+described below.  
 On all servers (except the SCM), auth2 is invoked with the <em>-chk</em> 
 option.@
 <bf>Update Client Process</bf>|The <em>updateclnt</em> process works in conjuction
@@ -58,9 +58,7 @@ corresponding read-write copy.  The updateclnt process checks with the
 updatesrv process on the SCM
 periodically to ensure that the read-only copy on this server is
 the latest copy.  Thus, when the read-write copy is updated, the read-only
-copies will be automatically updated after some delay.  If the 
-updateclnt or the updatesrv processes exit for any reason, the 
-<em>updatemon</em> process restarts them.
+copies will be automatically updated after some delay.  
 </tabular>
 <caption><label id="ServeProc"> Server Processes </caption>
 </table>
@@ -78,10 +76,8 @@ running file server.
     4 ?  S <   0:00  (device server)
     5 ?  S     0:00  (exception hdlr)
     6 ?  SW    0:00 /etc/mach_init -a
-  150 ?  SW    0:00 authmon
-  152 ?  SW    0:00 UpdateMonitor       -s -p /vice/db
+  152 ?  SW    0:00 updatesrv       -s -p /vice/db
   156 ?  SW    0:00 auth2
-  165 ?  S     0:35 /vice/bin/updatemon -s -p /vice/db
   179 ?  SW    3:19 /etc/update
   182 ?  SW    0:00 /etc/cron
   190 ?  SW    0:07 /usr/cs/etc/nanny -init /usr/cs/etc/nanny.config
@@ -91,7 +87,7 @@ running file server.
   205 ?  SW    0:00 /usr/cs/lib/lpd -l
   206 ?  SW    0:00 RFS Listener.
  1217 ?  SW    0:00 sh /vice/bin/startserver
- 1222 ?  S     6:56 srv           -time -maxworktime 15 -nodumpvm -trunc 1 -rvm
+ 1222 ?  S     6:56 codasrv           -time -maxworktime 15 -nodumpvm -trunc 1 -rvm
 /dev/rrz3c /dev/rrz0h 69206016
  1358 t0 R     0:00 ps axww
 </verb>

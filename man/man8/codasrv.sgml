@@ -1,12 +1,12 @@
 
-<manpage TITLE="srv" SECTNUM=8>
+<manpage TITLE="codasrv" SECTNUM=8>
 <mansect>NAME 
- <P>srv - CFS file server
+ <P>codasrv - CFS file server
 
 
 
 <mansect>SYNOPSIS<P>
-<bf>srv</bf> &lsqb;-d (debug level)&rsqb; &lsqb;-p (number of processes)&rsqb; &lsqb;-b (buffers)&rsqb; <P>
+<bf>codasrv</bf> &lsqb;-d (debug level)&rsqb; &lsqb;-p (number of processes)&rsqb; &lsqb;-b (buffers)&rsqb; <P>
       &lsqb;-l (large vnodes)&rsqb; &lsqb;-s (small vnodes)&rsqb; &lsqb;-k (stack size)&rsqb; <P>
       &lsqb;-w (wait interval)&rsqb; &lsqb;-r (RPC retry count)&rsqb; <P>
       &lsqb;-o (RPC timeout)&rsqb; &lsqb;-c (check interval)&rsqb; <P>
@@ -18,14 +18,14 @@
 
 
 <mansect>DESCRIPTION<P>
-<bf>srv</bf> is the CFS <em>vice</em> file server.  It services requests from
+<bf>codasrv</bf> is the CFS <em>vice</em> file server.  It services requests from
 client machines <bf>venus</bf> processes and maintains the file system.
 
 <bf>Srv</bf>s command line options are:
 <descrip>
 <tag><bf>-d</bf> <em>&lt;debug level&gt;</em></tag>Sets the internal
 debugging level to <em>&lt;debug level&gt;</em>.  This controls the amount of
-debugging output <bf>srv</bf> will generate.
+debugging output <bf>codasrv</bf> will generate.
 <P></descrip>
 
 <descrip>
@@ -36,7 +36,7 @@ requests.
 
 <descrip>
 <tag><bf>-b</bf> <em>buffers</em></tag>Sets the number of internal
-buffers used by <bf>srv</bf> for the dir package.
+buffers used by <bf>codasrv</bf> for the dir package.
 <P></descrip>
 
 <descrip>

@@ -180,7 +180,6 @@ backup.sh
 bldvldb.sh
 merge
 updateclnt
-updatemon
 updatesrv
 updfetch
 tape.pl

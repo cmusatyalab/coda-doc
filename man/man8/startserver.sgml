@@ -16,7 +16,7 @@ for starting the server with the same configuration every time its run.
 
 
 <mansect>FILES<P>
-<em>/vice/bin/srv</em>
+<em>codasrv</em>
 
 <em>/vice/srv/SrvErr</em>
 
@@ -25,7 +25,7 @@ for starting the server with the same configuration every time its run.
 <em>/vice/srv/srv.conf</em>
 
 <mansect>SEE ALSO<P>
-srv (8)
+codasrv (8)
 
 
 <mansect>AUTHOR<P>

@@ -334,7 +334,7 @@ The <bf>fsck</bf> used here a CMU has been modified so that it does not
 require every inode to be referenced by a <footnote><bf>Warning</bf>: the
 vanilla <bf>fsck</bf> must not be used on a Coda file system partition as
 the Coda files will be thrown away.</footnote>  Coda accesses inode directly.
-After the server machine is booted, the <bf>srv</bf> process starts and RVM
+After the server machine is booted, the <bf>codasrv</bf> process starts and RVM
 recovers the servers committed state.  The Coda salvager then
 reconciles the results from <bf>fsck</bf> and the salvager.
 
