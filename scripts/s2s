@@ -28,5 +28,7 @@ _,,&lowbar;,,&cons
 @BeginProse,@EndProse\(\),,,&cons
 @comment&lcub;,&rcub;,<!--,-->,&cons
 @blankspace\(,\),<!--,-->,&cons
+@goto\(,\),<!--,-->,&cons
+@begin\(verbatim\),@end\(verbatim\),<tscreen><verb>,</verb></tscreen>,&cons
 # ATSIGN,,@,&cons
 enough

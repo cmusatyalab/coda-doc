@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-$TABLE="/afs/cs/project/coda-braam/codadoc/scripts/s2s";
+$TABLE="/afs/cs/project/coda-doc/scripts/s2s";
 while ( <STDIN> ) {
     $text = $text . $_;
 }
