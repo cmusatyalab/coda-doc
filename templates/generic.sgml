@@ -1,0 +1,21 @@
+<!doctype linuxdoc SYSTEM  [
+
+<!entity % latex "INCLUDE">
+<!entity % html  "IGNORE">
+<![ %latex; [ <!entity newpage PI "\newpage"> ]]>
+<![ %html; [ <!entity newpage PI "<HR>"> ]]>
+<!entity newpage PI "">
+]>
+
+<article>
+
+<title>
+<author>
+<date>
+
+<sect>  <P> 
+
+<sect1> <P>
+
+
+</article>
