@@ -3,32 +3,36 @@
 
 1.  Building the kernel
 
-The Coda kernel files are in the NetBSD -current kernel sources.  All
+The Coda kernel files are in the FreeBSD -current kernel sources.  All
 you need to do to get a Coda capable kernel is to build a
-configuration that includes Coda.  The lines to enable Coda may not be
-in your configuration.  They should be in GENERIC, though they may be
-turned off.  Enable them and copy them to your configuration file.
-They should look like.
-	file-system     CODA                     # Coda File System
-	pseudo-device   vcoda            4       # coda minicache <-> venus comm.
+configuration that includes Coda.  The lines to enable Coda are not
+in your configuration.  There are several Coda lines in LINT:
+In the i386/conf directory try:
+	grep -i coda LINT
+It currently gives:
+# Coda stuff:
+options		CODA			#CODA filesystem.
+pseudo-device	vcoda	4		#coda minicache <-> venus comm.
+Add these lines to the GENERIC kernel configuration or your standard personal
+configuration.  You might also want to turn on DDB and BPF.
 
 I'll assume you call the new config file CODA.  You type:
 	config CODA
 
-Then cd to the build area and do a make
-
-	cd ../compile/CODA
+Then cd to the build area and do a make:
+	cd ../../compile/CODA
 	make
 
-Then just copy netbsd to root.
+Finally as root install the kernel with:
+	make install 
 
 
 2. Building Coda.
 
 a. The Package Way
-	cd /usr/pkgsrc/net/coda_client
+	cd /usr/ports/net/coda_client
 		make install
-	cd /usr/pkgsrc/net/coda_server
+	cd /usr/ports/net/coda_server
 		make install
 
 NOTE: The client and server need about 85Meg for the work area and another 15Meg
@@ -53,7 +57,6 @@ installed in /usr/coda/coda-4.6.5.
 
 Finally, type:
 	gmake coda
-
 assuming you named the gnu make, gmake.
 
 To install the client suite type:

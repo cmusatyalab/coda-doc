@@ -19,52 +19,43 @@ the software check out:
 
 I. Coda is:
 
-	precompiled packages:
+	packages:
 		coda-client-4.6.5.1.tgz
 		coda-doc-4.6.5.3.tgz
 		coda-intro-4.6.5.1.tgz
 		coda-server-4.6.5.1.tgz
 
-	packages:
-		/usr/pkgsrc/net/coda_client
-		/usr/pkgsrc/net/coda_doc
-		/usr/pkgsrc/net/coda_intro
-		/usr/pkgsrc/net/coda_server
+	ports:
+		/usr/ports/net/coda_client
+		/usr/ports/net/coda_doc
+		/usr/ports/net/coda_intro
+		/usr/ports/net/coda_server
 
 	source/distfiles:
 		coda-4.6.5.tgz
 		coda-doc-4.6.5-3.tgz
 		coda-intro-4.6.5-1.tgz
-	misc:
-		pkg_add
 
+II. Obtaining Packages
 
-NOTE:
-pkg_add PROVIDED WITH -CURRENT HAD BEEN BROKEN AND MAY NOT INSTALL
-EITHER THE CLIENT PACKAGE OR THE SERVER PACKAGE.
-pkg_add from 1.3 works correctly.  We have provided a copy of the old
-pkg_add in the ftp area.
-
-II. Obtaining Pre-compiled Packages
-
-You may obtain the pre-compiled packages from the Coda site or other
-mirrors:
+As of this writing, only aout packages have been built and tested.
+You may obtain the compiled packages from the Coda site or other mirrors:
 
 Coda-intro is a quick get started guide to using Coda.
-	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/current/i386/coda-intro-4.6.5.1.tgz
+	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-aout/i386/coda-intro-4.6.5.1.tgz
 
 The Coda client is needed by a machine to use the Coda filesystem.
 Aprox Size = 4,935,327
-	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/current/i386/coda-client-4.6.5.1.tgz
+	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-aout/i386/coda-client-4.6.5.1.tgz
 
 The Coda server is needed by a machine to create and serve the filesystem to
 client machines.
 Aprox Size = 6,803,836
-	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/current/i386/coda-server-4.6.5.1.tgz
+	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-aout/i386/coda-server-4.6.5.1.tgz
 
 Finally, we have a wealth of documentation about Coda and need to generate still more.
 Aprox Size = 1,543,686
-	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/current/i386/coda-doc-4.6.5.3.tgz
+	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-aout/i386/coda-doc-4.6.5.3.tgz
 
 Note:
 We have observed that the packages may not install and `pkg_add`, in
@@ -72,13 +63,13 @@ fact, will exit without complaint.  Please make sure you have at least
 25MB of free space available in /var/tmp to install the each package.
 
 III. Generating Packages the Hard Way
-	cd /usr/pkgsrc/net/coda_intro
+	cd /usr/ports/net/coda_intro
 		make package
-	cd /usr/pkgsrc/net/coda_client
+	cd /usr/ports/net/coda_client
 		make package
-	cd /usr/pkgsrc/net/coda_server
+	cd /usr/ports/net/coda_server
 		make package
-	cd /usr/pkgsrc/net/coda_doc
+	cd /usr/ports/net/coda_doc
 		make package
 
 NOTE: The client and server need about 85Meg for the work area and another 15Meg
@@ -91,9 +82,9 @@ The Coda client needs a special kernel while the Coda server does not.
 This kernel has support for the Coda VFS layer.  The Coda kernel VFS
 layer redirects fs operations to the user level Coda client program.
 You should make sure that your kernel or GENERIC (if that's what you
-use) was compiled with "file-system CODA" and "pseudo-device vcoda"
+use) was compiled with "options CODA" and "pseudo-device vcoda"
 enabled.  Alternatively, you may obtain a Coda lkm from the Coda site:
-	cd /usr/lkm
-	ftp ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/current/i386/coda-1_3H.o
+	cd /lkm
+	ftp ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-aout/i386/coda-aout.o
 Then you would install the lkm with:
-	modload -v -e coda_lkmentry -o /var/run/lkm.coda /usr/lkm/coda-1_3H.o
+	modload -v -e coda_mod -o /var/run/lkm.coda /usr/lkm/coda-aout.o
