@@ -1,0 +1,38 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="ctokens" SECTNUM=1>
+<sect1>NAME 
+ <P>ctokens - list all tokens
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>ctokens</bf><P>
+
+
+<sect1>DESCRIPTION<P>
+The <bf>ctokens</bf> command enables users to query 
+<em>Venus</em> for information about the set of authentication tokens it
+holds for the user.  
+The <bf>ctoken</bf> command prints out the ID of the current user and
+whether or not the user is currently authenticated.
+
+
+
+<sect1>BUGS<P>
+If authenticated as another user, <bf>ctokens</bf> will say that you own
+the token.
+
+
+<sect1>SEE ALSO<P>
+clog (1), login (1), su (1), cunlog (1)
+
+
+<sect1>author<P>
+1987, Adapted from AFS-2s unlog
+
+David C. Steere, 1990, Created man page
+
+
+</manpage>

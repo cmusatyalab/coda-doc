@@ -1,0 +1,37 @@
+#!/bin/sh
+
+if [ $# != 2 ]; then
+	echo "Usage $0 here targetdir"
+	exit 1
+fi
+
+if [ ! -d $1 ]; then
+	echo "$1 is not a directory."
+	exit 1
+fi
+
+
+if [ ! -d $2 ]; then
+	echo "$2 is not a directory."
+	exit 1
+fi
+
+target=$2
+here=$1
+
+cd $here
+for i in 1 2 3 4 5 6 7 8 ; do
+	if [ -d man$i ]; then
+		dir=man$i
+		cd $dir
+		if [ ! -d ${target}/man$i ]; then mkdir ${target}/man$i; fi
+		for m in *sgml; do
+			makeman $m ${target}/$dir $i
+		done
+		cd ..
+	fi
+done
+
+
+
+

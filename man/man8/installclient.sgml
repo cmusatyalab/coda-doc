@@ -1,0 +1,29 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="installclient" SECTNUM=8>
+<sect1>NAME 
+ <P>installclient - client installation script
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>installclient</bf>	&lsqb;install | clean | update&rsqb;<P>
+
+
+<sect1>DESCRIPTION<P>
+The <bf>installclient</bf> script automates much of the installation of Coda on
+client workstations.  The <bf>install</bf> option creates necessary directories
+and installs the Coda binaries in the proper places within them.  In 
+addition, this option creates some devices necessary for Coda to run.
+The <bf>clean</bf> option removes the Coda directories on the client
+workstation.  The <bf>update</bf> option updates the Coda binaries from those
+found in the installation directory.
+
+
+<sect1>AUTHOR<P>
+Maria Ebling Okasaki
+
+
+
+</manpage>

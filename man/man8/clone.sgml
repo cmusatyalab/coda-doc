@@ -1,0 +1,52 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="clone" SECTNUM=8>
+<sect1>NAME 
+ <P>clone - Create a read only clone of a read write volume.
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>clone</bf> &lt;volume-name&gt; &lt;new-volume-name&gt;
+
+
+<sect1>DESCRIPTION<P>
+<bf>clone</bf> creates a read only clone of the volume <em>&lt;volume-name&gt;</em>.
+The vnodes associated with <em>volume-name</em> are actually copied, but
+the inodes are marked copy-on-write.  The name on the read only volume
+will be <em>&lt;new-volume-name&gt;</em>.  <bf>clone</bf> expects the following
+arguments:
+
+<descrip>
+<tag><bf>&lt;volume-name&gt;</bf></tag>Name of volume to replicate.
+<P></descrip>
+
+<descrip>
+<tag><bf>&lt;new-volume-name&gt;</bf></tag>Name of new read only
+volume.
+<P></descrip>
+
+
+
+
+<sect1>DIAGNOSTICS<P>
+<bf>clone</bf> must be run as root.
+
+Must be run on a Coda server.
+
+
+<sect1>FILES<P>
+<em>/vice/vol/AllVolumes</em>
+
+
+<sect1>SEE ALSO<P>
+bldvldb (8), createvol (8), createvol&lowbar;rep (8), volutil (8)
+
+
+<sect1>AUTHOR<P>
+David Steere, 1991, Created
+
+Joshua Raiff, 1993, Created man page
+
+
+</manpage>

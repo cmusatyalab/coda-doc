@@ -1,0 +1,38 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="authmon" SECTNUM=8>
+<sect1>NAME 
+ <P>authmon - authentication monitor
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>authmon</bf> &lsqb;-d chdir&rsqb; &lsqb;auth2 options&rsqb;<P>
+
+
+<sect1>DESCRIPTION<P>
+<bf>authmon</bf> is the authentication server watchdog process.  If
+<em>auth2</em> dies, <bf>authmon</bf> will restart it automatically.
+
+<bf>authmon</bf> supports the following command line arguments:
+<descrip>
+<tag><bf>-d</bf> <em>chdir</em></tag>Specifies where <bf>authmon</bf>
+should run from, and what directory to put log files in.
+<P></descrip>
+
+<descrip>
+<tag><bf>auth2 options</bf></tag>Valid <em>auth2</em> command line
+options.  These options will be passed on to <em>auth2</em> when it is started.
+<P></descrip>
+
+
+<sect1>SEE ALSO<P>
+auth2 (8)
+
+
+<sect1>AUTHOR<P>
+1987, Adpapted from AFS-2.
+
+Joshua Raiff, 1993, Created man page.
+
+</manpage>

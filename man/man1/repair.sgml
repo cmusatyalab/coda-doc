@@ -1,0 +1,278 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="repair" SECTNUM=1>
+<sect1>NAME 
+ <P>repair - repair conflicts in the Coda file system
+
+
+
+<sect1>SYNOPSIS<P>
+repair<P>
+
+
+<sect1>DESCRIPTION<P> The Coda repair tool allows you to manually
+resolve two kinds of conflict resulted from partitioned updates.
+Server-server conflicts are conflicting mutations performed on
+partitioned servers that can not be automatically resolved.
+Local-global conflicts are caused by mutations performed on a
+disconnected client that are in conflict with the global server state.
+
+<bf>Repair</bf> uses the <em>ci</em> command interpreter to present its user
+interface. Several instructions may appear on a single line separated
+by semicolons. You can abbreviate command, variable, and help topic
+names. To send output into a file, end the command line with
+&gt;filename.
+
+To use the repair tool, first type <bf>repair</bf> and then use the
+following commands to start and terminate a repair session or obtain
+help information:
+
+<descrip>
+<tag><bf>beginrepair</bf> <em>object</em></tag> verifies that
+<em>object</em> is indeed in conflict. It will print out messages to
+indicate whether the current repair session is for server-server
+conflict or local-global conflict.<P> For a server-server repair
+session, this command locks the corresponding volume and and mounts
+its individual replicas read-only. It will inform the users to only
+use the <bf>comparedirs</bf>, <bf>dorepair</bf> and <bf>removeinc</bf> commands to
+repair the conflict.<P> For a local-global repair session, both local
+and global replicas of <em>object</em> are visible at
+<em>object/local</em> (read-only) and <em>object/global</em> (mutable and serving
+as the workspace for storing the repair result for <em>object</em>). You
+need to iterate through the current sessions <em>local-mutations-list</em>
+containing all the local updates to <em>object</em> and its descendants.
+Each operation in <em>local-mutations-list</em> must be accounted for and
+Venus maintains the <em>current-mutation</em> being iterated. Use the
+<bf>checklocal</bf> command to find out the conflict between the
+<em>current-mutation</em> and the server state. Note that not all local
+mutations are necessarily in conflict, and you can use the
+<bf>listlocal</bf> command to see all the operations in
+<em>local-mutations-list</em>. You can advance the iteration to the next
+operation using either the <bf>preservelocal</bf> or the <bf>discardlocal</bf>
+command with the former replaying the <em>current-mutation</em> operation
+on the relevant global replicas. To speed up the iteration, the
+<bf>preservealllocal</bf> command repeats <bf>preservelocal</bf> until the
+<em>local-mutations-list</em> is exhausted or the first replay failure.
+Similarly, the <bf>discardalllocal</bf> command repeats <bf>discardlocal</bf>
+until exhausting the <em>local-mutations-list</em>. You can use external
+tools such as <em>emacs</em> to make direct update on needed replicas under
+<em>object/global</em>. Use the <bf>quit</bf> command to either commit or abort
+the session.
+<P></descrip>
+
+<descrip>
+<tag><bf>quit</bf></tag> If the current session is repairing a
+server-server conflict, this command releases all the volume-level
+locks and causes the repair tool to return to the shell. If the
+current session is repairing a local-global conflict, this command
+asks you whether to commit or abort the repair session. If you answer
+yes, the mutations performed on the relevant global replicas will be
+committed to the servers. Otherwise, the repair result will be aborted
+as if this repair session has never happened.
+<P></descrip>
+
+<descrip>
+<tag><bf>help</bf></tag> prints out a help message.
+<P></descrip>
+
+Use the following commands to repair a server-server conflict:
+
+<descrip>
+<tag><bf>comparedirs</bf> <em>object</em> <em>fixfile</em></tag> compares
+the mounted read-only replicas of a directory in conflict and prints
+the repair commands in fixfile to make the replicas identical. To
+print out the repair commands on your terminal give stdout as the
+pathname for fixfile. Compensating actions for Name/Name conflicts and
+Update/Update conflicts are not given. The user is only told about
+their existence and required to edit the fixfile manually. You should
+have already done a <bf>beginrepair</bf> on <em>object</em> and this command
+works only if <em>object</em> is a directory.
+<P></descrip>
+
+<descrip>
+<tag><bf>dorepair</bf> <em>object</em> <em>fixfile</em></tag> does the actual
+repair of an object.  If the  repair succeeds,  each accessible replica will
+be marked consistent. You will be prompted for the arguments if they are
+missing, and  will be  asked  to confirm the repair.  You should have already
+done a <bf>beginrepair</bf> on this object (or on on some other object in
+this volume.). If <em>object</em> is a file or symbolic link,
+<em>fixfile</em> must  provide its new  contents.  If <em>object</em> is a
+directory, <em>fixfile</em> must provide a sequence of directory repair
+commands for each replica.  The format of fixfile for directories is as
+follows:
+<P></descrip>
+<tscreen><verb>
+    replica &lt;servername&gt; &lt;id of replica1&gt;
+        &lt;repair commands for replica1&gt;
+    replica &lt;servername&gt; &lt;id of replica2&gt;
+         &lt;repair commands for  replica2&gt;
+    and so on
+</verb></tscreen>
+Repair commands are given one per line.  Blank lines are ok.  <em>id of
+replica1</em>, <em>id of replica2</em>,  etc.  are  numbers  that identify
+each  replica.  These are the same as the volume  ids  of read-write volumes
+corresponding to a replicated volume.  The volume ids can be obtained by
+doing an ls on the inconsistent object, after the <bf>beginrepair</bf>
+command has succeeded.  The directory repair commands are:
+<tscreen><verb>
+  createf &lt;filename&gt;    &lt;fid.0&gt; &lt;fid.1&gt; &lt;fid.2&gt;
+  creates &lt;symlinkname&gt; &lt;fid.0&gt; &lt;fid.1&gt; &lt;fid.2&gt;
+  createl &lt;linkname&gt;    &lt;fid.0&gt; &lt;fid.1&gt; &lt;fid.2&gt;
+  created &lt;dirname&gt;     &lt;fid.0&gt; &lt;fid.1&gt; &lt;fid.2&gt;
+  removefsl  &lt;filename or symlinkname or linkname&gt;
+  removed  &lt;dirname&gt;
+  mv &lt;srcname&gt; &lt;tgtname&gt; &lt;src &lt;fid.0&gt;&lt;fid.1&gt;&lt;fid.2&gt;&gt; 
+                         &lt;target &lt;fid.1&gt; &lt;fid.2&gt;&gt;
+  setacl  &lt;username&gt; &lsqb;rwlikda&rsqb;
+  delacl  &lt;username&gt;
+  setmode &lt;newmode&gt;
+  setowner &lt;new owner name&gt;
+  setmtime &lt;new modified time&gt;
+</verb></tscreen>
+Note that for the <bf>setacl</bf> command, the short form
+access rights of <bf>all</bf> and <bf>none</bf> can also be used.
+
+<descrip>
+<tag><bf>removeinc</bf> <em>object</em></tag> removes the
+inconsistent <em>object</em> if it is file or a symbolic link. If the
+object is a directory, all the descendants of the object will be
+removed in all the accessible replicas and the directory itself will
+be removed as long as its replicas are identical. If the owner or the
+ACL of the directory replicas are different, you have to repair the
+conflict first.
+<P></descrip>
+
+The following commands are used only for repairing local-global
+conflicts: 
+
+<descrip>
+<tag><bf>checklocal</bf></tag> checks to see if the
+<em>current-mutation</em> being iterated by the current local-global repair
+session is in conflict with the server state. It displays the operator
+and operand (s) of the <em>current-mutation</em> operation and indicates
+whether it is in conflict with the relevant server replicas. If it is
+in conflict, a brief reason of the conflict is given. Note that this
+command does not advance the iteration of the
+<em>local-mutations-list</em>.
+<P></descrip>
+
+<descrip>
+<tag><bf>discardlocal</bf></tag> simply advances the iteration
+of the <em>local-mutations-list</em> of the current local-global repair
+session to the next operation. Use this command when the user does not
+want the <em>current-mutation</em> operation to have any effect on the
+repair result.
+<P></descrip>
+
+<descrip>
+<tag><bf>preservelocal</bf></tag> tries to replay the
+<em>current-mutation</em> of the current local-global repair session on the
+relevant global replicas. In other words, it will try to preserve the effect
+of the <em>current mutation</em> in the repair result. If the replay
+succeeds, the iteration of <em>local-mutations-list</em> will be advanced to
+the next operation. The effect of the replay is visible only on this client
+and not on the server until the repair result is successfully committed. If
+the replay fails, information about the reason of the failure will be
+displayed.  
+<P></descrip>
+
+<descrip>
+<tag><bf>discardalllocal</bf></tag> repeatedly performs the
+<bf>discardlocal</bf> command until the <em>local-mutations-list</em> is
+exhausted. Its effect is to finish the iteration and discard the
+effect of all the remaining mutations on the repair result.
+<P></descrip>
+
+<descrip>
+<tag><bf>preservealllocal</bf></tag> repeatedly performs the
+<bf>preservelocal</bf> command until the first failure or the iteration of
+<em>local-mutations-list</em> is exhausted. This command is used if the
+user wants to preserve the effect of all the remaining mutation
+operations in the repair result.
+<P></descrip>
+
+<descrip>
+<tag><bf>listlocal</bf></tag> prints out all the mutation
+operations in the <em>local-mutations-list</em> of the current local-global
+repair session.
+<P></descrip>
+
+<descrip>
+<tag><bf>setglobalview</bf></tag> If the current local-global
+repair session is repairing a conflict on <em>object</em> given as the
+argument to the <bf>beginrepair</bf> command, the global replica of
+<em>object</em> is visible at <em>object/global</em>. This command allows the
+global replica of <em>object</em> to be visible at the original
+location (pathname) of <em>object</em>.
+<P></descrip>
+
+<descrip>
+<tag><bf>setlocalview</bf></tag> If the current local-global
+repair session is repairing a conflict on <em>object</em> given as the
+argument to the <bf>beginrepair</bf> command, the local replica of
+<em>object</em> is visible at <em>object/local</em>. This command allows the
+local replica of <em>object</em> to be visible at the original
+location (pathname) of <em>object</em>.
+<P></descrip>
+
+<descrip>
+<tag><bf>setmixedview</bf></tag> If the current local-global
+repair session is repairing a conflict on <em>object</em> given as the
+argument to the <bf>beginrepair</bf> command, this command restore the
+default form of local-global conflict representation in which the
+local replica is visible at <em>object/local</em> and the global replica is
+visible at <em>object/global</em>.
+<P></descrip>
+
+The following commands existed in old versions but are no longer
+supported:
+
+<descrip>
+<tag><bf>showreplicas</bf> <em>object</em></tag> shows the names of
+the individual replicas of <em>object</em>, and the pathnames by which
+these replicas may be examined read-only. A <bf>beginrepair</bf> must have
+been done earlier on this object (or on another object in the same
+volume).
+<P></descrip>
+
+<descrip>
+<tag><bf>clearinc</bf> <em>object</em></tag> compares the mounted
+read only replicas of a directory in conflict and if the replicas are
+identical it clears the inconsistency flag of the replicas. Otherwise
+it will inform you about the inequality of the replicas. You should
+run the <bf>comparedirs</bf> command to find out the cause of conflict.
+This command should be used only for directories. Files and symbolic
+links are cleared of their inconsistency with the <bf>dorepair</bf>
+command.
+<P></descrip>
+
+<descrip>
+<tag><bf>unlockvolume</bf> <em>pathname</em></tag> tells Venus to unlock
+the specified  volume  in  repair.   No check  is done to see if you locked
+the volume during this repair session.  The primary use of this command is
+to unlock volumes that were locked during a previous, aborted, invocation
+of the repair tool.  The command will fail if Venus discovers that you
+do not hold the repair lock on the server.   This could happen, for
+example, if your aborted repair occurred on another workstation, or if
+you were not repairing the volume in the first place.
+<P></descrip>
+
+
+
+
+<sect1>SEE ALSO<P>
+ci (3)
+
+
+
+<sect1>Author<P>
+M. Satyanarayanan, 1989, Created
+
+Puneet Kumar, 1991, Substantially revised
+
+Joshua Raiff, 1993, Created man page
+
+Qi Lu, 1995, Added local-global repair commands and revised man page
+
+</manpage>

@@ -1,0 +1,66 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="cpasswd" SECTNUM=1>
+<sect1>NAME 
+ <P>cpasswd - change Coda login password
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>cpasswd</bf> &lsqb;-h host&rsqb; &lsqb;username&rsqb;<P>
+
+
+<sect1>DESCRIPTION<P>
+This command sets the password associated with the current user, or user 
+<em>username</em> if explicitly named.  Only the user or a System Administrator 
+may change a password.  
+
+<em>cpasswd</em> prompts for the users old password (or the password of the 
+administrator performing the change) and then for the new one.  The new 
+password must be typed twice, to forestall mistakes.  Change requests 
+can be aborted by typing a carriage return when prompted for the new password.
+
+New passwords must be at least four characters long if they use a sufficiently 
+rich alphabet and at least six characters long if monocase.  These rules are 
+relaxed if you are insistent enough.
+
+<em>cpasswd</em> wont be able to change the users password if the password server is down.  
+An appropriate error message will be printed, advising the caller to try again later.  
+Once the password server acknowledges receipt the users new password, it takes about 
+an hour for the information to propagate to the entire set of
+<em>AuthServers</em>.
+
+<bf>cpasswd</bf> support the following option:
+<descrip>
+<tag><bf>-h</bf> <em>host</em></tag>Tells <bf>cpasswd</bf> which
+authentication host to bind to.  This should be the SCM.
+<P></descrip>
+
+
+
+<sect1>FILES<P>
+<em>/vice/db/user.coda</em>
+
+
+
+<sect1>BUGS<P>
+The password file information should be kept in a different data structure 
+allowing indexed access; <em>dbm (3X)</em> would probably be suitable.
+
+
+
+<sect1>SEE ALSO<P>
+clog (1), crypt (3)
+
+
+
+<sect1>AUTHOR<P>
+1987, Adapted from AFS-2
+
+Maria R. Ebling, 1990, Created man page
+
+
+
+
+</manpage>

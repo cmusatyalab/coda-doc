@@ -1,0 +1,85 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="updatesrv" SECTNUM=8>
+<sect1>NAME 
+ <P>updatesrv - update server files
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>updatesrv</bf> &lsqb; <bf>-d</bf> debug&lowbar;level &rsqb; &lsqb; <bf>-l</bf> number&lowbar;of&lowbar;lwps &rsqb; &lsqb; <bf>-p</bf> prefix &rsqb; &lsqb; <bf>-s</bf> &rsqb; &lsqb; <bf>-q</bf> service&lowbar;number &rsqb; <P>
+
+
+<sect1>DESCRIPTION<P>
+The <bf>updatesrv</bf> command is a read-only server that responds to requests for files by name.  The operands that it accepts are:
+
+<descrip>
+<tag><bf>-d</bf> debug&lowbar;level</tag>This is used to increase the level 
+of messages written to the log file.
+<P></descrip>
+
+<descrip>
+<tag><bf>-l</bf> <em>number&lowbar;of&lowbar;lwps</em></tag> This operand is 
+used to specify how many lwps will be used to answer file requests.  
+Default: 2.  
+<P></descrip>
+
+<descrip>
+<tag><bf>-p</bf> <em>prefix</em></tag> This name, prefixed to all file
+requests, is used to limit the files that can be requested. 
+<P></descrip>
+
+<descrip>
+<tag><bf>-q</bf> <em>service&lowbar;name</em></tag> This is the service name 
+in <em>/etc/services</em> that is to be used.  Default: rupdsrv.  
+<P></descrip>
+
+
+<sect1>EXAMPLES<P>
+The command <bf>updatesrv -s -p /</bf> would invoke the updatesrv process
+and cause the files to be served relative to / on the server machine.
+
+The command <bf>updatesrv -s -p /vice/bin</bf> would cause the files to be
+served relative to /vice/bin on the server machine.  
+
+
+
+<sect1>DIAGNOSTICS<P>
+
+The UpdateLog file will contain useful information.  Issuing a <bf>kill
+-TSTP</bf> signal to a running updatesrv will increase the level of debugging
+messages.  The debugging messages can be turned off by issuing a <bf>kill
+-HUP</bf> signal.  This will also cause the log file to no longer be written.
+
+
+
+<sect1>FILES<P>
+<descrip>
+<tag><bf>UpdateLog</bf></tag> This log of the messages from <bf>updatesrv</bf> is kept in the directory specified by the <bf>-p</bf> operand on the invocation.  This log file is only written when debugging is enabled.
+<P></descrip>
+
+<descrip>
+<tag><bf>pid</bf></tag> This file contains the pid of the updatesrv process.  It is kept in the directory specified on the <bf>-p</bf> operand on invocation of the command.
+<P></descrip>
+
+
+
+<sect1>BUGS<P>
+It does not yet use any password authentication to stop others from using it to fetch files from servers.
+
+
+
+<sect1>SEE ALSO<P>
+checkvenus(8)
+updateclnt(8)
+
+
+
+<sect1>AUTHOR<P>
+Maria R. Ebling, 1990, Adapted from AFS-2
+
+
+
+
+</manpage>

@@ -1,0 +1,52 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="updatemon" SECTNUM=8>
+<sect1>NAME 
+ <P>updatemon - monitor process for the update system
+
+
+
+<sect1>SYNOPSIS<P>
+For updateclnt:<P>
+<P>
+<bf>updatemon</bf> &lsqb; <bf>-d</bf> debug&lowbar;level &rsqb; &lsqb; <bf>-h</bf> host&lowbar;name &rsqb; &lsqb; <bf>-q</bf> service&lowbar;name &rsqb; &lsqb; <bf>-w</bf> wait&lowbar;interval &rsqb; &lsqb; <bf>-r</bf> reps &rsqb;<P>
+<P>
+For updatesrv:<P>
+<P>
+<bf>updatemon</bf> <bf>-s</bf> &lsqb; <bf>-d</bf> debug&lowbar;level &rsqb; &lsqb; <bf>-l</bf> number&lowbar;of&lowbar;lwps &rsqb; &lsqb; <bf>-p</bf> prefix &rsqb; &lsqb; <bf>-q</bf> service&lowbar;number &rsqb; <P>
+
+
+<sect1>DESCRIPTION<P>
+The update system keeps binaries and data bases which are read-only replicated on many servers up-to-date with the custodian for the read-write copies.  The <bf>updatesrv (8)</bf> runs on the custodian for the read-write copy while the <bf>updateclnt (8)</bf> runs on each of the file servers with read-only replicas.  
+
+The <bf>updatemon</bf> process monitors either the <bf>updatesrv</bf> process or
+the <bf>updateclnt</bf> process and restarts the correct process if the original should exit.  The monitor process allows the file servers to run relatively unattended by ensuring that the update system is running at all times.
+
+<bf>updatemon</bf> should be run from <em>/etc/rc.local</em> of each server machine.
+
+
+<sect1>EXAMPLES<P>
+The command <bf>updatemon -h mahler</bf> would cause the update monitor process to start up.  The update monitor would then invoke an <bf>updateclnt</bf> process (passing along its arguments).  This invocation of the <em>updateclnt</em> process would cause the client machine to check the host mahler every 5 minutes to see if any of the files in <em>/vice/db</em> have changed and every 30 minutes to see if any other files have changed. 
+
+The command <bf>updatemon -s -p /vice/bin</bf> would cause the update monitor process to start up.  The update monitor would then invoke an <bf>updatesrv</bf> process (passing along the arguments).  All files in this invokation would be relative to /vice/bin.
+
+
+
+<sect1>BUGS<P>
+No known bugs
+
+
+
+<sect1>SEE ALSO<P>
+updateclnt (8)
+updatesrv (8)
+
+
+
+<sect1>AUTHOR<P>
+Maria R. Ebling, 1990, Adapted from AFS-2
+
+
+
+</manpage>

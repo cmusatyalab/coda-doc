@@ -1,0 +1,9 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="movevol" SECTNUM=8>
+<sect1>NAME 
+ <P>movevol - move a volume from one server/partition to another
+
+
+
+</manpage>

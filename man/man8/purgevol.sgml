@@ -1,0 +1,51 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="purgevol" SECTNUM=8>
+<sect1>NAME 
+ <P>purgevol - delete a non-replicated volume
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>purgevol</bf> &lt;volumename&gt;<P>
+
+
+<sect1>DESCRIPTION<P>
+<bf>purgevol</bf> is a front-end to the <em>volutil purgevol</em> command and
+is used to delete a non-replicated volume from the Coda system.
+<bf>purgevol</bf> determines the location of the volume using the readable
+version of the <em>VLDB</em> located in <em>/vice/vol/AllVolumes</em>. It
+then uses the <em>volutil</em> utility to purge the volume at the volumes
+site. Finally, it builds a new <em>VLDB</em> using the <em>bldvldb</em>(8)
+script.
+
+Purgevol is similar to the <em>volutil purge</em>, except that it accepts
+different parameters, can only be run on the SCM, and builds a new vldb. The
+user must be root to execute this script.
+
+
+<sect1>FILES<P>
+
+<descrip>
+<tag><em>/vice/vol/AllVolumes</em></tag> updated by deleting the entry for 
+the purged volume.
+<P></descrip>
+
+<descrip>
+<tag><em>/vice/vol/VolumeList</em></tag> updated by the remote server as a 
+side effect of purging the volume.
+<P></descrip>
+
+
+<sect1>SEE ALSO<P>
+
+bldvldb.sh(8), purgevol&lowbar;rep(8), volutil(8)
+
+
+<sect1>AUTHOR<P>
+
+David Steere, 1990, Created
+
+
+</manpage>

@@ -1,0 +1,110 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="updateclnt" SECTNUM=8>
+<sect1>NAME 
+ <P>updateclnt - update client executables
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>updateclnt</bf> &lsqb; -d debug&lowbar;level &rsqb; &lsqb; -h host&lowbar;name &rsqb; &lsqb; -q service&lowbar;name &rsqb; &lsqb; -w wait&lowbar;interval &rsqb; &lsqb; -r reps &rsqb;<P>
+
+
+<sect1>DESCRIPTION<P>
+The <bf>updateclnt</bf> command is a client process to the <em>updatesrv</em> process.  It is used to keep the binaries and data bases on a file server in sync with those on a control machine.  The arguments include:
+
+<descrip>
+<tag><bf>-d</bf> <em>debug&lowbar;level</em></tag> This option changes the debugging level.  The higher the debug&lowbar;level, the more information is printed.  Maximum debugging level is 10.
+<P></descrip>
+
+<descrip>
+<tag><bf>-h</bf> <em>host&lowbar;name</em></tag> This is the hostname of the 
+control machine with which this process keeps up-to-date.  Default: scm.  
+<P></descrip>
+
+<descrip>
+<tag><bf>-q</bf> <em>service&lowbar;name</em></tag> This is the name in 
+<em>/etc/services</em> that should be used as the connect portal on 
+the machine specified by <bf>host&lowbar;name</bf> above.  Default: rupdsrv.  
+<P></descrip>
+
+<descrip>
+<tag><bf>-w</bf> <em>wait&lowbar;interval</em></tag> The interval 
+between probes, in seconds.  The lower this number, the quicker the
+servers will be updated when a change occurs and the more cpu and network
+resources required.  Default: 300s (5min).  
+<P></descrip>
+
+<descrip>
+<tag><bf>-b</bf></tag> This option forces a .BAK file to be kept for any file that is changed.
+<P></descrip>
+
+<descrip>
+<tag><bf>-r</bf> <em>reps</em></tag> This is the number of wait intervals
+between long checks.  Files are checked at two intervals.  The interval
+specified by <bf>-w</bf> is used for those files in <em>/vice/db</em>.  All
+other files are checked once each <bf>-r</bf> repetitions of length
+<bf>-w</bf>. Default: 6, so the long interval is 30min.  
+<P></descrip>
+
+<bf>Updateclnt</bf> checks <em>/vice/db</em> every
+<em>wait&lowbar;interval</em> seconds.  This directory contains a file 
+called <em>files</em>.  Each file specified in it has its current date
+checked at the server, and a new copy of the file is fetched if the date does
+not match that on the control machine.  The format of the <em>files</em> file
+is defined below.
+
+
+<sect1>EXAMPLES<P>
+The command <bf>updateclnt -h mahler</bf> would cause the client machine to
+check the host "mahler" every 5 minutes to see if any of the
+<em>/vice/db</em> files have changed and every 30 minutes to see if any other
+files have changed.  Normally the command is invoked by issuing the
+<bf>updatemon (8)</bf> command with the same operands.  
+
+
+<sect1>FORMAT<P>
+The format of the <em>files</em> file is one file name per line. A "-" as the first character on the line causes the file to be deleted instead of copied.
+
+
+
+<sect1>DIAGNOSTICS<P>
+The updateclnt program can have its debug level turned on while it is running by sending a <bf>kill -TSTP</bf> signal to a running updateclnt.  To reset the debug level back to zero, send a <bf>kill -HUP</bf> signal to the running updateclnt. This also causes the UpdateLog file to not be written anymore.
+
+
+
+<sect1>FILES<P>
+<descrip>
+<tag><em>/vice/srv/UpdateLog</em></tag> is the name of the log file for the updateclnt command.  It can be viewed by using the command
+<em>tail -f /vice/file/UpdateLog</em>.  It is only written if debugging has been started.
+<P></descrip>
+
+<descrip>
+<tag><em>/vice/srv/UpdatePid</em></tag> is the pid of the updateclnt process.
+<P></descrip>
+
+<descrip>
+<tag><em>/vice/srv/UpdateMon</em></tag> is the pid of the updatemon process that is keeping updateclnt running.
+<P></descrip>
+
+
+
+<sect1>BUGS<P>
+There is no easy way to add to the list of directories checked.
+
+The <em>-r</em> option is now obsolete as <bf>updateclnt</bf> does not update
+any directory other then <em>/vice/db</em>.
+
+
+
+<sect1>SEE ALSO<P>
+updatesrv (8)
+
+
+
+<sect1>AUTHOR<P>
+Maria R. Ebling, 1990, Adapted from AFS
+
+
+</manpage>

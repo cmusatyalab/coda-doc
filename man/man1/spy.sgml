@@ -1,0 +1,53 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="spy" SECTNUM=1>
+<sect1>NAME 
+ <P>spy - Report all CFS files that are opened
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>spy</bf> &lsqb; -host &lt;hostname&gt; &rsqb; &lsqb; -uid &lt;uid&gt; &rsqb;
+
+
+<sect1>DESCRIPTION<P>
+<bf>spy</bf> will connect to <em>venus</em> on the given host and report all Coda
+files that are opened.  This is useful for generating <em>hoard</em> files
+as programs can have hidden dependencies.  Using spy will ensure that
+any file that is opened gets included in the <em>hoard</em> database.
+Sending <bf>spy</bf> a <em>SIGTERM</em> will cause <bf>spy</bf> to flush all of its
+output buffers and terminate.
+
+<bf>spy</bf> supports the following options:
+
+<descrip>
+<tag><bf>-host</bf> <em>hostname</em></tag>Name of Coda coda client
+to bind to.  If this option is omitted, then the current host will be
+used.
+<P></descrip>
+
+<descrip>
+<tag><bf>-uid</bf> <em>uid</em></tag>Only report on file activity
+from user <em>uid</em>.  If the <bf>-uid</bf> switch is omitted, then all CFS
+file activity is reported.
+<P></descrip>
+
+To use <bf>spy</bf> to create a <em>hoard</em> file sort the output and remove
+any duplicates, By using <bf>spy</bf> you ensure that you did not forget to
+<em>hoard</em> a file with a hidden 
+dependency.  For example, when you <em>hoard X</em>, you will need the
+<em>uncompress (1)</em> program in order to use the fonts.
+
+
+
+<sect1>SEE ALSO<P>
+hoard (1)
+
+
+<sect1>AUTHOR<P>
+Joshua Raiff, 1993, Created man page
+
+
+
+
+</manpage>

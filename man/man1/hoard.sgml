@@ -1,0 +1,128 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="hoard" SECTNUM=1>
+<sect1>NAME 
+ <P>hoard - hoard database front-end
+
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>hoard</bf>   &lsqb; -d &rsqb;  &lsqb; -f source | cmds &rsqb;<P>
+
+
+
+<sect1>DESCRIPTION<P>
+<bf>Hoard</bf> is a front-end to the <em>hoard database</em> (HDB) managed by the Coda 
+cache manager, <em>Venus</em>.  The HDB provides a means for users to explicitly
+control Venus caching behavior.  HDB entries specify the degree of a users
+interest in particular file system objects.  Venus combines this information
+with implicit knowledge that it has about file access patterns to try to
+keep the "best" set of objects in its cache at all times.  The HDB is
+maintained in non-volatile storage, so it survives Venus restarts and client
+reboots.
+
+Users manipulate the HDB by issuing commands to the hoard program.
+The following hoard commands are currently recognized:
+<descrip>
+<tag><bf>add</bf>  filename  &lt;attributes&gt;</tag>
+<P></descrip>
+<descrip>
+<tag><bf>clear</bf>  &lt;uid&gt;</tag>
+<P></descrip>
+<descrip>
+<tag><bf>delete</bf>  filename</tag>
+<P></descrip>
+<descrip>
+<tag><bf>list</bf>  outfile  &lt;uid&gt;</tag>
+<P></descrip>
+<descrip>
+<tag><bf>modify</bf>  filename  &lt;attributes&gt;</tag>
+<P></descrip>
+
+Commands may be abbreviated by their first letter.  Parameters in angle
+brackets are optional, and have default values if unspecified.  The
+ <em>attributes</em> parameter is specified as a string of options separated by
+: characters.  The currently recognized options are:
+<descrip>
+<tag><bf>1-1000</bf></tag>assign this object the hoard <em>priority</em> 
+indicated
+<P></descrip>
+<descrip>
+<tag><bf>c</bf></tag>current <em>children</em> of this directory will inherit its 
+hoard status
+<P></descrip>
+<descrip>
+<tag><bf>c+</bf></tag>current and future <em>children</em> of this directory will 
+inherit its hoard status
+<P></descrip>
+<descrip>
+<tag><bf>d</bf></tag>current <em>descendents</em> of this directory will inherit 
+its hoard status
+<P></descrip>
+<descrip>
+<tag><bf>d+</bf></tag>current and future <em>descendents</em> of this directory 
+will inherit its hoard status
+<P></descrip>
+
+If the <em>uid</em> in the clear and list commands is unspecified, the entries of
+all users are cleared or listed respectively.  The default hoard
+ <em>priority</em> is 10.
+
+An example command file is:
+<descrip>
+<tag><bf>clear</bf></tag>
+<P></descrip>
+<descrip>
+<tag><bf>add</bf>  /coda/project/coda/src  100:d+</tag>
+<P></descrip>
+<descrip>
+<tag><bf>add</bf>  /coda/usr/jjk/.login  1000</tag>
+<P></descrip>
+
+
+Access to the hoard database is restricted in the following ways.  All hoard
+commands fail unless the effective-uid is root--the hoard program should be
+made setuid to root to ensure this.  Special permission is given to commands
+where the real-uid is root or that of the <em>primary</em> user, i.e., the user
+at the console.  Root and primary users may add entries and access existing
+entries without restriction.  Other users may not add hoard entries, and
+they may only clear, delete, list, or modify their own entries.
+
+The command-line options are:
+<descrip>
+<tag><bf>-d</bf></tag>Enables debugging output.
+<P></descrip>
+<descrip>
+<tag><bf>-f</bf> <em>source</em></tag>Take commands from file <em>source</em>.  
+-f must be the last argument if specified.  An argument of - means use
+ <bf>stdin</bf> as the source file.  Source statements may be given directly on
+the command line (one per line) by enclosing them in single quotes.
+<P></descrip>
+
+
+
+<sect1>DIAGNOSTICS<P>
+Hoard copies command lines that it cannot parse to <bf>stderr</bf>.
+If a syntactically correct command is rejected by Venus, the corresponding pioctl, its arguments, and the errno are copied to <bf>stderr</bf>.
+
+
+
+<sect1>BUGS<P>
+Negative priorities should be allowed.
+
+A mount point of <em>/coda</em> is assumed by the pioctl library.
+
+
+
+<sect1>SEE ALSO<P>
+venus (8)
+
+
+
+<sect1>AUTHOR<P>
+Jay Kistler, 1990, Created
+
+
+</manpage>

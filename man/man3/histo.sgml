@@ -1,0 +1,126 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="histo" SECTNUM=3>
+<sect1>NAME 
+ <P>histo - histogram package
+
+
+
+<sect1>SYNOPSIS<P>
+#include &lt;histo.h&gt;<P>
+<P>
+InitHisto (hg, lolimit, hilimit, bucketcount, ht)<P>
+   struct hgram *hg;<P>
+   double lolimit;<P>
+   double hilimit;<P>
+   int bucketcount;<P>
+   enum htype ht;<P>
+<P>
+UpdateHisto (hg, newval)<P>
+   register struct hgram *hg;<P>
+   double newval;<P>
+<P>
+PrintHisto (outfile, hg)<P>
+   FILE *outfile;<P>
+   register struct hgram *hg;<P>
+<P>
+PlotHisto (outfile, hg, graphtitle, xtitle, ytitle, psfileprefix)<P>
+   FILE *outfile;<P>
+   struct hgram *hg;<P>
+   char *graphtitle;<P>
+   char *xtitle;<P>
+   char *ytitle;<P>
+   char *psfileprefix;<P>
+<P>
+
+
+
+<sect1>DESCRIPTION<P>
+This is a statistics package that can be used to produce the mean, standard
+deviation and histogram of a set of numbers.  The histogram can be one of
+three types: linear, log2 or log10.
+
+
+The package is used by calling the following routines:  
+
+<descrip>
+<tag><em>InitHisto ()</em></tag> initialises the histogram hg by setting the
+lolimit, hilimit, bucketcount, and histogram type as specified by the user.
+lolimit specifies the origin of the horizontal axis.  hilimit specifies the
+maximum value on the horizontal axis.  It is required that hilimit be greater
+than the largest value of the input data.  The histogram type htype is
+specified as LINEAR = 1, LOG2 = 2, or LOG10 = 3.
+<P></descrip>
+
+<descrip>
+<tag><em>UpdateHist ()</em></tag> updates the histogram hg with newvalue to 
+be entered.
+<P></descrip>
+
+<descrip>
+<tag><em>PrintHisto ()</em></tag> provides the user with statistics for the
+input data.  Statistics include the mean, standard deviation, and the 90%
+confidence interval.  
+<P></descrip>
+
+<descrip>
+<tag><em>PlotHisto ()</em></tag> the output of this file is used as input to
+the program csplot to produce a histogram of the input data.  
+<P></descrip>
+
+
+
+<sect1>DIAGNOSTICS<P>
+Negative return values indicate errors. 
+
+
+
+<sect1>EXAMPLE<P>
+
+<tscreen><verb>
+#include &lt;libc.h&gt;
+#include "histo.h"
+#define MAX 3
+
+
+main ()
+&lcub;
+
+
+  int i, rc, bucketcount;
+  struct hgram histogram1;
+  double data&lsqb;MAX&rsqb;, lolimit1,hilimit1;
+  enum htype scale = LINEAR;
+  FILE *fp1;
+
+  data&lsqb;0&rsqb; = 5;
+  data&lsqb;1&rsqb; = 15.4;
+  data&lsqb;2&rsqb; = 10.6;
+
+  bucketcount = 10;
+  lolimit1 = 0;
+  hilimit1 = 20;
+  fp1 = fopen ("result1","w");
+  if (fp1 == (FILE*) NULL) printf ("Cannot open\\n");
+
+  rc = InitHisto (&amp;histogram1, lolimit1, hilimit1, bucketcount, scale);
+  if (rc &lt; 0) printf ("Initialisation failed\\n");
+
+  for (i = 0; i &lt; MAX; i++)  UpdateHisto (&amp;histogram1, data&lsqb;i&rsqb;);
+
+  PrintHisto (fp1, &amp;histogram1);
+
+  fclose (fp1);
+
+
+&rcub;
+</verb></tscreen>
+
+
+
+<sect1>AUTHOR<P>
+M.Satya, 1991
+
+
+</manpage>

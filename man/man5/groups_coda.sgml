@@ -1,0 +1,41 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="groups.coda" SECTNUM=5>
+<sect1>NAME 
+ <P>groups.coda - Coda group file specification
+
+ 
+
+<sect1>Description<P>
+The Coda groups file specifies what groups exist and what users belong to
+these groups.  The format of the file is:
+<tscreen><verb>
+&lt;Group Name&gt; &lt;Group Id&gt; &lt;Member1&gt; &lt;Member2&gt; ...
+
+
+</verb></tscreen>
+
+This file is then compiled with <em>pwd2pdb</em> to create a vice.pdb file which
+vice uses for its password database.
+
+
+
+<sect1>EXAMPLE<P>
+<tscreen><verb>
+System:coda             -221    jjk satya pkumar dcs mre mashburn 
+System:guests           -222    stevep pds rpd cokasaki mattz acha
+</verb></tscreen>
+
+
+<sect1>SEE ALSO<P>
+pwd2pdb (8), vice.pcf (5)
+
+
+<sect1>AUTHOR<P>
+Joshua Raiff, 1993, Created man page
+
+
+
+
+
+</manpage>

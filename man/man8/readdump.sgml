@@ -1,0 +1,82 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="readdump" SECTNUM=8>
+<sect1>NAME 
+ <P>readdump - Utility to examine dumpfiles created by the Coda backup facility
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>readdump</bf> &lsqb;dumpfile&rsqb;<P>
+
+
+<sect1>DESCRIPTION<P>
+The <bf>readdump</bf> program is an interactive facility to allow the user to
+get information from a dump file produced by the Coda backup mechanism. For
+now it is simply a way of looking at the information in a dump file. One
+cannot use it to modify the dump file.
+
+The <bf>readdump</bf> program supports the following commands:
+<descrip>
+<tag><bf>openDumpFile</bf>  &lt;dumpfile&gt;</tag> 
+<P></descrip>
+
+<descrip>
+<tag><bf>showHeader</bf></tag> 
+<P></descrip>
+
+<descrip>
+<tag><bf>showVolumeDiskData</bf></tag> 
+<P></descrip>
+
+<descrip>
+<tag><bf>setIndex</bf>  &lt;index type&gt;</tag> 
+<P></descrip>
+
+<descrip>
+<tag><bf>nextVnode</bf></tag> 
+<P></descrip>
+
+<descrip>
+<tag><bf>skipVnodes</bf> &lt;nVnodes&gt;</tag> 
+<P></descrip>
+
+<descrip>
+<tag><bf>quit</bf></tag> 
+<P></descrip>
+
+<bf>readdump</bf> uses the <em>ci</em> command interface, which allows the
+use of unique prefixes for commands. Unspecified parameters will be prompted
+for, and default values can be used. The <em>showHeader</em> command prints
+out the header of the dump, which is seperate from the header of the volume
+that was dumped. The <em>showVolumeDiskData</em> prints out the header of the
+volume.
+
+The dump contains two streams of vnodes, one for directories and one for
+files and symbolic links. The <em>setIndex</em> command specifies to
+<bf>readdump</bf> which stream you wish to examine. Once an index has been
+specified, the <em>nextVnode</em> command displays the next Vnode (object) in
+the stream. Note that movement through the stream is one-directional. To
+revisit a Vnode, use the <em>setIndex</em> command to reset the program back
+to the beginning of the stream.  One can jump through the index by use of the
+<em>skipVnodes</em> command, which takes the number of vnodes to skip, and
+reads past (without displaying) that many vnodes in the stream.
+
+
+
+<sect1>Future Work<P>
+Usage of this facility should suggest more commands to help administrators
+parse dumpfiles. In particular, a command to seek ahead to a specified offset
+in the dump would be useful. 
+
+
+<sect1>SEE ALSO<P>
+merge (8), backup (8), volutil (8), Coda Manual
+
+
+<sect1>AUTHOR<P>
+David C. Steere, 1991, Created
+
+
+</manpage>

@@ -1,0 +1,40 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="pwd2pdb" SECTNUM=8>
+<sect1>NAME 
+ <P>pwd2pdb - Translate user and group files to Coda protection database.
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>pwd2pdb</bf> -p &lt;userfile&gt; &lsqb; -g &lt;groupfile&gt; &rsqb; 
+
+
+<sect1>DESCRIPTION<P>
+<bf>pwd2pdb</bf> will take a Coda user file and Coda group file,
+translate it to a Coda protection database, and output the database on
+<em>stdout</em>.
+
+<bf>pwd2pdb</bf> supports the following options:
+<descrip>
+<tag><bf>-p</bf> <em>userfile</em></tag>Name of user file to
+include the the protection database.
+<P></descrip>
+
+<descrip>
+<tag><bf>-g</bf> <em>groupfile</em></tag>Name of the group file to
+include in the protection database.
+<P></descrip>
+
+
+<sect1>SEE ALSO<P>
+mvdb (1), user.coda (5), group.coda (5), pcfgen (8)
+
+
+<sect1>AUTHOR<P>
+Joshua Raiff, 1993, Created man page
+
+
+
+
+</manpage>

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ $# != 3 ]; then
+	echo "Usage $0 sgml targetdir chapterno"
+	exit 1
+fi
+
+if [ ! -d $2 ]; then
+	echo "$2 is not a directory."
+	exit 1
+fi
+
+
+# get rid of sgml suffixes
+arg=$1
+name=${arg%.sgml}
+
+sgml2txt -man $name
+mv $name.man ${2}/${name}.$3
+
+

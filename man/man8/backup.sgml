@@ -1,0 +1,56 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="backup" SECTNUM=8>
+<sect1>NAME 
+ <P>backup - Volume by volume backup of the Coda File System
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>backup</bf> &lsqb;-p poll&lowbar;period&rsqb; &lsqb;-t timeout&rsqb; &lt;dumplist&gt; &lsqb;dumpdir&rsqb;<P>
+
+
+<sect1>DESCRIPTION<P>
+<bf>backup</bf> performs the clone and dump phases of the Coda backup mechanism.
+<em>dumplist</em> is a file as described in <em>dumplist</em>(5)
+
+The backup program creates many lines of information as the phases progress. It
+is a good idea to redirect standard output to a log file. After both phases are
+completed, it prints out a list of volumes in several groupings, and some
+histograms detailing size and speed of the dumpfiles transferred. The first
+group are the volumes that were successfully backed up on all servers in their
+VSG. The second group contains volumes that were successful on some, but not
+all of their VSGs. The third group contains volumes that were complete failures.
+The last group contains volumes that are in the VLDB or VRDB but not in the
+<em>dumplist</em>.
+
+The second and third groups use an n-letter word to describe the last successful
+operation that succeeded on each replica. The kth position in the n-letter word
+corresponds to the kth replica in the VRDB entry for this volume. One of four
+letters appears in each position: "L", "C", "D", and "M".
+"L" means the replica was only locked, "C" means it was cloned but
+not dumped, "D" means it was dumped (but not marked as such on the server,
+see the discusion in the manual chapter on backup), and "M" means all phases
+completed successfully. 
+
+<bf>backup</bf> supports the following command line options:
+<descrip>
+<tag><bf>-p</bf> <em>poll&lowbar;period</em></tag>Number of seconds to
+sleep between polls a servers that <bf>backup</bf> thinks are down.
+<P></descrip>
+
+<descrip>
+<tag><bf>-t</bf> <em>timeout</em></tag>Timout value, in seconds, for RPC2 calls.
+<P></descrip>
+
+
+<sect1>SEE ALSO<P>
+backup.sh (8), volutil (8), dumplist (5), Backup chapter of the Coda Manual.
+
+
+<sect1>AUTHOR<P>
+David C. Steere, 1991, Created
+
+
+</manpage>

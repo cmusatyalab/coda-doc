@@ -1,0 +1,74 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="createvol" SECTNUM=8>
+<sect1>NAME 
+ <P>createvol - create a non-replicated volume
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>createvol</bf> &lt;volume-name&gt; &lt;server-name&gt; &lt;partition-name&gt;<P>
+
+
+<sect1>DESCRIPTION<P>
+<bf>createvol</bf> is used to create a Coda non-replicated volume on the specified
+partition (<em>&lt;partion-name&gt;)</em> and server (<em>&lt;server-name&gt;)</em>.  The 
+volume number is assigned by the server automatically; the name is 
+specified by the invoker (<em>&lt;volume-name&gt;)</em>.  
+
+<bf>createvol</bf> first checks in <em>/vice/vol/AllVolumes</em> to see if the 
+volume-name already exists.  If not, it uses the <em>volutil create</em>
+command to create the volume at the specified server.  It then 
+uses <em>bldvldb.sh (8)</em> to build the Volume Location Data Base (VLDB).
+
+The default access control list of the volume gives the group System:Anyuser
+read and lookup rights.  The owner of the root directory, as well as a more 
+reasonable access list, must be set later by a system administrator
+using the <em>cfs</em>(1) command.
+
+
+<sect1>EXAMPLE<P>
+To Create a volume for user "hbovik" on server "mahler":
+<tscreen><verb>
+createvol user.hbovik mahler /vicepa
+</verb></tscreen>
+
+
+
+<sect1>NOTES<P>
+This command does not create the mount point to the volume within the 
+file system hierarchy.  This must be created by the <bf>cfs mkmount</bf>(1) 
+command.
+
+
+
+<sect1>DIAGNOSTICS<P>
+This command must be issued at the System Control Machine (SCM).  Also, 
+it must be invoked with effective user id of root.  This command does not 
+check for return codes from the servers once the volutil command is 
+made.  The invoker must check by hand in the <em>/vice/vol/VolumeList</em> file 
+on the server to see if the volume name exists at that server.
+
+
+
+<sect1>FILES<P>
+<descrip>
+<tag><em>/vice/vol/AllVolumes</em></tag>used to find out if volume already exists
+<P></descrip>
+<descrip>
+<tag><em>/vice/vol/VolumeList</em></tag>name of volume created is appended to it
+<P></descrip>
+
+
+
+<sect1>SEE ALSO<P>
+cfs (1), bldvldb.sh (8), volutil (8)
+
+
+
+<sect1>AUTHOR<P>
+Puneet Kumar, 1990, created
+
+
+</manpage>

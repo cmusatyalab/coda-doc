@@ -1,0 +1,62 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="dumplist" SECTNUM=5>
+<sect1>NAME 
+ <P>dumplist - List of volumes to be archived by the Coda backup mechanism
+
+
+
+<sect1>Description<P>
+The dumplist file contains information for the <bf>backup</bf>(8) program. It
+contains two lists. The first is a list of partitions which will hold the
+dumpfiles from the backup process. The second is a list of volumes to be
+archived. 
+
+The first is a list of directories in 
+which to store dump files. This list is preceeded by a line consisting of the 
+keyword <bf>Partitions</bf>. It allows the administrator to evenly spread the dump files
+over many paritions on the backup coordinator, allowing the collective dumped state
+to be larger than a single Unix partition (2 Gigabytes). 
+
+The second list contains the volumes to be backed up. The first line (which also
+terminates the first list) contains the keyword <bf>Volumes</bf>. Each entry in the list
+contains three tab separated fields: the volumeId (groupId), the schedule for full
+and incremental dumps, and a comment used to facilitate reading the output of the
+<bf>backup</bf> program. The schedule contains a number of "F" and "I" characters. Each
+character represents what form of dump to take for that day in the schedule. The length
+of the period is the number of characters in the schedule. For instance, "FIIIIII"
+means take one full dump followed by 6 incrementals, whereas "F" means take a full
+dump every day. For convenience, the first character in a 7 day schedule refers
+to Sunday.
+
+
+
+<sect1>EXAMPLE<P>
+The following does a full backup of <em>coda&lowbar;root</em>, <em>coda&lowbar;root.i386</em>, and
+<em>coda&lowbar;root.tmp</em> on Monday while it does a full backup of
+<em>coda&lowbar;root.project</em> and <em>coda&lowbar;root.usr</em> on Wednesday.  It uses
+<em>/vicepa/backup</em> and <em>/usr/codabackup/backup</em> to store the dump files.
+<tscreen><verb>
+Partitions
+/vicepa/backup
+/usr/codabackup/backup
+Volumes
+7F000000        IFIIIII         coda&lowbar;root
+7F000001        IFIIIII         coda&lowbar;root.i386
+7F000002        IIIFIII         coda&lowbar;root.project
+7F000003        IFIIIII         coda&lowbar;root.tmp
+7F000004        IIIFIII         coda&lowbar;root.usr
+7F000005        IFIIIII         coda&lowbar;root.misc
+</verb></tscreen>
+
+
+
+<sect1>See Also<P>
+backup (8), creatvol (8), createvol&lowbar;rep (8)
+
+
+<sect1>Author<P>
+David C. Steere, 1991, Created
+
+
+</manpage>

@@ -1,0 +1,135 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="srv" SECTNUM=8>
+<sect1>NAME 
+ <P>srv - CFS file server
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>srv</bf> &lsqb;-d (debug level)&rsqb; &lsqb;-p (number of processes)&rsqb; &lsqb;-b (buffers)&rsqb; <P>
+      &lsqb;-l (large vnodes)&rsqb; &lsqb;-s (small vnodes)&rsqb; &lsqb;-k (stack size)&rsqb; <P>
+      &lsqb;-w (wait interval)&rsqb; &lsqb;-r (RPC retry count)&rsqb; <P>
+      &lsqb;-o (RPC timeout)&rsqb; &lsqb;-c (check interval)&rsqb; <P>
+      &lsqb;-t (RPC trace buffers)&rsqb; &lsqb;-forcesalvage&rsqb; <P>
+      &lsqb;-quicksalvage&rsqb; &lsqb;-rvm logdevice datadevice length&rsqb; &lsqb;-nores&rsqb; <P>
+      &lsqb;-trunc percent&rsqb; &lsqb;-nocmp&rsqb; &lsqb;-nopy&rsqb; &lsqb;-nodumpvm&rsqb; &lsqb;-nosalvageonshutdown&rsqb; <P>
+      &lsqb;-mondhost hostname&rsqb; &lsqb;-mondportal port&rsqb; &lsqb;-debarrenize&rsqb; &lsqb;-optstore&rsqb;<P>
+      &lsqb;-rvmopt&rsqb; &lsqb;-newchecklevel checklevel&rsqb; <P>
+
+
+<sect1>DESCRIPTION<P>
+<bf>srv</bf> is the CFS <em>vice</em> file server.  It services requests from
+client machines <bf>venus</bf> processes and maintains the file system.
+
+<bf>Srv</bf>s command line options are:
+<descrip>
+<tag><bf>-d</bf> <em>&lt;debug level&gt;</em></tag>Sets the internal
+debugging level to <em>&lt;debug level&gt;</em>.  This controls the amount of
+debugging output <bf>srv</bf> will generate.
+<P></descrip>
+
+<descrip>
+<tag><bf>-p</bf> <em>&lt;number of processes&gt;</em></tag>Sets the number
+of light weight processes that will be used to handle concurrent
+requests.
+<P></descrip>
+
+<descrip>
+<tag><bf>-b</bf> <em>buffers</em></tag>Sets the number of internal
+buffers used by <bf>srv</bf> for the dir package.
+<P></descrip>
+
+<descrip>
+<tag><bf>-l</bf> <em>&lt;large vnodes&gt;</em></tag>number of large vnodes in lru cache
+<P></descrip>
+<descrip>
+<tag><bf>-s</bf> <em>&lt;small vnodes&gt;</em></tag>number of small vnodes in lru cache
+<P></descrip>
+<descrip>
+<tag><bf>-k</bf> <em>&lt;stack size&gt;</em></tag>stack size of LWP threads in Kbytes
+<P></descrip>
+<descrip>
+<tag><bf>-w</bf> <em>&lt;wait interval&gt;</em></tag>interval for CallBackCheckLWP to see which clients are alive
+<P></descrip>
+<descrip>
+<tag><bf>-r</bf> <em>&lt;RPC retry count&gt;</em></tag>number of times a call is retried before reporting death
+<P></descrip>
+<descrip>
+<tag><bf>-o</bf> <em>&lt;RPC timeout&gt;</em></tag>default timeout for all rpcs
+<P></descrip>
+
+<descrip>
+<tag><bf>-c</bf> <em>&lt;check interval&gt;</em></tag>The interval at which shutdown is checked
+<P></descrip>
+<descrip>
+<tag><bf>-t</bf> <em>&lt;RPC trace buffers&gt;</em></tag>number of entries in the rpc trace buffer
+<P></descrip>
+
+<descrip>
+<tag><bf>-forcesalvage</bf></tag>force a full salvage on all volumes
+<P></descrip>
+<descrip>
+<tag><bf>-quicksalvage</bf></tag>salvage only the headers of the volumes - currently it always does a full
+<P></descrip>
+<descrip>
+<tag><bf>-rvm</bf> <em>logdevice datadevice length</em></tag>The <bf>-rvm</bf>
+switch allows you to specify the locaction of the log device, data
+device, and length of the recoverable segment used by the server. This parameter is not optional.
+<P></descrip>
+<descrip>
+<tag><bf>-nores</bf></tag>Turn off resolution on the servers
+<P></descrip>
+<descrip>
+<tag><bf>-trunc</bf> <em>percent</em></tag>Specify how full the log can get before 
+it is truncated.  Default is 50%
+<P></descrip>
+<descrip>
+<tag><bf>-nocmp</bf></tag>Directory replica contents will not be checked for equality at end of resolution
+<P></descrip>
+<descrip>
+<tag><bf>-nopy</bf></tag>Suppress polling and yielding by threads that run for a long period 
+<P></descrip>
+<descrip>
+<tag><bf>-nodumpvm</bf></tag>Do not dump in-memory copy of recoverable segment before shutdown
+<P></descrip>
+<descrip>
+<tag><bf>-nosalvageonshutdown</bf></tag>Do not salvage volumes on shutdown
+<P></descrip>
+<descrip>
+<tag><bf>-mondhost</bf> <em>hostname</em></tag>Host where <em>mond</em> database is stored
+<P></descrip>
+<descrip>
+<tag><bf>-mondportal</bf> <em>port</em></tag>Port to use when contacting the <em>mond</em> host.
+<P></descrip>
+<descrip>
+<tag><bf>-debarrenize</bf></tag>Create an inode for a vnode if the inode cannot be found by the salvager 
+<P></descrip>
+<descrip>
+<tag><bf>-opstore</bf></tag>Optimized Stores - return to the client before sftp completes
+<P></descrip>
+<descrip>
+<tag><bf>-rvmopt</bf></tag>Turn on inter/intra transaction rvm optimizations
+<P></descrip>
+<descrip>
+<tag><bf>-newchecklevel</bf> <em>checklevel</em></tag>Set the level of checking done by new plumber.
+<P></descrip>
+
+
+<sect1>FILES<P>
+/vice/srv/SrvErr
+
+/vice/srv/SrvLog*
+
+
+<sect1>SEE ALSO<P>
+startserver (8)
+
+
+<sect1>AUTHOR<P>
+Joshua Raiff, 1993, Created man page
+
+
+
+
+</manpage>

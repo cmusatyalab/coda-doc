@@ -1,0 +1,56 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="vrdb" SECTNUM=5>
+<sect1>NAME 
+ <P>vrdb - Volume Replication Data Base specification
+
+
+
+
+<sect1>DESCRIPTION<P>
+The volume replication data base is stored in binary form in /vice/db/VRDB on each file server.
+The <em>makevrdb</em> option of the <em>volutil</em>(8) program constructs the VRDB on the system control machine (SCM).
+
+The data base consists of fixed-length records, each of which describes a replicated (aka group) volume.
+Each file server copies the VRDB into memory at start-up and whenever an updated version of it is received.
+The data base is used to map group volume names and numbers into a VSG and the set of read-write volumes which comprise it.
+
+The VRDB is generated from an ASCII version stored on the SCM in /vice/vol/VRList.
+The VRList is updated as a side-effect of every create and purge of a replicated volume.
+Its format is:
+
+&lt;group volname&gt;  &lt;group volnum&gt;  &lt;# of replicas&gt;  &lt;rwvol 1&gt;  ...  &lt;rwvol 8&gt;  &lt;VSG num&gt;
+
+A sample line from the VRList is:
+
+<bf>project.coda.src 7f000010 3 c9000012 ca000013 cb000013 0 0 0 0 0 E0000107</bf>
+
+Note that all volume and VSG numbers are given in hex.  Details of the VRDB structure can be found in &lt;vrdb.h&gt;.
+
+
+
+<sect1>FILES<P>
+<em>/vice/db/VRDB</em>
+
+<em>/vice/vol/VRList</em>
+
+
+
+<sect1>BUGS<P>
+File servers keep the in-memory copy as a singly-linked list.
+It should be converted to a pair of hash-tables, one keyed by group volname, the other by group volnum, for fast lookup.
+
+The maximum number of replication sites is fixed at 8.  Adding, deleting, or moving replication sites after creation is not supported.
+
+
+
+<sect1>SEE ALSO<P>
+volutil (8), maxgroupid (5), vsgdb (5)
+
+
+
+<sect1>AUTHOR<P>
+Jay Kistler, 1990, created
+
+
+</manpage>

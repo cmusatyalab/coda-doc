@@ -1,0 +1,56 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="vstab" SECTNUM=5>
+<sect1>NAME 
+ <P>vstab - vstab file specification
+
+
+
+
+<sect1>DESCRIPTION<P>
+The file <em>/usr/coda/etc/vstab</em> contains configuration parameters for
+the Coda cache manager, <em>venus (8)</em>.  The parameters override default
+values compiled into Venus, and may themselves be overridden by command-line
+arguments supplied to Venus at startup.
+
+The file should contain a single line with the following format:
+
+&lt;mount point&gt;:&lt;kernel device&gt;:&lt;default-host list&gt;:&lt;cache
+directory&gt;:&lt;cache blocks&gt;:&lt;1&gt;
+
+A sample vstab entry is:
+
+<bf>/coda:/dev/cfs0:rossini,scarlatti,puccini:/usr/coda/venus.cache:10000:1</bf>
+
+Note that the format of the default-host list is
+&lt;host<em>1</em>,host<em>2</em>,...,host<em>n</em>&gt;.  There should be no
+space between the ``:'' separator character and the beginning or end of a
+field.
+
+
+
+<sect1>FILES<P>
+<em>/usr/coda/etc/vstab</em>
+
+<em>&lt;vstab.h&gt;</em>
+
+
+
+<sect1>BUGS<P>
+The last parameter is deprecated and should be removed.
+
+This file is also read by <em>clog (8)</em> (and perhaps other programs) 
+which assume that host-list specifies the hosts running auth servers.
+
+
+
+<sect1>SEE ALSO<P>
+venus (8), vutil (8)
+
+
+
+<sect1>AUTHOR<P>
+Jay Kistler, 1990, Created
+
+
+</manpage>

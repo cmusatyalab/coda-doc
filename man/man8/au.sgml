@@ -1,0 +1,62 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="au" SECTNUM=8>
+<sect1>NAME 
+ <P>au - add a user
+
+
+
+<sect1>SYNONPSIS<P>
+<bf>au</bf> &lsqb;-x&rsqb; &lsqb;-h host&rsqb; &lsqb;-p portal&rsqb;  &lt;cp | cu | nu | du&gt;<P>
+
+
+<sect1>DESCRIPTION<P>
+<bf>au</bf> is used to add, delete, or change user information.  <bf>au</bf> will first
+prompt for a current Coda user name and password.  If it can
+authenticate using your user name and password, it will proceed to ask
+for the new information.  <bf>au</bf> supports the following options:
+<descrip>
+<tag><bf>-x</bf></tag>Turns on debugging.
+<P></descrip>
+<descrip>
+<tag><bf>-h</bf> <em>hostname</em></tag>Attatch to <em>hostname</em> to
+do the authentication.  <em>hostname</em> should be the <em>SCM</em>.
+<P></descrip>
+<descrip>
+<tag><bf>-p</bf> <em>portal</em></tag>Port to bind to.  The default
+portal is coda&lowbar;auth.
+<P></descrip>
+<descrip>
+<tag><bf>cp</bf></tag>Change password.  Use this to change a
+users vice password.
+<P></descrip>
+<descrip>
+<tag><bf>cu</bf></tag>Change user information.  Use this to
+change password and other user information.
+<P></descrip>
+<descrip>
+<tag><bf>nu</bf></tag>New user.  The <bf>nu</bf> option tells <bf>au</bf>
+to add a new password entry to the vice password database.
+<P></descrip>
+<descrip>
+<tag><bf>du</bf></tag>Delete user.  The <bf>du</bf> option tells
+<bf>au</bf> to delete the given user from the password database.
+<P></descrip>
+
+
+<sect1>DIAGNOSTICS<P>
+You must be a Coda system administrator to ru <bf>au</bf>.
+
+
+
+<sect1>BUGS<P>
+<bf>au</bf> echos new passwords to the terminal as they are typed in.
+
+
+<sect1>AUTHOR<P>
+1987, Adapted from AFS-2
+
+Joshua Raiff, 1993, Created man page
+
+
+</manpage>

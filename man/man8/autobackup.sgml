@@ -1,0 +1,54 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="autobackup" SECTNUM=8>
+<sect1>NAME 
+ <P>autobackup - C-shell script for performing automatic backups of the CFS to tape
+
+
+
+<sect1>synopsis<P>
+<P>
+<bf>/usr/cs/bin/csh autobackup</bf><P>
+
+
+<sect1>description<P>
+<em>autobackup</em> is a shell script which performs a backup of the 
+standard Coda file systems to magnetic tape.  
+The script takes no arguments but has easily changed parameters
+which include the blocksize, the tape device, the camelot and Coda
+partitions as well as the output file.  
+The backup process shuts down the file servers, then camelot, then
+performs the actual backup to magnetic tape and finally brings camelot
+and the file servers back up.
+This script is run automatically (by <bf>cron)</bf> each night on the machine 
+with the tape drive (currently, CHOPIN.CODA.CS.CMU.EDU).
+
+
+
+<sect1>DIAGNOSTICS<P>
+Output is redirected to /usr/codabackup/data/backup.Jan29 (for the date the backup was started) and posted on the coda backups 
+bboard.  This file (or the post) should be checked after the
+to backup script has completed to ensure the backup tape is valid.
+The command (<bf>grep "no errors" backup.Jan29 | wc)</bf>
+should return 12 lines (one for each partition backed up to tape).
+
+
+
+<sect1>BUGS<P>
+Errors are not handled well.  
+
+Backup hangs much too often.
+
+
+
+<sect1>SEE ALSO<P>
+mdd (1), /usr/lib/crontab.local
+
+
+
+<sect1>AUTHOR<P>
+Maria Ebling Okasaki
+
+
+</manpage>

@@ -1,0 +1,60 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="nca" SECTNUM=8>
+<sect1>NAME 
+ <P>nca - Camelot Node server
+
+
+
+<sect1>SYNOPSIS<P>
+nca<P>
+
+
+<sect1>DESCRIPTION<P>
+The Camelot Node Configuration Application (NCA) allows Camelot users
+to manage data servers on Camelot nodes. Camelot applications can be
+started, stopped, and configured using NCA. When NCA is run, the user
+must first authenticate himself/herself by logging into NCA.
+
+NCA provides an interactive interface to the Node Server. The Node Server
+maintains a database which contains:
+
+
+<itemize>
+  <item> A list of users who may access the database;
+
+  <item> A list of servers, server owners, and server restart parameters;
+
+  <item> A list of currently running servers;
+
+  <item> Server configuration information.
+</itemize>
+
+The most useful NCA commands are AddServer (as), StartServer (ss), ListServer
+(ls), KillServer (ks), and Help (?). AddServer allows a user to add a data
+server to the Node Servers database. StartServer starts the specified server.
+ListServer returns information on all the servers, or just one if one is
+specified. KillServer tells the Node Server to bring down a data server.
+Finally, Help prints out the list of NCA commands.
+
+There are three types of privileges that can be associated with an NCA account.
+Admin allows the user access to all the NCA commands. User privileges do not
+allow the user to add or delete users or modify the configuration of Camelot, but
+do allow full access to data servers. If an account has no privileges, they
+are only allowed to display information on the data servers.
+
+
+
+<sect1>SEE ALSO<P>
+
+camelot(8),
+<em>Guide to the Camelot Distributed Transaction Facility</em>, Chapter 5.
+
+
+
+<sect1>AUTHOR<P>
+David Steere
+
+
+</manpage>

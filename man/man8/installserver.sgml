@@ -1,0 +1,24 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="installserver" SECTNUM=8>
+<sect1>NAME 
+ <P>installserver - server installation script
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>installserver</bf><P>
+
+
+<sect1>DESCRIPTION<P>
+The <bf>installserver</bf> script automates much of the installation of Coda on
+server machines.  Unfortunately, it has not yet been implemented.
+
+
+<sect1>AUTHOR<P>
+Maria Ebling Okasaki
+
+
+
+</manpage>

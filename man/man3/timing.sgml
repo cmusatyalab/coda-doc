@@ -1,0 +1,160 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="timing&lowbar;paths" SECTNUM=3>
+<sect1>NAME 
+ <P>timing&lowbar;paths - timing package
+
+
+
+
+<sect1>SYNOPSIS<P>
+#include &lt;timing&lowbar;paths.h&gt;<P>
+#include &lt;histo.h&gt;<P>
+#include &lt;dtcreg.h&gt;<P>
+<P>
+ti&lowbar;init ()<P>
+<P>
+ti&lowbar;create (nEntries, thistie)<P>
+    int nEntries;<P>
+    struct tie *thistie;<P>
+<P>
+ti&lowbar;notetime (thistie, id)<P>
+    struct tie *thistie;<P>
+    long id;<P>
+<P>
+ti&lowbar;postprocess (thistie, twrt)<P>
+    struct tie *thistie;<P>
+    enum timewrt twrt;<P>
+<P>
+ti&lowbar;discoverpaths (thistie, pinfo)<P>
+    struct tie *thistie;<P>
+    struct pths&lowbar;info *pinfo;<P>
+<P>
+ti&lowbar;stat (thistie, pinfo)<P>
+    struct tie *thistie;<P>
+    struct pths&lowbar;info *pinfo;<P>
+<P>
+ti&lowbar;destroy (thistie)<P>
+    struct tie *thistie;<P>
+<P>
+ti&lowbar;end ()<P>
+<P>
+<P>
+
+
+
+<sect1>DESCRIPTION<P>
+This package may be used to time sections of a program.  Time values are
+noted by placing  probes in the code at points specified by the user. At each
+probe location a time value is obtained from a timer. These recorded time
+values are used to compute the times elapsed between consecutive probes.  
+As an additional feature, for multiple runs of the same program, the package
+provides first and second order statistics for the elapsed time between
+consecutive probes.  This package only works for timing experiments that take
+less than 35 minutes to run.
+
+
+<!--1 line-->
+The package is used by calling the following routines: 
+
+<descrip>
+<tag><em>ti&lowbar;init ()</em></tag> initialises the timer. 
+<P></descrip>
+
+<descrip>
+<tag><em>ti&lowbar;create ()</em></tag> allocates storage for n entries, where n corresponds to the total number of times ti&lowbar;notetime () is called.
+<P></descrip>
+
+<descrip>
+<tag><em>ti&lowbar;notetime ()</em></tag> probes are placed in different
+sections of the code by calling ti&lowbar;notetime ().  Each probe has to be
+given a unique id number. In order for the program to function correctly it
+is necessary that a probe with id 0 is placed at the very beginning of the
+code being timed.
+<P></descrip>
+
+<descrip>
+<tag><em>ti&lowbar;postprocess ()</em></tag> the times obtained from all the
+ti&lowbar;notetime () calls are processed by the ti&lowbar;postprocess ()
+routine. The ti&lowbar;postprocess () routine can produce the time at each
+probe with respect to either the very first probe (twrt = BASELINE) or the
+previous probe (twrt = DELTA).
+<P></descrip>
+
+<descrip>
+<tag><em>ti&lowbar;discoverpaths LEFTPAREN )</em></tag> for multiple
+iterations of the code being timed, different paths might be followed each
+time.  A path corresponds to a set of ids beginning with 0 e.g.( 0 1 2, 0 1
+4).  ti&lowbar;discoverpaths identifies all the different paths traversed,
+the number of times each path was traversed and other relevant information.  
+<P></descrip>
+
+<descrip>
+<tag><em>ti&lowbar;stat ()</em></tag> for each path traversed by the program, ti&lowbar;stat provides the user with useful statistics (such as mean and standard deviation), for the elapsed time between probes.
+<P></descrip>
+
+<descrip>
+<tag><em>ti&lowbar;destroy ()</em></tag> frees the storage used by the package.
+<P></descrip>
+
+<descrip>
+<tag><em>ti&lowbar;end ()</em></tag> releases the timer.
+<P></descrip>
+
+
+
+
+<sect1>DIAGNOSTICS<P>
+All successful calls return 0.  Negative return values indicate errors.  In particular -2 is returned by ti&lowbar;postprocess if the experiment runs more than 35 minutes.
+
+
+
+<sect1>EXAMPLE<P>
+
+<tscreen><verb>
+#include &lt;timing&lowbar;paths.h&gt; 
+#include &lt;histo.h&gt; 
+#include &lt;dtcreg.h&gt; 
+
+main ()
+&lcub;
+
+  int i,j, foo, iterations = 10;
+  int probes = 3;
+  struct tie array&lowbar;info;
+  struct pths&lowbar;info paths;
+
+
+  ti&lowbar;init ();
+  ti&lowbar;create (probes*iterations, &amp;array&lowbar;info);
+  for (i=0; i&lt;iterations; i++)
+  &lcub;
+    ti&lowbar;notetime (&amp;array&lowbar;info, 0);
+    ti&lowbar;notetime (&amp;array&lowbar;info, 1);
+    for (j=0; j&lt;10; j++)
+    &lcub;
+      foo = foo +j;
+    &rcub;
+
+    ti&lowbar;notetime (&amp;array&lowbar;info, 2);
+  &rcub;
+  ti&lowbar;postprocess (&amp;array&lowbar;info, BASELINE);
+  ti&lowbar;discoverpaths (&amp;array&lowbar;info,&amp;paths);
+  ti&lowbar;stat (&amp;array&lowbar;info,&amp;paths);
+
+
+  ti&lowbar;destroy ();
+
+  ti&lowbar;end ();
+
+</verb></tscreen>
+
+
+
+<sect1>AUTHOR<P>
+Gowthami Rajendran, 1991
+
+
+
+
+</manpage>

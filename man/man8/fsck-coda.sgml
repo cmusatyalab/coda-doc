@@ -1,0 +1,171 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="fsck" SECTNUM=1>
+<sect1>NAME 
+ <P>fsck - file system consistency check and interactive repair
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>/etc/fsck</bf> <bf>-p</bf> &lsqb; filesystem ... &rsqb; <P>
+<bf>/etc/fsck</bf> &lsqb; <bf> -b block#</bf> &rsqb; &lsqb; <bf>-y</bf>&rsqb; &lsqb; <bf>-n</bf> &rsqb; &lsqb; filesystem &rsqb; ...<P>
+
+
+<sect1>DESCRIPTION<P>
+
+The first form of <em>fsck</em> preens a standard set of filesystems or the
+specified file systems.  It is normally used in the script <bf>/etc/rc</bf>
+during automatic reboot.  In this case <em>fsck</em> reads the table
+<bf>/etc/fstab</bf> to determine which file systems to check.  It uses the
+information there to inspect groups of disks in parallel taking maximum
+advantage of I/O overlap to check the file systems as quickly as possible.
+Normally, the root file system will be checked on pass 1, other ``root'' 
+(``a'' partition) file systems on pass 2, other small file systems on separate
+passes (e.g. the ``d'' file systems on pass 3 and the ``e'' file systems on 
+pass 4), and finally the large user file systems on the last pass, e.g. pass 5.
+Only partitions in fstab that are mounted ``rw'' or ``rq'' and that have 
+nonzero pass numbers are checked.
+
+The system takes care that only a restricted class of innocuous
+inconsistencies can happen unless hardware or software failures intervene.
+These are limited to the following:
+<itemize>
+<item> Unreferenced inodes
+
+<item> Link counts in inodes too large
+
+<item> Missing blocks in the free list
+
+<item> Blocks in the free list also in files
+
+<item> Counts in the super-block wrong
+</itemize>
+
+
+These are the only inconsistencies that <em>fsck</em> with the <bf>-p</bf>
+option will correct; if it encounters other inconsistencies, it exits
+with an abnormal return status and an automatic reboot will then fail.
+For each corrected inconsistency one or more lines will be printed
+identifying the file system on which the correction will take place,
+and the nature of the correction.  After successfully correcting a file
+system, <em>fsck</em> will print the number of files on that file system,
+the number of used and free blocks, and the percentage of fragmentation.
+
+If sent a QUIT signal, <em>fsck</em> will finish the file system checks, then
+exit with an abnormal return status that causes the automatic reboot to fail.
+This is useful when you wish to finish the file system checks, but do not
+want the machine to come up multiuser.
+
+Without the <bf>-p</bf> option, <em>fsck</em> audits and interactively
+repairs inconsistent conditions for file systems.  If the file system is
+inconsistent the operator is prompted for concurrence before each correction
+is attempted.  It should be noted that some of the corrective actions which
+are not correctable under the <bf>-p</bf> option will result in some loss of
+data.  The amount and severity of data lost may be determined from the
+diagnostic output.  The default action for each consistency correction is to
+wait for the operator to respond <bf>yes</bf> or <bf>no</bf>.  If the
+operator does not have write permission on the file system <em>fsck</em> will
+default to a <bf>-n</bf> action.
+
+<em>Fsck</em> has more consistency checks than its predecessors
+<em>check</em>, <em>dcheck</em>, <em>fcheck</em>, and <em>icheck</em>
+combined.
+
+This version of <em>fsck</em> has been modified to support <bf>VICE</bf>
+partitions.  <bf>VICE</bf> partitions may contain inodes which are not
+referenced by any UNIX directory.  However, these inodes must be tagged with
+a magic number to avoid being scavenged.
+
+The following flags are interpreted by <em>fsck</em>:  
+<descrip>
+<tag><bf>-b</bf></tag>Use the block specified immediately after the flag as
+the super block for the file system.  Block 32 is always an alternate super 
+block.
+<P></descrip>
+
+<descrip>
+<tag><bf>-y</bf></tag>Assume a ``yes'' response to all questions asked by 
+<em>fsck</em>.  Use this flag with great caution, as it gives free license
+to continue, even after encountering essentially unlimited trouble.  
+<P></descrip>
+
+<descrip>
+<tag><bf>-n</bf></tag>Assume a ``no'' response to all questions asked by 
+<em>fsck</em>; do not open the file system for writing.
+<P></descrip>
+
+If no filesystems are given to <em>fsck</em> then a default list of file
+systems is read from the file <bf>/etc/fstab</bf> .
+
+Inconsistencies checked are as follows:
+<enum>
+<item> Blocks claimed by more than one inode or the free list.
+
+<item> Blocks claimed by an inode or the free list outside the range of the
+  file system.
+
+<item> Incorrect link counts.
+
+<item> Size checks: Directory size not of proper format.
+
+<item> Bad inode format.
+
+<item> Blocks not accounted for anywhere.
+
+<item> Directory checks:  
+  <itemize>
+  <item> File pointing to unallocated inode.
+  <item> Inode number out of range.
+  </itemize>
+
+<item> Super block checks:  More blocks for inodes than there are in the 
+  file system.
+
+<item> Bad free block list format.
+
+<item> Total free block and/or free inode count incorrect.
+</enum>
+
+Orphaned files and directories (allocated but unreferenced) are, with the
+operators concurrence, reconnected by placing them in the <bf>lost+found</bf>
+directory.  The name assigned is the inode number.  If the
+<bf>lost+found</bf> directory does not exist, it is created.  If there is
+insufficient space its size is increased.
+
+Checking the raw device is almost always faster.
+
+
+<sect1>FILES<P>
+<descrip><tag><bf>/etc/fstab</bf></tag> Contains default list of file 
+systems to check.
+<P></descrip>
+
+
+<sect1>DIAGNOSTICS<P>
+The diagnostics produced by <em>fsck</em> are fully enumerated and explained
+in Appendix A of <em>Fsck - The UNIX File System Check Program</em> (SMM:5).
+
+
+<sect1>AUTHOR<P>
+Copyright (c) 1980 Regents of the University of California.
+All rights reserved.  The Berkeley software License Agreement
+specifies the terms and conditions for redistribution.
+6.2 (Berkeley) 5/21/86
+
+
+<sect1>SEE ALSO<P>
+fstab (5),
+fs (5),
+newfs (8),
+mkfs (8),
+crash (8V),
+reboot (8)
+
+
+<sect1>BUGS<P>
+There should be some way to start a <em>fsck</em> <bf>-p</bf> at pass
+<em>n</em>.
+
+
+</manpage>

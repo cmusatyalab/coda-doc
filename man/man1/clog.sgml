@@ -1,0 +1,53 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="clog" SECTNUM=1>
+<sect1>NAME 
+ <P>clog - Authenticate yourself to the Coda file system
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>clog</bf> &lsqb;&lsqb;-x&rsqb; user &lsqb; password &rsqb; &rsqb;<P>
+
+
+<sect1>DESCRIPTION<P>
+This command enables users to get tokens to use for authenticated
+communication with a Coda File System.  The given name 
+and password are passed to an <em>Authentication Server</em>.  The 
+<em>Authentication Server</em> returns a set of tokens encoding the chosen 
+identity if the password is correct.  <bf>clog</bf> passes these tokens to the
+<em>venus</em> process, which acts as the users agent for file 
+manipulation.  These tokens have a limited lifetime, becoming invalid after 25 hours. If an attempt is made to operate on a Coda File System object
+while the user is not authenticated, the user will assume the privileges of the 
+<em>Anonymous</em> user.
+
+<em>clog</em> accepts the following arguments:
+<descrip>
+<tag><bf>user</bf></tag>Login name you wish to be identified as.
+<P></descrip>
+<descrip>
+<tag><bf>passwd</bf></tag>Password corresponding to the 
+given user name.  (If not provided on the command line, the user will be prompted for one.)
+<P></descrip>
+
+
+<sect1>BUGS<P>
+The <bf>-x</bf> switch is not needed.  Specifying a <em>username</em> and
+<em>passwd</em> is sufficient.
+
+
+
+<sect1>SEE ALSO<P>
+cunlog (1), venus (8)
+
+
+
+<sect1>AUTHOR<P>
+1987, Adapted from AFS-2
+
+Maria R. Ebling, 1990, Created man page
+
+
+
+</manpage>

@@ -1,0 +1,145 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="ttyfcon" SECTNUM=1>
+<sect1>NAME 
+ <P>ttyfcon - tty interface to failure emulator 
+
+
+
+<sect1>SYNOPSIS<P>
+<bf>ttyfcon</bf><P>
+
+
+<sect1>DESCRIPTION<P>
+The Coda failure emulation package consists of two pieces: a library
+of routines (<em>libfail</em>) that is linked in with each client and server,
+and a user interface program (<em>ttyfcon</em>) that controls the behavior
+of the linked-in libraries.  These components allow a wide
+range of failure scenarios to be emulated,  including server failure,
+network failure, asymmetric and non-transitive communication, and lossy
+networks.
+
+At each client and server,  every incoming and outgoing  packet is presented
+to the failure emulation package.  Each packet is checked against an ordered
+list of filters. The first filter whose address matches the IP address on the
+packet (destination for <em>send</em> filters, or source for <em>receive</em> filters)
+is used to determine what action should be taken on the packet.
+
+A filter consists of three parts: a <em>probability</em>, a <em>predicate</em>, and a
+ <em>delay.</em> The probability specifies what fraction of packets that match the
+predicate are allowed to pass through unharmed. The <em>delay</em> may be used to
+delay packets in order to simulate a slow connection to those machines
+matching the filters address. The delay will apply regardless of the
+probability.  Filters may either apply to <em>in</em>coming (receive) packets or
+ <em>out</em>going (send) packets.
+
+<em>ttyfcon</em> enables a user to manipulate filters.
+The user interface presented by <em>ttyfcon</em> is  based on the <em>ci (3)</em>
+library.   A command with arguments can be issued in two ways.  If only the
+command name is typed, <em>ttyfcon</em> will prompt the user for the arguments.
+The command name may be uniquely abbreviated.  Alternatively, all the
+arguments to a command may be given on the command line.  If any arguments
+are missing, the command will fail; there is no partial prompting.  This
+feature is intended to allow the user to produce command scripts to be
+executed with <em>ci</em>'s built-in `@' command.
+
+The following commands are available.
+<descrip>
+<tag><bf>addclient</bf> <em>host port</em></tag>Connects to a client at 
+IP port number <em>port</em> on the host named <em>host</em>.  (For Coda clients and
+servers, use 1363 and 1361 respectively.)
+<P></descrip>
+
+<descrip>
+<tag><bf>deleteclient</bf> <em>clientnum</em></tag>Disconnects from; 
+client number <em>clientnum</em>.
+<P></descrip>
+
+<descrip>
+<tag><bf>listclients</bf></tag>Lists the current set of connected 
+clients.
+<P></descrip>
+
+<descrip>
+<tag><bf>insertfilter</bf> 
+
+<em>clientnum side id host color lenmin lenmax probability speed</em></tag>
+Inserts a filter into client number <em>clientnum</em>'s table on the
+specified <em>side</em> (one of <em>in out</em>).  The filter will be
+inserted after the existing filter with identifier <em>id</em>. (Inserting
+after the filter with identifier <em>0</em> will insert the filter before all
+existing filters.) The characteristics of the new filter are <em>host, color,
+lenmin, lenmax, probability</em> and <em>speed.</em>  <em>Host</em> is
+specified as a name or an IP  address of the form "a.b.c.d."  Any of the 4 IP
+components can be  wildcarded by specifying a value of -1.  Thus "-1.-1.-1.-1"
+matches any  host, while "128.2.-1.-1" matches any host on subnet 2 at CMU.
+<em>Lenmin</em> and <em>lenmax</em> specify the minimum and maximum RPC
+packet sizes that match this filter. <em>Color</em> is a number in the range
+from 0 to 254.  A value of -1 specifies that any color matches.  RPC2
+connections can be colored using the  call RPC2&lowbar;SetColor ().  Packets
+sent out on a connection acquire the color of the connection.  Note that
+reply packets acquire the color of the reply connection, which may be
+different.  Colors are particularly valuable in stressing critical phases of
+higher-level protocols. By changing connection color between phases, one can
+easily investigate the effect of failures on specific phases. Probability is
+specified as an integer in the range from 0 to 10000, and correspond to
+floating point numbers in the range 0.00 to 1.00.  The speed is the speed in
+bits per second that data should be transmitted between the machines.  The
+value returned from this routine is the filters unique identifier. Speeds
+other than the default cannot be applied on <em>receive</em> filters.  
+<P></descrip>
+
+<descrip>
+<tag><bf>removefilter</bf> <em>clientnum side id</em></tag>Removes the filter
+with identifier <em>id</em> on the given side of client <em>clientnum.</em>
+<P></descrip>
+
+<descrip>
+<tag><bf>getfilters</bf> <em>clientnum</em></tag>Lists the filters at client 
+<em>clientnum.</em>
+<P></descrip>
+
+<descrip>
+<tag><bf>purgeFilters</bf> <em>clientnum</em> <em>side</em></tag>Removes all
+filters from the set specified by <em>side</em>. <em>side</em> can be either
+<em>in</em>, <em>out</em>, or <em>both</em> (the default).
+<P></descrip>
+
+<descrip>
+<tag><bf>quit</bf></tag>Terminates the program.  Note that this does 
+not clear any filters.
+<P></descrip>
+
+
+
+<sect1>BUGS<P>
+You cannot currently designate a host by IP address of the form
+a.b.c.d as described above when binding to a process.
+
+May confuse the user with the error message ``RPC2&lowbar;SUCCESS.''
+
+No authentication or security checks are done.  Denial of service 
+attacks are trivial, since any user can set up
+filters on any other client or server.
+
+
+
+<sect1>SEE ALSO<P>
+heal (1), ci (3), libfail (3), RPC2 Reference Manual
+
+
+
+<sect1>AUTHOR<P>
+Walter Smith, 1988, created.
+
+M. Satyanarayanan, 1990, updated.
+
+Maria R. Ebling, 1991, updated.
+
+Lily Mummert, 1992, Added support for <em>speed</em>.
+
+David Steere, 1994, Added "purgeFilters", slight rewrite.
+
+
+</manpage>

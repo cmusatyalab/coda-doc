@@ -1,0 +1,28 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="backup" SECTNUM=5>
+<sect1>NAME 
+ <P>backup - Format of a Coda backup tape
+
+
+
+<sect1>Description<P>
+Each backup tape contains a series of tar files, the first and last of
+which are labels.  The start and end labels are identical and contain
+version information, the date the backup was taken, and an index which
+maps individual dump files into offests of the tape.  Thus to find a
+dump file, read the label, then use <bf>mt</bf>(1) to fast forward to the
+file specified by the labels index.
+
+
+<sect1>See Also<P>
+backup (8), mt (1)
+
+
+<sect1>Author<P>
+Joshua Raiff, 1993, Taken from system adminstrators guide.
+
+
+
+
+</manpage>

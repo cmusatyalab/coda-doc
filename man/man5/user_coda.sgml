@@ -1,0 +1,27 @@
+<!doctype linuxdoc system>
+
+<manpage TITLE="user.coda" SECTNUM=5>
+<sect1>NAME 
+ <P>user.coda - Coda user identification file
+
+
+
+<sect1>Description<P>
+This file specifies each users Coda user id.  The format of the file is:
+<tscreen><verb>
+&lt;User Name&gt;::&lt;User Id&gt;::&lt;Extra Text&gt;::
+</verb></tscreen>
+This file is then compiled with <em>pwd2pdb</em> to create a vice.pdb file which
+Coda uses for its user id database.  Note that actual passwords are
+maintained by the authentication server.
+
+
+
+<sect1>SEE ALSO<P>
+passwd (5), vice.pcf (5), pwd2pdb (8)
+
+
+<sect1>AUTHOR<P>
+Joshua Raiff, 1993, Created man page
+
+</manpage>
