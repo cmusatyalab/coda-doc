@@ -48,7 +48,6 @@ In this example, a minimal handler routine is supplied for each server operation
 The following table shows the C type interface between the client routine and <em>MRPC_MakeMulti</em> for all the possible combinations of legal parameter declarations and types. In all cases it is the clients responsibility to allocate storage for all parameters, just as in the RPC2 case. For all types except RPC2_EncryptionKey, IN parameters are handled the same as in the single MakeRPC case; RPC2_EncryptionKeys must be passed as pointers in the MultiRPC case. For OUT and INOUT parameters, arrays of pointers to parameters must be supplied in order to hold the multiple server responses. The array for each parameter must contain the same number of items as the number of servers contacted, and they must be filled sequentially starting from element zero. For all INOUT parameters except for <bf>SE_Descriptors</bf>, only the first element of the array need be filled in. For <bf>SE_Descriptors</bf>, all elements must be filled in. <p>
 
 The following table should be consulted for specific formats. <p>
-<!--   Fix This TABLE 
 <table>
 <tabular ca="l|r|r|r">
 RPC2 Type | <bf>in</bf> | <bf>out</bf> | <bf>in out</bf>&gt;)
@@ -68,7 +67,7 @@ RPC2&lowbar;Byte <em>name&lsqb;...&rsqb;</em> | <em>name</em> | <em>name</em> *&
 RP2Gen representation of MultiRPC parameters
 </caption>
 </table>
--->
+
 
 The client is only responsible for understanding the parameter type interface to the <em>MakeMulti</em> and <em>HandleResult</em> routines, and for allocating all necessary storage. <em>MRPC_MakeMulti</em> and <em>MRPC_UnpackMulti</em> are included in the RPC2 libraries.
 
@@ -76,45 +75,59 @@ The client is only responsible for understanding the parameter type interface to
 <sect>Runtime Calls<p>
 
 <sect1>MRPC_MakeMulti -- <em>Pack arguments and initialize state for RPC2_MultiRPC</em><p>
-  <sect2>Call:<p> 
-	ParmList = `@w&lt;<bf>in</bf> long ServerOp&gt;, @w&lt;<bf>in</bf> ARG ArgTypes&lsqb;&rsqb;&gt;, @w&lt;<bf>in</bf> long HowMany&gt;, @w&lt;<bf>in</bf> @RPC2(Handle) CIDList&lsqb;&rsqb;&gt;, @w&lt;<bf>out</bf> @RPC2(Integer) RCList&lsqb;&rsqb;&gt;, @w&lt;<bf>in out</bf> @RPC2(Multicast) *MCast&gt;, @w&lt;<bf>in</bf> long (*HandleResult) ()&gt;, @w&lt;<bf>in</bf> struct timeval *Timeout&gt;, @w&lsqb;&lt;Variable Length Argument List&gt;&rsqb;,
-	P1=`ServerOp, PD1=`For server routine foo, "foo". RP2GEN generated opcode, defined in include file. Note that subsystems with overlapping routine names may cause problems in a MakeMulti call.,
-	P2=`ArgTypes, PD2=`For server routine foo, "foo;PTR". RP2GEN generated array of argument type specifiers. A pointer to this array is located in the generated include file <em>foo.h</em>.,
-	P3=`HowMany, PD3=`How many servers are being called,
-	P4=`CIDList, PD4=`Array of HowMany connection handles, one for each of the servers,
-	P5=`RCList, PD5=`Array of length HowMany, into which RPC2 will place return codes for each of the connections specified in ConnHanleList.  May be specified as NULL if return codes will not be examined.,
-	P6=`MCast, PD6=`Pointer to multicast sturcture.  Set to NULL for now.,
-	P7=`HandleResult, PD7=`User procedure to be called after each server response. Responses are processed as they come in. Client can indicate when he has received sufficient responses (see below). @MRPC(MakeMulti) will not return the server responses.,
-	P8=`Timeout, PD8=`User specified timeout. Note that the default timeout set in the .rpc file will not be active here: a NULL value will be passed through to MultiRPC, where it will indicate infinite patience as long as RPC2 believes that the server is alive. Note that this timeout value is orthogonal to the RPC2 internal timeout for determining connection death.,
-	P9=`&lt;Variable Length Argument List&gt;, PD9=`This is just the list of the server arguments as they are declared in the <em>.rpc2</em> file. It is represented in this form since each call will have a different argument list.,
-	CC1=`@RPC2(SUCCESS), CCD1=`All went well,
-	CC2=`@RPC2(TIMEOUT), CCD2=`The user specified timeout expired
+  <sect2>Call:<p>
+<em> MRPC_MakeMulti (</em> <bf>in</bf> long Server <bf>in</bf> ARG ArgTypes&lsqb;&rsqb;, <bf>in</bf> long HowMany, <bf>in</bf> RPC2_Handle CIDList&lsqb;&rsqb;, <bf>out</bf> RPC2_Integer RCList&lsqb;&rsqb;, <bf>in out</bf> RPC2_Multicast *MCast, <bf>in</bf> long (*HandleResult) (), <bf>in</bf> struct timeval *Timeout, Variable Length Argument List&lsqb;&rsqb;<em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+	<tag/ServerOp/For server routine foo, "foo". RP2GEN generated opcode, defined in include file. Note that subsystems with overlapping routine names may cause problems in a MakeMulti call.,
+	<tag/ArgTypes/For server routine foo, "foo;PTR". RP2GEN generated array of argument type specifiers. A pointer to this array is located in the generated include file <em>foo.h</em>.,
+	<tag/HowMany/How many servers are being called,
+	<tag/CIDList/Array of HowMany connection handles, one for each of the servers,
+	<tag/RCList/Array of length HowMany, into which RPC2 will place return codes for each of the connections specified in ConnHanleList.  May be specified as NULL if return codes will not be examined.,
+	<tag/MCast/Pointer to multicast sturcture.  Set to NULL for now.,
+	<tag/HandleResult/User procedure to be called after each server response. Responses are processed as they come in. Client can indicate when he has received sufficient responses (see below). @MRPC(MakeMulti) will not return the server responses.,
+	<tag/Timeout/User specified timeout. Note that the default timeout set in the .rpc file will not be active here: a NULL value will be passed through to MultiRPC, where it will indicate infinite patience as long as RPC2 believes that the server is alive. Note that this timeout value is orthogonal to the RPC2 internal timeout for determining connection death.,
+	<tag/&lt;Variable Length Argument List&gt;/This is just the list of the server arguments as they are declared in the <em>.rpc2</em> file. It is represented in this form since each call will have a different argument list.,
+  </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/@RPC2(SUCCESS)/All went well,
+	<tag/@RPC2(TIMEOUT)/The user specified timeout expired
 before all the server responses were received,
-	CC3=`@RPC(FAIL), CCD2=`Something other than SUCCESS or TIMEOUT occurred. Individual server response is supplied via UnpackMulti to the client handler routine.,
+	<tag/@RPC(FAIL)/Something other than SUCCESS or TIMEOUT occurred. Individual server response is supplied via UnpackMulti to the client handler routine.
+  </descrip>
+  <sect2>Description:<p>
 	Text=`For all <bf>in</bf> or <bf>in out</bf> parameters, an array of HowMany of the appropriate type should be allocated and supplied by the client. For example, if one argument is an <bf>out</bf> integer, an array of HowMany integers (i.e. int foo&lsqb;HowMany&rsqb;) should be used. For structures, an array of structures and NOT an array of pointers to structures should be used. <bf>in</bf> arguments are treated as in the @RPC2(MakeRPC) case.
 	)
 
-@begin(comment)
-@PasCall(Tag=&lt;MultiRPC&gt;,
-	CallName=`@RPC2(MultiRPC), Abstract=`Make a collection of remote procedure calls,
-	ParmList=`@w&lt;<bf>in</bf> long HowMany&gt;, @w&lt;<bf>in</bf> @RPC2(Handle) ConnHandleList&lsqb; &rsqb;&gt;, @w&lt;<bf>in</bf> @RPC2(PacketBuffer) *Request&gt;, @w&lt;<bf>in</bf> @SE(Descriptor) SDescList&lsqb; &rsqb;&gt;, @w&lt;<bf>in</bf> long (*UnpackMulti) ()&gt;, @w&lt;<bf>in out</bf> @ARG(INFO) *ArgInfo&gt;, @w&lt;<bf>in</bf> struct timeval *Patience&gt;,
-	P1=`HowMany, PD1=`How many servers to contact,
-	P2=`ConnHandleList, PD2=`List of HowMany connection handles for the connections on which calls are to be made.,
-	P3=`Request, PD3=`A properly formatted request buffer.,
-	P4=`SDescList, PD4=`List of HowMany side effect descriptors,
-	P5=`UnpackMulti, PD5=`Pointer to unpacking routine called by RPC2
+
+<sect1> RPC2_MultiRPC -- <em/Make a collection of remote procedure calls/ <p>
+  <sect2>Call:<p>
+    <em>  RPC2_MultiRPC(</em><bf>in</bf> long HowMany <bf>in</bf> RPC2_Handle ConnHandleList&lsqb;&rsqb;, <bf>in</bf> RPC2_PacketBuffer *Request, <bf>in</bf> SE_Descriptor SDescList&lsqb;&rsqb;, <bf>in</bf> long (*UnpackMulti) (), <bf>in out</bf> @ARG(INFO) *ArgInfo, <bf>in</bf> struct timeval *Patience  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	<tag/HowMany/How many servers to contact,
+	<tag/ConnHandleList/List of HowMany connection handles for the connections on which calls are to be made.,
+	<tag/Request/A properly formatted request buffer.,
+	<tag/SDescList/List of HowMany side effect descriptors,
+	<tag/UnpackMulti/Pointer to unpacking routine called by RPC2
 when each server response as received. If RP2Gen is used, this will be
 supplied by @MRPC(MakeMulti). Otherwise, it must be supplied by the client.,
-	P6=`ArgInfo, PD6=`A pointer to a structure containing argument information. This
+	<tag/ArgInfo/A pointer to a structure containing argument information. This
 structure is not examined by RPC2; it is passed untouched to 
  UnpackMulti. If RP2Gen is used, this structure will be supplied by
 @MRPC(MakeMulti). Otherwise, it can be used to pass any structure desired by the
 client or supplied as NULL.,
-	P7=`Patience, PD7=`Maximum time to wait for remote sites to respond. A NULL pointer indicates infinite patience as long as RPC2 believes that the server is alive. Note that this timeout value is orthogonal to the RPC2 internal timeout for determining connection death.,
-	CC1=`@RPC2(SUCCESS), CCD1=`All servers returned successfully, or all servers until client-initiated abort returned successfully. Individual server response information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.,
-	CC2=`@RPC2(TIMEOUT), CCD2=`The user specified timeout expired before all the servers responded.,
-	CC3=`@RPC2(FAIL), CCD3=`Something other than SUCCESS or TIMEOUT occurred. More detailed information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.,
-	Text=`Logically identical to iterating through ConnHandleList and making @RPC2(MakeRPC) calls to each specified
+	<tag/Patience/Maximum time to wait for remote sites to respond. A NULL pointer indicates infinite patience as long as RPC2 believes that the server is alive. Note that this timeout value is orthogonal to the RPC2 internal timeout for determining connection death.,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	<tag/RPC2_SUCCESS)/All servers returned successfully, or all servers until client-initiated abort returned successfully. Individual server response information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.,
+	<tag/RPC2_TIMEOUT)/The user specified timeout expired before all the servers responded.,
+	<tag/RPC2_FAIL)/Something other than SUCCESS or TIMEOUT occurred. More detailed information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.,
+    </descrip>
+  <sect2>Description:<p>
+	Logically identical to iterating through ConnHandleList and making RPC2_MakeRPC) calls to each specified
 	connection using Request as the request block, but this call will be considerably faster than explicit
 	iteration. The calling lightweight process
 	blocks until either the client requests that the call abort or one of the following is true about each of
@@ -133,56 +146,67 @@ codes of the supplied routine must conform to the specifications in section
 
 Side effects are supported as in the RPC2 case except that the
 client must supply a separate <bf>@SE&lsqb;Descriptor&rsqb;</bf> for each connection. The
-format for the <bf>@SE&lsqb;Descriptor&rsqb;</bf> argument is described in section
- <ref id="interface" name="XXX">.
-It will often be useful to supply
+format for the <bf>@SE&lsqb;Descriptor&rsqb;</bf> argument is described in section <ref id="interface" name="XXX">. It will often be useful to supply
 connection specific information such as unique file names in the
  <bf>@SE&lsqb;Descriptor&rsqb;</bf>.
-)
-@end(comment)
 
-@PasCall(Tag=&lt;UnpackMulti&gt;,
-	CallName=`@MRPC(UnpackMulti), Abstract=`Unpack server arguments and call
-client handler routine,
-	ParmList=`@w&lt;<bf>in</bf> long HowMany&gt;, @w&lt;<bf>in</bf> @RPC2(Handle) ConnHandleList&lsqb;&rsqb;&gt;, @w&lt;<bf>in out</bf> @ARG(INFO) *ArgInfo&gt;, @w&lt;<bf>in</bf> @RPC2(PacketBuffer) *Response&gt;, @w&lt;<bf>in</bf> long rpcval&gt;, @w&lt;<bf>in</bf> long
-thishost&gt;,
-	P1=`HowMany, PD1=`How many servers were included in the MultiRPC
+
+<sect1> MRPC_UnpackMulti -- <em/Unpack server arguments and call
+client handler routine / <p>
+  <sect2>Call:<p>
+    <em>  MRPC_UnpackMulti(</em><bf>in</bf> long HowMany, <bf>in</bf> RPC2_Handle ConnHandleList&lsqb;&rsqb, <bf>in out</bf> @ARG(INFO) *ArgInfo, <bf>in</bf> RPC2_PacketBuffer *Response, <bf>in</bf> long rpcval, <bf>in</bf> long  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	<tag/HowMany/How many servers were included in the MultiRPC
 call,
-	P2=`ConnHandleList, PD2=`Array of HowMany connection ids,
-	P3=`ArgInfo, PD3=`Pointer to argument information structure. This pointer is the same one passed in to MultiRPC, so for the non-RP2Gen case its type is determined by the client.,
-	P4=`Response, PD4=`RPC2 response buffer,
-	P5=`rpcval, PD5=`Individual connection error code or server response code,
-	P6=`thishost, PD6=`Index into ConnHandleList to identify the
+	<tag/ConnHandleList/Array of HowMany connection ids,
+	<tag/ArgInfo/Pointer to argument information structure. This pointer is the same one passed in to MultiRPC, so for the non-RP2Gen case its type is determined by the client.,
+	<tag/Response/RPC2 response buffer,
+	<tag/rpcval/Individual connection error code or server response code,
+	<tag/thishost/Index into ConnHandleList to identify the
 returning connection,
-	CC1=`0, CCD1=`Continue accepting and processing server responses,
-	CC2=`-1, CCD2=`Abort MultiRPC call and return,
-	Text=`This routine is fixed in the RP2Gen case, and can be ignored
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	<tag/0/Continue accepting and processing server responses,
+	<tag/-1/Abort MultiRPC call and return,
+    </descrip>
+  <sect2>Description:<p>
+	This routine is fixed in the RP2Gen case, and can be ignored
 by the client. For the non-RP2Gen case, a pointer to a routine with the
 argument structure described must be supplied as an argument to
-@RPC2(MultiRPC). The functionality of such a client-supplied routine is
+RPC2_MultiRPC). The functionality of such a client-supplied routine is
 unconstrained, but note that the return codes have an important effect on
-the process of the MultiRPC call.)
+the process of the MultiRPC call.
 
-@PasCall(Tag=&lt;HandleResult&gt;,
-	CallName=`HandleResult, Abstract=`Process incoming server replies as they arrive,
-	ParmList=`@w&lt;<bf>in</bf> long HowMany&gt;, @w&lt;<bf>in</bf> @RPC2(Handle) ConnArray&lsqb; &rsqb;&gt;, @w&lt;<bf>in</bf> long WhichHost&gt;, @w&lt;<bf>in</bf> long rpcval&gt;, @w&lsqb;&lt;Variable Length Argument List&gt;&rsqb;,
-	P1=`HowMany, PD1=`number of servers from @MRPC(MakeMulti) call,
-	P2=`ConnArray, PD2=`array of connection ids as supplied to @MRPC(MakeMulti),
-	P3=`WhichHost, PD3=`this is an offset into ConnArray and into any OUT or IN;OUT parameters. Using this to index the arrays will yield the responding server and its corresponding argument values.,
-	P4=`rpcval, PD4=`this is the RPC2 return code from the specified server,
-	p5=`&lt;Variable Length Argument List&gt;, PD5=`These should be specified as described above for @MRPC(MakeMulti),
-	CC1=`0, CCD1=`Continue processing server responses,
-	CC2=`-1, CCD2=`Terminate @MRPC(MakeMulti) call and return,
-	Text=`This routine must return either 0 or -1. A return value of zero indicates that the client
+
+<sect1> HandleResult, -- <em/Process incoming server replies as they arrive/ <p>
+  <sect2>Call:<p>
+    <em>  HandleResult(</em><bf>in</bf> long HowMany, <bf>in</bf> RPC2_Handle ConnArray&lsqb;&rsqb, <bf>in</bf> long WhichHost, <bf>in</bf> long rpcval, &lsqb;Variable Length Argument List&rsqb;  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	<tag/HowMany/number of servers from @MRPC(MakeMulti) call,
+	<tag/ConnArray/array of connection ids as supplied to @MRPC(MakeMulti),
+	<tag/WhichHost/this is an offset into ConnArray and into any OUT or IN;OUT parameters. Using this to index the arrays will yield the responding server and its corresponding argument values.,
+	<tag/rpcval/this is the RPC2 return code from the specified server,
+	p5=`&lt;Variable Length Argument L
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	<tag/0/Continue processing server responses,
+	<tag/-1/Terminate @MRPC(MakeMulti) call and return,
+    </descrip>
+  <sect2>Description:<p>
+	This routine must return either 0 or -1. A return value of zero indicates that the client
 wants to continue receiving server responses as they come in (normal case). A return value
 of -1 indicates that the client has received enough responses and wants to terminate the
 MakeMulti call (in which the client is still blocked). This allows the client to call
 a large number or servers and terminate after the first <em>n</em> responses are received.
 
-Note that the name of this routine is arbitrary and may be determined by the client. @RPC2(MultiRPC) sees it only as a pointer
+Note that the name of this routine is arbitrary and may be determined by the client. RPC2_MultiRPC) sees it only as a pointer
 supplied as an argument to @MRPC(MakeMulti). The parameter list is predefined, however, and the client must follow the structure
 specified here in writing the routine. 
-	)
+	
 
 
 <chapt> Multicast <p>
@@ -192,71 +216,94 @@ specified here in writing the routine.
 @center(<em>Not written yet</em>)
 
 <sect>Runtime Calls<p>
-@PasCall(Tag=&lt;CreateMgrp&gt;,
-	CallName=`@RPC2&lt;CreateMgrp&gt;, Abstract=`Create a new RPC2 mgroup ID,
-	ParmList=`@w&lt;<bf>out</bf> @RPC2(Handle) *MgroupHandle&gt;, @w&lt;<bf>in</bf> @RPC2(McastIdent) *McastAddr&gt;, @w&lt;<bf>in</bf> @RPC2(PortalIdent) *McastPortal&gt;, @w&lt;<bf>in</bf> @RPC2(SubsysIdent) *Subsys&gt;, @w&lt;<bf>in</bf> @RPC2(Integer) SecurityLevel&gt;, @w&lt;<bf>in</bf> @RPC2(EncryptionKey) SessionKey&gt;, @w&lt;<bf>in</bf> @RPC2(Integer) EncryptionType&gt;, @w&lt;<bf>in</bf> long SideEffectType&gt;,
-	P1=`MgroupHandle, PD1=`An integer, unique to a specific client, returned by the call. When combined with the clients network address, it uniquely identifies this mgroup connection. This is not necessarily a small-valued integer.,
-	P2=`McastAddr, PD2=`The IP multicast address of the desired multicast group.  This is the address that a server must use in a joingroup () system call.  Only MGRPBYINETADDR is supported at present.,
-	P3=`McastPortal, PD3=`The portal at which server (s) will be listening.  All servers in the multicast group must be listening at the same portal.,
-	P4=`Subsys, PD4=`The RPC2 subsystem corresponding to this multicast group.  Each server in the multicast group must have exported this subsystem.,
-	P5=`SecurityLevel, PD5=`same as in @RPC2(Bind)().,
-	P6=`SessionKey, PD6=`Encryption key to be used for all communication on this multicast channel.  RPC2 will send this (securely) to each server that is added via a @RPC2(AddToMgrp)() call.,
-	P7=`EncryptionType, PD7=`same as in @RPC2(Bind)().,
-	P8=`SideEffectType, PD8=`same as in @RPC2(Bind)().,
-	CC1=`@RPC2(SUCCESS), CCD1=`All went well,
-	CC2=`@RPC2(SEFAIL1), CCD2=`Side effect routines reported failure.,	
-	CC3=`@RPC2(SEFAIL2), CCD3=`Side effect routines reported failure.,
-	CC4=`@RPC2(FAIL),    CCD4=`Some other mishap occurred.,
-	Text=`Creates a new RPC2 mgroup identifier, unique to a particular &lt;multicastaddr, portal, subsystem&gt; combination, and returns it to the caller.  Once the identifier has been assigned, RPC2 mgroup members may be added and deleted via the @RPC2(AddToMgrp) and @RPC2(RemoveFromMgrp) calls. The security level, encryption type and side effect types of each added connection must match the corresponding parameters of this @RPC2(CreateMgrp) call.
-	)
-		
-@PasCall(Tag=&lt;AddToMgrp&gt;,
-	CallName=`@RPC2&lt;AddToMgrp&gt;, Abstract=`Add a connection ID (server) to an RPC2 mgroup,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) MgroupHandle&gt;, @w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;,
-	P1=`MgroupHandle, PD1=`identifies the mgroup  to which the new server should be added,
-	P2=`ConnHandle, PD2=`identifies the connection to be added to the mgroup,
-	CC1=`@RPC2(SUCCESS), CCD1=`All went well,
-	CC2=`@RPC2(NOMGROUP), CCD2=`MgroupHandle is not a valid mgroup,
-	CC3=`@RPC2(NOCONNECTION), CCD3=`ConnHandle is not a valid connection.,
-	CC4=`@RPC2(BADSECURITY), CCD4=`SecurityLevel or EncryptionType of ConnHandle does not match that of Mgroup,
-	CC5=`@RPC2(DUPLICATEMEMBER), CCD5=`ConnHandle is already a member of Mgroup,
-	CC6=`@RPC2(MGRPBUSY), CCD6=`A call is in progress on MgroupHandle.,
-	CC7=`@RPC2(CONNBUSY), CCD7=`A call is in progress on ConnHandle.,
-	CC8=`@RPC2(SEFAIL1), CCD8`Error code returned by side effect routine.,
-	CC9=`@RPC2(SEFAIL2), CCD9=`Error code returned by side effect routine.,
-	CC8=`@RPC2(NAKED), CCD8=`The remote site corresponding to ConnHandle sent an explicit negative acknowledgement.  This can happen if that site thought you were dead, or if someone at that site unbound your connection.,
-	CC9=`@RPC2(DEAD), CCD9=`The remote site corresponding to ConnHandle has been deemed dead or unreachable,
-	CC10=`@RPC2(FAIL), CCD10=`Some strange mishap occurred.,
-	Text=`Adds ConnHandle to the mgroup associated with MgroupHandle.  RPC2 contacts the remote site
+
+<sect1> RPC2_CreateMgrp -- <em/Create a new RPC2 mgroup ID/ <p>
+  <sect2>Call:<p>
+    <em> RPC2_CreateMgrp(</em> <bf>out</bf> RPC2_Handle *MgroupHandle, <bf>in</bf> RPC2_McastIdent *McastAddr, <bf>in</bf> RPC2_PortalIdent *McastPortal, <bf>in</bf> RPC2_SubsysIdent *Subsys,<bf>in</bf> RPC2_Integer SecurityLevel,<bf>in</bf> RPC2_EncryptionKey SessionKey,<bf>in</bf> RPC2_Integer EncryptionType,<bf>in</bf> long SideEffectType <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	<tag/MgroupHandle/An integer, unique to a specific client, returned by the call. When combined with the clients network address, it uniquely identifies this mgroup connection. This is not necessarily a small-valued integer.,
+	<tag/McastAddr/The IP multicast address of the desired multicast group.  This is the address that a server must use in a joingroup () system call.  Only MGRPBYINETADDR is supported at present.,
+	<tag/McastPortal/The portal at which server (s) will be listening.  All servers in the multicast group must be listening at the same portal.,
+	<tag/Subsys/The RPC2 subsystem corresponding to this multicast group.  Each server in the multicast group must have exported this subsystem.,
+	<tag/SecurityLevel/same as in RPC2_Bind().,
+	<tag/SessionKey/Encryption key to be used for all communication on this multicast channel.  RPC2 will send this (securely) to each server that is added via a RPC2_AddToMgrp)() call.,
+	<tag/EncryptionType/same as in RPC2_Bind)().,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	<tag/RPC2_SUCCESS)/All went well,
+	<tag/RPC2_SEFAIL1)/Side effect routines reported failure.,	
+	<tag/RPC2_SEFAIL2)/Side effect routines reported failure.,
+	<tag/RPC2_FAIL),    /Some other mishap occurred.,
+    </descrip>
+  <sect2>Description:<p>
+	Creates a new RPC2 mgroup identifier, unique to a particular &lt;multicastaddr, portal, subsystem&gt; combination, and returns it to the caller.  Once the identifier has been assigned, RPC2 mgroup members may be added and deleted via the RPC2_AddToMgrp) and RPC2_RemoveFromMgrp calls. The security level, encryption type and side effect types of each added connection must match the corresponding parameters of this RPC2_CreateMgrp call.
+	
+<sect1> RPC2_AddToMgrp -- <em/Add a connection ID (server) to an RPC2 mgroup/ <p>
+  <sect2>Call:<p>
+    <em>  RPC2_AddToMgrpAdd(</em> <bf>in</bf> RPC2_Handle MgroupHandle,<bf>in</bf> RPC2_Handle) ConnHandle<em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	<tag/MgroupHandle/identifies the mgroup  to which the new server should be added,
+	<tag/ConnHandle/identifies the connection to be added to the mgroup,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	<tag/RPC2_SUCCESS/All went well,
+	<tag/RPC2_NOMGROUP/MgroupHandle is not a valid mgroup,
+	<tag/RPC2_NOCONNECTION/ConnHandle is not a valid connection.,
+	<tag/RPC2_BADSECURITY/SecurityLevel or EncryptionType of ConnHandle does not match that of Mgroup,
+	<tag/RPC2_DUPLICATEMEMBER/ConnHandle is already a member of Mgroup,
+	<tag/RPC2_MGRPBUSY/A call is in progress on MgroupHandle.,
+	<tag/RPC2_CONNBUSY/A call is in progress on ConnHandle.,
+	<tag/RPC2_SEFAIL1/Error code returned by side effect routine.,
+	<tag/RPC2_SEFAIL2/Error code returned by side effect routine.,
+	<tag/RPC2_NAKED/The remote site corresponding to ConnHandle sent an explicit negative acknowledgement.  This can happen if that site thought you were dead, or if someone at that site unbound your connection.,
+	<tag/RPC2_DEAD/The remote site corresponding to ConnHandle has been deemed dead or unreachable,
+	<tag/RPC2_FAIL/Some strange mishap occurred.,
+    </descrip>
+  <sect2>Description:<p>
+	Adds ConnHandle to the mgroup associated with MgroupHandle.  RPC2 contacts the remote site
 to initialize its mgroup connection information.  The security level, encryption type
 and side effect type of the connection being added must match that specified when Mgroup was defined.
-	)
-		
-@PasCall(Tag=&lt;RemoveFromMgrp&gt;,
-	CallName=`@RPC2&lt;RemoveFromMgrp&gt;, Abstract=`Remove a connection from an RPC2 mgroup,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) MgroupHandle&gt;, @w&lt;<bf>in</bf> ConnHandle&gt;,
-	P1=`MgroupHandle, PD1=`the mgroup to be shrunk,
-	P2=`ConnHandle, PD2=`the connection to be removed from MgroupHandle,
-	CC1=`@RPC2(SUCCESS), CCD1=`All went well,
-	CC2=`@RPC2(NOMGROUP), CCD2=`MgroupHandle does not refer to a valid mgroup connection,
-        CC3=`@RPC2(NOCONNECTION), CCD3=`ConnHandle is bogus.,
-	CC4=`@RPC2(NOTGROUPMEMBER), CCD4=`ConnHandle is not a member of MgroupHandle.,
-	CC5=`@RPC2(MGRPBUSY), CCD5=`A call is in progress on MgroupHandle,
-	CC6=`@RPC2(FAIL), CCD6=`Some strange mishap occurred,
-	Text=`Removes ConnHandle from the mgroup associated with MgroupHandle
-	)
-		
 
-@PasCall(Tag=&lt;DeleteMgrp&gt;,
-	CallName=`@RPC2&lt;DeleteMgrp&gt;, Abstract=`Delete a RPC2 mgroup,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) MgroupHandle&gt;,
-	P1=`MgroupHandle, PD1=`the mgroup to be deleted,
-	CC1=`@RPC2(SUCCESS), CCD1=`All went well,
-	CC2=`@RPC2(NOMGROUP), CCD2=`MgroupHandle is bogus.,
-	CC3=`@RPC2(MGRPBUSY), CCD3=`A call is in progress on MgroupHandle.,
-	CC4=`@RPC2(FAIL), CCD4=`Some other mishap occurred.,
-	Text=`Deletes an mgroup, removing any existing members before deletion
-	)
+<sect1> RPC2_RemoveFromMgrp -- <em/Remove a connection from an RPC2 mgroup/ <p>
+  <sect2>Call:<p>
+    <em>  RPC2_RemoveFromMgrp(</em> <bf>in</bf> RPC2_Handle MgroupHandle, <bf>in</bf> ConnHandle <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	<tag/MgroupHandle/the mgroup to be shrunk,
+	<tag/ConnHandle/the connection to be removed from MgroupHandle,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	<tag/RPC2_NOMGROUP/MgroupHandle does not refer to a valid mgroup connection,
+        <tag/RPC2_NOCONNECTION/ConnHandle is bogus.,
+	<tag/RPC2_NOTGROUPMEMBER/ConnHandle is not a member of MgroupHandle.,
+	<tag/RPC2_MGRPBUSY/A call is in progress on MgroupHandle,
+	<tag/RPC2_FAIL/Some strange mishap occurred,
+    </descrip>
+  <sect2>Description:<p>
+	`Removes ConnHandle from the mgroup associated with MgroupHandle
+
+<sect1> RPC2_DeleteMgrp -- Delete a RPC2 mgroup <p>
+  <sect2>Call:<p>
+    <em>RPC2_DeleteMgrp  (</em><bf>in</bf> RPC2_Handle MgroupHandle  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	<tag/MgroupHandle/the mgroup to be deleted,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	<tag/RPC2_SUCCESS/All went well,
+	<tag/RPC2_NOMGROUP/MgroupHandle is bogus.,
+	<tag/RPC2_MGRPBUSY/A call is in progress on MgroupHandle.,
+	<tag/RPC2_FAIL/Some other mishap occurred.,
+    </descrip>
+  <sect2>Description:<p>
+	Deletes an mgroup, removing any existing members before deletion
+	
 
 
 

@@ -181,12 +181,12 @@ packets have independent sequence numbers. The sequence number series
 of the source and sink (s) are also independent of each other.
 
  There are thus at least 4 sequences in a connection:
-@begin&lsqb;display&rsqb;
+<itemize>
 	Source to Sink, Data
 	Source to Sink, Control
 	Sink to Source, Data
 	Sink to Source, Control
-@end&lsqb;display&rsqb;
+</itemize>
  The Sink to Source sequence space is currently never used. When doing
 a multicast file transfer each sink will have independent sequence
 number series.
@@ -306,24 +306,25 @@ by the following invariant relations, where
 SendAckLimit and SendWorriedLimit are upper bounds of the 
 NeedAck and Worried sets, respectively.
 
-@paragraph(Invariants when transfer is in progress)
-@begin(enumerate)
-SendLastContig &lt;= SendWorriedLimit &lt;= SendAckLimit &lt;= SendMostRecent 
+
+<sect2>Invariants when transfer is in progress <p>
+<enum>
+<item> SendLastContig &lt;= SendWorriedLimit &lt;= SendAckLimit &lt;= SendMostRecent 
  (SendMostRecent - SendLastContig) &lt;= WindowSize
  (SendMostRecent - SendAckLimit) &lt;= SendAhead
 
-RecvLastContig &lt;= RecvMostRecent
+<item>RecvLastContig &lt;= RecvMostRecent
  (RecvMostRecent - RecvLastContig) &lt;= WindowSize
-@end(enumerate)
+</enum>
 
-@paragraph(Invariants when transfer is completed, aborted or not started)
-@begin(enumerate)
-SendLastContig (at source) = SendMostRecent (at source)
+<sect2>Invariants when transfer is completed, aborted or not started <p>
+<enum>
+<item>SendLastContig (at source) = SendMostRecent (at source)
 
-RecvLastContig (at sink) = RecvMostRecent (at sink)
+<item>RecvLastContig (at sink) = RecvMostRecent (at sink)
 
-SendLastContig (at source) = RecvLastContig (at sink)
-@end(enumerate)
+<item>SendLastContig (at source) = RecvLastContig (at sink)
+</enum>
 
 <sect>Adjusting the Retransmission Interval<p>
 
@@ -365,35 +366,35 @@ for these fields, called <em>TimeStamp</em> and <em>TimeEcho</em>.  These fields
 were previously reserved for bitmask fields, but were not being used.
 
 Packets are timestamped as they are sent out in the following routines:
-@begin(itemize)
- sftp&lowbar;SendSendAhead, sftp&lowbar;ResendWorried, sftp&lowbar;SendFirstUnacked (data)
+<itemize>
+ <item> sftp&lowbar;SendSendAhead, sftp&lowbar;ResendWorried, sftp&lowbar;SendFirstUnacked (data)
 
- sftp&lowbar;SendAck
+ <item> sftp&lowbar;SendAck
 
- send&lowbar;SendStart
-@end(itemize)
+ <item> send&lowbar;SendStart
+</itemize>
 
 The packet TimeStamp field is stashed in sEntry-&gt;TimeEcho as appropriate
 when a packet with a timestamp is received. This is the timestamp that
 will be echoed back to the other side eventually. This occurs in:
-@begin(itemize)
- sftp&lowbar;DataArrived, on the sink, if the packet advances the left edge
+<itemize>
+ <item>sftp&lowbar;DataArrived, on the sink, if the packet advances the left edge
   of the window (Header.SeqNumber == sEntry-&gt;RecvLastContig+1).
 
- sftp&lowbar;StartArrived, on the source, whether the transfer
+ <item>sftp&lowbar;StartArrived, on the source, whether the transfer
   has started or not.  Data will be sent in response to the <em>START</em> packet
   either way.
 
- sftp&lowbar;AckArrived, on the source. If there is more data to send, the
+ <item>sftp&lowbar;AckArrived, on the source. If there is more data to send, the
   source will send it in response to this packet.
-@end(itemize)
+</itemize>
 
 The value in sEntry-&gt;TimeEcho is then placed in the Header.TimeEcho field 
 in the following routines:
-@begin(itemize)
- sftp&lowbar;SendAck, on the sink.
+<itemize>
+ <item>sftp&lowbar;SendAck, on the sink.
 
- sftp&lowbar;SendSendAhead, sftp&lowbar;ResendWorried, or sftp&lowbar;SendFirstUnacked, on the
+ <item>sftp&lowbar;SendSendAhead, sftp&lowbar;ResendWorried, or sftp&lowbar;SendFirstUnacked, on the
   source. The timestamp is echoed on the <em>first</em> packet sent out by these
   collectively (the one corresponding to sEntry-&gt;SendLastContig+1). 
   All other <em>DATA</em> packets carry a TimeEcho of 0. A special case occurs in 
@@ -403,18 +404,18 @@ in the following routines:
   set to 0 at the top of PutFile. A second special case also occurs in PutFile,
   when the server times out. Again, there is no timestamp to echo, because the
   data is not being sent in response to a packet from the sink.
-@end(itemize)
+</itemize>
 
 RTT measurements are computed from Header.TimeEcho in the following routines:
-@begin(itemize)
- sftp&lowbar;AckArrived, on the source, if the <em>ACK</em> is not a trigger.  Triggers are
+<itemize>
+ <item>sftp&lowbar;AckArrived, on the source, if the <em>ACK</em> is not a trigger.  Triggers are
   sent when the server times out during a client-to-server transfer. They do 
   not represent real observations because there was no transmission from the 
   source that caused them. Triggers are marked so that the source can 
   distinguish them from real <em>ACK</em>s. 
 
- sftp&lowbar;DataArrived, on the sink.
-@end(itemize)
+ <item>sftp&lowbar;DataArrived, on the sink.
+</itemize>
 
 Any zero TimeStamp or TimeEcho is ignored, and the RTO remains
 unchanged. This is chiefly for compatibility with versions of SFTP
@@ -432,7 +433,7 @@ three different networks: Ethernet, a WaveLan wireless network, and a
 modem over a phone line.  In almost all cases, SFTPs performance
 equals or exceeds that of TCP.
 
-<!--
+<!--  XXXX fix me
 @begin(figure)
 @define(small=text, break off, size -2)
 @StandardTable(Name TRANSPORT, Columns=5, HeadingBoxed, ColumnLined, FirstColumnWidth 0.75 inch, OtherColumnWidth 0.8inch, FirstColumn Center, OtherColumns Center)

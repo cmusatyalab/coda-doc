@@ -60,92 +60,94 @@ RPC2_SEFAIL2 is a fatal error.
 <sect>Entry Point Templates<p>
 <label id="SETemplates">
 
-@PasCall(Tag=&lt;SEInit&gt;,
-	CallName = `SE_Init,
-	ParmList=`,
-	CC1=`RPC2_SUCCESS,CCD1=`,
+<sect1>SE_Init --  <p>
+  <sect2>Call:<p>
+    <em> SE_Init(</em>  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <em>None.</em>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	CC1=`RPC2_SUCCESS,CCD1=`,
 	CC2=`RPC2_SEFAIL1, CCD2=`,
 	CC3=`RPC2_SEFAIL2, CCD3=`,
-	Text=`Called just prior to return from RPC2_Init).
-	)
-
-@PasCall(Tag=&lt;SEBind1&gt;,
-	CallName = `SE_Bind1,
-	ParmList=`@w&lt;<bf>in</bf> RPC2_Handle) ConnHandle&gt;, @w&lt;<bf>in</bf> RPC2_CountedBS) *ClientIdent&gt;,
-	P1=`ConnHandle, PD1=`,
+    </descrip>
+  <sect2>Description:<p>
+	Called just prior to return from RPC2_Init
+	
+<sect1> SE_Bind1 --  <p>
+  <sect2>Call:<p>
+    <em> SE_Bind1(</em> <bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf> RPC2_CountedBS *ClientIdent <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	P1=`ConnHandle, PD1=`,
 	P2=`ClientIdent, PD2=`,
-	CC1=`RPC2_SUCCESS,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	CC1=`RPC2_SUCCESS,
 	CC2=`RPC2_SEFAIL1,
 	CC3=`RPC2_SEFAIL2,
-	CCD1=`,
-	CCD2=`,
-	CCD3=`,
-	Text=`Called on RPC2_Bind) on client side.
+    </descrip>
+  <sect2>Description:<p>
+	Called on RPC2_Bind on client side.
 	The call is made just prior to sending the first connection-establishment packet to the server.  The 
 	connection establishment is continued only if RPC2_SUCCESS) is returned.
-    	)
-
-@PasCall(Tag=&lt;SEBind2&gt;,
-	CallName = `SE_Bind2,
-	ParmList=`@w&lt;<bf>in</bf> RPC2_Handle) ConnHandle&gt;, @w&lt;<bf>in</bf> struct timeval *BindTime&gt;,
-	P1=`ConnHandle, PD1=`,
+    	
+<sect1>SE_Bind2  --  <p>
+  <sect2>Call:<p>
+    <em> SE_Bind2(</em> <bf>in</bf> RPC2_Handle) ConnHandle, <bf>in</bf> struct timeval *BindTime <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	P1=`ConnHandle, PD1=`,
 	P2=`BindTime, PD2=`,
-	CC1=`RPC2_SUCCESS,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	CC1=`RPC2_SUCCESS,
 	CC2=`RPC2_SEFAIL1,
 	CC3=`RPC2_SEFAIL2,
-	CCD1=`,
-	CCD2=`,
-	CCD3=`,
-	Text=`Called on RPC2_Bind on client side.
+    </descrip>
+  <sect2>Description:<p>
+	Called on RPC2_Bind on client side.
 	The call is made just after the connection is successfully established, before control is returned
 	to the caller. BindTime is the amount of time the bind took because of the network. 
         If SE_Bind2) returns RPC2_SEFAIL1) or RPC2_SEFAIL2, that code is returned as the
 	result of the RPC2_Bind). Otherwise the usual code is returned.
-    	)
 
-@PasCall(Tag=&lt;SEUnbind&gt;,
-	CallName = `SE_Unbind,
-	ParmList = `@w&lt;<bf>in</bf> RPC2_Handle) ConnHandle&gt;,
-	P1=`ConnHandle, PD1=`,
-	CC1=`RPC2_SUCCESS,
+<sect1>SE_Unbind  --  <p>
+  <sect2>Call:<p>
+    <em> SE_Unbind(</em><bf>in</bf> RPC2_Handle ConnHandle <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      P1=`ConnHandle, PD1=`,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	CC1=`RPC2_SUCCESS,
 	CC2=`RPC2_SEFAIL1,
 	CC3=`RPC2_SEFAIL2,
-	CCD1=`,
-	CCD2=`,
-	CCD3=`,
-	Text = `Called when RPC2_Unbind) is executed on the client or server side.  You are expected to free
+    </descrip>
+  <sect2>Description:<p>
+	Called when RPC2_Unbind) is executed on the client or server side.  You are expected to free
 	any side effect storage you associated with this connection,  and to do whatever cleanup is necessary.
 	Note that the connection state is available to you and is not destroyed until you return RPC2_SUCCESS).
-	)
 
-@PasCall(Tag=&lt;SENewConnection&gt;,
-	CallName = `SE_NewConnection,
-	ParmList = `@w&lt;<bf>in</bf> RPC2_Handle ConnHandle&gt;, @w&lt;<bf>in</bf> RPC2_CountedBS) *ClientIdent&gt;,
-	P1=`ConnHandle, PD1=`,
+<sect1>SE_NewConnection  --  <p>
+  <sect2>Call:<p>
+    <em> SE_NewConnection(</em><bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf> RPC2_CountedBS *ClientIdent  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	P1=`ConnHandle, PD1=`,
 	P2=`ClientIdent, PD2=`,
-	CC1=`RPC2_SUCCESS,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	CC1=`RPC2_SUCCESS,
 	CC2=`RPC2_SEFAIL1,
 	CC3=`RPC2_SEFAIL2,
-	CCD1=`,
-	CCD2=`,
-	CCD3=`,
-	Text = `Called on server side when a new connection is established, just prior to exit from the
-    corresponding RPC2_GetRequest)().
-	)
-
-@PasCall(Tag=&lt;SEMakeRPC1&gt;,
-	CallName = `SE_MakeRPC1,
-	ParmList = `@w&lt;<bf>in</bf> RPC2_Handle) ConnHandle&gt;, @w&lt;<bf>inout</bf> SE_Descriptor *SDesc&gt;, @w&lt;<bf>inout</bf> RPC2_PacketBuffer) **RequestPtr&gt;,
-	P1=`ConnHandle, PD1=`,
-	P2=`SDesc, PD2=`,
-	P3=`RequestPtr, PD3=`,
-	CC1=`RPC2_SUCCESS,
-	CC2=`RPC2_SEFAIL1,
-	CC3=`RPC2_SEFAIL2,
-	CCD1=`,
-	CCD2=`,
-	CCD3=`,
-	Text=`Called after a request has been completely filled, just prior to network
+    </descrip>
+  <sect2>Description:<p>
+	Called after a request has been completely filled, just prior to network
     ordering of header fields, encryption and transmission.
     You may use the Prefix information to determine the actual size of the 
     buffer corresponding to *RequestPtr.  If you add data, 
@@ -160,21 +162,24 @@ RPC2_SEFAIL2 is a fatal error.
     that will actually get sent over the wire.  DO NOT free the buffer pointed to
     by RequestPtr initially.  If you allocate a packet, it will be freed immediately
     after successful transmission.
-    	)
-
-@PasCall(Tag=&lt;SEMakeRPC2&gt;,
-	CallName=`SE_MakeRPC2,
-	ParmList = `@w&lt;<bf>in</bf> RPC2_Handle) ConnHandle&gt;,  @w&lt;<bf>inout</bf> SE_Descriptor *SDesc&gt;, @w&lt;<bf>inout</bf> RPC2_PacketBuffer) *Reply&gt;,
-	P1=`ConnHandle, PD1=`,
-	P2=`SDesc, PD2=`,
-	P3=`Reply, PD3=`,
-	CC1=`RPC2_SUCCESS,
-	CC2=`RPC2_SEFAIL1,
-	CC3=`RPC2_SEFAIL2,
-	CCD1=`,
-	CCD2=`,
-	CCD3=`,
-	Text=`Called just after Reply has been received, after decryption and host
+    	
+<sect1> SE_MakeRPC2 --  <p>
+  <sect2>Call:<p>
+    <em>  SE_MakeRPC2(</em>  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	<tag/ConnHandle/.
+	<tag/SDesc/.
+	<tag/Reply/.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	CC1=`RPC2_SUCCESS/.
+	CC2=`RPC2_SEFAIL1/.
+	CC3=`RPC2_SEFAIL2/.
+    </descrip>
+  <sect2>Description:<p>
+	Called just after Reply has been received, after decryption and host
 	    ordering of header fields.
 	    Examine the SideEffectFlags and SideEffectDataOffset fields to 
 	    determine if there is piggy-backed side effect data for you in
@@ -184,70 +189,85 @@ RPC2_SEFAIL2 is a fatal error.
 	    You will probably wish to fill in the status fields of this descriptor.  
 	    If the MakeRPC call fails for some reason, this routine will be called with
 	    a Reply of NULL.  This allows you to take suitable cleanup action.
-	)
+	
 
-@PasCall(Tag=&lt;SEGetRequest&gt;,
-	CallName=`SE_GetRequest,
-	ParmList=`@w&lt;<bf>in</bf> RPC2_Handle) ConnHandle&gt;, @w&lt;<bf>inout</bf> RPC2_PacketBuffer) *Request&gt;,
-	P1=`ConnHandle, PD1=`,
+
+<sect1> SE_GetRequest --  <p>
+  <sect2>Call:<p>
+    <em>  SE_GetRequest(</em><bf>in</bf> RPC2_Handle ConnHandle, <bf>inout</bf> RPC2_PacketBuffer *Request  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      P1=`ConnHandle, PD1=`,
 	P2=`Request, PD2=`,
-	CC1=`RPC2_SUCCESS,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	CC1=`RPC2_SUCCESS,
 	CC2=`RPC2_SEFAIL1,
 	CC3=`RPC2_SEFAIL2,
-	CCD1=`,
-	CCD2=`,
-	CCD3=`,
-	Text=`Called just prior to successful return of Request to the server.
+    </descrip>
+  <sect2>Description:<p>
+	Called just prior to successful return of Request to the server.
 	    You should look at Request, extract side effect data if any, 
 	    modify the header fields appropriately.
-	)
-
-@PasCall(Tag=&lt;SEInitSideEffect&gt;,
-	CallName=`SE_InitSideEffect,
-	ParmList=`@w&lt;<bf>in</bf> RPC2_Handle) ConnHandle&gt;, @w&lt;<bf>inout</bf> SE_Descriptor *SDesc&gt;,
-	P1=`ConnHandle, PD1=`,
+	
+<sect1> SE_InitSideEffect --  <p>
+  <sect2>Call:<p>
+    <em>  SE_InitSideEffect(</em><bf>in</bf> RPC2_Handle ConnHandle, <bf>inout</bf> SE_Descriptor *SDesc  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	P1=`ConnHandle, PD1=`,
 	P2=`SDesc, PD2=`,
-	CC1=`RPC2_SUCCESS,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	CC1=`RPC2_SUCCESS,
 	CC2=`RPC2_SEFAIL1,
 	CC3=`RPC2_SEFAIL2,
-	CCD1=`,
-	CCD2=`,
-	CCD3=`,
-	Text=`Called when the server does an RPC2_InitSideEffect) call. You will
+    </descrip>
+  <sect2>Description:<p>
+	Called when the server does an RPC2_InitSideEffect) call. You will
 	    probably want to examine some fields of SDesc and fill in some
 	    status-related fields.  Note that there is no requirement that 
 	    you should actually initiate any side effect action. You may choose
 	    to piggy back the side effect with the reply later.
-	)
-
-@PasCall(Tag=&lt;SECheckSideEffect&gt;,
-	CallName=`SE_CheckSideEffect,
-	ParmList=`@w&lt;<bf>in</bf> RPC2_Handle) ConnHandle&gt;, @w&lt;<bf>inout</bf> SE_Descriptor *SDesc&gt;, @w&lt;<bf>in</bf> long Flags&gt;,
-	P1=`ConnHandle, PD1=`,
-	P2=`SDesc, PD2=`,
-	P3=`Flags, PD3=`,
-	CC1=`RPC2_SUCCESS,
-	CC2=`RPC2_SEFAIL1,
-	CC3=`RPC2_SEFAIL2,
-	CCD1=`,
-	CCD2=`,
-	CCD3=`,
-	Text=`Called when the server does an RPC2_CheckSideEffect) call.  The Flags
+	
+<sect1> SE_CheckSideEffect --  <p>
+  <sect2>Call:<p>
+    <em>  SE_CheckSideEffect(</em><bf>in</bf> RPC2_Handle ConnHandle, <bf>inout</bf> SE_Descriptor *SDesc, <bf>in</bf> long Flags  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	P1=`ConnHandle, PD1=`,
+	P2=`SDesc/.
+	P3=`Flags/.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      	CC1=`RPC2_SUCCESS/.
+	CC2=`RPC2_SEFAIL1/.
+	CC3=`RPC2_SEFAIL2/.
+    </descrip>
+  <sect2>Description:<p>
+	Called when the server does an RPC2_CheckSideEffect) call.  The Flags
 	    parameter will specify what status is desired.  You may have to 
 	    actually initiate the side effect, depending on the circumstances.
-	)
+	
 
-@PasCall(Tag=&lt;SESendResponse&gt;,
-	CallName=`SE_SendResponse,
-	ParmList=`@w&lt;<bf>in</bf> RPC2_Handle) ConnHandle&gt;, @w&lt;<bf>in</bf> RPC2_PacketBuffer) **ReplyPtr&gt;,
-	P1=`ConnHandle, PD1=`,
+<sect1> SE_SendResponse --  <p>
+  <sect2>Call:<p>
+    <em>  SE_SendResponse(</em> <bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf> RPC2_PacketBuffer **ReplyPtr  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	P1=`ConnHandle, PD1=`,
 	P2=`ReplyPtr, PD2=`,
-	CC1=`RPC2_SUCCESS,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+        CC1=`RPC2_SUCCESS,
 	CC2=`RPC2_SEFAIL1,
 	CC3=`RPC2_SEFAIL2,
-	CCD1=`,
-	CCD2=`,
-	CCD3=`,
+    </descrip>
+  <sect2>Description:<p>
 	Text=`Called just before the reply packet is network-ordered, encrypted and transmitted.
 	    You may wish to add piggy-back data to the reply; modify the BodyLength
 	    field in that case.  If you are not piggybacking data, make sure
@@ -259,39 +279,53 @@ RPC2_SEFAIL2 is a fatal error.
 	    that will actually get sent over the wire.  DO NOT free the buffer pointed to
 	    by ReplyPtr initially.  If you allocate a packet, it will be freed immediately
 	    after successful transmission.,
-	)
+	
 
+<sect1> SE_PrintSEDescriptor --  <p>
+  <sect2>Call:<p>
+    <em>  SE_PrintSEDescriptor(</em> <bf>in</bf> SE_Descriptor *SDesc, <bf>in</bf> FILE *outFile <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      P1=`SDesc, PD1=`Guaranteed to refer to your type of side effect.
+	P2=`outFile, PD2=`Already open and ready to receive bytes.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      <tag/RPC2_SUCCESS/.
+    </descrip>
+  <sect2>Description:<p>
+	Called when printing debugging information.  You should print out SDesc, suitably formatted, on outFile.
 
-@PasCall(Tag=&lt;PrintSEDescriptor&gt;,
-	CallName=`SE_PrintSEDescriptor,
-	ParmList=`@w&lt;<bf>in</bf> SE_Descriptor *SDesc&gt;, @w&lt;<bf>in</bf> FILE *outFile&gt;,
-	P1=`SDesc, PD1=`Guaranteed to refer to your type of side effect.,
-	P2=`outFile, PD2=`Already open and ready to receive bytes.,
-	CC1=`RPC2_SUCCESS,
-	CCD1=`,
-	Text=`Called when printing debugging information.  You should print out SDesc, suitably formatted, on outFile.,
-	)
-
-@PasCall(Tag=&lt;SESetDefaults&gt;,
-	CallName=`SE_SetDefaults,
-	ParmList=`@w&lt;<bf>out</bf> @XXX()Initializer *SInit&gt;,
-	P1=`SInit, PD1=`An initializer for this side effect, XXX.,
-	CC1=`RPC2_SUCCESS,
-	CCD1=`,
-	Text=`Called to set SInit to appropriate default values.,
-	)
-
-
-@PasCall(Tag=&lt;SEActivate&gt;,
-	CallName=`SE_Activate,
-	ParmList=`@w&lt;<bf>in</bf> @XXX()Initializer *SInit&gt;,
-	P1=`SInit, PD1=`Initialization values to be used for this side effect, XXX.,
-	CC1=`RPC2_SUCCESS,
-	CCD1=`,
-	Text=`Called to activate this side effect type.  The body of this procedure should allocate and fill in
+<sect1> SE_SetDefaults --  <p>
+  <sect2>Call:<p>
+    <em>  SE_SetDefaults(</em> <bf>out</bf> XXX()Initializer *SInit   <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      P1=`SInit, PD1=`An initializer for this side effect, XXX.,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+      <tag/RPC2_SUCCESS/.
+    </descrip>
+  <sect2>Description:<p>
+    Called to set SInit to appropriate default values.
+	
+<sect1>SE_Activate  --  <p>
+  <sect2>Call:<p>
+    <em> SE_Activate(</em><bf>in</bf> XXX()Initializer *SInit  <em>)</em>
+  </sect2>  <sect2>Parameters:<p>
+    <descrip>
+      	<tag/SInit/Initialization values to be used for this side effect, XXX.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+       <tag/RPC2_SUCCESS/.
+    </descrip>
+  <sect2>Description:<p>
+	Called to activate this side effect type.  The body of this procedure should allocate and fill in
 		a routine vector in the side effect table in file se.c. It should also obtain its initialization
 		parameters from SInit.
-	)
+	
 
 
 

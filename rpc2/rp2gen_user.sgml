@@ -57,7 +57,8 @@ may be included by any other module that needs access to these types.
 In the syntax of a description file below, non-terminals are represented
 by <em>italic</em> names and literals are represented by <bf>bold</bf> strings.
 
-<tabular ca=ll>
+<table>
+<tabular ca="l|l">
 file ::= | prefixes header&lowbar;line default&lowbar;timeout decl&lowbar;or&lowbar;proc&lowbar;list
 @
 prefixes ::= | empty &verbar; prefix &verbar; prefix prefix
@@ -123,6 +124,7 @@ new&lowbar;connection ::= | <bf>NEW&lowbar;CONNECTION</bf> &verbar; empty
 @
 empty ::= |
 </tabular>
+</table>
 
 In addition to the syntax above, text enclosed in /* and */
 is treated as a comment and ignored.  Appearances of an include statement
