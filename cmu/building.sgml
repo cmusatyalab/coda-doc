@@ -1,0 +1,337 @@
+<!Doctype linuxdoc system>
+<article>
+
+   <title> Building Coda
+   <author>Peter J. Braam
+
+
+
+<abstract> Introduction.
+This document is on the Web as<url url="http://www.coda.cs.cmu.edu/cmu/building.html">www.coda.cs.cmu.edu/cmu/building.html.
+The building system was set up by Bob Baron, Peter Braam and Josh Raiff.
+Talk to us if you have questions.</abstract>
+
+<sect>Coda Building Environment
+
+
+<P>
+<em>Building Guide</em>
+<P>
+<Bf>Basic Case</Bf>
+<P>
+We aim to provide a standard GNU&nbsp;building environment. At CMU, we
+want to share source code and objects, and provisions have been made for
+this. However, the most basic case of building Coda is to start with a 
+tarball with Coda source.
+
+<itemize>
+<item><tt> tar zxvf coda-4.0.1.tgz</tt>
+<item><tt> cd coda-4.0.1 </tt>
+<item> <tt> configure --enable-platform=your_platform, your_platform </tt>
+ is one of:
+     <descrip>
+     <tag/i386_linux/<p>
+     <tag/i386_nbsd1/<p>
+     <tag/i386_mach/<p>
+     <tag/pmax_mach/<p>
+     </descrip>
+<item>Make coda (or <It>cmake</It> on Mach, and gmake on NetBSD machines).
+<item>Make reconfigure re-runs configure with the flags currently set.
+</itemize>
+
+
+
+
+
+<sect>Notes<P>
+
+<itemize>
+Configure rewrites Makefile.in to produce Makefile and processes other
+.in files in the source similarly. Changes to Makefiles should be made
+in<BF> Makefile.in</BF>.
+
+<item>You should be able to type <bf> make coda</bf> in most subdirectories with good
+results.
+
+<item><Bf>Makeconf.setup</Bf> in the top directory contains useful variables
+(for example, if you forgot the platform, you can edit it easily).
+
+<item>If you need to globally override definitions do the following:
+
+
+<tscreen>In <bf>Makeconf.setup</bf>, uncomment the OVERRIDE line.
+
+Put a <Bf>Makeconf.override</Bf> in the top directory.
+</tscreen>
+
+<item>
+If you need to tinker with configuration files, define the environment
+variable <It>MAKDIR</It> to point to a directory and put your platform Makeconf
+files there.
+
+<item>To override in a single directory you may edit individual Makefiles,
+it won't affect others, but remember:&nbsp;configure overwrites them.
+
+<item><Bf>Dependencies</Bf> are generated on the fly through the -MD flag to
+gcc. After all files have been compiled a little program md runs to make
+a .depend file. If a compile is aborted before it completes you may have
+a corrupt depency file in that directory. Remove it with make clean and
+build again.
+</itemize>
+
+
+
+<Bf><em>Targets</em></Bf>
+
+Standard building method: in the directory where you are working do:
+
+<enum>
+<item><Bf>make</bf> until you are happy with what you produce in that
+ directory.
+
+<item><Bf>make coda</Bf> when you want to install binaries in the shared object
+area (if you use one) and check in alpha code.
+
+<item><Bf>make client-install </Bf>installs client software on the machine
+in final locations, <Bf>make server-install </Bf>installs server software
+in final locations. On Linux the binaries go to $prefix/sbin and $prefix/bin.
+On NetBSD&nbsp;and Mach this is still to be decided.
+</enum>
+
+
+
+Other targets:
+
+<itemize><Bf>make coda</Bf> will compile and install coda binaries and libraries
+in the object area.
+
+<item><Bf>make clean </Bf>recursively cleans.
+
+<item><Bf>make</Bf> in a lowest level subdirectory builds objects and libraries
+there, but does not install.
+</itemize>
+
+
+
+<Bf><em>Using Master Source</em></bf>
+
+For multi platform development it is useful to share master sources
+and keep objects for different platforms in locations separate from the
+code. To exploit the master copy of checked out CVS&nbsp;sources do the
+following:
+
+<enum>master source is in SS=/afs/cs/project/coda-src/alpha.
+
+<item><It>mkdir builddir. </It>
+
+<item> <It>cd builddir.</it>
+
+<item> <It>$SS/configure --enable-platform=your_platform,</It> as above.
+
+<item> <It>make coda</It> (or <It>gmake </It>on NetBSD, <It>cmake </It>on Mach machines).
+</enum>
+
+
+After running configure, you have an almost empty tree with just <IT> makefiles</IT>
+underneath. Objects are created in this tree. The master source area is
+used through a VPATH variable. The master source area is updated automatically
+when sources you have modified are committed by you to the source repository.
+
+
+
+
+<Bf><em>Using CVS&nbsp; and a Private, Second Source Directory</em></Bf>
+
+It is easy to check out sources from CVS and have the builds pick them
+up. This allows you to maintain your own source areas for development and
+check in the sources later. The precedence of sources used will be:
+
+<itemize>
+<item>Source in your secondary area.
+
+<item>Sources in the master tree.
+</itemize>
+
+
+The following steps are important:
+
+<itemize>
+<item>
+Set up object areas so that they know about your secondary source area.
+<item>
+Check out source files from the repository.
+<item>
+Compile and test. Please do all platforms if you can.
+<item>
+Commit the sources.
+</itemize>
+
+
+
+
+The first step is accomplished with the enable-srcdir flag to configure:
+
+
+<enum>
+<item><Bf>Make an object dir </Bf>and run configure for each platform as in
+<It>using master source,</It> above, with an extra flag to indicate
+ the secondary source location:
+  <itemize>
+  <item> <It>mkdir platformdir</It>
+  <item> <It>cd platformdir</It>
+  <item> <It>$SS/configure --enable-platform=my_platform --enable-srcdir=mysrcdir</It>
+  </itemize>
+<item><Bf>Make a private source area and check out</Bf> sources as follows.
+Suppose you are working on venus fso1.cc:
+ <itemize>
+ <item><It>mkdir mysrcdir.</It>
+ <item><It>mkdir -p coda-src/venus</It>
+ <item><It>cd coda-src/venus</It>
+ <item>get an AFS&nbsp;(Kerberos) token
+ <item><It>setenv CVSROOT /afs/cs/project/coda-src/cvs</It> (under Bash: <It>export
+ CVSROOT=/afs/cs/project/coda-src/cvs </It>
+ <item><It>cvs checkout -d . coda/coda-src/venus/fso1.cc</It>
+ </itemize>
+<item>Edit and be happy. Test your work in your object areas. 
+<item><Bf>Check in </Bf>the sources as follows:
+<itemize>
+<item>Get AFS&nbsp;and Coda tokens.
+<item><It>cvs commit fso1.cc. </It>This will prompt you for a message, check
+in your source and update the master alpha source areas. The message will
+be posted to the mailing list and appear on the WWW&nbsp;and BB.
+<item> If you want to prepare your message in a file, call it RCSMSG and do:
+<It>cvs commit -F RCSMSG fso1.cc</It>
+</itemize>
+</enum>
+
+
+
+
+<Bf>Notes:</Bf>
+
+<ENUM>
+<item> I found it very useful to have little scripts jumping me between master
+source, secondary source, and object areas, while keeping my relative position
+in the Coda tree the same. To accomplish this on every machine:
+    <enum>
+    <item>Master source is under~/cs, objects under ~/bd, and secondary source
+under~/ss.
+    <item> The shell aliases <Bf>ss, cs,</bf> and<BF> bd </Bf>move me into secondary source,
+master source and build area respectively. So if I am in <It>cs/coda-src/venus</It>
+(to investigate master sources), typing <Bf>bd</Bf> moves me to <It>bd/coda-src/venus</It>
+(where I type make).
+     <item> The aliases are set up as follows:
+         <enum> 
+         <ITEM>Alias <Bf>ss</Bf> &quot;source ~/afs/scripts/ss&quot;
+         <ITEM> The file ~/afs/scripts/ss&quot; contains <It>cd `pwd |&nbsp;sed -e 's/bd\|ss\|cs/ss/'`</It>
+         </ENUM>
+    </enum>
+<ITEM>
+You can use other CVS&nbsp;commands. See the CVS&nbsp;manual, for example
+at: <url url="http://www.loria.fr/~molli/cvs-index.html">www.loria.fr/~molli/cvs-index.html.
+<ITEM>
+<Bf>Do not commit to beta sources without discussion.</Bf>
+<ITEM>
+You can combine this with shared objects or not, see below.
+<ITEM>
+Makeconf.setup in the object areas (platformdir) contains a variable
+pointing to mysrcdir.
+</ENUM>
+
+
+<SECT>Using Shared Objects<P>
+
+<enum>
+<ITEM>When running configure, add the flag 
+<It>--enable-shareobjs=shared-object-dir</It>.
+
+<ITEM>Current shared object directories are:
+
+<It>/coda/project/coda/alpha-4.0.1</It>
+
+<ITEM><It>Make coda</It> will install libraries, headers and binaries in the
+shared object area.
+</enum>
+
+
+Others may install there too and you will be using their libraries and
+objects soon. There will be master object areas which we will recompile
+every night in <It>/coda/coda-obj/platform</It>.
+<P>
+
+
+
+<SECT>Code Re-organization<P>
+
+
+<enum>
+<item>
+Below the top:
+<DESCRIP>
+<tag/kernel-src:/ vfs and inode calls, system call libraries when
+very platform specific.
+
+<tag/<bf>lib-src:</bf>/ special headers, libcs, mlwp.
+
+<tag/<bf>rvm-src:</bf>/ rvm,seg,rds, tests.
+
+<tag/<bf>coda-src:</bf>/ the rest.
+
+<tag/<bf>util-src:</bf>/ Potemkin and friends.
+</descrip>
+<item>
+Master sources are now in /afs/cs/project/coda-src/alpha and in /coda/project/coda-src/alpha.
+<item>
+
+Makefiles are gmake.
+<item>
+
+Shared objects are currently in use underw.
+<item>
+
+   <descrip>
+   <tag/coda/project/coda/coda-obj/i386_nbsd1
+
+   <tag/coda/project/coda/coda-obj/i386_linux2
+
+   <tag/coda/project/coda/coda-obj/pmax_mach
+
+   <tag/coda/project/coda/coda-obj/i386_mach
+
+</descrip>
+</enum>
+
+<sect>Release Numbering<P>
+
+<enum>
+<item><bf>Alpha:</BF>
+  <descrip>
+  <tag/Alpha/ is the head of the alpha tree. Alpha source releases will be
+released as deemed appropiate by tagging the head.
+  <tag/Alpha/ will have odd minor version numbers, e.g. 4.1.24.
+  <tag/Alpha/ code may be checked in through alphaci, after compiling on all
+platforms.
+  </descrip>
+<item>
+<Bf>Beta:</Bf>
+  <descrip>
+  <tag/Alpha/ will be promoted to beta when deemed appropiate. Beta will have
+even minor numbers.
+  <tag/Beta/ code can only be checked in after discussion.
+  </descrip>
+<item>
+<Bf>Omega:</Bf>
+  <descrip>
+  <tag/Omega/ is beta together with trusted and used binaries. Patches to omega
+should avoid rebuilding the whole system.
+  </descrip>
+</enum>
+
+<sect>Other Issues<P>
+
+<enum>
+<item> Kernel stuff installation instructions are present for NetBSD&nbsp;and
+Linux.
+</enum>
+</article>
+
