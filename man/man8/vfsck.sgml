@@ -1,6 +1,6 @@
 
 <manpage TITLE="vfsck" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>vfsck - Vice file system check
 
 

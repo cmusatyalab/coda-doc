@@ -1,0 +1,154 @@
+	    ================================================
+	    Coda File System, User & System Adminstrator's Manual
+		README for documentation sources
+	    ================================================
+			Roy Taylor (crt@cs.cmu.edu)
+			    based on ../rvm/README
+			thanks to (clement+@cs.cmu.edu)
+				17 Oct  97
+
+
+[0] Overview
+
+The Manual sources are now in SGML format, from which you can generate at
+least three different outputs:
+
+      a) latex (hence dvi, postscript, and hardcopy)
+      b) html (still in process, 10/17/97) 
+      c) man pages (still in process, 10/17/97) 
+
+
+[1] Translating SGML
+
+We assume you will use Matt Welsh's sgml-tools utility, which you must
+modify slightly.  To generate latex and manpage files from sgml, apply
+two patches to the latex2e version of sgml-tools' replacement files,
+as follows.  You can find the patches in the subdirectory doc/scripts,
+which we abbreviate as ${SCRIPTDIR}.  Assuming that the replacement
+files live under "/usr/lib/sgml-tools/rep", su to root and then:
+
+  # cd /usr/lib/sgml-tools/rep
+  # patch < ${SCRIPTDIR}/latex2e.patch
+  # patch < ${SCRIPTDIR}/man.patch
+
+The patches format man pages that are include in the document to
+resemble normal, freestanding man pages.
+
+
+[2] The linuxdoc document type definition
+
+The DTD file included with this release incorporates several changes for
+processing Coda documents.  You need *NOT* apply any patch.  For reference
+purposes only, the patches appear in part [8] of this file.
+
+
+[3] Generating the latex source
+
+The -d switch to sgml2latex, which should generate .dvi output directly,
+doesn't quite work.  So we recommend separate steps, using the latex2e format
+with a final, double latex pass to resolve references:
+
+  $ sgml2latex -2e manual    
+  $ latex manual             
+  $ bibtex manual            
+  $ latex manual; latex manual
+
+
+[4] Generating html documents
+
+There are different entities for the special processing instruction
+(PI) of explicit pagebreak for latex and html.  They are defined as
+conditional text.  But you still need to edit the manual.sgml file
+to activate it.  Luckily, you only need to edit one place (two lines)
+for this activation.  Essentially, you swap the word "INCLUDE" and
+"IGNORE".  Use your editor (e.g., vi or emacs) and change the
+following two lines from (they located at the very beginning of the
+file manual.sgml)
+
+<!entity % latex "INCLUDE">
+<!entity % html  "IGNORE">
+
+to
+
+<!entity % latex "IGNORE">
+<!entity % html  "INCLUDE">
+
+(The former two lines are good for generating latex document,
+while the latter two lines are good for generating html document.)
+
+After that, you can run sgml2html as usual.  That is,
+
+  $ sgml2html manual
+
+
+[5] Generating man pages
+
+Source sgml files of man pages are located in man/man1 and man/man3.
+They are all in a format that allows them to be easily included in
+some chapters of the rvm document (i.e., they don't have the
+"<!doctype ..." stuff).  To generate the man pages themselves, you use
+the make program:
+
+  $ cd man/man1
+  $ make all
+  $ cd man/man3
+  $ make all
+
+And you will have all the man pages (named as *.man) in the two
+directories.  Note that there will be some "container files" created
+as intemediate files.  These container files are name *.sgml.cntr,
+they are the files which have the "<!doctype ..."  stuff.  These files
+will then simply include the *.sgml files.  The "make" program will
+called the "sgml2txt -man" command to generate the man pages.
+
+
+[6] Scripts
+
+This release includes four scripts.  One is essential for generating the make
+file, and the other three help with the conversion process.  They all
+live in the directory doc/scripts.
+ 
+a. create_container   used by Makefile of man page generation
+b. undoc.pl           removing "<!doctype..." stuff from sgml files of
+                      man pages.
+c. lowbar             converting "&lowbar;" to "_"
+d. mansect.pl         converting "<sect1>" tags to "<mansect>" tags
+
+Check out doc/scripts/README for the details.
+
+
+[7] ToDo
+
+a) citation, figure and table are not handled very well in the html format.
+
+
+[8] Patches to linuxdoc.dtd (c.f. doc/dtd/linuxdoc.dtd, this is for
+reference only)
+------------------------------------------------------------------ ---
+../../coda_doc.orig/doc/dtd/linuxdoc.dtd Mon Sep 1 10:05:39 1997 +++
+../../coda_doc/doc/dtd/linuxdoc.dtd Wed Sep 24 18:49:05 1997 @@ -439,7
++439,7 @@
+ <!element rhead - o (%inline)>
+ <!entity % sect "heading, header?, p* " >
+ <!element heading o o (%inline)>
+-<!element chapt - o (%sect, sect*) +(footnote)> 
++<!element chapt - o (%sect, (sect | manpage)*) +(footnote)> 
+ <!element sect  - o (%sect, sect1*) +(footnote)>
+ <!element sect1 - o (%sect, sect2*)>
+ <!element sect2 - o (%sect, sect3*)>
+@@ -516,10 +516,11 @@
+ <!element notes - - (title?, p+) >
+ <!attlist notes
+        opts cdata "null" >
+-<!element manpage - - (sect1*,sect2*) 
++<!element manpage - - ( (mansect | sect1)*,sect2*) 
+        -( f | %mathpar | figure | tabular | 
+           table | %xref | %thrm )>
+ 
++<!element mansect - o (%sect)>
+ 
+ <!attlist manpage
+        opts cdata "null"
+------------------------------------------------------------------
+
+

@@ -10,3 +10,34 @@
  <sect2>		+	"\n\\subsubsection"
  </sect2>
  
+--- latex2e/general.orig	Sat May 24 22:22:15 1997
++++ latex2e/general	Fri Oct 10 17:08:13 1997
+@@ -94,7 +94,7 @@
+ <!entity gamma sdata "\gamma" >
+ <!entity ge sdata "\geq" >
+ <!entity grave sdata "'" >
+-<!entity gt sdata "{\(>\)}" >
++<!entity gt sdata "$>$" >
+ <!entity hArr sdata "\Leftrightarrow" >
+ <!entity harr sdata "\leftrightarrow" >
+ <!entity hearts sdata "\heartsuit" >
+@@ -120,8 +120,8 @@
+ <!entity le sdata "\leq" >
+ <!entity lowbar sdata "\_" >
+ <!entity lpar sdata "(" >
+-<!entity lsqb sdata "\[" >
+-<!entity lt sdata "{\(<\)}" >
++<!entity lsqb sdata "[" >
++<!entity lt sdata "$<$" >
+ <!entity mdash sdata "{---}" >
+ <!entity mid sdata "\mid" >
+ <!entity minus sdata "-" >
+@@ -172,7 +172,7 @@
+ <!entity refnam sdata "">
+ <!entity rho sdata "\rho" >
+ <!entity rpar sdata ")" >
+-<!entity rsqb sdata "\]" >
++<!entity rsqb sdata "]" >
+ <!entity sect sdata "{\S}" >
+ <!entity semi sdata ";" >
+ <!entity setmn sdata "\setminus" >

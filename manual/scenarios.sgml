@@ -1,11 +1,11 @@
-<chapt> Common Scenarios<p>
-
+<chapt> Common Scenarios			<label id="SystemOverview">
+<p>
 There are several common scenarios that you may encounter.  This
 chapter attempts to list as many of them as possible and suggest how to
 handle each scenario.
 
-<sect>Constructing a hoardfile<p>
-<label id="ConstructHoard">
+<sect> Constructing a hoardfile <label id="ConstructHoard">
+<p>
 Coda allows you to give files priorities that affect the cache
 manager.  The higher the priority, 
 the lower the possibility that a file will get flushed from the cache
@@ -13,36 +13,33 @@ to make space for a another file.  These priorities are stored in a
 hoard database internal to Venus.  This database is preserved across
 invocations of Venus, but will be erased when Venus is re-initialized.
 
-The best way to setup a hoard database is by creating hoard files.
-After youve created the files once, you do not need to do it again
-for that set of files.  You can create a hoard file either by hand, or
-by using the <em>spy</em> program to generate a hoard file.  See the
-<bf>hoard</bf>(1) man page for more details on hoard files.  
+The best way to set up a hoard database is by creating hoard files.  After
+you've created the files once, you do not need to do it again for that set of
+files.  You can create a hoard file by hand or by using the <em>spy</em>
+program.  See the <bf>hoard</bf>(1) man page for more details.
 
-To run <em>spy</em>, you should follow these steps:
+To run <em>spy</em>:
 <enum>
 <item> Run spy in the background, redirecting its output to a file.
 <item> Run all of the programs and access files you want to hoard.
 <item> Send a SIGTERM to spy (Do not use ^C)
 <item> Sort the output file, removing duplicates
-<item> Remove unnecassary entries
-<item> Add "a " to the beginning of each line and a priority at the end
-   of each line.
+<item> Remove unnecessary entries
+<item> On each line add <tt>a</tt> at the beginning and a priority at the end
 </enum>
 
 The following is an example of creating a hoard file for gnu-emacs.
 Note that while running gnu-emacs, I explicitly enter "scribe mode."
 This makes sure that the scribe-specific files are fetched.
 
-
 <code>
-% spy &gt; gemacs.out&
+% spy > gemacs.out &
 &lsqb;1&rsqb; 316
 % gnu-emacs
 % kill %1
 %
-&lsqb;1&rsqb;    Done                 spy &gt; gemacs.out
-sort -u gemacs.out &gt; gemacs.hdb
+&lsqb;1&rsqb;    Done                 spy > gemacs.out
+sort -u gemacs.out > gemacs.hdb
 % cat gemacs.hdb
 /coda
 /coda/i386&lowbar;mach/omega/usr/local/emacs
@@ -68,11 +65,10 @@ a /coda/misc/gnu-emacs/i386&lowbar;mach/omega/lisp/x-mouse.elc 600
 
 </code>
 
-The "a" at the beggining of each line is the hoard command "add" and
-adds the given file to the hoard database.  The 600 at the end of each
-line gives that file a priority of 600.  You may also specify addition
-attributes for each line.  These attributes are seperated from the
-priority by a ":" and are:
+The <tt>a</tt> that starts each line tells hoard to "add" the named file 
+to the database.  The 600 that ends each line sets the file's priority. 
+You may also specify additional attributes for each line.  These attributes 
+are separated from the priority by a ":" and are:
 <itemize>
 <item><bf>c</bf> Current children of the given directory will inherit its hoard status.
 <item><bf>c+</bf> Current and future children of the given directory will inherit its hoard status.
@@ -195,10 +191,9 @@ even when your cache space is not large enough for all of the
 projects.  By using the following instructions, you can reintegrate
 over the phone and change the files in your hoard database.
 
-1. Read the <em>dialup</em> man page, and 
+1. Read the <em>dialup</em> manual page, and 
    <em>/afs/cs/help/03-Communication/03-Tcons&lowbar;and&lowbar;Dialups/slip.doc</em>
    <em>/afs/cs/help/03-Communication/03-Tcons&lowbar;and&lowbar;Dialups/cisco&lowbar;tcon.doc</em>
-   The latter are included in Appendix <ref id="SlipDoc" name="XXX"> of this manual.
 
 2. Get an account on a terminal server from facilities.  This server
    is the name that you will use when you start slip.
@@ -209,7 +204,7 @@ over the phone and change the files in your hoard database.
    internal modem, specify /dev/com0 and 2400. If you are using
    an external modem, use /dev/com1 and whatever speed (9600).
 
-5. exit your communications program (kermit, whatver).
+5. Exit your communications program (kermit, whatver).
    slattach holds the line open. 
 
 6. Now you have to reset the routes in your routing table.
@@ -261,7 +256,7 @@ to its <em>fid</em>.  For example, if a directory, <em>conflict</em>, is
 inconsistent, it will now appear as:
 <code>
 % ls -l conflict
-lr--r--r--  1 root      27 Mar 23 14:52 conflict -&gt; @@7f0000b3.00000005.0000011a
+lr--r--r--  1 root      27 Mar 23 14:52 conflict -> @@7f0000b3.00000005.0000011a
 </code>
 
 Most applications will return the error File not found when they
@@ -279,7 +274,7 @@ gone inconsistent.
 
 <code>
 % ls -lL conflict
-lr--r--r--  1 root           27 Dec 20 13:12 conflict -&gt; @@7f0002ec.000000e3.000005d1
+lr--r--r--  1 root           27 Dec 20 13:12 conflict -> @@7f0002ec.000000e3.000005d1
 % repair
 The repair tool can be used to manually repair files and directories 
 that have diverging replicas.  You will first need to do a "beginRepair" 
@@ -386,7 +381,7 @@ reintegration a local/global conflict is detected at
 
 <code>
 % ls -l /coda/usr/luqi/papers/cscw would show 
-lr--r--r--  1 root           27 Dec 20 00:36 cscw -&gt; @@7f000279.00000df3.0001f027
+lr--r--r--  1 root           27 Dec 20 00:36 cscw -> @@7f000279.00000df3.0001f027
 % repair
 * begin
 Pathname of object in conflict?  &lsqb;&rsqb;  /coda/usr/luqi/papers/cscw

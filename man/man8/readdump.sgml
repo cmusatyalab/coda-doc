@@ -1,16 +1,16 @@
 
 
 <manpage TITLE="readdump" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>readdump - Utility to examine dumpfiles created by the Coda backup facility
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>readdump</bf> &lsqb;dumpfile&rsqb;<P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 The <bf>readdump</bf> program is an interactive facility to allow the user to
 get information from a dump file produced by the Coda backup mechanism. For
 now it is simply a way of looking at the information in a dump file. One
@@ -64,17 +64,17 @@ reads past (without displaying) that many vnodes in the stream.
 
 
 
-<sect1>Future Work<P>
+<mansect>Future Work<P>
 Usage of this facility should suggest more commands to help administrators
 parse dumpfiles. In particular, a command to seek ahead to a specified offset
 in the dump would be useful. 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 merge (8), backup (8), volutil (8), Coda Manual
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 David C. Steere, 1991, Created
 
 

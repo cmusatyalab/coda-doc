@@ -1,13 +1,14 @@
-<chapt> System Administration: Users<p>
+<chapt> System Administration: Users			<label id="SysAdmUsr">
+<p>
 
-<sect>Adding users<p>
-<label id="AddUsers">
-
+<sect>Adding users					<label id="AddUsers">
+<p>
 There are several steps in adding a new user to the Coda file system. First,
 create a Unix account for the new user on some or all of the Coda clients.
 Second, add the user to the Coda authentication database and the
 protection database (described below). Third, create a volume for
-the user and mount it at the appropriate place in the Coda name space  (See section <ref id="CreateVolume)" name="XXX">.
+the user and mount it at the appropriate place in the Coda name space  
+(See Section <ref id="CreateVol" name="XXX">).
 
 <sect1>Constructing new protection database files<p>
 
@@ -52,26 +53,24 @@ Login into the SCM.
 is the name of the directory containing the new vice.pdb and vice.pcf.
 </enum>
 
-<sect1>Modifying the authentication database<p>
+<sect1>Modifying the authentication database
+<p>
+User accounts are added to the authentication database with the
+<bf>/usr/coda/bin/au</bf> program, which can also delete and modify user 
+accounts, change passwords, and get tokens.  To add a user, run 
+<tt>	% /usr/coda/bin/au -h &lt;SCM&gt; nu</tt>
+on a Coda client workstation, giving the System Control Machine's name
+in &lt;SCM&gt;.  
 
-User accounts are added to the authentication database by the
-<bf>/usr/coda/bin/au</bf> program. The <bf>/usr/coda/bin/au</bf>
-program can be used to add, delete, and modify user accounts, change passwords,
-or get tokens. Below we give an example of how to add a new user.
-
-On a Coda client workstation, run
-<tt>% /usr/coda/bin/au -h &lt;SCM&gt; nu</tt>
-
-where &lt;SCM&gt; is the name of the SCM.  
 In response to the prompts, provide your Coda userId and password
 and then the new users name and temporary password.  (Give the new users
 full name to the "Other info" prompt.) You must be a member of the
 system:administrators group in order to successfully modify the
-authentication database.  Figure <ref id="NewUser" name="XXX"> shows adding the user
-"guest" to the authentication database.  Note that the new password
+authentication database.  The following example illustrates adding 
+the user "guest" to the authentication database.  Note that the new password
 will echo to the screen.
 
-<verb>
+<tscreen><verb>
 % /usr/coda/bin/au -h scarlatti nu
 Your Vice name: raiff
 Your password:
@@ -79,8 +78,7 @@ RPC2&lowbar;Bind () --&gt; RPC2&lowbar;SUCCESS
 Vice user: guest
 New password: guestpwd
 New info: Guest User
-</verb>
-
+</verb></tscreen>
 
 Updates made via <bf>au</bf> will be automatically
 distributed to the other servers by the Update daemon.

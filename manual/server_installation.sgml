@@ -1,5 +1,5 @@
-<chapt>Installing a Coda Server <p>
-
+<chapt> Installing a Coda Server		<label id="InstallSvr">
+<p>
 An instance of Coda is a set of servers which all believe one of the set
 to be the master, or SCM. All modifications to important Coda databases
 should be made on the SCM.  The update daemon will propagate changes
@@ -56,7 +56,7 @@ Installing the binaries on a server still has to be done by hand as
 this has not yet been fully automated.  The rest of this section
 details the process of installing a server.  For simplicitys sake,
 the directory that the Coda files are being copied from will be
-refered to as &dollar;&lcub;INSTALL&lowbar;DIR&rcub;.
+refered to as &dollar;&lcub;INSTALL_DIR&rcub;.
 
 <sect1>Server directories<p>
 Create the following directories:
@@ -96,11 +96,11 @@ Executing the following commands will populate <em>/vice/bin</em> with the
 required binaries.
 
 <itemize>
-<item>cp -p &dollar;&lcub;INSTALL&lowbar;DIR&rcub;/bin/&lcub;au,auth2,authmon,printvrdb,pwd2pdb,pcfgen,srv&rcub; /vice/bin
-<item>cp -p &dollar;&lcub;INSTALL&lowbar;DIR&rcub;/bin/&lcub;initpw,updateclnt,updatemon,updatesrv,volutil&rcub; /vice/bin
-<item>cp -p &dollar;&lcub;INSTALL&lowbar;DIR&rcub;/bin-special/&lcub;rds&lowbar;test,rdsinit,rvmutl&rcub; /vice/bin
-<item>cp -p &dollar;&lcub;INSTALL&lowbar;DIR&rcub;/scripts/&lcub;bldvldb.sh,createvol,createvol&lowbar;rep,purgevol&rcub; /vice/bin
-<item>cp -p &dollar;&lcub;INSTALL&lowbar;DIR&rcub;/scripts/&lcub;purgevol&lowbar;rep,restartserver,startfromboot,startserver&rcub; /vice/bin
+<item>cp -p &dollar;&lcub;INSTALL_DIR&rcub;/bin/&lcub;au,auth2,authmon,printvrdb,pwd2pdb,pcfgen,srv&rcub; /vice/bin
+<item>cp -p &dollar;&lcub;INSTALL_DIR&rcub;/bin/&lcub;initpw,updateclnt,updatemon,updatesrv,volutil&rcub; /vice/bin
+<item>cp -p &dollar;&lcub;INSTALL_DIR&rcub;/bin-special/&lcub;rds_test,rdsinit,rvmutl&rcub; /vice/bin
+<item>cp -p &dollar;&lcub;INSTALL_DIR&rcub;/scripts/&lcub;bldvldb.sh,createvol,createvol_rep,purgevol&rcub; /vice/bin
+<item>cp -p &dollar;&lcub;INSTALL_DIR&rcub;/scripts/&lcub;purgevol_rep,restartserver,startfromboot,startserver&rcub; /vice/bin
 </itemize>
 
 
@@ -147,7 +147,7 @@ have already taken this into account.
 In addition, the following changes must be made to various configuration files.
 Examples of most
 configuration files are contained in their respective directories in
-<tt>&dollar;INSTALLATION&lowbar;DIR</tt> as well as in Appendix 
+<tt>&dollar;INSTALLATION_DIR</tt> as well as in Appendix 
 <ref id="ExampleFiles" name="XXX">.
 
 <sect1>/etc/services<p>
@@ -201,7 +201,7 @@ fi
 
 RVM initialization requires the selection of several parameters, each
 of which involve tradeoffs.  For the CMU-SCS Coda DS-5000 servers, use
-the parameters in <em>/afs/cs/user/raiff/serverinfo/(server&lowbar;name&gt;</em>.
+the parameters in <em>/afs/cs/user/raiff/serverinfo/&lt;server_name&gt;</em>.
 Other sites may want to think about thier choices first.  Although the
 RVM log and data can be kept as regular UFS files, <bf>this is not
 recommended</bf>.  Raw partitions have much stronger consistency
@@ -314,57 +314,61 @@ to Coda, their password is checked against this database and that person is
 issued a token if they successfully authenticate.  This section describes
 how to initialize the authentication database.
 
-<sect1>On the SCM<p>
+<sect1>On the SCM
+<p>
 If the server you are installing is the SCM, you must set up the initial
 authentication database. Make sure you add at least one user to the
-<tt>System:Administrators group.</tt> You need to do the following:
+<tt>System:Administrators</tt> group. You need to do the following:
 
 <itemize>
 <item>
 Create or modify an appropriate passwd file in the Vice format 
 <bf>passwd.coda (5)</bf>.  An example of <tt>passwd.coda</tt> can be 
-found in the directory <tt>&dollar;INSTALLATION&lowbar;DIR/vice/db</tt> as 
-well as in Appendix <ref id="examplefiles" name="XXX">.
+found in the directory <tt>&dollar;INSTALLATION_DIR/vice/db</tt> as 
+well as in Appendix <ref id="ExampleFiles" name="XXX">.
 <item>
 Create or modify an appropriate groups file in the Vice format 
 <bf>groups.coda (5)</bf>.  It is vital that you add at least one user
 from the <tt>passwd.coda</tt> file to the group
 <tt>System:Administrators</tt>.  An example of <tt>groups.coda</tt> can be 
-found in the directory <tt>&dollar;INSTALLATION&lowbar;DIR/vice/db</tt> as 
-well as in Appendix <ref id="examplefiles" name="XXX">.  
+found in the directory <tt>&dollar;INSTALLATION_DIR/vice/db</tt> as 
+well as in Appendix <ref id="ExampleFiles" name="XXX">.  
 <item>
 
-<tt>/vice/bin/pwd2pdb -p passwd.coda -g groups.coda &gt; vice.pdb</tt>
+<tt>/vice/bin/pwd2pdb -p passwd.coda -g groups.coda > vice.pdb</tt>
 <item>
 <tt>/vice/bin/pcfgen vice.pdb) (will create vice.pcf) as a side affect</tt>
 <item>
 Create a file with the initial users in the passwd file (be sure to
 include at least one administrator).  The format of the file should be
-as follows: <bf>uid&lt;Tab&gt;actual password&lt;Tab&gt;any desired info</bf>.  The
-password has not been encrypted and should be changed as soon as
+as follows: 
+
+<tt>uid&lt;TAB&gt;actual password&lt;TAB&gt;any desired info</tt>.
+
+The password has not been encrypted and should be changed as soon as
 possible by the user.  The information might be the full name of the
-user.  This file may be named anything you wish but for future
-reference call it <tt>users.file</tt>.  You need to choose a
-password that will be used to encrypt the user passwords.  It is
-helpful for the password to be hardwired into the Authentication
-server (auth2.c) as <bf>DefKey</bf>; otherwise it must be supplied on the
-command line with the -k switch.  (If it is hardwired, The
-Authentication server will need to be recompiled after the password is
-included).  Then, run the command 
+user.  This file may be named anything you wish, but for future
+reference call it <tt>users.file</tt>.  Choose a password that will be 
+used to encrypt the user passwords.  It is helpful to hardwire this password 
+into the Authentication server (auth2.c) as <bf>DefKey</bf>; otherwise it must
+be supplied on the command line with the -k switch.  (If you do hardwire the 
+password, recompile the Authentication server, then run the command 
 
-<tt>/vice/bin/initpw -k "&lt;password&gt;" &lt;users.file  &gt;auth2.pw</tt>
+<tt>/vice/bin/initpw -k "&lt;password&gt;" &lt;users.file&gt; auth2.pw</tt>
 
-This command produces the file
-auth2.pw in the format: <bf>uid&lt;Tab&gt;encrypted password&lt;Tab&gt;Desired
-info</bf>.  Note that all future changes of the password must be changed
+This command produces the file <tt>auth2.pw</tt> in the format: 
+
+<tt>uid&lt;TAB&gt;encrypted password&lt;TAB&gt;Desired info</tt>.  
+
+Note that all future changes of the password must be changed
 in both the Authentication server, via either hardwiring or the
 command line, as well as this command.  New passwords must be 8
 characters long.  To add additional users, please see Section
 <ref id="AddUsers" name="XXX">. 
 <item>
 You also must choose a password for the servers to use in generating the
-<em>secret</em> token (see Chapter <ref id="SystemOverview) for more
-information" name="XXX">.  This secret token is used for secure communication.
+<em>secret</em> token (see Chapter <ref id="SysOvr">) for more information.  
+This secret token is used for secure communication.
 Put the password in <tt>/vice/db/auth2.tk</tt>.
 <item>
 Create the ticket file
@@ -387,7 +391,7 @@ to the new server for the <bf>Update</bf> monitor to work.
 Every combination of servers you expect to use as a VSG must be given
 a multicast address in <tt>/vice/db/VSGDB</tt>.  This file must be
 created by hand; please refer to <bf>VSGDB (5)</bf> in Appendix
-<ref id="ManualPages" name="XXX"> for more details.
+<ref id="ManPages" name="XXX"> for more details.
 
 <sect>Starting the File Server<p>
 We have provided a script called <tt>/vice/bin/startserver</tt> which you
@@ -407,22 +411,22 @@ file to periodically restart the servers. The script
 <tt>/vice/bin/startfromboot</tt> should be edited to remove the initial
 comment and premature exit.
 
-<sect>Creating the Root Volume<p>
-<label id="RootVolume">
+<sect>Creating the Root Volume			<label id="RootVolume">
+<p>
 If you are installing any server other than the SCM, please use the
-instructions in section <ref id="CreateVolume" name="XXX"> to create new volumes on 
-this server.
+instructions in section <ref id="CreateVol" name="XXX"> to create new 
+volumes on this server.
 
 The root of the Coda file system must reside on the /vicepa partition
 for correct functioning.  Since the SCM probably also acts as a
 server, place the root of the Coda file system in the /vicepa
 partition on the SCM.  Create the root volume by using the command
 
-<tt>% /vice/bin/createvol&lowbar;rep codaroot &lt;VSG&lowbar;ENTRY&gt; /vicepa</tt>
+<tt>% /vice/bin/createvol_rep codaroot &lt;VSG_ENTRY&gt; /vicepa</tt>
 
-where &lt;VSG&lowbar;ENTRY&gt; is the entry in the <tt>VSGDB</tt> for the volume storage
-group for this volume. Since it is likely that the root will be cloned
-and read-only replicated, you might wish to create this volume as
+where &lt;VSG_ENTRY&gt; is the entry in the <tt>VSGDB</tt> for the volume 
+storage group for this volume. Since it is likely that the root will be 
+cloned and read-only replicated, you might wish to create this volume as
 singly replicated for simplicity.
 
 This command will create the <tt>/vice/db/VLDB</tt>, <tt>/vice/db/VRDB</tt>,
@@ -437,9 +441,10 @@ Finally, link /ROOTVOLUME to /vice/ROOTVOLUME
 
 <tt>% ln -s /vice/ROOTVOLUME /ROOTVOLUME</tt>
 
-<sect1>Creating a readonly root<p>
-You may wish for the root to be readonly. To do this, first create a root volume
-as above. Start a venus which can talk to this server. Setup the
+<sect1>Creating a readonly root
+<p>
+You may wish for the root to be readonly. To do this, first create a root 
+volume as above. Start a venus which can talk to this server. Setup the
 directory structure you want in your root volume. Once you are
 satisfied with the structure, clone the volume and 
 dump it to a disk file with the the <tt>volutil</tt> program. Now restore

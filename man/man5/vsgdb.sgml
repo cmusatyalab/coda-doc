@@ -1,12 +1,12 @@
 
 <manpage TITLE="vsgdb" SECTNUM=5>
-<sect1>NAME 
+<mansect>NAME 
  <P>vsgdb - Volume Storage Group Data Base specification
 
 
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 The volume storage group data base is stored in ASCII form in <em>/vice/db/VSGDB</em> on the system control machine (SCM).
 It maps VSG numbers into the sets of servers which comprise them.
 Each VSG is represented by a single line with the following format:
@@ -20,23 +20,23 @@ A sample entry from the VSGDB is:
 
 <bf>E0000107 mahler vivaldi ravel</bf>
 
-The VSGDB is consulted by the <em>createvol&lowbar;rep (8)</em> script when creating a replicated volume.
+The VSGDB is consulted by the <em>createvol_rep (8)</em> script when creating a replicated volume.
 The VSG number specified is looked up in the VSGDB to determine which sites will host the supporting read-write volumes.
 The VSG number is then wired-into the VRList (and then <em>vrdb) (5)</em> entry for the new replicated volume.
 
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <em>/vice/db/VSGDB</em>
 
 
 
-<sect1>SEE ALSO<P>
-servers (5), vrdb (5), createvol&lowbar;rep (8)
+<mansect>SEE ALSO<P>
+servers (5), vrdb (5), createvol_rep (8)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Jay Kistler, 1990, Created
 
 

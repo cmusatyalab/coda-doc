@@ -1,6 +1,6 @@
 
 <manpage TITLE="deleteuser" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>deleteuser - delete a user
 
 

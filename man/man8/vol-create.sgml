@@ -1,6 +1,6 @@
 
 <manpage TITLE="vol-create" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>vol-create - create a volume
 
 

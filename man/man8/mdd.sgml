@@ -1,16 +1,16 @@
 
 
 <manpage TITLE="mdd" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>mdd - copy disk partitions to/from tape
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>mdd</bf>   &lsqb;<bf>-i</bf> inputfile&rsqb; &lsqb;<bf>-o</bf> outputfile&rsqb; &lsqb;<bf>-b</bf> blocksize&rsqb; &lsqb;<bf>-d</bf>&rsqb; <bf>-&lsqb;f | u | l&rsqb;</bf><P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <em>mdd</em> copies its input to its output formatting or
 unformatting depending upon the option.
 
@@ -78,7 +78,7 @@ new disk partitions from their name and to resolve any name conflicts.
 
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 The program prints the number of full and partial blocks read/written
 and whether or not the numbers indicate an error occurred.  Because
 of formatting, the numbers will not (and should not) be identical.
@@ -88,7 +88,7 @@ Unformatted data should have one partial block.
 
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 When reading the tape, the 8mm tape device driver on the Sun
 does not always leave the tape ready to read the next tape file.
 Simply retrying the command should work.  This problem may
@@ -97,20 +97,20 @@ be fixed in the next version of the device driver.
 
 To use mdd in a backup system running under the Mach operating
 system, you MUST specify that the partitions you will backup may
-NOT be used for paging (see mach&lowbar;swapon).  
-&lsqb;Inodes may be marked as allocated/deallocated by the inode&lowbar;pager
+NOT be used for paging (see mach_swapon).  
+&lsqb;Inodes may be marked as allocated/deallocated by the inode_pager
 during the time of the backup.  The inode may be subsequently 
 deallocated/allocated.  However, after a restore, the inodes will
 reflect their state at the time the backup was taken and may not
-correspond to the inode&lowbar;pager table.  This situation causes the system 
+correspond to the inode_pager table.  This situation causes the system 
 to "panic".&rsqb;
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 autobackup (8)
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Maria Ebling Okasaki
 
 

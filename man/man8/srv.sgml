@@ -1,11 +1,11 @@
 
 <manpage TITLE="srv" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>srv - CFS file server
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>srv</bf> &lsqb;-d (debug level)&rsqb; &lsqb;-p (number of processes)&rsqb; &lsqb;-b (buffers)&rsqb; <P>
       &lsqb;-l (large vnodes)&rsqb; &lsqb;-s (small vnodes)&rsqb; &lsqb;-k (stack size)&rsqb; <P>
       &lsqb;-w (wait interval)&rsqb; &lsqb;-r (RPC retry count)&rsqb; <P>
@@ -17,7 +17,7 @@
       &lsqb;-rvmopt&rsqb; &lsqb;-newchecklevel checklevel&rsqb; <P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>srv</bf> is the CFS <em>vice</em> file server.  It services requests from
 client machines <bf>venus</bf> processes and maintains the file system.
 
@@ -115,17 +115,17 @@ it is truncated.  Default is 50%
 <P></descrip>
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 /vice/srv/SrvErr
 
 /vice/srv/SrvLog*
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 startserver (8)
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Joshua Raiff, 1993, Created man page
 
 

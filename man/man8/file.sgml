@@ -1,6 +1,6 @@
 
 <manpage TITLE="file" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>file - Coda file server
 
 

@@ -1,26 +1,26 @@
 
 <manpage TITLE="cunlog" SECTNUM=1>
-<sect1>NAME 
+<mansect>NAME 
  <P>cunlog - Tell the Coda Venus to release authentication tokens
 
 
 
-<sect1>SYSNOPSIS<P>
+<mansect>SYSNOPSIS<P>
 <bf>cunlog</bf><P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 This command enables a user to inform the Coda Cache Manager, <em>Venus</em>, to
 release the authentication tokens for that user. Without these tokens, the user
 will not be able to access or modify his or her protected files until he or
 she re-authenticates by running <bf>clog</bf>.
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 login (1), su (1), clog (1), ctokens (1)
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 1987, Adapted from AFS-2s unlog
 
 David Steere, 1990, Created man page

@@ -1,18 +1,14 @@
 
-
 <manpage TITLE="hoard" SECTNUM=1>
-<sect1>NAME 
- <P>hoard - hoard database front-end
+<mansect>NAME 
+<P> hoard - hoard database front-end
 
 
-
-
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>hoard</bf>   &lsqb; -d &rsqb;  &lsqb; -f source | cmds &rsqb;<P>
 
 
-
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>Hoard</bf> is a front-end to the <em>hoard database</em> (HDB) managed by the Coda 
 cache manager, <em>Venus</em>.  The HDB provides a means for users to explicitly
 control Venus caching behavior.  HDB entries specify the degree of a users
@@ -102,25 +98,25 @@ the command line (one per line) by enclosing them in single quotes.
 
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 Hoard copies command lines that it cannot parse to <bf>stderr</bf>.
 If a syntactically correct command is rejected by Venus, the corresponding pioctl, its arguments, and the errno are copied to <bf>stderr</bf>.
 
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 Negative priorities should be allowed.
 
 A mount point of <em>/coda</em> is assumed by the pioctl library.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 venus (8)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Jay Kistler, 1990, Created
 
 

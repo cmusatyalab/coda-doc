@@ -1,16 +1,16 @@
 
 
 <manpage TITLE="cpasswd" SECTNUM=1>
-<sect1>NAME 
+<mansect>NAME 
  <P>cpasswd - change Coda login password
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>cpasswd</bf> &lsqb;-h host&rsqb; &lsqb;username&rsqb;<P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 This command sets the password associated with the current user, or user 
 <em>username</em> if explicitly named.  Only the user or a System Administrator 
 may change a password.  
@@ -38,23 +38,23 @@ authentication host to bind to.  This should be the SCM.
 
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <em>/vice/db/user.coda</em>
 
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 The password file information should be kept in a different data structure 
 allowing indexed access; <em>dbm (3X)</em> would probably be suitable.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 clog (1), crypt (3)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 1987, Adapted from AFS-2
 
 Maria R. Ebling, 1990, Created man page

@@ -1,18 +1,18 @@
 
 <manpage TITLE="vutil" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>vutil - venus utility program
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>vutil</bf> &lsqb;-cop COP modes&rsqb; &lsqb; -cs &rsqb; 
     &lsqb;-d debug level&rsqb; &lsqb;-mc 0 | 1 &rsqb; &lsqb;-p 0 | 1&rsqb;
 <P> &lsqb;-shutdown&rsqb; &lsqb;-stats&rsqb; &lsqb;-swap&rsqb;
 <P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>vutil</bf> dynamically alters various parameters on a running Venus.  It
 reads the value of the file /usr/coda/venus.cache/pid and sends signals to
 that process.
@@ -60,28 +60,28 @@ file to &lt;log-file&gt;.old and reinitialize &lt;log-file&gt;.
 <P></descrip>
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 Only the super user can run <bf>vutil</bf>.
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <em>/usr/coda/venus.cache/pid</em>
 
 <em>/usr/coda/venus.cahe/venus.log</em>
 
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 Venus cache directory is assumed to be <em>/usr/coda/venus.cache</em>.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 venus LEFTPAREN 8)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Jay Kistler, 1990, Created
 
 

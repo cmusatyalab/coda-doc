@@ -1,24 +1,122 @@
 <!doctype linuxdoc SYSTEM "../dtd/linuxdoc.dtd" [
+
 <!entity abstract SYSTEM "abstract.sgml">
 <!entity preface SYSTEM "preface.sgml">
 <!entity starting SYSTEM "getting_started.sgml">
 <!entity scenar SYSTEM "scenarios.sgml">
 <!entity trouble SYSTEM "trouble.sgml">
-<!entity ovv SYSTEM "system_overview.sgml">
+<!entity sysovr SYSTEM "system_overview.sgml">
 <!entity kernel SYSTEM "kernel.sgml">
 <!entity servin SYSTEM "server_installation.sgml">
 <!entity clientin SYSTEM "client_installation.sgml">
 <!entity running SYSTEM "running_coda.sgml">
 <!entity savol SYSTEM "sa_volumes.sgml">
 <!entity sauser SYSTEM "sa_users.sgml">
-<!entity backup SYSTEM "backup.sgml">
+<!entity backsys SYSTEM "backup.sgml">
 <!entity reinit SYSTEM "reinit.sgml">
 <!entity layout SYSTEM "layout.sgml">
-<!entity qref SYSTEM "user_ref.sgml">
-<!entity files SYSTEM "file_list.sgml">
-<!entity problems SYSTEM "problems.sgml">
-<!entity expl SYSTEM "examples.sgml">
+
+<!entity refapx SYSTEM "user_ref.sgml">
+<!entity fileapx SYSTEM "file_list.sgml">
+<!entity probapx SYSTEM "problems.sgml">
+<!entity examapx SYSTEM "examples.sgml">
+<!entity manapx SYSTEM "manapx.sgml">
+
+<!entity cfs		SYSTEM "../man/man1/cfs.sgml">
+<!entity clrstat	SYSTEM "../man/man1/clearstats.sgml">
+<!entity clog		SYSTEM "../man/man1/clog.sgml">
+<!entity cmon		SYSTEM "../man/man1/cmon.sgml">
+<!entity cpwd		SYSTEM "../man/man1/cpasswd.sgml">
+<!entity ctokens	SYSTEM "../man/man1/ctokens.sgml">
+<!entity cunlog		SYSTEM "../man/man1/cunlog.sgml">
+<!entity dirRep		SYSTEM "../man/man1/dirRepair.sgml">
+<!entity heal		SYSTEM "../man/man1/heal.sgml">
+<!entity hoard		SYSTEM "../man/man1/hoard.sgml">
+<!entity mvdb		SYSTEM "../man/man1/mvdb.sgml">
+<!entity profoff	SYSTEM "../man/man1/profoff.sgml">
+<!entity repair		SYSTEM "../man/man1/repair.sgml">
+<!entity spy		SYSTEM "../man/man1/spy.sgml">
+<!entity ttyfcon	SYSTEM "../man/man1/ttyfcon.sgml">
+
+<!entity histo		SYSTEM "../man/man3/histo.sgml">
+<!entity timing		SYSTEM "../man/man3/timing.sgml">
+
+<!entity backup		SYSTEM "../man/man5/backup.sgml">
+<!entity dumpfile	SYSTEM "../man/man5/dumpfile.sgml">
+<!entity dumplist	SYSTEM "../man/man5/dumplist.sgml">
+<!entity grpscoda	SYSTEM "../man/man5/groups_coda.sgml">
+<!entity maxgrpid	SYSTEM "../man/man5/maxgroupid.sgml">
+<!entity mcstagen	SYSTEM "../man/man5/multicastagents.sgml">
+<!entity mcstgrps	SYSTEM "../man/man5/multicastgroups.sgml">
+<!entity servers	SYSTEM "../man/man5/servers.sgml">
+<!entity usrcoda	SYSTEM "../man/man5/user_coda.sgml">
+<!entity volulist	SYSTEM "../man/man5/volumelist.sgml">
+<!entity vrdb		SYSTEM "../man/man5/vrdb.sgml">
+<!entity vrlist		SYSTEM "../man/man5/vrlist.sgml">
+<!entity vsgdb		SYSTEM "../man/man5/vsgdb.sgml">
+<!entity vstab		SYSTEM "../man/man5/vstab.sgml">
+
+<!entity addsrver	SYSTEM "../man/man8/addserver.sgml">
+<!entity au		SYSTEM "../man/man8/au.sgml">
+<!entity auth2		SYSTEM "../man/man8/auth2.sgml">
+<!entity authmon	SYSTEM "../man/man8/authmon.sgml">
+<!entity autoback	SYSTEM "../man/man8/autobackup.sgml">
+<!entity backup		SYSTEM "../man/man8/backup.sgml">
+<!entity bldvldb	SYSTEM "../man/man8/bldvldb.sgml">
+<!entity camelot	SYSTEM "../man/man8/camelot.sgml">
+<!entity clone		SYSTEM "../man/man8/clone.sgml">
+<!entity crvol		SYSTEM "../man/man8/createvol.sgml">
+<!entity crvolrep	SYSTEM "../man/man8/createvol_rep.sgml">
+<!entity debug		SYSTEM "../man/man8/debug.sgml">
+<!entity delusr		SYSTEM "../man/man8/deleteuser.sgml">
+<!entity file		SYSTEM "../man/man8/file.sgml">
+<!entity fsckcoda	SYSTEM "../man/man8/fsck-coda.sgml">
+<!entity gdb		SYSTEM "../man/man8/gdb.sgml">
+<!entity initpw		SYSTEM "../man/man8/initpw.sgml">
+<!entity inituser	SYSTEM "../man/man8/inituser.sgml">
+<!entity insclien	SYSTEM "../man/man8/installclient.sgml">
+<!entity inssrver	SYSTEM "../man/man8/installserver.sgml">
+<!entity list		SYSTEM "../man/man8/list.sgml">
+<!entity mdd		SYSTEM "../man/man8/mdd.sgml">
+<!entity merge		SYSTEM "../man/man8/merge.sgml">
+<!entity movevol	SYSTEM "../man/man8/movevol.sgml">
+<!entity nca		SYSTEM "../man/man8/nca.sgml">
+<!entity norton		SYSTEM "../man/man8/norton.sgml">
+<!entity pcfgen		SYSTEM "../man/man8/pcfgen.sgml">
+<!entity prgvol		SYSTEM "../man/man8/purgevol.sgml">
+<!entity prgvolre	SYSTEM "../man/man8/purgevol_rep.sgml">
+<!entity pwd2pdb	SYSTEM "../man/man8/pwd2pdb.sgml">
+<!entity readdump	SYSTEM "../man/man8/readdump.sgml">
+<!entity replay		SYSTEM "../man/man8/replay.sgml">
+<!entity salvager	SYSTEM "../man/man8/salvager.sgml">
+<!entity shutcoda	SYSTEM "../man/man8/shutdown-coda.sgml">
+<!entity srv		SYSTEM "../man/man8/srv.sgml">
+<!entity strcodav	SYSTEM "../man/man8/startcodav.sgml">
+<!entity strsrver	SYSTEM "../man/man8/startserver.sgml">
+<!entity stats		SYSTEM "../man/man8/stats.sgml">
+<!entity updtclnt	SYSTEM "../man/man8/updateclnt.sgml">
+<!entity updtmon	SYSTEM "../man/man8/updatemon.sgml">
+<!entity updtsrv	SYSTEM "../man/man8/updatesrv.sgml">
+<!entity vdebug		SYSTEM "../man/man8/vdebug.sgml">
+<!entity venus		SYSTEM "../man/man8/venus.sgml">
+<!entity vfsck		SYSTEM "../man/man8/vfsck.sgml">
+<!entity vfsvenus	SYSTEM "../man/man8/vfsvenus.sgml">
+<!entity volcr		SYSTEM "../man/man8/vol-create.sgml">
+<!entity voldump	SYSTEM "../man/man8/vol-dump.sgml">
+<!entity volprg		SYSTEM "../man/man8/vol-purge.sgml">
+<!entity volrestr	SYSTEM "../man/man8/vol-restore.sgml">
+<!entity volslvg	SYSTEM "../man/man8/vol-salvage.sgml">
+<!entity volutil	SYSTEM "../man/man8/volutil.sgml">
+<!entity vopcon		SYSTEM "../man/man8/vopcon.sgml">
+<!entity vutil		SYSTEM "../man/man8/vutil.sgml">
+
+<!entity % latex "INCLUDE">
+<!entity % html  "IGNORE">
+<![ %latex; [ <!entity newpage PI "\newpage"> ]]>
+<![ %html; [ <!entity newpage PI "<HR>"> ]]>
+<!entity newpage PI "">
 ]>
+
 <report>
 
 <title>Coda File System &nl; User and System Administrators Manual
@@ -28,24 +126,30 @@
 
 &abstract;
 <toc>
+
 &preface;
 &starting;
 &scenar;
 &trouble;
-&ovv;
+&sysovr;
 &kernel;
 &servin;
 &clientin;
 &running;
 &savol;
 &sauser;
-&backup;
+&backsys;
 &reinit;
 &layout;
-&qref;
-&files;
-&problems;
-&expl;
+
+<appendix>
+
+&refapx;
+&fileapx;
+&probapx;
+&examapx;
+&manapx;
+
+<biblio style="alpha" files="manual">
 
 </report>
-

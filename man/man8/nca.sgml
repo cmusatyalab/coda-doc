@@ -1,16 +1,16 @@
 
 
 <manpage TITLE="nca" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>nca - Camelot Node server
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 nca<P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 The Camelot Node Configuration Application (NCA) allows Camelot users
 to manage data servers on Camelot nodes. Camelot applications can be
 started, stopped, and configured using NCA. When NCA is run, the user
@@ -45,14 +45,14 @@ are only allowed to display information on the data servers.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 
 camelot(8),
 <em>Guide to the Camelot Distributed Transaction Facility</em>, Chapter 5.
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 David Steere
 
 

@@ -1,16 +1,16 @@
 
 
 <manpage TITLE="backup" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>backup - Volume by volume backup of the Coda File System
 
 
 
-<sect1>SYNOPSIS<P>
-<bf>backup</bf> &lsqb;-p poll&lowbar;period&rsqb; &lsqb;-t timeout&rsqb; &lt;dumplist&gt; &lsqb;dumpdir&rsqb;<P>
+<mansect>SYNOPSIS<P>
+<bf>backup</bf> &lsqb;-p poll_period&rsqb; &lsqb;-t timeout&rsqb; &lt;dumplist&gt; &lsqb;dumpdir&rsqb;<P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>backup</bf> performs the clone and dump phases of the Coda backup mechanism.
 <em>dumplist</em> is a file as described in <em>dumplist</em>(5)
 
@@ -35,7 +35,7 @@ completed successfully.
 
 <bf>backup</bf> supports the following command line options:
 <descrip>
-<tag><bf>-p</bf> <em>poll&lowbar;period</em></tag>Number of seconds to
+<tag><bf>-p</bf> <em>poll_period</em></tag>Number of seconds to
 sleep between polls a servers that <bf>backup</bf> thinks are down.
 <P></descrip>
 
@@ -44,11 +44,11 @@ sleep between polls a servers that <bf>backup</bf> thinks are down.
 <P></descrip>
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 backup.sh (8), volutil (8), dumplist (5), Backup chapter of the Coda Manual.
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 David C. Steere, 1991, Created
 
 

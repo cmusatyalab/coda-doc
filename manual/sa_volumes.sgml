@@ -1,12 +1,14 @@
-<chapt> System Administration: Volumes <p>
+<chapt> System Administration: Volumes			<label id="SysAdmVol">
+<p>
 
-<sect>Description<p>
+<sect> Description
+<p>
 
 Although users view the Coda file system as a hierarchy of directories
 and files, system administrators view the Coda file system as a hierarchy
-of volumes.
-Each volume contains a subtree of related directories and files which is a subtree of
-the entire file system.  Volumes, then, parallel traditional Unix file systems.
+of volumes.  Each volume contains a subtree of related directories and files 
+which is a subtree of the entire file system.  
+Volumes, then, parallel traditional Unix file systems.
 Like a Unix file system, a volume can be mounted.  Thus, the root of
 a volume can be named within another volume at a mount point.
 The Coda file system hierarchy is built in this manner and is then
@@ -63,17 +65,17 @@ Read-only Replicated|Any Server with|Only Custodian|No@
 Read-Write Replicated|Any VSG Member|Any VSG Member|Yes@
 Backup|Only Custodian|Nowhere|No@
 </tabular>
-<caption><label id="VolTypes">
-Coda Volume Types</caption>
+<caption>Coda Volume Types				<label id="VolTypes">
+</caption>
 </table>
 
 
-<sect>Creating a Volume
-<label id="CreateVolume"> <p>
+<sect>Creating a Volume					<label id="CreateVol">
+<p>
 
-Typically, volumes consist of a single users data objects or other 
-logically connected groups of data objects.  Four factors should be used in
-dividing the file system tree into volumes.  
+Typically, volumes consist of a single users data objects or other logically 
+connected groups of data objects.  Four factors should be used in dividing 
+the file system tree into volumes.  
 
 <enum>
 <item>
@@ -113,26 +115,30 @@ current alpha release and is mounted on
 Use the commands <tt>createvol (8)</tt> and
 <bf>createvol&lowbar;rep</bf>(8) to create non-replicated and
 read-write replicated volumes respectively.  (Read-only replication is
-discussed in Section <ref id="RORep) below." name="XXX"> These
+discussed in Section <ref id="RORep" name="XXX"> below). These
 commands are actually scripts which ultimately invoke the
-@CommandName&lsqb;volutil (8)&rsqb; command with the create option at
+<tt>volutil (8)</tt> command with the create option at
 the appropriate server.  The volume will contain an access list
 initialized to <bf>System:AnyUser rlidwka</bf>.  Creating the volume
 does not mount the volume within the file system hierarchy.  Mounting
 the volume as well as changing the access list or the quota must be
-done using the @CommandName&lsqb;cfs (1)&rsqb; command from a client.
+done using the <tt>cfs (1)</tt> command from a client.
 A new volume may not be visible at client workstations for some time
-(see Section <ref id="VLDB) below" name="XXX">.
+(see Section <ref id="VLDB" name="XXX"> below).  
 
 A few concrete examples should clarify the use of some of these commands.
 On the SCM, the command 
 
-<tt>% createvol u.hbovik mahler /vicepa</tt>
+<verb>
+* createvol u.hbovik mahler /vicepa
+</verb>
 
 will create a non-replicated volume named "u.hbovik" on server "mahler"s 
 /vicepa partition. Similarly, the command 
 
-<tt>% createvol&lowbar;rep u.hbovik E0000107 /vicepa</tt>
+<verb>
+* createvol&lowbar;rep u.hbovik E0000107 /vicepa
+</verb>
 
 will create a replicated volume named "user.hbovik" on each server in the 
 Volume Server Group (VSG) identified by "E0000107".  The file 
@@ -154,56 +160,58 @@ to the directory in which the mount point will be created.
 
 Mount the volumes using the command
 
-<tt>% cfs mkmount &lt;filename&gt; volname</tt>)
+<verb>
+* cfs mkmount <filename> volname
+</verb>
 
 Note that cfs creates &lt;filename&gt; automatically.  For example, 
 
-<tt>% cfs mkmount /coda/usr/hbovik u.hbovik</tt>)
+<verb>
+* cfs mkmount /coda/usr/hbovik u.hbovik
+</verb>
 
 will create <tt>/coda/usr/hbovik</tt> and then mount the <bf>u.hbovik</bf> 
-volume created in the example in Section <ref id="CreateVolume" name="XXX">.  
+volume created in the example in Section <ref id="CreateVol" name="XXX">.  
 The volume is now visible to all users of the Coda file system.  When
 mounting a volume, avoid creating multiple mount points for it.  Coda
-cannot check for this.
-More information about the <bf>cfs</bf> command can
+cannot check for this.  More information about the <bf>cfs</bf> command can
 be found in Chapter <ref id="GettingStarted" name="XXX"> as well as in Appendix
-<ref id="ManualPages" name="XXX">.
+<ref id="ManPages" name="XXX">.
 
-<sect>Deleting a Volume<p>
-<label id="DeleteVolume">
-
+<sect>Deleting a Volume				<label id="DeleteVol">
+<p>
 When a volume is no longer needed, it may be purged by running the 
 <bf>purgevol</bf> or <bf>purgevol&lowbar;rep</bf> scripts on the SCM.
-Before removing a volume, you should probably
-create a backup for off-line storage (see Section <ref id="RORep), up to the restore
-step" name="XXX">.
-The mount point of the volume should be removed with the 
-<bf>cfs</bf>(1) command (see the rmmount option) 
-before purging the volume (if possible).    
+Before removing a volume, you should probably create a backup for offline 
+storage (see Section <ref id="RORep" name="XXX"> up to the restore step).  
+The volume's mount point should be removed with the <bf>cfs</bf>(1) command 
+(see the rmmount option) before purging the volume (if possible).    
 Note that purging the volume will not purge related backup volumes.
 Backup and ReadOnly volumes should be purged with the <bf>purgevol</bf>
 script.
 
 
-<sect>Restoring a Volume<p>
-
+<sect>Restoring a Volume
+<p>
 For complete details on the backup/restore process, see Chapter
-<ref id="BackupChapter" name="XXX">. In short, one first needs to get the correct
+<ref id="Backup" name="XXX">. In short, one first needs to get the correct
 dumpfile, possibly merging incremental dumps to an older full dump to
 get the desired state to be restored. Once this file is obtained, use
 the <bf>volutil (8)</bf> restore facility.
 
-<tt>% volutil restore &lt;filename&gt; &lt;partition&gt; &lsqb;&lt;volname&gt;&rsqb; &lsqb;&lt;volid&gt;&rsqb;</tt>
+<verb>
+* volutil restore <filename> <partition> [<volname> [<volid>]]
+</verb>
 
-The &lt;partition&gt; should be one of the <tt>/vicep?</tt> partitions on the server.
+The &lt;partition&gt; should be one of the <tt>/vicep?</tt> partitions on the 
+server.
 You may optionally specify the volumeid and the volume name for the restored
 volume. This is useful when creating read-only replicated volumes.
 Note that currently dump files are not independent of byte ordering -- so
 volumes cannot be dumped across architectures that differ in this respect.
 
-<sect>Read-only Replication of a Volume<p>
-<label id="RORep">
-
+<sect>Read-only Replication of a Volume			<label id="RORep">
+<p>
 Read-only replication of a volume requires more effort on the part of the system
 administrator.  However, it greatly increases the availability of volumes which
 cannot be read-write replicated.  The most important example of such
@@ -246,33 +254,42 @@ probably be coda.root.readonly.)
 On the SCM, you need to clone the read-write copy of the root volume.  You can
 use the command 
 
-<tt>% volutil clone &lt;VolumeId&gt;</tt>
+<verb>
+* volutil clone <VolumeId>
+</verb>
 
 This command will create a read-only volume with the name
-<bf>coda.root.readonly</bf> (Assuming that your root volume is called <bf>coda.root)</bf>.
+<bf>coda.root.readonly</bf> (Assuming that your root volume is called 
+<bf>coda.root)</bf>.
 Next, you will need to dump this cloned volume to a file with the command 
 
-<tt>% volutil dump &lt;VolumeId&gt; &lt;filename&gt;</tt>
+<verb>
+* volutil dump <VolumeId> <filename>
+</verb>
 
-Now, copy this file to each of the servers which will have read-only replicas of
-the root volume and execute the command 
+Now, copy this file to each of the servers which will have read-only replicas 
+of the root volume and execute the command 
 
-<tt>% volutil restore &lt;filename&gt; &lt;partition&gt; &lsqb;&lt;volid&gt; &lsqb;&lt;volname&gt;&rsqb;&rsqb;</tt>
+<verb>
+* volutil restore <filename> <partition> [<volid> [<volname>]]
+</verb>
 
 Note that the root volume currently must reside on <tt>/vicepa</tt>.  Read-only
 replicated volumes must share the same volid and name, so take care to specify
 these correctly when restoring to more than one server. The final step is
 to build the VLDB by running the command 
 
-<tt>% bldvldb.sh</tt>
+<verb>
+* bldvldb.sh
+</verb>
 
 on the SCM and to make sure
 that the file <tt>/vice/ROOTVOLUME</tt> contains the name or volume id of the
 root volume (coda.root.readonly).  (Also, it may be necessary to restart the venus
 on the clients.)
 
-<sect>Building the VLDB<p>
-<label id="VLDB">
+<sect>Building the VLDB					<label id="VLDB">
+<p>
 
 The volume location data base, VLDB, is used to provide volume 
 addressing information to workstations.  Copies of the VLDB reside on the 
@@ -327,4 +344,5 @@ The <bf>cfs</bf> provides information on volumes.
 <bf>cfs</bf> can only be used on a machine which has
 a running <em>venus</em> (such as a client workstation).  
 <bf>cfs</bf> is described in Chapter <ref id="GettingStarted" name="XXX">
-as well as in the manual page contained in Appendix <ref id="ManualPages" name="XXX">.
+as well as in the manual page contained in Appendix <ref id="ManPages" 
+name="XXX">.

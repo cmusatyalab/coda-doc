@@ -1,12 +1,12 @@
 
 <manpage TITLE="vrdb" SECTNUM=5>
-<sect1>NAME 
+<mansect>NAME 
  <P>vrdb - Volume Replication Data Base specification
 
 
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 The volume replication data base is stored in binary form in /vice/db/VRDB on each file server.
 The <em>makevrdb</em> option of the <em>volutil</em>(8) program constructs the VRDB on the system control machine (SCM).
 
@@ -28,14 +28,14 @@ Note that all volume and VSG numbers are given in hex.  Details of the VRDB stru
 
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <em>/vice/db/VRDB</em>
 
 <em>/vice/vol/VRList</em>
 
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 File servers keep the in-memory copy as a singly-linked list.
 It should be converted to a pair of hash-tables, one keyed by group volname, the other by group volnum, for fast lookup.
 
@@ -43,12 +43,12 @@ The maximum number of replication sites is fixed at 8.  Adding, deleting, or mov
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 volutil (8), maxgroupid (5), vsgdb (5)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Jay Kistler, 1990, created
 
 

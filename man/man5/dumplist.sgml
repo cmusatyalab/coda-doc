@@ -1,11 +1,11 @@
 
 <manpage TITLE="dumplist" SECTNUM=5>
-<sect1>NAME 
+<mansect>NAME 
  <P>dumplist - List of volumes to be archived by the Coda backup mechanism
 
 
 
-<sect1>Description<P>
+<mansect>DESCRIPTION<P>
 The dumplist file contains information for the <bf>backup</bf>(8) program. It
 contains two lists. The first is a list of partitions which will hold the
 dumpfiles from the backup process. The second is a list of volumes to be
@@ -30,31 +30,31 @@ to Sunday.
 
 
 
-<sect1>EXAMPLE<P>
-The following does a full backup of <em>coda&lowbar;root</em>, <em>coda&lowbar;root.i386</em>, and
-<em>coda&lowbar;root.tmp</em> on Monday while it does a full backup of
-<em>coda&lowbar;root.project</em> and <em>coda&lowbar;root.usr</em> on Wednesday.  It uses
+<mansect>EXAMPLE<P>
+The following does a full backup of <em>coda_root</em>, <em>coda&lowbar;root.i386</em>, and
+<em>coda_root.tmp</em> on Monday while it does a full backup of
+<em>coda_root.project</em> and <em>coda&lowbar;root.usr</em> on Wednesday.  It uses
 <em>/vicepa/backup</em> and <em>/usr/codabackup/backup</em> to store the dump files.
 <tscreen><verb>
 Partitions
 /vicepa/backup
 /usr/codabackup/backup
 Volumes
-7F000000        IFIIIII         coda&lowbar;root
-7F000001        IFIIIII         coda&lowbar;root.i386
-7F000002        IIIFIII         coda&lowbar;root.project
-7F000003        IFIIIII         coda&lowbar;root.tmp
-7F000004        IIIFIII         coda&lowbar;root.usr
-7F000005        IFIIIII         coda&lowbar;root.misc
+7F000000        IFIIIII         coda_root
+7F000001        IFIIIII         coda_root.i386
+7F000002        IIIFIII         coda_root.project
+7F000003        IFIIIII         coda_root.tmp
+7F000004        IIIFIII         coda_root.usr
+7F000005        IFIIIII         coda_root.misc
 </verb></tscreen>
 
 
 
-<sect1>See Also<P>
-backup (8), creatvol (8), createvol&lowbar;rep (8)
+<mansect>SEE ALSO<P>
+backup (8), creatvol (8), createvol_rep (8)
 
 
-<sect1>Author<P>
+<mansect>AUTHOR<P>
 David C. Steere, 1991, Created
 
 

@@ -1,16 +1,16 @@
 
 
 <manpage TITLE="installclient" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>installclient - client installation script
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>installclient</bf>	&lsqb;install | clean | update&rsqb;<P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 The <bf>installclient</bf> script automates much of the installation of Coda on
 client workstations.  The <bf>install</bf> option creates necessary directories
 and installs the Coda binaries in the proper places within them.  In 
@@ -20,7 +20,7 @@ workstation.  The <bf>update</bf> option updates the Coda binaries from those
 found in the installation directory.
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Maria Ebling Okasaki
 
 

@@ -1,4 +1,5 @@
-<chapt> Appendix: System Files <p>
+<chapt> System Files					<label id="SysFiles">
+<p>							<!-- Appendix II -->
 
 <table>
 <tabular ca=lllll>
@@ -42,3 +43,4 @@ vstab|/usr/coda/etc|hand|hand|Venus configuration file@
 ||||Several other programs use vstab to get server names@
 </tabular>
 </table>
+</chapt>

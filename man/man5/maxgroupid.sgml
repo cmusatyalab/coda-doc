@@ -1,12 +1,12 @@
 
 <manpage TITLE="maxgroupid" SECTNUM=5>
-<sect1>NAME 
+<mansect>NAME 
  <P>maxgroupid - replicated volume number allocation mechanism
 
 
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 The system control machine (SCM) has a file, <em>/vice/vol/maxgroupid</em>, which contains the maximum replicated (aka group) volume number that has ever been allocated in the system.
 This is used as a simple way to guarantee that group volume numbers are unique.
 
@@ -22,12 +22,12 @@ create <em>/vice/vol/maxgroupid</em> with the number 2130706432.
 
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <em>/vice/vol/maxgroupid</em> on the SCM
 
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 This file should be salvaged, but it is not.
 
 Removing this file (without reinitializing the whole system) is a recipe for disaster.
@@ -35,12 +35,12 @@ Grave confusion will result if group (or any other) volumes are created with the
 
 
 
-<sect1>SEE ALSO<P>
-servers (5), createvol&lowbar;rep (8)
+<mansect>SEE ALSO<P>
+servers (5), createvol_rep (8)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Jay Kistler, 1990, Created
 
 

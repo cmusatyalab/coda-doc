@@ -1,16 +1,16 @@
 
 
 <manpage TITLE="ttyfcon" SECTNUM=1>
-<sect1>NAME 
+<mansect>NAME 
  <P>ttyfcon - tty interface to failure emulator 
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>ttyfcon</bf><P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 The Coda failure emulation package consists of two pieces: a library
 of routines (<em>libfail</em>) that is linked in with each client and server,
 and a user interface program (<em>ttyfcon</em>) that controls the behavior
@@ -76,7 +76,7 @@ matches any  host, while "128.2.-1.-1" matches any host on subnet 2 at CMU.
 <em>Lenmin</em> and <em>lenmax</em> specify the minimum and maximum RPC
 packet sizes that match this filter. <em>Color</em> is a number in the range
 from 0 to 254.  A value of -1 specifies that any color matches.  RPC2
-connections can be colored using the  call RPC2&lowbar;SetColor ().  Packets
+connections can be colored using the  call RPC2_SetColor ().  Packets
 sent out on a connection acquire the color of the connection.  Note that
 reply packets acquire the color of the reply connection, which may be
 different.  Colors are particularly valuable in stressing critical phases of
@@ -112,11 +112,11 @@ not clear any filters.
 
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 You cannot currently designate a host by IP address of the form
 a.b.c.d as described above when binding to a process.
 
-May confuse the user with the error message ``RPC2&lowbar;SUCCESS.''
+May confuse the user with the error message ``RPC2_SUCCESS.''
 
 No authentication or security checks are done.  Denial of service 
 attacks are trivial, since any user can set up
@@ -124,12 +124,12 @@ filters on any other client or server.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 heal (1), ci (3), libfail (3), RPC2 Reference Manual
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Walter Smith, 1988, created.
 
 M. Satyanarayanan, 1990, updated.

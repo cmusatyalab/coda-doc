@@ -1,15 +1,15 @@
 
 <manpage TITLE="initpw" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>initpw - Initialize the auth2 password database.
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>initpw</bf> &lsqb;-k key&rsqb;
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>initpw</bf> initialises the <em>auth2</em> password database by reading lines
 from stdin and writing the corresponding database entries to stdout.
 <bf>initpw</bf> supports the following command line options:
@@ -38,11 +38,11 @@ the user you want to include in the <em>auth2</em> password database.
 <P></descrip>
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 auth2 (8)
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 1987, Adapted from AFS-2
 
 Joshua Raiff, 1993, Created man page

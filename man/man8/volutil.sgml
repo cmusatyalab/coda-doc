@@ -1,17 +1,17 @@
 
 
 <manpage TITLE="volutil" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>volutil - volume utility subsystem
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 volutil &lsqb;-h &lt;server&gt;&rsqb; &lsqb; -t timeout&rsqb; &lt;command&gt; 
 &lt;parameters ... &gt;<P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>Volutil</bf> is a RPC interface to the volume utility subsystem of  the 
 file server.  The volume utilities are used to perform administrative
 functions like creating, cloning, purging, dumping and restoring volumes.
@@ -58,12 +58,12 @@ is a simplified front-end for this option.
 <P></descrip> 
 
 <descrip>
-<tag><bf>create&lowbar;rep</bf> <em>&lt;partition-path&gt;</em> 
+<tag><bf>create_rep</bf> <em>&lt;partition-path&gt;</em> 
 <em>&lt;volume-name&gt;</em> <em>&lt;group-ID&gt;</em></tag> Create a 
 replicated read-write volume named <em>&lt;volume-name&gt;</em> on partition 
 named <em>&lt;partition-path&gt;</em>.  The <em>&lt;group-ID&gt;</em> 
 parameter is used to specify the ID of the replicated volume to which this 
-replica will belong.  The <em>createvol&lowbar;rep</em>(8) command will also 
+replica will belong.  The <em>createvol_rep</em>(8) command will also 
 create a replicated volume.  
 <P></descrip> 
 
@@ -213,29 +213,29 @@ at non-scm machines.
 <P></descrip>
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 This command must be run as root.  It works only on the machine running
 the server. Also, the token file <em>/vice/db/voutil.tk</em> must be 
 accessible.
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 The salvage option to volutil doesn't work right.  Please don't try it.
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <em>/vice/db/VSGDB</em><P>
 <em>/vice/file/SrvLog</em><P>
 <em>/vice/db/VLDB</em><P>
 <em>/vice/db/VRDB</em><P>
 <em>/vice/vol/VRList</em><P>
 
-<sect1>SEE ALSO<P>
-vrdb(5), volumelist(5), bldvldb(8), createvol(8), createvol&lowbar;rep(8), 
-purgevol(8), purgevol&lowbar;rep(8)
+<mansect>SEE ALSO<P>
+vrdb(5), volumelist(5), bldvldb(8), createvol(8), createvol_rep(8), 
+purgevol(8), purgevol_rep(8)
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Puneet Kumar, David Steere, 1990, Created
 
 

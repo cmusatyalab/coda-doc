@@ -1,12 +1,12 @@
-
-
 <manpage TITLE="histo" SECTNUM=3>
-<sect1>NAME 
- <P>histo - histogram package
+
+<mansect>NAME 
+<P>
+histo - histogram package
 
 
-
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS
+<P>
 #include &lt;histo.h&gt;<P>
 <P>
 InitHisto (hg, lolimit, hilimit, bucketcount, ht)<P>
@@ -35,7 +35,7 @@ PlotHisto (outfile, hg, graphtitle, xtitle, ytitle, psfileprefix)<P>
 
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 This is a statistics package that can be used to produce the mean, standard
 deviation and histogram of a set of numbers.  The histogram can be one of
 three types: linear, log2 or log10.
@@ -70,12 +70,12 @@ the program csplot to produce a histogram of the input data.
 
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 Negative return values indicate errors. 
 
 
 
-<sect1>EXAMPLE<P>
+<mansect>EXAMPLE<P>
 
 <tscreen><verb>
 #include &lt;libc.h&gt;
@@ -118,7 +118,7 @@ main ()
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 M.Satya, 1991
 
 

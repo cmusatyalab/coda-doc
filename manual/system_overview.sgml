@@ -1,14 +1,14 @@
-<chapt> System Overview<p>
-
+<chapt> System Overview					<label id="SysOvr">
+<p>
 Each Coda client sees the Coda File System as a single tree,
 /coda.  In reality this tree is an illusion supported by <em>system
-control machine</em> (SCM), serveral dedicated file servers and a local area
-network.  One of the file servers may double as the (SCM).  Figure
+control machine</em> (SCM), several dedicated file servers, and a local 
+area network.  One of the servers may double as the (SCM).  Figure
 <ref id="ServerOrg" name="XXX"> illustrates the server organization. 
 
 <figure>
   <eps file="serverorg">
-  <caption><label id="ServerOrg">Typical Coda Server Organisation
+  <caption><label id="ServerOrg"> Typical Coda server organization
 </figure>
 
 <sect>Machines<p>
@@ -62,10 +62,11 @@ copies will be automatically updated after some delay.  If the
 updateclnt or the updatesrv processes exit for any reason, the 
 <em>updatemon</em> process restarts them.
 </tabular>
-<caption> Server Processes </caption>
+<caption><label id="ServeProc"> Server Processes </caption>
 </table>
 
-Figure <ref id="SrvProcesses" name="XXX"> lists the typical processes of a running file server.
+Figure <ref id="ServeProc" name="XXX"> lists the typical processes of a 
+running file server.
 
 <tscreen>
 <verb>
@@ -122,7 +123,7 @@ contains volume information for all remote servers.
 </itemize>
 
 A more detailed description of the files in the these directories is
-listed in Appendix <ref id="FileList" name="XXX">.
+listed in Appendix <ref id="SysFiles" name="XXX">.
 
 <sect>File System Consistency<p>
 

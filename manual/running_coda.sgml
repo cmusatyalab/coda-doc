@@ -1,7 +1,8 @@
-<chapt> Running Coda <p>
+<chapt> Running Coda				<label id="RunningCoda">
+<p>
 
-<sect>Server<p>
-<label id="ServerMonitor">
+<sect>Server					<label id="ServerMonitor">
+<p>
 Each process running on a server maintains a log file of its
 activities.  This file may be monitored by running 
 <bf>tail -f</bf> on the particular file.  For intance, an
@@ -39,13 +40,14 @@ need only ensure that there is no file server currently running on the
 node, and give the file server information about the RVM log and data
 segments.
 
-The pid of the last file process to run is contained in
-<tt>/vice/srv/pid</tt>.  This is used by the
-<bf>startserver</bf>, one of our example scripts in Appendix
-<ref id="examplefiles" name="XXX">, to avoid accidentally starting a new server when
+The pid of the last file process to run is contained in 
+<tt>/vice/srv/pid</tt>.  This is used by the <bf>startserver</bf>, one of our 
+example scripts in Appendix <ref id="ExampleFiles" name="XXX">, to avoid 
+accidentally starting a new server when
 one is already running.  If the old server process is still running, and
 you wish to shut it down, follow the instructions in Section
-<ref id="ServerShutdown" name="XXX">.  If <tt>/vice/srv/pid</tt> exists, but the
+<ref id="ServerShutdown" name="XXX">.  If <tt>/vice/srv/pid</tt> exists, 
+but the
 server is not running, then either the machine crashed and the server
 process did not get a chance to remove the file, or the server has
 entered a <em>zombie</em> state.  The server goes into a zombie state
@@ -63,7 +65,7 @@ section <ref id="RVMInitialization" name="XXX">.  To start the server, type as r
 <tt>
 % /vice/bin/srv -nodumpvm -rvm &lt;logdevice&gt; &lt;datadevice&gt; &lt;datalength&gt;</tt>
 
-Appendix <ref id="examplefiles" name="XXX"> contains two example scripts,
+Appendix <ref id="ExampleFiles" name="XXX"> contains two example scripts,
 <bf>startserver</bf> and <bf>restartserver</bf>, that
 simplify server startup.  Be sure to change the three RVM parameters
 to suit your system.  A common failure with these scripts is the
@@ -166,7 +168,7 @@ The <bf>vutil</bf> program is a utility to dynamically control
 and monitor the <bf>venus</bf> program.  It has a number of
 options other than the debugging option described above.  For more
 information, please refer to <bf>vutil</bf>s manual page
-in Appendix <ref id="ManualPages" name="XXX">.
+in Appendix <ref id="ManPages" name="XXX">.
 
 <sect1>Redirecting STDERR from Venus<p>
 

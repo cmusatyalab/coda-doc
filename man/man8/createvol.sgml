@@ -1,16 +1,16 @@
 
 
 <manpage TITLE="createvol" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>createvol - create a non-replicated volume
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>createvol</bf> &lt;volume-name&gt; &lt;server-name&gt; &lt;partition-name&gt;<P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>createvol</bf> is used to create a Coda non-replicated volume on the specified
 partition (<em>&lt;partion-name&gt;)</em> and server (<em>&lt;server-name&gt;)</em>.  The 
 volume number is assigned by the server automatically; the name is 
@@ -27,7 +27,7 @@ reasonable access list, must be set later by a system administrator
 using the <em>cfs</em>(1) command.
 
 
-<sect1>EXAMPLE<P>
+<mansect>EXAMPLE<P>
 To Create a volume for user "hbovik" on server "mahler":
 <tscreen><verb>
 createvol user.hbovik mahler /vicepa
@@ -35,14 +35,14 @@ createvol user.hbovik mahler /vicepa
 
 
 
-<sect1>NOTES<P>
+<mansect>NOTES<P>
 This command does not create the mount point to the volume within the 
 file system hierarchy.  This must be created by the <bf>cfs mkmount</bf>(1) 
 command.
 
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 This command must be issued at the System Control Machine (SCM).  Also, 
 it must be invoked with effective user id of root.  This command does not 
 check for return codes from the servers once the volutil command is 
@@ -51,7 +51,7 @@ on the server to see if the volume name exists at that server.
 
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <descrip>
 <tag><em>/vice/vol/AllVolumes</em></tag>used to find out if volume already exists
 <P></descrip>
@@ -61,12 +61,12 @@ on the server to see if the volume name exists at that server.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 cfs (1), bldvldb.sh (8), volutil (8)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Puneet Kumar, 1990, created
 
 

@@ -1,12 +1,12 @@
 
 <manpage TITLE="venus" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>venus - client cache manager
 
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>venus</bf>   &lsqb; -k kernel device &rsqb;  &lsqb; -h host list &rsqb;  &lsqb; -cf cache files &rsqb;  &lsqb; -c cache blocks &rsqb;  &lsqb;-mles CML entries&rsqb;<P>
 	&lsqb; -d debug level &rsqb;  &lsqb; -r root volume &rsqb;  &lsqb; -f cache directory &rsqb;  &lsqb; -m COP modes &rsqb;<P>
 	&lsqb; -mc 0 | 1 &rsqb;  &lsqb; -console console file &rsqb;  &lsqb; -retries RPC2 retries &rsqb;  &lsqb; -timeout RPC2 timeout &rsqb;<P>
@@ -19,7 +19,7 @@
 
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>venus</bf> manages a cache of files and directories for a client workstation.  It has a host of parameters and configuration options.  Default values of everything are compiled into <bf>venus</bf> (see <em>&lt;venus.private.h&gt;) for these values</em>.  Some of these are overridden by the values in the <em>vstab</em>(5), provided that it exists.  Both default and vstab values may be overridden with command-line arguments.  Venus must be run as root.
 
 The command-line options are:
@@ -158,7 +158,7 @@ Default: <em>/coda</em>
 
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 Venus writes debugging information into the file &lt;cache directory&gt;/venus.log.  The verbosity of this output is controlled by the &lt;debug level&gt; parameter.  High priority messages are also written to the console (which may be redirected with the console option at start-up).  Fatal errors will cause the internal state of venus to be dumped to the log file, and a core file to be left in &lt;cache directory/core&gt;.
 
 Venus writes its process id into the file &lt;cache directory&gt;/pid.  The vutil (8v) program reads the pid file and dynamically alter Venus behavior by sending signals to it.
@@ -167,7 +167,7 @@ Venus may be unable to unmount itself cleanly when it exits.  Usually this is du
 
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <em>/usr/coda/etc/vstab</em>
 
 <em>&lt;cache directory&gt;/venus.log</em>
@@ -178,17 +178,17 @@ Venus may be unable to unmount itself cleanly when it exits.  Usually this is du
 
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 A mount point of <em>/coda</em> is assumed by the pioctl library.
 
 A cache directory of <em>/usr/coda/venus.cache</em> is assumed by vutil (8v).
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 vstab (5), cfsunmount (8v), vutil (8v)
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Jay Kistler, 1990, Created
 
 Joshua Raiff, 1993, Documented added switches

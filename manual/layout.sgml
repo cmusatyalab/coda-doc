@@ -1,15 +1,15 @@
-<chapt> Coda Source Layout <p>
-
+<chapt> Coda Source Layout			<label id="SourceLayout">
+<p>
 This chapter is a guide to using and modifying Coda source code at CMU-SCS.
 It is mainly intended to help new members of the project come up to speed.
-But it may also help sites outside CMU that receive a Coda distribution to devise
-procedures appropriate to their environments.
+But it may also help sites outside CMU that receive a Coda distribution to 
+devise procedures appropriate to their environments.
 
-
-<sect>The Big Picture<p>
-
-All files relating to Coda, with the sole exception of RCS files (see Section <ref id="RCS)" name="XXX">,
-are stored in <tt>/coda/project/coda.</tt>  Lets call this <tt>&dollar;CODA.</tt>
+<sect>The Big Picture
+<p>
+All files relating to Coda, with the sole exception of RCS files (see Section 
+<ref id="RCS" name="XXX">), are stored in <tt>/coda/project/coda.</tt>  
+Let's call this <tt>&dollar;CODA</tt>.  
 The directories under <tt>&dollar;CODA</tt>  correspond to different <em>releases</em> of Coda, such as
 <tt>alpha,</tt> <tt>beta,</tt> and so on.  A release is a complete set of <em>mutually consistent</em>
 sources, libraries and binaries.   "Mutually consistent" means, for example, that the
@@ -102,17 +102,17 @@ is identical for all releases.
 
 <figure>
   <eps file="coda-releases-fig">
-<caption><label id="ReleaseLayout">Structure of a Coda Release </caption>
+<caption>Structure of a Coda Release		<label id="ReleaseLayout">
+</caption>
 </figure>
-<tscreen>
-The underlined names are symlinks to machine-specific directories.
-On a 386 machine for example, @ux&lt;<tt>bin</tt>&gt; is a symlink to <tt>i386&lowbar;mach/bin.</tt>
-Although only two machine-specific directories (<tt>pmax&lowbar;mach</tt> and <tt>i386&lowbar;mach</tt>) are shown, there
-can be many more.
-</tscreen>
 
+Underlined names are symlinks to machine-specific directories.  On a 386
+machine for example, <tt>bin</tt> is a symlink to <tt>i386_mach/bin</tt>.
+Although only two machine-specific directories (<tt>pmax&lowbar;mach</tt> and
+<tt>i386&lowbar;mach</tt>) are shown, there can be many more.
 
-The source tree for the release is in <tt>src</tt>.  A copy of the header files from <tt>src</tt>
+The source tree for the release is in <tt>src</tt>.  A copy of the header 
+files from <tt>src</tt>
 is in <tt>include</tt>.  Both <tt>src</tt> and <tt>include</tt> are machine-independent.  For each
 supported machine type, there is a directory containing binaries (<tt>bin</tt>) and libraries (<tt>lib</tt>).
 The source tree in a release is fully self-contained.  In other words, if you started out with empty
@@ -134,29 +134,32 @@ files define elaborate <tt>PATH, CPATH, LPATH</tt> variables.
 
 <figure>
   <eps file="coda-src-fig">
-  <caption><label id="SrcLayout">Structure of the source directory in a release
-</caption>
+  <caption>Structure of the source directory in a release
+							<label id="SrcLayout">
+  </caption>
 </figure>
-<tscreen>
-The underlined names are symlinks to RCS directories.  For example, <tt>RCSLINK</tt> is a
-symlink to <tt>/afs/cs/project/coda/rcs</tt>; <tt>auth2/RCS</tt> is a symlink to <tt>../RCSLINK/auth2</tt>;
-and so on.  Indirecting via <tt>RCSLINK</tt> makes it simple to relocate the RCS directories
-without changing lots of individual symlinks.  Such relocation might happen, for example,
-when Coda sources are used outside CMU.
-</tscreen>
 
-<sect1>Layout of a typical module<p>
-The structure of a typical module is shown in Figure <ref id="ModuleLayout" name="XXX">.
+Underlined names are symlinks to RCS directories.  For example,
+<tt>RCSLINK</tt> is a symlink to <tt>/afs/cs/project/coda/rcs</tt>;
+<tt>auth2/RCS</tt> is a symlink to <tt>../RCSLINK/auth2</tt>; and so on.
+Indirecting via <tt>RCSLINK</tt> makes it simple to relocate the RCS
+directories without changing lots of individual symlinks.  Such relocation
+might happen, for example, when Coda sources are used outside CMU.
+
+<sect1>Layout of a typical module
+<p>
+The structure of a typical module is shown in Figure <ref id="ModuleLayout" 
+name="XXX">.
+
 <figure>
 <eps file="coda-module-fig">
-<caption> <label id="ModuleLayout">Structure of a typical module</caption>
+<caption>Typical module structure		<label id="ModuleLayout">
+</caption>	
 </figure>
 
-<tscreen>
-This figure depicts the structure of one module, <tt>rpc2</tt>.
-The underlined name RCS is a symlink to <tt>../RCSLINK/rpc2</tt>.
-Indirecting via <tt>RCSLINK</tt> makes it simple to relocate the RCS directories.
-</tscreen>
+In this particular module, <tt>rpc2</tt>, the underlined name RCS indicates a
+symlink to <tt>../RCSLINK/rpc2</tt>.  Indirection via <tt>RCSLINK</tt> makes
+relocating the RCS directories a simple matter.
 
 Notice that only the source files are located in this directory; there are no object
 files.  The CMU-SCS <tt>make</tt> facility puts all compilation targets elsewhere, thus
@@ -324,56 +327,58 @@ It should be possible to modify the code to use other versions of C++
 (such as <tt>g++</tt>), or to use standard Unix make.  But we havent
 tried this, and dont plan to.
 
-<sect1>Special directories<p>
-<label id="SpecialDirectories">
-
+<sect1>Special directories			<label id="SpecialDirectories">
+<p>
 Before you can compile Coda, you need to populate the <tt>&lcub;include,lib,bin,src&rcub;-special</tt> directories.
 These contain files that are (a) needed but arent in the Coda sources or (b) standard Mach header files, with slight modifications.   The <tt>MAKECODA</tt>
 script contains an up-to-date list of what these files should be.  Here is
 a list that was current at the time of writing this document:
 <descrip>
-<tag/RVM files/RVM is a lightweight transactional package that is used on servers and clients.
-It is a package that is independent of Coda.  The current set of files from this package are:
+<tag>RVM files</tag>RVM is a lightweight transactional package that is used on
+servers and clients.  It is a package that is independent of Coda.  The
+current set of files from this package are:
 <tscreen><verb>
-include-special/&lcub;rvm.h,rvm&lowbar;lwp.h,rvm&lowbar;statistics.h,
-			rvm&lowbar;segment.h,rds.h&rcub;
+	include-special/&lcub;rvm.h,rvm&lowbar;lwp.h,rvm&lowbar;statistics.h,
+		rvm&lowbar;segment.h,rds.h&rcub;
 
-lib-special/&lcub;librvm.a,librvmlwp.a,libseg.a,librds.a&rcub;
+	lib-special/&lcub;librvm.a,librvmlwp.a,libseg.a,librds.a&rcub;
 
-bin-special/&lcub;rdsinit,rvmutl&rcub;
+	bin-special/&lcub;rdsinit,rvmutl&rcub;
 
-src-special/&lcub;Makeconf,Makefile,READ&lowbar;ME,plumber,rds,rvm,seg&rcub;
+	src-special/&lcub;Makeconf,Makefile,READ&lowbar;ME,plumber,rds,
+		rvm,seg&rcub;
 </verb></tscreen>
-<tag/Tracing facility files/These files pertain to a file tracing facility, <tt>dfstrace</tt>, that is 
-used at CMU.  Venus is capable of functioning as a simulator driven by traces.   This requires
-the following files:
+<tag>Tracing facility files</tag>These files pertain to a file-tracing 
+facility, <tt>dfstrace</tt>, used at CMU.  To function as a 
+trace-driven simulator, Venus requires the following files:
 <tscreen><verb>
-include-special/tracelib.h
+	include-special/tracelib.h
 
-lib-special/libtrace.a
+	lib-special/libtrace.a
 </verb></tscreen>
-If you dont intend to use Venus as a simulator, you could construct a dummy <tt>libtrace.a</tt> with
+If you don't intend to use Venus as a simulator, you could construct a dummy <tt>libtrace.a</tt> with
 empty routines to avoid unresolved references.   You do need <tt>tracelib.h</tt> though.
 <tag/Plumber/ <tt>malloc</tt> The Coda makefiles allow you to build versions of <tt>venus</tt> and <tt>srv</tt> 
 that use a special <tt>malloc</tt> to help detect memory leaks.  The following files are needed
 for this:
 <tscreen><verb>
-include-special/newplumb.h
+	include-special/newplumb.h
 
-lib-special/&lcub;libplumber.a,libnewplumb.a&rcub;
+	lib-special/&lcub;libplumber.a,libnewplumb.a&rcub;
 </verb></tscreen>
-If you dont plan to build the plumbing facilities, you can just create zero-length files with
+If you don't plan to build the plumbing facilities, you can just create zero-length files with
 these names to keep the <tt>MAKECODA</tt> script happy.
-<tag/Modified Mach headers/The changes in these files had to be made because of compilation errors
+<tag>Modified Mach headers</tag>The changes in these files had to be made 
+because of compilation errors
 from C++, or (as in the case of <tt>assert.h</tt>) to define different behavior for standard macros:
 <tscreen><verb>
-include-special/&lcub;assert.h,cthreads.h,setjmp.h,sys/inode.h,
-			i386/fpreg.h,i386&lowbar;mach/endian.h&rcub;
+	include-special/&lcub;assert.h,cthreads.h,setjmp.h,sys/inode.h,
+		i386/fpreg.h,i386&lowbar;mach/endian.h&rcub;
 </verb></tscreen>
 </descrip>
 
-<sect1>Using the MAKECODA script<p>
-<label id="MAKECODA">
+<sect1>Using the MAKECODA script			<label id="MAKECODA">
+<p>
 
 Once you have taken care of the prerequisites and special files, you can compile a release.
 The simplest way to do this is to run the <tt>MAKECODA</tt> script in <tt>src</tt>.  
@@ -391,11 +396,12 @@ cd /coda/project/coda/beta/src
 </verb>
 </tscreen>
 
-The <tt>MAKECODA</tt> script will first check to make sure that all necessary special
-files are present.  If any are missing it will prompt you.  It then goes through
-the Coda modules in the correct order, and does a <tt>make install</tt> on each of
-them.  The usual checkin to RCS that is done by <tt>alphaci</tt> 
-as part of <tt>make install</tt> (see Section <ref id="alphaci)" name="XXX"> is supressed.
+The <tt>MAKECODA</tt> script will first check to make sure that all necessary 
+special files are present.  If any are missing it will prompt you.  It then 
+goes through the Coda modules in the correct order and does a <tt>make 
+install</tt> on each.  The usual checkin to RCS that is done by 
+<tt>alphaci</tt> as part of <tt>make install</tt> (see Section 
+<ref id="alphaci" name="XXX">) is supressed.
 If all goes well, everything in Coda will be compiled, and the <tt>bin</tt>, <tt>lib</tt>,
 and <tt>include</tt> directores will be populated.  You will have to repeat this once
 for each machine type.
@@ -424,14 +430,13 @@ MAKECODA OBJECTDIR=/tmp/@@sys  ROOT=/coda/project/coda/alpha
 <sect>Making Incremental Changes<p>
 <label id="Changes">
 
-Once the <tt>alpha</tt> release has been built, you can start code development.
-We have already seen the general procedure in Section <ref id="CodeDevelopment" name="XXX">.
-Lets look at an example in more detail.
+Once the <tt>alpha</tt> release has been built, you can start code
+development.  We have already seen the general procedure in Section <ref
+id="CodeDevelopment" name="XXX">.  Lets look at an example in more detail.
 
 Suppose I am working on the module <tt>vtools</tt> and need to change
 the files <tt>cmon.c</tt> and <tt>codacon.c</tt>.  Heres what I would do:
-<tscreen>
-<verb>
+<tscreen><verb>
 # Create a scratch directory for my work
 mkdir /coda/usr/satya/src
 cd /coda/usr/satya/src
@@ -473,8 +478,7 @@ make OBJECTDIR=/coda/usr/satya/OBJS/@@sys install
 # and codacon.c
 
 # Repeat the install step for each of the other supported platforms.
-</verb>
-</tscreen>
+</verb></tscreen>
 
 Notice that many other files may be need for compilation,
 but you dont have to check them out.  This is because the CMU-SCS 
@@ -742,5 +746,9 @@ with these files are running on Brahms and faust, safely (I think so).
 
 </verb></tscreen>
 
-<sect>Coding Tips<p>
-&lsqb;<em>to be written</em>&rsqb;
+<sect>Coding Tips
+<p>
+<verb>
+  <TO BE COMPLETED>
+</verb>
+</chapt>

@@ -1,5 +1,5 @@
-<chapt> Installing a Coda Client<p>
-
+<chapt> Installing a Coda Client		<label id="InstallClient">
+<p>
 A Coda client can be run on any workstation that supports the Sun VFS
 interface.  Our experience has been limited to Mach kernels, but it
 would take minimal effort to port Coda to another kernel.

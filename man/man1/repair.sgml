@@ -1,16 +1,16 @@
 
-
 <manpage TITLE="repair" SECTNUM=1>
-<sect1>NAME 
+<mansect>NAME 
  <P>repair - repair conflicts in the Coda file system
 
 
-
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 repair<P>
 
 
-<sect1>DESCRIPTION<P> The Coda repair tool allows you to manually
+<mansect>DESCRIPTION
+<P>
+The Coda repair tool allows you to manually
 resolve two kinds of conflict resulted from partitioned updates.
 Server-server conflicts are conflicting mutations performed on
 partitioned servers that can not be automatically resolved.
@@ -102,10 +102,10 @@ commands for each replica.  The format of fixfile for directories is as
 follows:
 <P></descrip>
 <tscreen><verb>
-    replica &lt;servername&gt; &lt;id of replica1&gt;
-        &lt;repair commands for replica1&gt;
-    replica &lt;servername&gt; &lt;id of replica2&gt;
-         &lt;repair commands for  replica2&gt;
+    replica <servername> <id of replica1>
+        <repair commands for replica1>
+    replica <servername> <id of replica2>
+         <repair commands for  replica2>
     and so on
 </verb></tscreen>
 Repair commands are given one per line.  Blank lines are ok.  <em>id of
@@ -115,19 +115,19 @@ corresponding to a replicated volume.  The volume ids can be obtained by
 doing an ls on the inconsistent object, after the <bf>beginrepair</bf>
 command has succeeded.  The directory repair commands are:
 <tscreen><verb>
-  createf &lt;filename&gt;    &lt;fid.0&gt; &lt;fid.1&gt; &lt;fid.2&gt;
-  creates &lt;symlinkname&gt; &lt;fid.0&gt; &lt;fid.1&gt; &lt;fid.2&gt;
-  createl &lt;linkname&gt;    &lt;fid.0&gt; &lt;fid.1&gt; &lt;fid.2&gt;
-  created &lt;dirname&gt;     &lt;fid.0&gt; &lt;fid.1&gt; &lt;fid.2&gt;
-  removefsl  &lt;filename or symlinkname or linkname&gt;
-  removed  &lt;dirname&gt;
-  mv &lt;srcname&gt; &lt;tgtname&gt; &lt;src &lt;fid.0&gt;&lt;fid.1&gt;&lt;fid.2&gt;&gt; 
-                         &lt;target &lt;fid.1&gt; &lt;fid.2&gt;&gt;
-  setacl  &lt;username&gt; &lsqb;rwlikda&rsqb;
-  delacl  &lt;username&gt;
-  setmode &lt;newmode&gt;
-  setowner &lt;new owner name&gt;
-  setmtime &lt;new modified time&gt;
+  createf <filename>    <fid.0> <fid.1> <fid.2>
+  creates <symlinkname> <fid.0> <fid.1> <fid.2>
+  createl <linkname>    <fid.0> <fid.1> <fid.2>
+  created <dirname>     <fid.0> <fid.1> <fid.2>
+  removefsl  <filename or symlinkname or linkname>
+  removed  <dirname>
+  mv <srcname> <tgtname> <src <fid.0><fid.1><fid.2>> 
+                         <target <fid.1> <fid.2>>
+  setacl  <username> &lsqb;rwlikda&rsqb;
+  delacl  <username>
+  setmode <newmode>
+  setowner <new owner name>
+  setmtime <new modified time>
 </verb></tscreen>
 Note that for the <bf>setacl</bf> command, the short form
 access rights of <bf>all</bf> and <bf>none</bf> can also be used.
@@ -260,12 +260,12 @@ you were not repairing the volume in the first place.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 ci (3)
 
 
 
-<sect1>Author<P>
+<mansect>AUTHOR<P>
 M. Satyanarayanan, 1989, Created
 
 Puneet Kumar, 1991, Substantially revised

@@ -1,11 +1,11 @@
 
 <manpage TITLE="mvdb" SECTNUM=1>
-<sect1>NAME 
+<mansect>NAME 
  <P>mvdb - Atomically update files in a directory
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>mvdb</bf>  &lsqb;-l lockfile&rsqb; file1 file2 ...
 
 or
@@ -13,11 +13,14 @@ or
 <bf>mvdb</bf> &lsqb;-l lockfile&rsqb; newfile1=file1  newfile2=file2 .....
 
 
-<sect1>DESCRIPTION<P>
-<bf>mvdb</bf> is used to lock a directory exclusively and then atomically update a set of files in it.
-A file is moved in only if it does not already exist in the current directory, or if the version in this directory is older.  You must be cded into the destination directory already.
-If you do not specify a <em>lockfile</em>, "." is locked.  The 
-Unix primitive <em>flock</em>() is used for locking.  For each file moved in, you can choose to retain
+<mansect>DESCRIPTION<P>
+<bf>mvdb</bf> is used to lock a directory exclusively and then atomically 
+update a set of files in it.  A file is moved in only if it does not already 
+exist in the current directory, or if the version in this directory is older.  
+You must be <tt>cd</tt>'d into the destination directory already.  If you do 
+not specify a <em>lockfile</em>, the current directory "." is locked.  The 
+Unix primitive <em>flock</em>() is used for locking.  For each file moved in, 
+you can choose to retain
 the original name or give it a new name by using the <em>newfile=file</em> construct.  If a file 
 <em>filename</em> already exists in the directory, it is first renamed to <em>filename.BAK</em>.
 The dates of the target are copied from the source files.
@@ -32,7 +35,7 @@ The options are:
 <P></descrip>
 
 
-<sect1>EXAMPLE<P>
+<mansect>EXAMPLE<P>
 <tscreen><verb>
 cd /itcbin/vice/bin
 mvdb /usr/andrew/bin venus2.sun=venus2 file salvage 
@@ -40,14 +43,14 @@ mvdb /usr/andrew/bin venus2.sun=venus2 file salvage
 
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 All the files have to come from the same source directory.
 
-You have to be cd\ed into the target directory.
+You have to be <tt>cd</tt>'d into the target directory.
 You need Lock rights in Vice directories for locking.
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Created: M.Satyanarayanan, 1985
 
 

@@ -1,15 +1,15 @@
 
 <manpage TITLE="norton" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>norton - Coda file server RVM debugger 
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>Norton</bf><P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <em>Norton</em> is a utility program that allows you to display Coda file
 server structures that are stored in <em>RVM</em>.  Eventually, <em>Norton</em>
 will be a full special purpose debugger that allows you to manipulate
@@ -93,7 +93,7 @@ bytes starting from &lt;<em>addr</em>&gt; in hex and ascii.  An alias for
 <P></descrip> 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Joshua Raiff, 1995, Created.
 Peter Braam, 1997, new features.
 

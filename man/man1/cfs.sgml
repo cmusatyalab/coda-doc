@@ -1,12 +1,11 @@
-
-
 <manpage TITLE="cfs" SECTNUM=1>
-<sect1>NAME 
- <P>cfs - Coda File System Interface Program
 
+<mansect>NAME 
+<P>
+cfs - Coda File System Interface Program
 
-
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS
+<P>
 <bf>cfs bandwidth</bf> &lt;speed&gt;<P>
 <bf>cfs checkpointml</bf><P>
 <bf>cfs checkservers</bf><P>
@@ -41,7 +40,7 @@
 <bf>cfs writereconnect</bf> &lsqb;&lt;dir&gt; &lt;dir&gt; ...&rsqb;<P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>cfs</bf> allows users to perform operations specific to the Coda File
 System.  Most often, people use it to see how much of their allocated
 storage space they are currently using and to change the protection on
@@ -59,9 +58,9 @@ Abbreviation: <bf>bw</bf>.
 <descrip>
 <tag><bf>checkpointml</bf></tag> Checkpoint volume modify log.  This command
 will create a checkpoint file
-<em>/usr/coda/spool/&lt;uid&gt;/&lt;vol&gt;@&lt;mountpt&gt;</em>.  Where
-<em>&lt;uid&gt;</em> is your <bf>cfs</bf> user id, <em>&lt;vol&gt;</em> is
-the volume being checkpointed, and <em>&lt;mountpt&gt;</em> is the volume's
+<tt>/usr/coda/spool/&lt;uid&gt;/&lt;vol&gt;@&lt;mountpt&gt;</tt>.  Where
+<tt>&lt;uid&gt;</tt> is your <bf>cfs</bf> user id, <tt>&lt;vol&gt;</tt> is
+the volume being checkpointed, and <tt>&lt;mountpt&gt;</tt> is the volume's
 mount point.<P> Abbreviation: <bf>ck</bf>.  
 <P></descrip>
 
@@ -240,12 +239,12 @@ servers.<P>
 Abbreviation: <bf>wr</bf>
 <P></descrip>
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 chmod (1)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 1987, Adapted from AFS-2s fs
 
 Maria R. Ebling, 1990, Created man page

@@ -1,12 +1,12 @@
 
 <manpage TITLE="vstab" SECTNUM=5>
-<sect1>NAME 
+<mansect>NAME 
  <P>vstab - vstab file specification
 
 
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 The file <em>/usr/coda/etc/vstab</em> contains configuration parameters for
 the Coda cache manager, <em>venus (8)</em>.  The parameters override default
 values compiled into Venus, and may themselves be overridden by command-line
@@ -28,14 +28,14 @@ field.
 
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <em>/usr/coda/etc/vstab</em>
 
 <em>&lt;vstab.h&gt;</em>
 
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 The last parameter is deprecated and should be removed.
 
 This file is also read by <em>clog (8)</em> (and perhaps other programs) 
@@ -43,12 +43,12 @@ which assume that host-list specifies the hosts running auth servers.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 venus (8), vutil (8)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Jay Kistler, 1990, Created
 
 

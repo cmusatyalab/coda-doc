@@ -1,5 +1,5 @@
-<chapt> Reinitializing Coda Servers after a Disaster<p>
-
+<chapt> Reinitializing Coda Servers after a Disaster	<label id="ReinitCoda">
+<p>
 As Coda is still an experimental system, the state of a Coda
 File System may sometimes get to the point where 
 you will want to reinitialize all of the servers.  
@@ -38,7 +38,7 @@ Test the system.
 If the system is in a state that backups can be successfully run, we
 suggest running the <bf>backup.sh</bf> script to capture the most recent
 state.  You may, however, use the tapes from your last successfule
-backup and skip this step.  See Chapter <ref id="BackupChapter" name="XXX"> and
+backup and skip this step.  See Chapter <ref id="Backup" name="XXX"> and
 <bf>backup (8)</bf> for more details on creating backups.  You will need to
 create new <em>dumplist</em> files for the backups.  If you include the
 volumes that you do not normally back up in the newly created

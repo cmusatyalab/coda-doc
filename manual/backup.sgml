@@ -1,4 +1,5 @@
-<chapt> The Backup System <p>
+<chapt> The Backup System				<label id="Backup">
+<p>
 
 <sect>Design of the Backup Subsystem<p>
 
@@ -225,17 +226,18 @@ actual contents with what it expected, and finally reads the tape label at the
 end, 
 comparing it with the saved value.
 
-<bf>extract.sh</bf> is used to extract a dump file from a Coda backup tape.  It takes
-the name of the tape device, the date the backup was taken, and the identifier
-of the volume to be restored.  The date should be specified in the form DDMMMYYYY,
-as in 10Feb1992.  Volume identifiers are "groupid.repid" for replicated
-volumes and "volid" for non-replicated volumes.
+<bf>extract.sh</bf> is used to extract a dump file from a Coda backup tape.  
+It takes the name of the tape device, the date the backup was taken, and the 
+identifier of the volume to be restored.  The date should be specified in the 
+form DDMMMYYYY, as in 10Feb1992.  Volume identifiers are "groupid.repid" for 
+replicated volumes and "volid" for non-replicated volumes.
 <bf>extract.sh</bf> will locate the correct group by reading the
-tape label, fast-forward the tape to the correct tape file, and extract the dump
-file for the volume.
+tape label, fast-forward the tape to the correct tape file, and extract the 
+dump file for the volume.
 
 
-<sect>Installing a Coda Backup Coordinator Machine<p>
+<sect>Installing a Coda Backup Coordinator Machine
+<p>
 The Coda Backup coordinator should be a trusted machine.  It should get all the
 files that exist in the <tt>/vice</tt> subtree on the servers, although
 it is not necessary to run a fileserver on the backup coordinator.
@@ -258,4 +260,4 @@ Volumes
 
 The "Partitions" and "Volumes" keywords are necessary, and should be on
 their own lines.  The "FIIIII" is a schedule of full and incremental dumps.
-See <bf>dumplist</bf>(5) for mor details.
+See <bf>dumplist</bf>(5) for more details.

@@ -1,4 +1,5 @@
-<chapt> Example Configuration files<p>
+<chapt> Example Configuration Files		<label id="ExampleFiles">
+<p>						<!-- Appendix IV -->
 
 <sect>/vice/db/user.coda<p>
 <tscreen<verb>
@@ -51,4 +52,5 @@ ravel.coda.cs.cmu.edu
 vivaldi
 vivaldi.coda.cs.cmu.edu
 </verb></tscreen>
+</chapt>
 

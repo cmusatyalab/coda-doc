@@ -1,12 +1,12 @@
 
 <manpage TITLE="servers" SECTNUM=5>
-<sect1>NAME 
+<mansect>NAME 
  <P>servers - map server names to numbers
 
 
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 Each file server has a file, <em>/vice/db/servers</em>, which maps server names to numbers.
 The server numbers are 8 bit numbers so a maximum of 256 servers can be supported.
 Once a server number has been assigned, it may <bf>not</bf> be reused.
@@ -20,9 +20,10 @@ NOTE: Replicated volume numbers must also be unique, so we reserve part of the r
 0-127 (0-7F hex), for this purpose.  Real server numbers must <bf>not</bf> be allocated from
 the other subrange, and vice-versa.
 
-The format of the file is the full server name (e.g. mahler.coda.cs.cmu.edu) followed
-by a tab and then the servers number.  Any line beginning with a "#" is considered
-a comment and is ignored.  The following is an example servers file:
+The format of the file is the full server name (e.g. mahler.coda.cs.cmu.edu) 
+followed by a tab and then the servers number.  Any line beginning with a "\#" 
+is considered a comment and is ignored.  The following is an example servers 
+file:
 
 <tscreen><verb>
 MAHLER.CODA.CS.CMU.EDU	        201
@@ -40,23 +41,23 @@ SCHUMANN.CODA.CS.CMU.EDU        219
 
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 /vice/db/servers
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 The server numbers and replicated volume prefixes are pulled from the same number space.
 Separation is enforced only by convention.
 
 This file and /vice/db/hosts should be combined.
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 vrdb (5), vsgdb (5), maxgroupid (5), hosts (5)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Maria R. Ebling, 1990, Created
 
 

@@ -1,17 +1,17 @@
 
 
 <manpage TITLE="fsck" SECTNUM=1>
-<sect1>NAME 
+<mansect>NAME 
  <P>fsck - file system consistency check and interactive repair
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>/etc/fsck</bf> <bf>-p</bf> &lsqb; filesystem ... &rsqb; <P>
-<bf>/etc/fsck</bf> &lsqb; <bf> -b block#</bf> &rsqb; &lsqb; <bf>-y</bf>&rsqb; &lsqb; <bf>-n</bf> &rsqb; &lsqb; filesystem &rsqb; ...<P>
+<bf>/etc/fsck</bf> &lsqb; <bf> -b block\#</bf> &rsqb; &lsqb; <bf>-y</bf>&rsqb; &lsqb; <bf>-n</bf> &rsqb; &lsqb; filesystem &rsqb; ...<P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 
 The first form of <em>fsck</em> preens a standard set of filesystems or the
 specified file systems.  It is normally used in the script <bf>/etc/rc</bf>
@@ -135,25 +135,25 @@ insufficient space its size is increased.
 Checking the raw device is almost always faster.
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <descrip><tag><bf>/etc/fstab</bf></tag> Contains default list of file 
 systems to check.
 <P></descrip>
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 The diagnostics produced by <em>fsck</em> are fully enumerated and explained
 in Appendix A of <em>Fsck - The UNIX File System Check Program</em> (SMM:5).
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Copyright (c) 1980 Regents of the University of California.
 All rights reserved.  The Berkeley software License Agreement
 specifies the terms and conditions for redistribution.
 6.2 (Berkeley) 5/21/86
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 fstab (5),
 fs (5),
 newfs (8),
@@ -162,7 +162,7 @@ crash (8V),
 reboot (8)
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 There should be some way to start a <em>fsck</em> <bf>-p</bf> at pass
 <em>n</em>.
 

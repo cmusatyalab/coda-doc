@@ -1,16 +1,16 @@
 
 
 <manpage TITLE="merge" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>merge - merge incremental dumps onto full dumps for restore
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>merge</bf> &lt;output file&gt; &lt;full dump&gt; &lt;incremental dump&gt;<P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>merge</bf> is a utility that allows one to apply incremental dumps to a full
 dump and produce a new full dump which reflects a later state of the volume.
 The new dump can then be used to restore the volume, or can be merged with other
@@ -40,11 +40,11 @@ volume replica. The merge program checks these things, and reports failures
 if they are violated.
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 volutil (8)
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 David C. Steere, 1991, created
 
 

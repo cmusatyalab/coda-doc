@@ -1,15 +1,14 @@
-<chapt> Getting Started <p>
+<chapt> Getting Started <label id="GettingStarted"> <p>
 
-The Coda file system expands the local file system hierarchy
-to include shared files much like the <em>Sun Network File System</em> and 
-the <em>Andrew File System</em>.  Figure <ref id="FSView" name="XXX"> below shows the 
-users view of the file system hierarchy on a machine with all three types 
-of file systems.
+The Coda file system expands the local file system hierarchy to
+include shared files much like the <em>Sun Network File System</em>
+and the <em>Andrew File System</em>.  Figure <ref id="FSView"
+name="XXX"> below shows the users view of the file system hierarchy on
+a machine with all three types of file systems.
 
 <figure>
   <eps file="figure1">
-  <caption><label id="FSView">Coda filesystem view at a workstation
-  
+  <caption><label id="FSView"> Coda filesystem view at a workstation
 </figure>
 
 Data sharing in Coda, like that in Andrew, is supported by a distributed
@@ -192,10 +191,10 @@ command:
 
 This file will let you know if the reintegration was successful.  If
 it was not, then the files that you modified will be put in a tar file
-in <em>/usr/coda/spool/&lt;uid&gt;</em>.  Reintegration fails, for example, when
-you modified a file in disconnected mode and someone else also
-modified that file on the servers.  Section <ref id="reintegration" name="XXX"> has
-more on reintegration. 
+in <em>/usr/coda/spool/&lt;uid&gt;</em>.  Reintegration fails, for example, 
+when you modified a file in disconnected mode and someone else also
+modified that file on the servers.  Section <ref id="reintegration" 
+name="XXX"> has more on reintegration. 
 
 <sect>Hoarding<p>
 Coda allows you to advise the cache manager, <em>venus</em>, of critical
@@ -236,4 +235,3 @@ symbolic link (usually, ENOENT).  The conflict must be resolved by
 a user with appropriate access to the object.  To help users resolve
 conflicts, Coda provides a repair tool which is discussed in Section 
 <ref id="Inconsistent" name="XXX">.
-

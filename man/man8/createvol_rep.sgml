@@ -1,26 +1,26 @@
 
 
-<manpage TITLE="createvol&lowbar;rep" SECTNUM=8>
-<sect1>NAME 
- <P>createvol&lowbar;rep - create read-write replicated volume
+<manpage TITLE="createvol_rep" SECTNUM=8>
+<mansect>NAME 
+ <P>createvol_rep - create read-write replicated volume
 
 
 
 
-<sect1>SYNOPSIS<P>
-<bf>createvol&lowbar;rep</bf> &lt;volume-name&gt; &lt;vsgaddr&gt; &lt;partition-name&gt; &lsqb;rep group id&rsqb;<P>
+<mansect>SYNOPSIS<P>
+<bf>createvol_rep</bf> &lt;volume-name&gt; &lt;vsgaddr&gt; &lt;partition-name&gt; &lsqb;rep group id&rsqb;<P>
 
 
-<sect1>DESCRIPTION<P>
-<bf>createvol&lowbar;rep</bf> is a front end to <em>volutil createvol&lowbar;rep</em> and is used to create a Coda read/write replicated volume.
+<mansect>DESCRIPTION<P>
+<bf>createvol_rep</bf> is a front end to <em>volutil createvol&lowbar;rep</em> and is used to create a Coda read/write replicated volume.
 The invoker must specify the volume name (<em>&lt;volume-name&gt;)</em>,
 the replication sites via a Volume Server Group address (<em>&lt;vsgaddr&gt;)</em>, 
 the partition on which the volume should be created (<em>&lt;partition-name&gt;)</em>,
 and an optional <em>Group Id</em>.  
 
-<bf>createvol&lowbar;rep</bf> first checks in  <em>/vice/vol/AllVolumes</em> and 
+<bf>createvol_rep</bf> first checks in  <em>/vice/vol/AllVolumes</em> and 
 <em>/vice/vol/VRList</em> to see if the volume name already exists.  If not, 
-it uses the <em>volutil create&lowbar;rep</em> command to create the volume at each of 
+it uses the <em>volutil create_rep</em> command to create the volume at each of 
 the replication sites.  It then builds the Volume Location Data Base (VLDB)
 and the Volume Replication Data Base (VRDB).
 
@@ -40,11 +40,11 @@ the VSG address.  This file is now used to create a new Volume Replication
 Data Base (VRDB) using the <em>"volutil makevrdb /vice/vol/VRList"</em> command.
 
 
-<sect1>EXAMPLES<P>
+<mansect>EXAMPLES<P>
 To create a replicated volume "coda.rep" on 3 sites foo, bar and  gorp use:
 
 <descrip>
-<tag><bf>createvol&lowbar;rep coda.rep E0000107 /vicapa</bf></tag> 
+<tag><bf>createvol_rep coda.rep E0000107 /vicapa</bf></tag> 
 <P></descrip>
 
 where <em>/vice/db/VSGDB</em> has an entry "E0000107 foo bar gorp" in it.  
@@ -52,23 +52,23 @@ where <em>/vice/db/VSGDB</em> has an entry "E0000107 foo bar gorp" in it.
 To assign a predetermined Group Id, use
 
 <descrip>
-<tag><bf>createvol&lowbar;rep coda.rep E0000107 /vicepa 7F000003</bf></tag> 
+<tag><bf>createvol_rep coda.rep E0000107 /vicepa 7F000003</bf></tag> 
 <P></descrip>
 
 where "7F000003" is the Group Id.
 
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 This command must be issued at the System Control Machine (SCM).  Also, it 
 must be invoked with effective user id of root.  This command does not check 
-for return codes from the <em>volutil create&lowbar;rep</em> command.  The invoker 
+for return codes from the <em>volutil create_rep</em> command.  The invoker 
 must check <em>/vice/vol/VRList</em> and <em>/vice/vol/VolumeList</em> at each 
 replication site to see if the volume was created.
 
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <descrip>
 <tag><em>/vice/vol/VRList</em></tag>contains information on replicated volumes 
 <P></descrip>
@@ -90,12 +90,12 @@ replication site to see if the volume was created.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 bldvldb.sh (8), volutil (8), createvol (8)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Puneet Kumar, 1990, Created
 
 

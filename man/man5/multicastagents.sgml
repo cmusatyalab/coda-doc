@@ -1,40 +1,43 @@
-
 <manpage TITLE="multicastagents" SECTNUM=5>
-<sect1>NAME 
- <P>multicastagents - multicastagents file specification
+
+<mansect>NAME 
+<P>
+multicastagents - multicastagents file specification
 
 
 
+<mansect>DESCRIPTION<P>
 
-<sect1>DESCRIPTION<P>
-This text file lists all the multicast agents known to the system.
-It is read by each magent daemon to learn the IP addresses of its colleagues and the range of transient IP multicast addresses that it is allowed to allocate.
+This text file lists all the multicast agents known to the system. It is read 
+by each magent daemon to learn the IP addresses of its colleagues and the 
+range of transient IP multicast addresses that it is allowed to allocate.
 Each line describes one multicast agent, according to the following format:
-
-&lt;agent address&gt;  &lt;min allocation address&gt;  &lt;max allocation address&gt;  &lt;comments&gt;
+<tscreen><verb>
+  <agent address> <min allocation address> <max allocation address> <comments>
+</verb></tscreen>
 
 All addresses are in internet dot format (a.b.c.d).
 Allocation addresses must be valid class D addresses, i.e., in the range 224.0.0.0 to 239.255.255.255.
 
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 /etc/multicastagents
 
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 This file is applicable only for multicast support as specified in RFC-988.
 A new multicast support specification, RFC-1054, has been released which supercedes RFC-988.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 magent (8), multicastgroups (5), RFC-988
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Jay Kistler, 1990, Created
 
 

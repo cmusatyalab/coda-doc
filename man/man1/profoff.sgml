@@ -1,6 +1,6 @@
 
 <manpage TITLE="log" SECTNUM=1>
-<sect1>NAME 
+<mansect>NAME 
  <P>log - turn profiling off
 
 

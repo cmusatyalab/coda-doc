@@ -1,16 +1,16 @@
 
 
 <manpage TITLE="clog" SECTNUM=1>
-<sect1>NAME 
+<mansect>NAME 
  <P>clog - Authenticate yourself to the Coda file system
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>clog</bf> &lsqb;&lsqb;-x&rsqb; user &lsqb; password &rsqb; &rsqb;<P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 This command enables users to get tokens to use for authenticated
 communication with a Coda File System.  The given name 
 and password are passed to an <em>Authentication Server</em>.  The 
@@ -31,18 +31,18 @@ given user name.  (If not provided on the command line, the user will be prompte
 <P></descrip>
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 The <bf>-x</bf> switch is not needed.  Specifying a <em>username</em> and
 <em>passwd</em> is sufficient.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 cunlog (1), venus (8)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 1987, Adapted from AFS-2
 
 Maria R. Ebling, 1990, Created man page

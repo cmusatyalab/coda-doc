@@ -1,29 +1,29 @@
 
 
 <manpage TITLE="addserver" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>addserver - add a Coda file server
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>addserver</bf><P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 The <bf>addserver</bf> script will automate much of the Coda installation 
 of another server machine to an existing Coda file system.  
 Unfortunately, it has not yet been implemented.
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Maria Ebling Okasaki
 
 
-<sect1>BUGS<P>
+<mansect>BUGS<P>
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 
 
 

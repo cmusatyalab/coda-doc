@@ -1,16 +1,16 @@
 
 
 <manpage TITLE="bldvldb.sh" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>bldvldb.sh - build a new Volume Location Data Base (VLDB)
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>bldvldb.sh</bf><P>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>bldvldb.sh</bf> builds a new volume location data base <bf>VLDB</bf>.  
 It uses the 
 <em>/vice/db/hosts</em> file to get a list of servers to use to retrieve
@@ -24,7 +24,7 @@ You must have root priveledges to run this command.
 
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 This command can only be issued on the System Control Machine (SCM). Bldvldb uses
 two mechanisms to get the VolumeList files from the various servers in
 <em>/vice/db/hosts</em>. The first is ftp. In order for this to succeed, there has to
@@ -39,7 +39,7 @@ propagation of all the databases to all servers, may fail.
 
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <descrip>
 <tag><em>/vice/vol/AllVolumes</em></tag>is created
 <P></descrip>
@@ -58,12 +58,12 @@ propagation of all the databases to all servers, may fail.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 update (8), volutil (8)
 
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Puneet Kumar, 1990, Created
 
 

@@ -1,6 +1,6 @@
 
 <manpage TITLE="debug" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>debug - turn on debugging
 
 

@@ -1,21 +1,21 @@
 
 <manpage TITLE="startserver" SECTNUM=8>
-<sect1>NAME 
+<mansect>NAME 
  <P>startserver - Start the CFS file server
 
 
 
-<sect1>SYNOPSIS<P>
+<mansect>SYNOPSIS<P>
 <bf>startserver</bf>
 
 
-<sect1>DESCRIPTION<P>
+<mansect>DESCRIPTION<P>
 <bf>startserver</bf> is used to start the CFS file server process.  It will
 clean up old log files, then start the server.  This script is useful
 for starting the server with the same configuration every time its run.
 
 
-<sect1>FILES<P>
+<mansect>FILES<P>
 <em>/vice/bin/srv</em>
 
 <em>/vice/srv/SrvErr</em>
@@ -24,11 +24,11 @@ for starting the server with the same configuration every time its run.
 
 
 
-<sect1>SEE ALSO<P>
+<mansect>SEE ALSO<P>
 srv (8)
 
 
-<sect1>AUTHOR<P>
+<mansect>AUTHOR<P>
 Joshua Raiff, 1993, Created man page
 
 

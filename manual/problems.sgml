@@ -1,16 +1,15 @@
-<chapt> Appendix: Common Problems and Suggestions<p>
+<chapt> Common Problems and Suggestions			<label id="Problems">
+<p>							<!-- Appendix III -->
 
 <descrip>
-<tag>
-<bf>ls on /coda fails</bf></tag>If the return code is either "Invalid Argument" or "No Device",
-venus was probably restarted recently and hasnt yet finished 
-initializing. Solution:  Wait a few minutes a try again.
-<tag>
-<bf>Newly created volume is</bf></tag> If a newly created volume, when mounted
+<tag><bf><tt>ls /coda</tt> fails</bf></tag>If the return code is either 
+"Invalid Argument" or "No Device", venus was probably restarted recently 
+and hasnt yet finished initializing. Solution:  Wait a few minutes a try again.
+<tag><bf>Newly created volume is</bf></tag> If a newly created volume, when mounted
 <bf>dangling link</bf>for the first time, shows up as a dangling symbolic 
 link (it looks inconsistent), the problem is that new databases have 
 not been distributed to the other replication sites.  Solution:  Unmount 
-the volume, wait 5 minutes and try again. Youll have to reinitialize 
+the volume, wait five minutes and try again. You'll have to reinitialize 
 the venus which failed to find the volume, since vldb information 
 cant be flushed.
 <tag>
@@ -35,3 +34,4 @@ Reinitializing the RVM Data segment (i.e. with rdsinit)
 Reinitializing the RVM Log (i.e. with rvmutl)
 Rewriting or trashing the file containing the Log or Data segment.
 </descrip>
+</chapt>
