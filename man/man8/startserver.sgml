@@ -22,7 +22,7 @@ for starting the server with the same configuration every time its run.
 
 <em>/vice/srv/SrvLog*</em>
 
-
+<em>/vice/srv/srv.conf</em>
 
 <mansect>SEE ALSO<P>
 srv (8)
