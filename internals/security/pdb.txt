@@ -1,0 +1,183 @@
+The PDB library is a multi level database system used to store user records for the CODA project.  An effort was made to add key functionality yet allow for easy modification.  The bottom layer is simple database functions to open, close, read, write, and update indexes to the database.  Then a packing and unpacking layer which converts the data as stored in the database to that used internally by the library.  Then is added a profile layer which allows reading and writing of user profiles.  Finally is a high level function layer which allows adding, deleting, and general modification of users and groups.
+
+Some general coding rules were followed in this project.  There are no global variable used, though the library is not thread safe.  The main issue involved with thread safeness is with actual database operations.  Specifically opening of the database.  In order to make things clear the programmer simple naming convents were follow for functions.  All functions start with either PDB or pdb, the former indicating exported functions and the later internal functions.
+
+
+Very High Level Functions
+-------------------------
+The very high level functions are those commonly used by outside programs.  Very rarely should nay other functions be used.  It is important to note that each of these functions is atomic in its access to the database.  That is it opens and closes the database for each call.
+
+void PDB_addToGroup(int32_t id, int32_t groupId);
+Adds a user (by id) to the user to a group (by id).
+
+void PDB_removeFromGroup(int32_t id, int32_t groupId);
+Removes a user (by id) from a group (by id).
+
+void PDB_createUser(char *name, int32_t *newId);
+Creates a new user in the database, return the Id in the newId field.
+
+void PDB_cloneUser(char *name, int32_t cloneid, int32_t *newId);
+Clones a user, making a new user with a new name and Id (returned in newId), but with the same group membership and access control as the old user.
+
+void PDB_deleteUser(int32_t id);
+Deletes a user from the database.
+
+void PDB_createGroup(char *name, int32_t owner, int32_t *newGroupId);
+Creates a new group with owner specified by owner id.  Returns new Id in newGroupId.
+
+void PDB_deleteGroup(int32_t groupId);
+Deletes a group from the database.
+
+void PDB_lookupByName(char *name, int32_t *id);
+Lookups up an entry in the database by name.  Returns it in the id field.
+
+void PDB_lookupById(int32_t id, char *name);
+Lookups up an entry in the database by id, copies the name into the name field.  Space must be allocated by the calling function.
+
+int PDB_nameInUse(char *name);
+Checks if a user or group with this name is already being used in the database.
+
+void PDB_changeId(int32_t oldid, int32_t newid);
+Changes the id of a user or group.  Both are specified by id.
+
+
+DB Layer
+-----------------
+This functional layer is the lowest level of the library and provides all the functions needed open and close files and do the most basic operations.
+
+PDB_HANDLE PDB_db_open(int mode);
+Opens the database and returns the PDB_HANDLE which keeps state information on the database file.  This is a private database structure.
+
+void PDB_db_close(PDB_HANDLE h);
+This closes the database.
+
+void PDB_db_maxids(PDB_HANDLE h, int32_t *uid, int32_t *gid);
+Reads the maxids stored in the database.  This is stored in the zero location in the database.  This is used by higher layers to create new ids.
+
+void PDB_db_update_maxids(PDB_HANDLE h, int32_t uid, int32_t gid, int mode);
+Sets new maxids in the database.  If called with mode PDB_MAXID_SET if the ideas passed are greater then the ids stored in database they will be updated to the new higher values.  If PDB_MAXID_FORCE is used one can force the database to have any maxid one wishs, this is very dangerous.
+
+void PDB_db_write(PDB_HANDLE h, int32_t id, char *name, void *buf);
+The writes a buffer to the database.
+
+void *PDB_db_read(PDB_HANDLE h, int32_t id, char *name);
+This reads a buffer from the database.
+
+void PDB_db_delete(PDB_HANDLE h, int32_t id, char *name);
+Deletes and entry in the database.
+
+int PDB_db_exists(void);
+Checks if the database exists.  Most important is that both database files exist or don't exist.
+
+void PDB_db_compact(PDB_HANDLE h);
+Compacts the database.  This should rarely be done.  After many insertions and deletions mainly.
+
+int PDB_setupdb(void);
+Setups up a new database.  Does not have any entries, but is a new database.
+
+
+Packing Layer
+-----------------
+This layer packs and unpacks the data from the DB layer into the profile data.  Below is the data structure used to store the profiles in memory.  The pdb_list structure will be described in its own section.
+
+typedef struct {
+	int32_t id;
+	char *name;
+	int32_t owner_id; /* used only for groups */
+	char *owner_name; /* used only for groups */
+	pdb_list member_of;
+	pdb_list cps;
+	pdb_list groups_or_members;
+} PDB_profile;
+
+
+There are only two simple functions to handle the packing and unpacking.
+
+void pdb_pack(PDB_profile *r, void **data);
+Packs data.
+
+void pdb_unpack(PDB_profile *r, void *data);
+Unpacks data.
+
+
+List Functions
+-----------------
+Arrays are used to hold the lists as alproc.c uses arrays and the data must be stored in the database as arrays.  This array is sorted in ascending order.  Here is the basic structure.
+
+typedef struct pdb_list {
+	int32_t size,memsize;
+	int32_t *data;
+} pdb_list;
+
+This structure is then handled by a set of back simple procedures.
+
+void pdb_list_init(pdb_list *l);
+Initializes the list so that can later be manipulated.
+
+void pdb_list_free(pdb_list *l);
+Frees the space being used by a list.  All initialized structures must be freed.
+
+void pdb_list_add(pdb_list *l, int32_t x);
+Adds an integer to the list.
+
+void pdb_list_del(pdb_list *l, int32_t x);
+Deletes an integer from the list.
+
+void pdb_list_copy(pdb_list *d, pdb_list *s);
+Copies one list to a new list.  Allocates space for new list.
+
+void pdb_list_merge(pdb_list *d, pdb_list *s);
+Concatenates a list onto another list.
+
+int32_t pdb_list_head(pdb_list *l, pdb_list_off *off);
+Returns the first element in the list.  Also resets the off variable to first element.
+
+int32_t pdb_list_next(pdb_list *l, pdb_list_off *off);
+Returns the next values in the list, based on off, and sets off to indicate the next element.  Returns 0 on end of list.
+
+int pdb_list_size(pdb_list *l);
+Returns the length of the lists.
+
+int pdb_list_pack(int32_t *d, pdb_list *l);
+Packs the list into an array.  The current method uses an length entry followed by the data.  Return the number of int32_t used by the packing.  Converts to network byte order.
+
+int pdb_list_unpack(int32_t *s, pdb_list *l);
+Unpacks a list from an array.  Assumes packed as above.  Returns number of int32_t used to unpack.  Converts to host byte order.
+
+int pdb_list_to_array(int32_t *d, pdb_list *l);
+Converts a list into an array.  Strait data and length is returned.  Does not convert byte order.
+
+int pdb_list_snprintf(char *d, pdb_list *l, int len);
+Print the data in the array into a string of max length len.  Returns number if bytes printed.
+
+
+Profile level functions
+-----------------------
+These functions provide a layer between the packing functions and the very high level functions.  Allows one to work at a profile level, able to manipulate the data in an easy fashion.
+
+void PDB_freeProfile(PDB_profile *r);
+Frees up the data used by a profile in memory.  Important to do to prevent memory leakage.  This frees up the internal data storage spaces, but not the actual structure.
+
+void PDB_writeProfile(PDB_HANDLE h, PDB_profile *r);
+Writes a profile from memory to the database.
+
+void PDB_readProfile(PDB_HANDLE h, int32_t id, PDB_profile *r);
+Reads a profile by id from the database.  Storage for the structure must be provided by the caller.
+
+void PDB_readProfile_byname(PDB_HANDLE h, char *name, PDB_profile *r);
+As above, by by name instead of id.
+
+void PDB_deleteProfile(PDB_HANDLE h, PDB_profile *r);
+Deletes a profile from the database, uses the name and/or id in the profile to determine which record to delete.
+
+void PDB_printProfile(FILE *out, PDB_profile *r);
+Prints out the contents of the profile to the FILE pointer to by out.
+
+void PDB_updateCpsSelf(PDB_HANDLE h, PDB_profile *r);
+Updates the CPS in the profile by looking at the groups the user is a member of.  This should be done anytime a user changes group membership.
+
+void PDB_updateCpsChildren(PDB_HANDLE h, PDB_profile *r);
+Updates all the children of the current group/user.  This makes little sense on a user, but can be done.  This call is recursive.  Should be done anytime a groups CPS changes. 
+
+void PDB_updateCps(PDB_HANDLE h, PDB_profile *r);
+Updates all CPS, including self and all children.  The best way to make sure all the CPS's are correct.
