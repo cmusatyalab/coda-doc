@@ -1,9 +1,10 @@
-DOCDIR=install
 
 #mandir = @mandir@
 top_src=@top_srcdir@
 prefix = @prefix@
 mandir=$(prefix)/man
+
+DOCDIR=$(top_src)/install
 
 create_container = $(top_srcdir)/scripts/create_container2
 
@@ -15,6 +16,7 @@ all:   FORCE
 printenv: FORCE
 	echo MANPAGEFILES: $(MANPAGEFILES)
 	echo SUBDIRS: $(SUBDIRS)
+	echo DOCDIR: $(DOCDIR)
 
 # build the documents (rules below)
 manpages: $(MANPAGEFILES) $(SUBDIRS)
@@ -61,7 +63,7 @@ install: ps-install ppt-install html-install man-install
 # clean
 clean:
 	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
-	rm -f *.sgml.cntr *.sgml.cntr.man *.man __tmp.sgml *.[0-9] *.html *.dvi *.log *.aux *.tex $(MANPAGES) $(PSDOCS)
+	rm -f *.sgml.cntr *.sgml.cntr.man *.man __tmp.sgml *.html *.dvi *.log *.aux *.tex $(MANPAGEFILES) $(PSDOCS)
 
 distclean: 
 	make clean
@@ -70,7 +72,7 @@ distclean:
 
 # rules
 %.html: %.sgml
-	sgml2html $?
+	sgml2html $(HTMLARGS) $?
 
 %.ps: %.sgml
 	sgml2latex --output=ps $?

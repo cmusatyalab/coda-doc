@@ -470,7 +470,7 @@ One final step is needed to make the SCM server function. Use
 the root volume you specified in vice-setup in place of 
 your-root-volume. This step creates the volume, which will 
 be mountable by the client software.
-<verb><tscreen>
+<tscreen><verb>
        createvol_rep your-root-volume E0000100 /vicepa
 </verb></tscreen>
 
@@ -738,10 +738,10 @@ Create or modify an appropriate user file in the Vice format
 found in the directory <tt>/vice/db</tt> as 
 well as in Appendix <ref id="ExampleFiles" name="XXX">.
 <item>
-Create or modify an appropriate groups.coda file in the Vice format 
-<bf>groups_coda (5)</bf>.  It is vital that you add at least one user
+Create or modify an appropriate group.coda file in the Vice format 
+<bf>group.coda (5)</bf>.  It is vital that you add at least one user
 from the <tt>user.coda</tt> file to the group
-<tt>System:Administrators</tt>.  An example of <tt>groups.coda</tt> can be 
+<tt>System:Administrators</tt>.  An example of <tt>group.coda</tt> can be 
 found in the directory <tt>/vice/db</tt> as 
 well as in Appendix <ref id="ExampleFiles" name="XXX">.  
 <item>

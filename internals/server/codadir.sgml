@@ -55,7 +55,7 @@ also indicates for each possible page in the direcotry how many blobs
 are available. It also contains a hastable. Has values are coputed for
 names and indicate the first blob used by entries of that name.
 
-<sect1>Persistent Storage for Directories</bf><p>
+<sect1>Persistent Storage for Directories<p>
 
 Ultimately, clients and servers hold directory data in RVM. 
 

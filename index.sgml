@@ -23,11 +23,26 @@ documents.
 
 <sect>Manuals and internals in HTML format <P> 
 
+
+The following will be your primary resource for getting going:
 <itemize>
-<item> <url url="index.html"  name="This document">
+<item> <url url="coda-howto.html"  name="The Coda HOWTO">
+<item> <url url="../../ljpaper/lj.html"  name="Introductory Paper about Coda">
+</itemize>
+
+The original design and studies that were done can be found at in 
+<url url="http://www.cs.cmu.edu/afs/cs/project/coda/Web/docs-coda.html" name="Scientific papers from the Coda project">
+
+We have a few manuals:
+<itemize>
 <item> <url url="manual.html"  name="The Coda Administration and User Manual">
 <item> <url url="rvm&lowbar;manual.html"  name="The RVM Manual">
 <item> <url url="rpc2&lowbar;manual.html"  name="The RPC2 Manual (preliminary)">
+</itemize>
+
+Papers are being written about the implementation:
+<itemize>
+<item> <url url="../talks/linuxvfs"  name="Linux Virtual File System">
 <item> <url url="admin.html"  name="Some short scribbles about the volume databases">
 <item> <url url="sec.html"  name="Notes and explanations about Coda securtiy.">
 <item> <url url="kernel-venus-protocol.html"  name="A detailed document about hthe kernel Venus interaction.">
@@ -38,10 +53,14 @@ documents.
 
 <sect>Manuals and internals in PostScript format <P> 
 
+The easiest way to get manuals, and internals documentation is to
+download the whole package <url url="ftp://ftp.coda.cs.cmu.edu/pub/coda/doc"  name="from our documentation ftp site">
+
 <itemize>
 <item> <url url="../ps/index.ps"  name="This document">
 <item> <url url="../ps/manual.ps"  name="The Coda Administration and User Manual">
 <item> <url url="../ps/rvm&lowbar;manual.ps"  name="The RVM Manual">
+<item> <url url="../ps/rpc2&lowbar;manual.ps"  name="The RPC2 Manual">
 <item> <url url="../ps/admin.ps"  name="Some short scribbles about the volume databases">
 <item> <url url="../ps/kernel-venus-protocol.ps"  name="A detailed document about hthe kernel Venus interaction.">
 <item> <url url="../ps/sec.ps"  name="Notes and explanations about Coda securtiy.">

@@ -127,7 +127,7 @@ VnodeClassInfoArray.
 VM resolution log memory for every volume; store the pointer
 in VolLog&lsqb;i&rsqb;. The number of rlentries assigned is
 VolumeList&lsqb i&rsqb;.data.volumeInfo-&gt;maxlogentries.
-<tag/CheckVLDB:/
+<tag/CheckVLDB:/ See if there is a VLDB. 
 <tag/DP_Init/Find server partitions.
 <tag/S_VolSalvage:/ this goes directly through the directory
 contents, without invoking the buffer cache. 
@@ -143,7 +143,7 @@ entries.
 Set the RVM log transients for this volume.
 <tag/VListVolumes/ write out the /vice/vol/VolumeList file (VListVolumes).
 <tag/Vinit/ This variable is now set to 1. 
-</enum>
+</descrip>
 
 Attaching volumes is the following process. First a <em/VGetVolume/ is
 done.  If it is found in the hash table and is in use, it is detached
@@ -199,7 +199,7 @@ data, and the invariants are not very clear.
 
 <tag/GetVolumeHeader(struct Volume *)/ Assign a <em/volHeader/ to the
 <em/Volume/ structure. This routine does <bf/not/ fill in the data. 
-
+</descrip>
 
 <sect1> Interface to the <em/VolumeHashTable/. <p>
 

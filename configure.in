@@ -24,5 +24,6 @@ internals/rvm/Makefile
 internals/security/Makefile
 internals/server/Makefile
 internals/venus/Makefile
+intro/Makefile
 cmu/Makefile
  )
