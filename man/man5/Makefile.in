@@ -10,14 +10,14 @@ CH=5
 MANPAGEFILES = backuplogs.5 \
 	dumpfile.5 \
 	dumplist.5 \
-	passwd_coda.5 \
-	groups_coda.5 \
+	passwd.coda.5 \
+	group.coda.5 \
 	maxgroupid.5 \
 	multicastagents.5 \
 	multicastgroups.5 \
 	servers.5 \
 	srvconf.5 \
-	user_coda.5 \
+	user.coda.5 \
 	volumelist.5 \
 	vrdb.5 \
 	vrlist.5 \

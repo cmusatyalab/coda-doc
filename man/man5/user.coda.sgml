@@ -15,9 +15,8 @@ Coda uses for its user id database.  Note that actual passwords are
 maintained by the authentication server, see auth2(8) and passwd_coda(5).
 
 
-
 <mansect>SEE ALSO<P>
-passwd_coda (5), vice.pcf (5), pwd2pdb (8)
+passwd.coda (5), vice.pcf (5), pwd2pdb (8)
 
 
 <mansect>AUTHOR<P>

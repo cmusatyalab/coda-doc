@@ -1,7 +1,7 @@
 
-<manpage TITLE="groups.coda" SECTNUM=5>
+<manpage TITLE="group.coda" SECTNUM=5>
 <mansect>NAME 
- <P>groups.coda - Coda group file specification
+ <P>group.coda - Coda group file specification
 
  
 
@@ -25,7 +25,7 @@ that vice uses for its password database.
 
 
 <mansect>SEE ALSO<P>
-pwd2pdb (8), vice.pcf (5)
+pwd2pdb (8), vice.pcf (5), user.coda(5), passwd.coda(5)
 
 
 <mansect>AUTHOR<P>

@@ -24,14 +24,14 @@ passwords. Currently you must give "drseuss " as the key.
 <tscreen><verb>
 &lt;ViceId&gt; &lt;Clear Password&gt; &lt;Other user info&gt;
 </verb></tscreen>
-See passwd_coda(5).
+See passwd.coda(5).
 
 <mansect>EXAMPLE<P>
 initpw -k "drseuss " &lt;  /vice/db/passwd.coda &gt; /vice/db/auth2.pw
 
 
 <mansect>SEE ALSO<P>
-auth2 (8), passwd_coda(5)
+auth2 (8), passwd.coda(5)
 
 
 <mansect>AUTHOR<P>

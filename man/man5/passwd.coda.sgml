@@ -1,0 +1,36 @@
+
+<manpage TITLE="passwd_coda" SECTNUM=5>
+<mansect>NAME 
+
+<P>passwd.coda - Coda user identification file
+
+
+
+<mansect>DESCRIPTION<P>
+This file specifies initial cleartext passwords for Coda users.  The
+format of the file is:  
+
+<tscreen><verb>
+uid<TAB>acutal cleartext password<TAB>any desired info
+</verb></tscreen>
+
+Where:
+
+<descrip>
+<tag><bf>ViceId</bf></tag>is a Coda user id.
+<tag><bf>Cleartext Password</bf></tag>is the password to use for this <em>ViceId</em>.
+<tag><bf>Other user info</bf></tag>is other information about
+the user you want to include, e.g. the user name
+</descrip>
+
+WARNING this file must be owned by root and not be readable by any other user.
+
+This file is translated into a Coda encrypted password file by initpw(8).
+
+<mansect>SEE ALSO<P>
+initpw(8), vice.pcf(5), pwd2pdb(8)
+
+<mansect>AUTHOR<P>
+
+Lesa Gresh, 1998, created 
+</manpage>
