@@ -1,0 +1,33 @@
+
+
+The Venus code to support cells is basically straightforward, and
+falls into two components.  
+
+1. vdb::Get sets up an adm connection before calling
+ViceGetVolumeInfo. This routine needs to get a second argument which
+is NULL or the name of the cell. 
+
+GetAdmConn should contact a volume location server for the remote
+cell, if the volume name is not null.  
+
+I expect changes to ripple through into srvent's to record null or the
+cell, or better, have a cell class and srvtab's with srvent's per cell.
+
+2. The remote cell will then provide a VolInfo structure.  It will be
+necessary to supplement this with a cell id since volumeid's will no
+longer be unique across cells.
+
+This would mean a modification to the VolumeId structure, currently a
+simple long.  The VolumeInfo structure (defined in vice.rpc2) is OK
+since it stores the identities of VSG members. 
+
+3. The VSGAddr is another object which will no longer be unique. This is
+the overlap between the vdb and the vsgdb. It goes into the
+volent.host field in the vdb and into the vsgent::Addr field.
+
+
+4. Unfortunately there might be numerous cases where the fids coming
+up from the kernel explicitly compare a VolumeId with a component of a
+fid.  This will take some editing in vproc_vfscalls.
+
+In crafting inodes for the kernel, the CellId plays a role too.

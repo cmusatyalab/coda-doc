@@ -1,0 +1,58 @@
+<sect> Segments <p>
+
+RVM has a segment library which allows for easy loading of a number of
+regions within a segment.  The organization of this is as follows.
+
+The first page of the segment is used by the rvm_segment_hdr.  A
+structure containing a self-identifier (equal to one), a version
+string, the number of regions and an array of regions descriptors.
+
+<tt>
+typedef struct {
+    rvm_seg_struct_id_t     struct_id;      /* self-identifier, do not change */
+
+    char                version[RVM_VERSION_MAX]; /* version string */
+    rvm_length_t        nregions;                 /* number of regions defined */
+    rvm_region_def_t    regions[1];     /* region definition array  -- length
+                                           actually determined by
+                                           RVM_MAX_REGIONS */
+} rvm_segment_hdr_t;
+</tt>
+
+A region is a simple structure giving the offset, length and mapping
+address of the region.  The entire interface to the region package consists of three functions:
+
+<sect> Creating segments <P>
+
+This writes out a new first page with region definitions in the
+segment. It initializes a transaction and commits or aborts this
+thereby committing the array of region descriptors passed to the
+segment.
+
+<tt>
+extern rvm_return_t rvm_create_segment (
+    char                *DevName,       /* pointer to data device name */
+    rvm_offset_t        DevLength,      /* Length of dataDev if really a device */
+    rvm_options_t       *options,       /* options record for RVM */
+    rvm_length_t        nregions,       /* number of regions defined for segment*/
+    rvm_region_def_t    *region_defs    /* array of region defs for segment */
+    );
+</tt>
+
+<sect> Loading segments <P>
+
+To load the regions defined in the segment header, the
+rvm_load_segment routine is used.  It calls heavily on the underlying
+rvm routines to map segments.
+
+
+<tt>
+extern rvm_return_t rvm_load_segment (
+    char                *DevName,       /* pointer to data device name */
+    rvm_offset_t        DevLength,      /* Length of dataDev if really a device */
+    rvm_options_t       *options,       /* options record for RVM */
+    unsigned long       *nregions,      /* returned -- number of regions mapped */
+    rvm_region_def_t    *regions[]      /* returned array of region descriptors */
+    );
+
+</tt>
