@@ -257,7 +257,7 @@ Unless you do "huge" things 16k will be plenty.
 </answer>
 </qandaentry>
 
-<qandaentry id="RestoringBackups"><question><para>How to restore a backup from tape </para></question>
+<qandaentry><question id="RestoringBackups"><para>How to restore a backup from tape </para></question>
 <answer>
 <!-- Change into less fairy-tale fashioned -->
 <para>Tuesday I have lost my email folder - the whole volume <filename>moose:braam.mail</> was corrupted on server <systemitem class="systemname">moose</> and it wouldn't salvage.  Here is how I got it back.  </para>

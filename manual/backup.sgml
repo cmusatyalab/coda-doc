@@ -228,7 +228,7 @@ directing the call to the chosen server.  Once the clone has been restored,
 the administrator should build a new VLDB, and mount the volume in the Coda
 name space so the user can access it.  When the user has finished with it, she
 should notify the administrator in order for the clone to be purged.
-<xref linkend="RestoringBackups"> </para>
+(see also <xref linkend="RestoringBackups">)</para>
 </sect1>
 
 <sect1>

@@ -22,7 +22,7 @@
 <para>For more information read the manualpage
 (<citerefentry><refentrytitle>pdbtool</><manvolnum>8</></citerefentry>), which
 can be found in in the <filename>coda-doc-<replaceable>version</></filename>
-files at <ulink>ftp://ftp.coda.cs.cmu.edu/pub/coda/doc/</>, or simply play around with the <application>pdbtool</>'s <command>help</> command.  </para>
+files at <ulink url="ftp://ftp.coda.cs.cmu.edu/pub/coda/doc/"></>, or simply play around with the <application>pdbtool</>'s <command>help</> command.  </para>
 </sect1>
 
 <sect1 id="AddUsers">

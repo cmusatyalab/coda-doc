@@ -13,7 +13,10 @@ PS    := $(patsubst %.sgml, %.ps, $(SGMLSRC))
 PDF   := $(patsubst %.sgml, %.pdf, $(SGMLSRC))
 HTML  := $(patsubst %.sgml, %.html, $(SGMLSRC))
 
-all: $(PS) $(HTML)
+all: psdocs htmldocs
+
+psdocs: $(PS)
+htmldocs: $(HTML)
 
 
 DVI   := $(patsubst %.sgml, %.dvi, $(SGMLSRC))
