@@ -1,3 +1,5 @@
+
+
 <chapt>RPC2 Runtime System<p>
 <label id="RuntimeSystem">
 
@@ -5,21 +7,22 @@ The purpose of this section is to describe the calls provided by the
 RPC2 library.
 These calls deal with contiguous <em>Packet Buffers</em>
 each of which consists of a:
-@begin(description)
-<em>Prefix</em>@\which is of fixed length, and is used internally by the runtime
+<descrip><tag/
+<em>Prefix</em>./   which is of fixed length, and is used internally by the runtime
 system.  It is NOT transmitted.
 
-<em>Header</em>@\which is also of fixed length, and whose format is understood by
-the runtime system. The opcode associated with the RPC, sequencing 
+<tag/<em>Header</em>./   which is also of fixed length, and whose format is understood by
+the runtime system. The<tt> opcode</tt> associated with the RPC, sequencing 
 information, and the completion code returned by the remote site are the kinds
 of information found here.
 
-<em>Body</em>@\of arbitrary size.  It is NOT interpreted by the runtime system,
+<tag/<em>Body</em>./   of arbitrary size.  It is NOT interpreted by the runtime system,
 and is used to transmit the input and output parameters of an RPC.
-@end(description)
+</descrip>
 
-Appendix <ref id="rpc2.h" name="XXX"> contains the header file <em>rpc2.h</em>, that defines
-the packet format as well as numerous other definitions used in the call
+
+
+Appendix <ref id="rpc2.h" name="XXX"> contains the header file, <em>rpc2.h</em>, that defines the packet format as well as numerous other definitions used in the call
 descriptions that follow.
 Of course, the actual header files are the authoritative source of
 these definitions, and will be more up-to-date than this manual.
@@ -33,112 +36,129 @@ are pertinent to all users of RPC2.
 
 <sect>Client-related Calls<p>
 
+<sect1>ROC2_NewBinding -- Create a new connection<P>
+<descrip>
+<tag/Call:./  int RPC2_NewBinding (<bf>in</bf> RPC2_HostIdent*Host;<bf> in</bf> RPC2_PortalIdent *Portal;<bf> in</bf> RPC2_SussysIdent *Subsys;<bf> in</bf> RPC2_BindParms *Bparms;<bf> out</bf> RPC2_Handle *ConnHandle).
+</descrip>
 
-@PasCall(Tag=&lt;NewBinding&gt;,
-	CallName=`@RPC2&lt;NewBinding&gt;, Abstract=`Create a new connection,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(HostIdent) *Host&gt;, @w&lt;<bf>in</bf> @RPC2(PortalIdent) *Portal&gt;, @w&lt;<bf>in</bf> @RPC2(SubsysIdent) *Subsys&gt;,  @w&lt;<bf>in</bf> @RPC2(BindParms) *Bparms&gt;, @w&lt;<bf>out</bf> @RPC2(Handle) *ConnHandle&gt;,
-	P1=`Host, PD1=`The identity of the remote host on which the server to be contacted is located.  This may be specified as a string name or as an Internet address.  In the former case the RPC runtime system will do the necessary name resolution.,
-	P2=`Portal, PD2=`An identification of the server process to be contacted at the remote site. Portals are unique on a given host.  A portal  may be specified as a string name or as an Internet port value.  In the former case the RPC runtime system will do the necessary name to port number conversion.  Support for other kinds of portals (such as Unix domain) may be available in future.,
-	P3=`Subsys, PD3=`Which of the potentially many subsystems supported by the remote server is desired.  May be specified as a number or as a name.  In the latter case, the RPC runtime system will do the translation from name to number.,
-	P4=`Bparms, PD4=`Type @RPC2(BindParms) is a struct containing 5 fields. The first field SecurityLevel is one of the constants @RPC2(OPENKIMONO), @RPC2(ONLYAUTHENTICATE), @RPC2(HEADERSONLY) or @RPC2(SECURE). The second filed EncryptionType describes what kind of encryption to be used on this connection.  For example, @RPC2(XOR), @RPC2(DES), etc. Ignored if SecurityLevel is @RPC2(OPENKIMONO).  The bind will fail if the remote site does not support the requested type of encryption. The third field SharedSecret is an encryption key known by the callback procedure on the server side to be uniquely associated with ClientIdent. Used by the RPC runtime system in the authentication handshakes.  May be NULL if SecurityLevel is @RPC2(OPENKIMONO). The fourth field ClientIdent provides the information for the server to uniquely identify this client and to obtain SharedKey. Not interpreted by the RPC runtime system. Only the GetKeys callback procedure on the server side need understand the format of ClientIdent.  May be NULL if SecurityLevel is @RPC2(OPENKIMONO). The fifth field SideEffectType describes what kind of side effects are to be associated with this connection.  The only side effects intially supported are bulk-transfers of files, identified by type SMARTFTP. May be 0 if no side effects are ever to be attempted on this connection.,
-	P5=`ConnHandle, PD5=`An unique integer returned by the call, identifying this connection. This is not necessarily a small-valued integer.,
-	CC1=`@RPC2(SUCCESS), CCD1=`All went well,
-	CC2=`@RPC2(NOBINDING), CCD2=`The specified host, server or subsystem could not be contacted,
-	CC3=`@RPC2(WRONGVERSION), CCD3=`The client and server runtime systems are  incompatible.  Note that extreme incompatibilty may result in the server being unable to respond even with this error code.  In such a case the server will appear to be down, resulting in a @RPC(NOBINDING) return code.,
-	CC4=`@RPC2(OLDVERSION), CCD4=`This is a warning.  The @RPC2(VERSION) values on client and server sides are different.  Normal operation is still possible, but one of you is running an obsolete version of the run time system.  You should obtain the latest copy of the RPC runtime system and recompile your code.,
-	CC5=`@RPC2(NOTAUTHENTICATED), CCD5=`A SecurityLevel other than @RPC2(OPENKIMONO) was specified, and the server did not accept your credentials.,
-	CC6=`@RPC2(SEFAIL1), CCD6=`The associated side effect routine indicated a minor failure.  The connection is established.and usable.,
-	CC7=`@RPC2(SEFAIL2), CCD7=`The associated side effect routine indicated a serious failure.  The connection is not established.,
-	CC8=`@RPC2(FAIL), CCD8=`Some other mishap occurred.,
-	Text=`Creates a new connection and binds to a remote server on a 
-		remote host.  The subsystem information is passed on to that server to alert it to the kind of
-		remote procedure calls that it may expect on this connection.
+<bf>Parameters:</bf>
+<descrip>
+<tag/Host./    The identity of the remote host on which the server to be contacted is located.  This may be specified as a string name or as an Internet address.  In the former case the RPC runtime system will do the necessary name resolution.
+
+<tag/Portal./    An identification of the server process to be contacted at the remote site. Portals are unique on a given host.  A portal  may be specified as a string name or as an Internet port value.  In the former case the RPC runtime system will do the necessary name to port number conversion.  Support for other kinds of portals (such as Unix domain) may be available in future.
+
+<tag/Subsys./    Which of the potentially many subsystems supported by the remote server is desired.  May be specified as a number or as a name.  In the latter case, the RPC runtime system will do the translation from name to number.
+
+<tag/Bparms./         Type RPC2_BindParms is a struct containing 5 fields. The first field SecurityLevel is one of the constants RPC2_OPENKIMONO, RPC2_ONLYAUTHENTICATE, RPC2_HEADERSONLY or RPC2_SECURE. The second field, EncryptionType, describes what kind of encryption to be used on this connection.  For example, RPC2_XOR, RPC2_DES, etc. is ignored if, SecurityLevel, is RPC2_OPENKIMONO.  The bind will fail if the remote site does not support the requested type of encryption. The third field, SharedSecret, is an encryption key known by the callback procedure on the server side to be uniquely associated with, ClientIdent. Used by the RPC runtime system in the authentication handshakes.  May be NULL if, SecurityLevel, is RPC2_OPENKIMONO. The fourth field, ClientIdent, provides the information for the server to uniquely identify this client and to obtain, SharedKey. Not interpreted by the RPC runtime system. Only the GetKeys callback procedure on the server side need understand the format of ClientIdent.  May be NULL if SecurityLevel is RPC2_OPENKIMONO. The fifth field, SideEffectType, describes what kind of side effects are to be associated with this connection.  The only side effects intially supported are bulk-transfers of files, identified by type, SMARTFTP. May be 0 if no side effects are ever to be attempted on this connection.
+
+<tag/ConnHandle./  An unique integer returned by the call, identifying this connection. This is not necessarily a small-valued integer.
+</descrip>
+
+
+<bf>Completion Codes:</bf>
+<descrip>
+<tag/RPC2_SUCCESS./    All went well.
+<tag/RPC2_NOBINDING./   The specified host, server or subsystem could not be contacted.
+<tag/RPC2_WRONGVERSION./    The client and server runtime systems are  incompatible.  Note that extreme incompatibilty may result in the server being unable to respond even with this error code.  In such a case, the server will appear to be down, resulting in an RPC_NOBINDING return code.
+<tag/RPC2_OLDVERSION./   This is a warning.  The, RPC2_VERSION, values on client and server sides are different.  Normal operation is still possible, but one of you is running an obsolete version of the runtime system.  You should obtain the latest copy of the RPC runtime system and recompile your code.
+<tag/RPC2_NOTAUTHENTICATED./   A SecurityLevel other than, RPC2_OPENKIMONO, was specified, and the server did not accept your credentials.
+<tag/RPC2_SEFAIL1./     The associated side effect routine indicated a minor failure.  The connection is established, and usable.
+<tag/RPC2_SEFAIL2./        The associated side effect routine indicated a serious failure.  The connection is not established.
+<tag/RPC2_FAIL./           Some other mishap occurred.
+</descrip>
+
+
+<bf>Description:</bf>
+<descrip>
+<tag/Creates a new connection and binds to a remote server on a 
+remote host.  The subsystem information is passed on to that server to alert it to the kind of remote procedure calls that it may expect on this connection../
 		
-	A client/server version check is performed to ensure that
-	the runtime systems are compatible.  Note that there are really two version checks.  One is for the RPC network protocol
-	and packet formats, and this must succeed.  The other check reports a warning if you have a different RPC runtime system
-	from the server.  You may also wish to do a higher-level check, to ensure that the client and
-	server application code are compatible.
+<tag/A client/server version check is performed to ensure that
+the runtime systems are compatible.  Note that there are really two version checks.         One is for the RPC network protocol
+and packet formats, and this must succeed.  The other check reports a warning if you have a different RPC runtime system
+from the server.  You may also wish to do a higher-level check, to ensure that the client and server application code are compatible../
 	
-	The SecurityLevel parameter determines the degree to which you can
-	trust this connection.  If @RPC2(OPENKIMONO) is specified, the 
+
+<tag/The SecurityLevel parameter determines the degree to which you can
+	trust this connection.  If RPC2_OPENKIMONO is specified, the 
 	connection is not authenticated and no encryption is done on future
-	requests and responses.  If @RPC2(ONLYAUTHENTICATE) is specified, an
+	requests and responses.  If RPC2_ONLYAUTHENTICATE is specified, an
 	authentication handshake is done to ensure that the client and the 
 	server are who they claim to  to be (the fact that the server can 
 	find SharedSecret from ClientIdent is assumed to be proof of its
-	identity).  If @RPC2(SECURE) is specified, the connection is 
+	identity.  If RPC2_SECURE is specified, the connection is 
 	authenticated and all future transmissions on it are encrypted using
-	a session key generated during the authentication handshake.  @RPC2(HEADERSONLY) is similar
-	to @RPC2(SECURE), except that only RPC headers are encrypted.
+	a session key generated during the authentication handshake. 
+ RPC2_HEADERSONLY is similar
+	to RPC2_SECURE, except that only RPC headers are encrypted.
 
 	The kind of encryption used is specified in EncryptionType.  The remote site must specify
-	an @RPC2(GetRequest) with an EncryptionTypeMask that includes this encryption type.
-	)
-@PasCall(Tag=&lt;Bind&gt;,
-	CallName=`@RPC2&lt;Bind&gt;, Abstract=`Obsolete: use @RPC2(NewBinding),
-	ParmList =`@w&lt;<bf>in</bf> long SecurityLevel&gt;,  @w&lt;<bf>in</bf> long EncryptionType&gt;, @w&lt;<bf>in</bf> @RPC2(HostIdent) *Host&gt;, @w&lt;<bf>in</bf> @RPC2(PortalIdent) *Portal&gt;, @w&lt;<bf>in</bf> @RPC2(SubsysIdent) *Subsys&gt;,  @w&lt;<bf>in</bf> long SideEffectType&gt;, @w&lt;<bf>in</bf> @RPC2(CountedBS) *ClientIdent&gt;, @w&lt;<bf>in</bf> @RPC2(EncryptionKey) *SharedSecret&gt;, @w&lt;<bf>out</bf> @RPC2(Handle) *ConnHandle&gt;,
-	P1=`, PD1=`<em></em>,
-	Text=`
-	)
+	an RPC2_GetRequest with an EncryptionTypeMask that includes this encryption type.
+	
 
+	RPC2_Bind Obsolete: use RPC2_NewBinding
+<bf>in</bf> long SecurityLevel,  <bf>in</bf> long EncryptionType, <bf>in</bf> RPC2_HostIdent *Host, <bf>in</bf> RPC2_PortalIdent *Portal, <bf>in</bf> RPC2_SubsysIdent *Subsys,  <bf>in</bf> long SideEffectType, <bf>in</bf> RPC2_CountedBS *ClientIdent, <bf>in</bf> RPC2_EncryptionKey *SharedSecret, <bf>out</bf> RPC2_Handle *ConnHandle.
+
+	
+	
+***********************************
 		
 
-@PasCall(Tag=&lt;MakeRPC&gt;,
-	CallName=`@RPC2(MakeRPC), Abstract=`Make a remote procedure call (with possible side-effect),
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>in</bf>  @RPC2(PacketBuffer) *Request&gt;, @w&lt;<bf>in</bf> @SE(Descriptor) *SDesc&gt;, @w&lt;<bf>out</bf>  @RPC2(PacketBuffer) **Reply&gt;, @w&lt;<bf>in</bf> struct timeval *Patience&gt;, @w&lt;<bf>in</bf> long EnqueueRequest&gt;,
-	P1=`ConnHandle, PD1=`identifies the connection on which the call is to be made,
-	P2=`Request, PD2=`A properly formatted request buffer.,
-	P3=`SDesc, PD3=`A side effect descriptor with local fields filled in.  May be NULL if no side effects will occur as a result of this call.,
-	P4=`Reply, PD4=`On return, it will point to a response buffer
-			holding the response from the server.  You should free this buffer when you are done with it.,
-	P5=`Patience, PD5=`Maximum time to wait for remote site to 
-			respond.  A NULL pointer indicates infinite patience.,
-	P6=`EnqueueRequest, PD6=`Specifies whether the caller should be blocked if ConnHandle is already servicing an RPC request from some other lwp.  If this variable is 1 the caller is blocked.  Otherwise a return code of @RPC2(CONNBUSY) is returned.,
-	CC1=`@RPC2(SUCCESS), CCD1=`All went well. ,
-	CC2=`@RPC2(NOCONNECTION), CCD2=`ConnHandle does not refer to a valid connection.,
-	CC3=`@RPC2(TIMEOUT), CCD3=`A response was not received soon enough. Occurs only if the Patience parameter was non-NULL.,
-	CC4=`@RPC2(SEFAIL1), CCD4=`The associated side effect resulted in a minor failure.  Future calls on this connection will still work.,
-	CC5=`@RPC2(SEFAIL2), CCD5=`The associated side effect resulted in a serious failure.  Future calls on this connection will fail.,
-	CC6=`@RPC2(DEAD), CCD6=`The remote site has been deemed dead or unreachable.  Note that this is orthogonal to an @RPC2(TIMEOUT) return code.,
-	CC7=`@RPC2(NAKED), CCD7=`The remote site sent an explicit negative acknowledgement.  This can happen if that site thought you were dead, or if someone at that site unbound your connection.,
-	CC8=`@RPC2(CONNBUSY), CCD8=`EnqueueRequest specified 0 and ConnHandle is currently servicing a call. Try again later. ,
-	CC9=`@RPC2(FAIL), CCD9=`Other assorted calamities, such as attempting to use a connection already declared broken.,
-	Text=`The workhorse routine, used to make remote calls after establishing a connection.
+
+	<tag/RPC2_MakeRPC./ Make a remote procedure call (with possible side-effect,
+	<bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf>  RPC2_PacketBuffer *Request, <bf>in</bf> Descriptor *SDesc, <bf>out</bf>  RPC2_PacketBuffer **Reply, <bf>in</bf> struct timeval *Patience, <bf>in</bf> long EnqueueRequest.
+	<tag/ConnHandle./ Identifies the connection on which the call is to be made
+	<tag/Request./ A properly formatted request buffer.
+	<tag/SDesc./ A side effect descriptor with local fields filled in.  May be NULL if no side effects will occur as a result of this call.
+	<tag/Reply./ On return, it will point to a response buffer
+			holding the response from the server.  You should free this buffer when you are done with it.
+	<tag/Patience./ Maximum time to wait for remote site to 
+			respond.  A NULL pointer indicates infinite patience.
+	<tag/EnqueueRequest./ Specifies whether the caller should be blocked if ConnHandle is already servicing an RPC request from some other lwp.  If this variable is 1 the caller is blocked.  Otherwise a return code of RPC2_CONNBUSY is returned.
+	<em>RPC2_SUCCESS./ All went well. 
+	<em>RPC2_NOCONNECTION./ ConnHandle does not refer to a valid connection.
+	<em>RPC2_TIMEOUT./ A response was not received soon enough. Occurs only if the Patience parameter was non-NULL.
+	<em>RPC2_SEFAIL1./ The associated side effect resulted in a minor failure.  Future calls on this connection will still work.
+	<em>RPC2_SEFAIL2./ The associated side effect resulted in a serious failure.  Future calls on this connection will fail.
+	<em>RPC2_DEAD./ The remote site has been deemed dead or unreachable.  Note that this is orthogonal to an RPC2_TIMEOUT return code.
+	<em>RPC2_NAKED./ The remote site sent an explicit negative acknowledgement.  This can happen if that site thought you were dead, or if someone at that site unbound your connection.
+	<em>RPC2_CONNBUSY./ EnqueueRequest specified 0 and ConnHandle is currently servicing a call. Try again later. .
+	<em>RPC2_FAIL./ <em>Other assorted calamities, such as attempting to use a connection already declared broken.
+	The workhorse routine, used to make remote calls after establishing a connection.
 		The call is sequential and the calling lwp is blocked until the call completes.
 		The associated side effect, if any, is finished before the call completes.
 		The listed completion codes are from the local RPC stub.
-		Check the @RPC2(ReturnCode) fields of the reply  and the status fields of SDesc to see what the remote
+		Check the RPC2_ReturnCode fields of the reply  and the status fields of SDesc to see what the remote
 		site thought of your request.  Without an explicit timeout interval the remote site can take as long as it
 		wishes to perform the requested operation and associated side effects.  The RPC protocol checks periodically
 		to ensure that the remote site is alive.  If an explicit  Patience timeout interval is specified,  
 		the call must complete within that time.
-	)
+	
 
 
 
-@PasCall(Tag=&lt;MultiRPC&gt;,
-	CallName=`@RPC2(MultiRPC), Abstract=`Make a collection of remote procedure calls,
-	ParmList=`@w&lt;<bf>in</bf> int HowMany&gt;, @w&lt;<bf>in</bf> @RPC2(Handle) ConnHandleList&lsqb; &rsqb;&gt;, @w&lt;<bf>out</bf> @RPC2(Integer) *RCList&gt;, @w&lt;<bf>in out</bf> @RPC2(Multicast) *MCast&gt;, @w&lt;<bf>in</bf> @RPC2(PacketBuffer) *Request&gt;, @w&lt;<bf>in</bf> @SE(Descriptor) SDescList&lsqb; &rsqb;&gt;, @w&lt;<bf>in</bf> long (*UnpackMulti) ()&gt;, @w&lt;<bf>in out</bf> @ARG(INFO) *ArgInfo&gt;, @w&lt;<bf>in</bf> struct timeval *Patience&gt;,
-	P1=`HowMany, PD1=`How many servers to contact,
-	P2=`ConnHandleList, PD2=`Array of length HowMany, containing the handles of the connections on which calls are to be made.,
-	P3=`Request, PD3=`A properly formatted request buffer.,
-	P4=`RCList, PD4=`Array of length HowMany, into which RPC2 will place return codes for each of the connections specified in ConnHanleList.  May be specified as NULL if return codes will not be examined.,
-	P5=`MCast, PD5=`Pointer to multicast sturcture.  Set to NULL for now.,
-	P6=`SDescList, PD6=`Array of length HowMany, containing side effect descriptors for each of the connections specified in ConnHandleList.,
-	P7=`UnpackMulti, PD7=`Pointer to unpacking routine called by RPC2
+MultiRPC.
+	RPC2_MultiRPC./ Make a collection of remote procedure calls.
+	<bf>in</bf> int HowMany, <bf>in</bf> RPC2_Handle ConnHandleList&lsqb; &rsqb;, <bf>out</bf> RPC2_Integer *RCList, <bf>in out</bf> RPC2_Multicast *MCast, <bf>in</bf> RPC2_PacketBuffer *Request, <bf>in</bf> Descriptor SDescList&lsqb; &rsqb;, <bf>in</bf> long (*UnpackMulti (), <bf>in out</bf> ARG(INFO) *ArgInfo, <bf>in</bf> struct timeval *Patience.
+	<tag/HowMany./ How many servers to contact.
+	<tag/ConnHandleList./ Array of length HowMany, containing the handles of the connections on which calls are to be made.
+	<tag/Request./ A properly formatted request buffer.
+	<tag/RCList./ Array of length HowMany, into which RPC2 will place return codes for each of the connections specified in ConnHanleList.  May be specified as NULL if return codes will not be examined.
+	<tag/MCast./ Pointer to multicast sturcture.  Set to NULL for now.
+	<tag/SDescList./ Array of length HowMany, containing side effect descriptors for each of the connections specified in ConnHandleList.
+	<tag/UnpackMulti./ Pointer to unpacking routine called by RPC2
 when each server response as received. If RP2Gen is used, this will be
-supplied by @MRPC(MakeMulti). Otherwise, it must be supplied by the client.,
-	P8=`ArgInfo, PD8=`A pointer to a structure containing argument information. This
+supplied by MRPC(MakeMulti. Otherwise, it must be supplied by the client.
+	P8=ArgInfo./ A pointer to a structure containing argument information. This
 structure is not examined by RPC2; it is passed untouched to 
  UnpackMulti. If RP2Gen is used, this structure will be supplied by
-@MRPC(MakeMulti). Otherwise, it can be used to pass any structure desired by the
-client or supplied as NULL.,
-	P9=`Patience, PD8=`Maximum time to wait for remote sites to respond. A NULL pointer indicates infinite patience as long as RPC2 believes that the server is alive. Note that this timeout value is orthogonal to the RPC2 internal timeout for determining connection death.,
-	CC1=`@RPC2(SUCCESS), CCD1=`All servers returned successfully, or all servers until client-initiated abort returned successfully. Individual server response information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.,
-	CC2=`@RPC2(TIMEOUT), CCD2=`The user specified timeout expired before all the servers responded.,
-	CC3=`@RPC2(FAIL), CCD3=`Something other than SUCCESS or TIMEOUT occurred. More detailed information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.,
-	Text=`Logically identical to iterating through ConnHandleList and making @RPC2(MakeRPC) calls to each specified
+MRPC(MakeMulti. Otherwise, it can be used to pass any structure desired by the
+client or supplied as NULL.
+	P9=Patience./ Maximum time to wait for remote sites to respond. A NULL pointer indicates infinite patience as long as RPC2 believes that the server is alive. Note that this timeout value is orthogonal to the RPC2 internal timeout for determining connection death.
+	<em>RPC2_SUCCESS./ All servers returned successfully, or all servers until client-initiated abort returned successfully. Individual server response information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.
+	<em>RPC2_TIMEOUT./ The user specified timeout expired before all the servers responded.
+	<em>RPC2_FAIL./ Something other than SUCCESS or TIMEOUT occurred. More detailed information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.
+	Logically identical to iterating through ConnHandleList and making RPC2_MakeRPC calls to each specified
 	connection using Request as the request block, but this call will be considerably faster than explicit
 	iteration. The calling lightweight process
 	blocks until either the client requests that the call abort or one of the following is true about each of
@@ -156,80 +176,80 @@ codes of the supplied routine must conform to the specifications in section
  <ref id="UnpackMultiInfo" name="XXX">.
 
 Side effects are supported as in the standard RPC2 case except that the
-client must supply a separate <bf>@SE&lsqb;Descriptor&rsqb;</bf> for each connection. The
-format for the <bf>@SE&lsqb;Descriptor&rsqb;</bf> argument is described in Section
+client must supply a separate <bf>SE&lsqb;Descriptor&rsqb;</bf> for each connection. The
+format for the <bf>SE&lsqb;Descriptor&rsqb;</bf>argument is described in Section
  <ref id="interface" name="XXX">.
 It will often be useful to supply
 connection specific information such as unique file names in the
- <bf>@SE&lsqb;Descriptor&rsqb;</bf>.
-)
+ <bf>SE&lsqb;Descriptor&rsqb;</bf>.
+
 
 <sect>Server-related RPC Calls<p>
-@PasCall(Tag=&lt;Export&gt;,
-	CallName=`@RPC2(Export), Abstract=`Indicate willingness to accept calls for a subsystem,
-	ParmList=`@w&lt;<bf>in</bf> @RPC2(SubsysIdent) *Subsys&gt;,
-	P1=`Subsys, PD1=`Specifies a subsystem that will be henceforth recognized by this server.  This is either an integer or a symbolic name that can be translated to the unique integer identifying this subsystem.,
-	CC1=`@RPC2(SUCCESS), CCD1=`All went well,
-	CC2=`@RPC2(DUPLICATESERVER), CCD2=`Your have already exported Subsys.,
-	CC3=`@RPC2(BADSERVER), CCD3=`Subsys is invalid.,
-	CC4=`@RPC2(FAIL), CCD4=`Something else went wrong.,
-	Text=` Sets up	internal tables so that when a remote client performs an @RPC2(Bind)() operation 
+Export.
+	RPC2_Export./ Indicate willingness to accept calls for a subsystem.
+	<bf>in</bf> RPC2_SubsysIdent *Subsys,
+	<tag/Subsys./ Specifies a subsystem that will be henceforth recognized by this server.  This is either an integer or a symbolic name that can be translated to the unique integer identifying this subsystem.
+	<em>RPC2_SUCCESS./ All went well.
+	<em>RPC2_DUPLICATESERVER./ Your have already exported Subsys.
+	<em>RPC2_BADSERVER./ Subsys is invalid.
+	<em>RPC2_FAIL./ Something else went wrong.
+	 Sets up	internal tables so that when a remote client performs an RPC2_Bind( operation 
 		specifying this host-portal-subsystem triple, the RPC runtime system will accept it.
 		A server may declare itself to be serving more than one subsystem by making more than one
-		 @RPC2(Export) calls.
+		 RPC2_Export calls.
 	
-	)
+	
 
-@PasCall(Tag=&lt;DeExport&gt;,
-	CallName=`@RPC2(DeExport), Abstract=`Stop accepting new connections for one or all subsystems.,
-	ParmList=`@w&lt;<bf>in</bf> @RPC2(SubsysIdent) *Subsys&gt;,
-	P1=`Subsys, PD1=`Specifies the subsystem  to be deexported. This is either an integer or a symbolic name that can be translated to the unique integer identifying this subsystem. A value of NULL deexports all subsystems.,
-	CC1=`@RPC2(SUCCESS), CCD1=`All went well,
-	CC2=`@RPC2(BADSERVER), CCD2=`Subsys is not a valid subsystem, or has not been previously exported.,
-	CC4=`@RPC2(FAIL), CCD4=`Something else went wrong.,
-	Text=`After this call, no new connections for subsystem Subsys will be accepted.  The subsystem may, however, be exported
+DeExport.
+	RPC2_DeExport./ Stop accepting new connections for one or all subsystems.
+	<bf>in</bf> RPC2_SubsysIdent *Subsys,
+	<tag/Subsys./ Specifies the subsystem  to be deexported. This is either an integer or a symbolic name that can be translated to the unique integer identifying this subsystem. A value of NULL deexports all subsystems.
+	<em>RPC2_SUCCESS./ All went well.
+	<em>RPC2_BADSERVER./ Subsys is not a valid subsystem, or has not been previously exported.
+	<em>RPC2_FAIL./ Something else went wrong.
+	After this call, no new connections for subsystem Subsys will be accepted.  The subsystem may, however, be exported
 		again at a later time.  Note that existing connections are not broken by this call.
-	)
+	
 
  
-@PasCall(Tag=&lt;GetRequest&gt;,
-	CallName=`@RPC2(GetRequest), Abstract=`Wait for an RPC request or a new connection,
-	ParmList=`@w&lt;<bf>in</bf> @RPC2(RequestFilter) *Filter&gt;, @w&lt;<bf>out</bf> @RPC2(Handle) *ConnHandle&gt;, @w&lt;<bf>out</bf>  @RPC2(PacketBuffer) **Request&gt;, @w&lt;<bf>in</bf> struct timeval *Patience&gt;, @w&lt;<bf>in</bf> long (*GetKeys) ()&gt;, @w&lt;<bf>in</bf> long EncryptionTypeMask&gt;, @w&lt;<bf>in</bf> long (*AuthFail) ()&gt;,
-	P1=`Filter, PD1=`A filter specifying which requests are acceptable.  See description below.,
-	P2=`ConnHandle, PD2=`Specifies the connection on which the request was received.,
-	P3=`Request, PD3=`Value ignored on entry. On return, it will point to a buffer
-			holding the  response from the client.  Free this buffer after you are done with it.,
-	P4=`Patience, PD4=`A timeout interval specifying how long to wait for a request. 
-		 If NULL, infinite patience is assumed.,
-	P5=`GetKeys, PD5=`Pointer to a callback procedure to obtain authentication and session keys. See description below.
-May be NULL if no secure bindings to this server are to be accepted.,
-	P6=`EncryptionTypeMask, PD6=`A bit mask specifying which types of encryption is supported. Binds from clients who request an encryption type not specified in this mask will fail.,
-	P7=`AuthFail, PD7=`Pointer to a callback procedure to be called when an authentication failure occurs. See description below.  May be NULL if server does not care to note such failures.,
-	CC1=`@RPC2(SUCCESS), CCD1=`I have a request for you in Request.  New connections result in a fake request.,
-	CC2=`@RPC2(TIMEOUT), CCD2=`Specified time interval expired.,
-	CC3=`@RPC2(BADFILTER), CCD3=`A nonexistent connection or subsystem was specified in Filter.,
-	CC4=`@RPC2(SEFAIL1), CCD4=`The associated side effect routine indicated a minor failure.  Future calls on this connection will still work.,
-	CC5=`@RPC2(SEFAIL2), CCD5=`The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.,
-	CC6=`@RPC2(DEAD), CCD6=`You were waiting for requests on a specific connection and that site has been deemed dead or unreachable.,
-	CC7=`@RPC2(FAIL), CCD7=`Something irrecoverable happened.,
-	Text=` The call blocks the calling lightweight process until a request is available, a new connection is made,
+GetRequest.
+	RPC2_GetRequest./ Wait for an RPC request or a new connection,
+	<bf>in</bf> RPC2_RequestFilter *Filter, <bf>out</bf> RPC2_Handle *ConnHandle, <bf>out</bf>  RPC2_PacketBuffer **Request, <bf>in</bf> struct timeval *Patience, <bf>in</bf> long (*GetKeys) (), <bf>in</bf> long EncryptionTypeMask, <bf>in</bf> long (*AuthFail) ().
+	<tag/Filter./ A filter specifying which requests are acceptable.  See description below.
+	<tag/ConnHandle./ Specifies the connection on which the request was received.
+	<tag/Request./ Value ignored on entry. On return, it will point to a buffer
+			holding the  response from the client.  Free this buffer after you are done with it.
+	<tag/Patience./ A timeout interval specifying how long to wait for a request. 
+		 If NULL, infinite patience is assumed.
+	<tag/GetKeys./ Pointer to a callback procedure to obtain authentication and session keys. See description below.
+May be NULL if no secure bindings to this server are to be accepted.
+	<tag/EncryptionTypeMask./ A bit mask specifying which types of encryption is supported. Binds from clients who request an encryption type not specified in this mask will fail.
+	<tag/AuthFail./ Pointer to a callback procedure to be called when an authentication failure occurs. See description below.  May be NULL if server does not care to note such failures.
+	<em>RPC2_SUCCESS./ I have a request for you in Request.  New connections result in a fake request.
+	<em>RPC2_TIMEOUT./ Specified time interval expired.
+	<em>RPC2_BADFILTER./ A nonexistent connection or subsystem was specified in Filter.
+	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a minor failure.  Future calls on this connection will still work.
+	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
+	<em>RPC2_DEAD./ You were waiting for requests on a specific connection and that site has been deemed dead or unreachable.
+	<em>RPC2_FAIL./ Something irrecoverable happened.
+	 The call blocks the calling lightweight process until a request is available, a new connection is made,
 or until the specified timeout period has elapsed.  The Filter parameter allows a great deal of flexibility in selecting
-precisely which calls are acceptable.  New connections result in a fake request with a body of type @RPC2(NewConnection). Do not try
-to do a @RPC2(SendResponse) to this call.  All other @RPC2(GetRequest) calls should be eventually matched with a corresponding
-@RPC2(SendResponse) call.
+precisely which calls are acceptable.  New connections result in a fake request with a body of type RPC2_NewConnection. Do not try
+to do a RPC2_SendResponse to this call.  All other RPC2_GetRequest calls should be eventually matched with a corresponding
+RPC2_SendResponse call.
 
-The fields of @RPC2(NewConnection) are self-explanatory.  Note that you must invoke @RPC2(Enable)() after you have
+The fields of RPC2_NewConnection are self-explanatory.  Note that you must invoke RPC2_Enable() after you have
 handled the new connection packet for further requests to be visible.  If you are using RP2Gen, this is done
 for you automatically by the generated code that deals with new connections. 
 
 The callback procedure for key lookup should be defined as follows
-@begin(Format, LeftMargin +2cm, Indent -1cm, break around, FaceCode i)
-long GetKeys (@w&lt;<bf>in</bf> @RPC2(CoundedBS) *ClientIdent&gt;,
-	@w&lt;<bf>out</bf> @RPC2(EncryptionKey) *IdentKey&gt;,
-	@w&lt;<bf>out</bf> @RPC2(EncryptionKey) *SessionKey&gt;)
-@end(Format)
+begin(Format, LeftMargin +2cm, Indent -1cm, break around, FaceCode i
+long GetKeys (<bf>in</bf> RPC2_CoundedBS *ClientIdent.
+	<bf>out</bf> RPC2_EncryptionKey *IdentKey.
+	<bf>out</bf> RPC2_EncryptionKey *SessionKey
+end(Format
 
-GetKeys () will be called at some point in the 
+GetKeys ( will be called at some point in the 
 authentication handshake.  It should return 0 if 
 ClientIdent is successfully looked up, and -1 if the
 handshake is to be terminated.  It should fill IdentKey
@@ -238,114 +258,114 @@ with an arbitrary key to be used for the duration of this
 connection.  You may, of course, make SessionKey the same as IdentKey.
 
 The callback procedure for noting authentication failure should be defined as follows:
-@begin(Format, LeftMargin +2cm, Indent -1cm, break around, Facecode i)
-long AuthFail (@w&lt;<bf>in</bf> @RPC2(CoundedBS) *ClientIdent&gt;,
-	@w&lt;<bf>in</bf> @RPC2(Integer) EncryType&gt;,
-	@w&lt;<bf>in</bf> @RPC2(HostIdent) *PeerHost&gt;,
-	@w&lt;<bf>in</bf> @RPC2(PortalIdent) *PeerPortal&gt;)
-@end(Format)
+begin(Format, LeftMargin +2cm, Indent -1cm, break around, Facecode i
+long AuthFail (<bf>in</bf> RPC2_CoundedBS *ClientIdent.
+	<bf>in</bf> RPC2_Integer EncryType.
+	<bf>in</bf> RPC2_HostIdent *PeerHost.
+	<bf>in</bf> RPC2_PortalIdent *PeerPortal
+end(Format
 
-AuthFail () will be called after an @RPC2(NOTAUTHENTICATED) packet 
+AuthFail ( will be called after an RPC2_NOTAUTHENTICATED packet 
 has been sent to the client. The parameters give information about
 the client who was trying to authenticate himself, the type of encryption
-requested, and the site from which the @RPC2(Bind)() was attempted.
+requested, and the site from which the RPC2_Bind( was attempted.
 The callback procedure will typically record this in a log file somewhere.
-	)
+	
 
 
-@PasCall(Tag=&lt;Enable&gt;,
-	CallName=`@RPC2(Enable), Abstract=`Allow servicing of requests on a new connection,
-	ParmList=`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;,
-	P1=`ConnHandle, PD1=`Which connection is to be enabled,
-	CC1=`@RPC2(SUCCESS), CCD1=`Enabled the connection.,
-	CC2=`@RPC2(NOCONNECTION), CCD2=`A bogus connection was specified.,
-	Text=`Typically invoked  by the user at the end of his NewConnection routine, after setting up his
+Enable.
+	RPC2_Enable./ Allow servicing of requests on a new connection,
+	<bf>in</bf> RPC2_Handle ConnHandle.
+	<tag/ConnHandle./ Which connection is to be enabled.
+	<em>RPC2_SUCCESS./ Enabled the connection.
+	<em>RPC2_NOCONNECTION./ A bogus connection was specified.
+	Typically invoked  by the user at the end of his NewConnection routine, after setting up his
 		higher-level data structures appropriately.  Until a connection is enabled, RPC2 guarantees
-		that no requests on that connection will be returned in a @RPC2(GetRequest) call.
-		Such a request from a client will, however, be held and responded to with @RPC2(BUSY) signals
+		that no requests on that connection will be returned in a RPC2_GetRequest call.
+		Such a request from a client will, however, be held and responded to with RPC2_BUSY signals
 		until the connection is enabled.  This call is present primarily to avoid race hazards in
 		higher-level connection establishment.  Note that RP2Gen automatically generates this call at 
 		after a NewConnection routine.
 
-	)
+	
 
 
-@PasCall(Tag=&lt;SendResponse&gt;,
-	CallName=`@RPC2(SendResponse), Abstract=`Respond to a request from my client,
-	ParmList=`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>in</bf>  @RPC2(PacketBuffer) *Reply&gt;,
-	P1=`ConnHandle, PD1=`Which connection the response is to be sent on.,
-	P2=`Reply, PD2=`A filled-in buffer containing the reply to be sent to the client.,
-	CC1=`@RPC2(SUCCESS), CCD1=`I sent your response.,
-	CC2=`@RPC2(NOTWORKER), CCD2=`You were not given a request to service.,
-	CC3=`@RPC2(SEFAIL1), CCD3=`The associated side effect routine indicated a minor failure.  Future calls on this connection will still work.,
-	CC4=`@RPC2(SEFAIL2), CCD4=`The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.,
-	CC5=`@RPC2(FAIL), CCD5=`Some irrecoverable failure happened.,
-	Text=`Sends the specified reply to the caller.  Any outstanding side effects are completed before Reply is sent.
+SendResponse.
+	RPC2_SendResponse./ Respond to a request from my client,
+	<bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf>  RPC2_PacketBuffer *Reply,
+	<tag/ConnHandle, Which connection the response is to be sent on.,
+	<tag/Reply./ A filled-in buffer containing the reply to be sent to the client.
+	<em>RPC2_SUCCESS./ I sent your response.
+	<em>RPC2_NOTWORKER./ You were not given a request to service.
+	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a minor failure.  Future calls on this connection will still work.
+	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
+	<em>RPC2_FAIL./ Some irrecoverable failure happened.
+	Sends the specified reply to the caller.  Any outstanding side effects are completed before Reply is sent.
 	Encryption, if any, is done in place and will clobber the Reply buffer.  Note that this call returns immediately after sending the reply; it does not wait for an acknowledgement from the client.
 
-	)
+	
 
 
-@PasCall(Tag=&lt;InitSideEffect&gt;,
-	CallName=`@RPC2(InitSideEffect), Abstract=`Initiate side effect,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>in</bf> @SE(Descriptor) *SDesc&gt;,
-	P1=`ConnHandle, PD1=`The connection on which the side effect is to be initiated.,
-	P2=`SDesc, PD2=`A filled-in side effect descriptor.,
-	CC1=`@RPC2(SUCCESS), CCD1=`The side effect has been initiated.,
-	CC2=`@RPC2(NOTSERVER), CCD2=`Only one side effect is allowed per RPC call. This has to be initiated between the GetRequest and SendResponse of that call.  You are violating one of these restrictions.,
-	CC3=`@RPC2(SEFAIL1), CCD3=`The associated side effect routine indicated a nonfatal failure.  Future calls on this connection will work.,
-	CC4=`@RPC2(SEFAIL2), CCD4=`The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.,
-	CC5=`@RPC2(FAIL), CCD5=`Other assorted calamities,
-	Text=`Initiates the side effect specified by SDesc on ConnHandle.  The call does not wait for the completion of the side effect.
-	    If you need to know what happened to the side effect, do a @RPC2(CheckSideEffect) call with appropriate flags.
-	)
+InitSideEffect.
+	RPC2_InitSideEffect./ Initiate side effect,
+	<bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf>  *SDesc,
+	<tag/ConnHandle./ The connection on which the side effect is to be initiated.,
+	<tag/SDesc./ A filled-in side effect descriptor.
+	<em>RPC2_SUCCESS./ The side effect has been initiated.
+	<em>RPC2_NOTSERVER./ Only one side effect is allowed per RPC call. This has to be initiated between the GetRequest and SendResponse of that call.  You are violating one of these restrictions.
+	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a nonfatal failure.  Future calls on this connection will work.
+	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
+	<em>RPC2_FAIL./ Other assorted calamities,
+	Initiates the side effect specified by SDesc on ConnHandle.  The call does not wait for the completion of the side effect.
+	    If you need to know what happened to the side effect, do a RPC2_CheckSideEffect call with appropriate flags.
+	
 
 
-@PasCall(Tag=&lt;CheckSideEffect&gt;,
-	CallName=`@RPC2(CheckSideEffect), Abstract=`Check progress of side effect,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>inout</bf> @SE(Descriptor) *SDesc&gt;, @w&lt;<bf>in</bf> long Flags&gt;,
-	P1=`ConnHandle, PD1=`The connection on which the side effect has been initiated.,
-	P2=`SDesc, PD2=`The side effect descriptor as it was returned by the previous @RPC2(InitSideEffect)
-		or @RPC2(CheckSideEffect) call on ConnHandle.  On output, the status fields are filled in.,
-	P3=`Flags, PD3=`Specifies what status is desired.  This call will block until the requested status is available.
-		This is a bit mask, with @RPC2(GETLOCALSTATUS) and @RPC2(GETREMOTESTATUS) bits indicating local and remote status.
+CheckSideEffect.
+	RPC2_CheckSideEffect./ Check progress of side effect,
+	<bf>in</bf> RPC2_Handle ConnHandle, <bf>inout</bf>  *SDesc, <bf>in</bf> long Flags.
+	<tag/ConnHandle, The connection on which the side effect has been initiated.
+	<tag/SDesc./ The side effect descriptor as it was returned by the previous RPC2_InitSideEffect
+		or RPC2_CheckSideEffect call on ConnHandle.  On output, the status fields are filled in.
+	<tag/Flags./ Specifies what status is desired.  This call will block until the requested status is available.
+		This is a bit mask, with RPC2_GETLOCALSTATUS and RPC2_GETREMOTESTATUS bits indicating local and remote status.
 		A Flags value of 0 specifies a polling status check: no blocking will occur and the currently known local
-		and remote status will be returned.,
-	CC1=`@RPC2(SUCCESS), CCD1=`The requested status fields have been made available.,
-	CC2=`@RPC2(NOTSERVER), CCD2=`No side effect is ongoing on ConnHandle.,
-	CC3=`@RPC2(SEFAIL1), CCD3=`The associated side effect routine indicated a nonfatal failure.  Future calls on this connection will work.,
-	CC4=`@RPC2(SEFAIL2), CCD4=`The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.,
-	CC5=`@RPC2(FAIL), CCD5=`Other assorted calamities,
-	Text=`Checks the status of a previously initiated side effect.
+		and remote status will be returned.
+	<em>RPC2_SUCCESS./ The requested status fields have been made available.
+	<em>RPC2_NOTSERVER./ No side effect is ongoing on ConnHandle.
+	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a nonfatal failure.  Future calls on this connection will work.
+	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
+	<em>RPC2_FAIL./ Other assorted calamities.
+	Checks the status of a previously initiated side effect.
 			This is a (potentially) blocking call, depending on the specified flags.
-	)
+	
 
 
 
 <sect>Miscellaneous Calls<p>
-@PasCall(Tag=&lt;Init&gt;,
-	CallName=`@RPC2&lt;Init&gt;, Abstract=`Perform runtime system initialization,
-	ParmList = `@w&lt;<bf>in</bf> char *VersionId&gt;, @w&lt;<bf>in</bf> long Options&gt;, @w&lt;<bf>in</bf> @RPC2(PortalIdent) *PortalList&lsqb;&rsqb;&gt;, @w&lt;<bf>in</bf> long HowManyPortals&gt;,  @w&lt;<bf>in</bf> long RetryCount&gt;, @w&lt;<bf>in</bf> struct timeval *KeepAliveInterval&gt;,
-	P1=`VersionId, PD1=`Set this to the constant @RPC2(VERSION).  The current value of this string  constant must be identical to the value at the time the client runtime system was compiled.,
-	P2=`Options, PD2=`Right now there are no options.,
-	P3=`PortalList, PD3=`An array of unique network addresses within this machine, on which requests can be listened for, and to which responses to
+Init.
+	RPC2&lt;Init./ Perform runtime system initialization,
+	 <bf>in</bf> char *VersionId, <bf>in</bf> long Options, <bf>in</bf> RPC2_PortalIdent *PortalList&lsqb;&rsqb;, <bf>in</bf> long HowManyPortals,  <bf>in</bf> long RetryCount, <bf>in</bf> struct timeval *KeepAliveInterval.
+	<tag/VersionId./ Set this to the constant RPC2_VERSION.  The current value of this string  constant must be identical to the value at the time the client runtime system was compiled.
+	<tag/Options./ Right now there are no options.
+	<tag/PortalList./ An array of unique network addresses within this machine, on which requests can be listened for, and to which responses to
 	outgoing calls can be made.  In the Internet domain this translates into a port number or a symbolic name
 	that can be mapped to a port number.   You need to specify this parameter even if you are only going to be a
-	client and not export any subsystems.  A value of NULL will cause RPC2 to select an arbitrary, nonassigned portal.,
-	P4=`HowManyPortals, PD4=`Specifies the number of elements in the array PortalList.,
-	P5=`RetryCount, PD5=`How many times to retransmit a packet before giving up all hope of receiving acknowledgement of its receipt.  Should be in the range 1 to 30. Use a value of -1 to obtain the  default.,
-	P6=`KeepAliveInterval, PD6=`How often to probe a peer during a long RPC call.  This value is also used to calculate the retransmission intervals when packet loss is suspected by the RPC runtime system.  Use NULL to obtain the default.,
-	CC1=`@RPC2(SUCCESS), CCD1=`All went well, 
-	CC2=`@RPC2(FAIL), CCD2=`Unable to initialize client. Check for bogus parameter values.,
-	CC3=`@RPC2(WRONGVERSION), CCD3=`The header file and the library have different versions.  This should never happen in a properly administered system.,
-	CC4=`@RPC2(LWPNOTINIT), CCD4=`The LWP package has not been properly initialized.  Be sure to call @LWP(Init)() before calling @RPC2(Init)().,
-	CC5=`@RPC2(BADSERVER), CCD5=`The PortalList field specifies an invalid address.,
-	CC6=`@RPC2(DUPLICATESERVER), CCD6=`An entry in PortalList specifies an address which is already in use on this machine,
-	CC7=`@RPC2(SEFAIL1), CCD7=`The associated side effect routine indicated a minor failure.,
-	CC8=`@RPC2(SEFAIL2), CCD8=`The associated side effect routine indicated a serious failure.,
-	Text=`Initializes the RPC runtime system in this process.  This call should be made before any other call in this 
+	client and not export any subsystems.  A value of NULL will cause RPC2 to select an arbitrary, nonassigned portal.
+	<tag/HowManyPortals./ Specifies the number of elements in the array PortalList.
+	<tag/RetryCount./ How many times to retransmit a packet before giving up all hope of receiving acknowledgement of its receipt.  Should be in the range 1 to 30. Use a value of -1 to obtain the  default.
+	<tag/KeepAliveInterval./ How often to probe a peer during a long RPC call.  This value is also used to calculate the retransmission intervals when packet loss is suspected by the RPC runtime system.  Use NULL to obtain the default.
+	<em>RPC2_SUCCESS./ All went well, 
+	<em>RPC2_FAIL./ Unable to initialize client. Check for bogus parameter values.
+	<em>RPC2_WRONGVERSION./ The header file and the library have different versions.  This should never happen in a properly administered system.
+	<em>RPC2_LWPNOTINIT./ The LWP package has not been properly initialized.  Be sure to call LWP(Init( before calling RPC2_Init(.
+	<em>RPC2_BADSERVER./ The PortalList field specifies an invalid address.
+	<em>RPC2_DUPLICATESERVER./ An entry in PortalList specifies an address which is already in use on this machine.
+	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a minor failure.
+	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.
+	Initializes the RPC runtime system in this process.  This call should be made before any other call in this 
 		package is made.  It should be preceded by an initialization call to the LWP package and a call to 
-		@SE(SetDefaults) with InitialValues as argument.
+		SE(SetDefaults) with InitialValues as argument.
 		If you get a wrong version indication, obtain a consistent version of the header files and the RPC 
 		runtime library and recompile your code. Note that this call incorporates a call to initialize IOMGR.
 
@@ -358,213 +378,213 @@ The callback procedure will typically record this in a log file somewhere.
 		period in the range  KeepAliveInterval to twice KeepAliveInterval.  See Chapter <ref id="RetryChapter" name="XXX"> for further information on the retry algorithm.
 
 		Remember to activate each side effect, XXX, that you are interested in by invoking the
-		corresponding @XXX()Activate () call, prior to calling @RPC2(Init).
+		corresponding XXX()Activate () call, prior to calling RPC2_Init.
 
-		You may get a warning about SO@ux&lsqb; &rsqb;GREEDY being undefined, if your kernel does not have an ITC bug fix.  RPC2 will still work but may be slower and more likely to drop connections during bulk transfer.  This is because of insufficient default packet buffer space  within the Unix kernel.
-	)
+		You may get a warning about SOux&lsqb; &rsqb;GREEDY being undefined, if your kernel does not have an ITC bug fix.  RPC2 will still work but may be slower and more likely to drop connections during bulk transfer.  This is because of insufficient default packet buffer space  within the Unix kernel.
+	
 
 
-@PasCall(Tag=&lt;Unbind&gt;,
-	CallName=`@RPC2(Unbind), Abstract=`Terminate a connection by client or server,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;,
-	P1=`ConnHandle, PD1=`identifies the connection to be terminated,
-	CC1=`@RPC2(SUCCESS), CCD1=`All went well,
-	CC2=`@RPC2(NOCONNECTION), CCD2=`ConnHandle is bogus,
-	CC3=`@RPC2(SEFAIL1), CCD3=`The associated side effect routine indicated a minor failure.,
-	CC4=`@RPC2(SEFAIL2), CCD4=`The associated side effect routine indicated a serious failure.,
-	CC5=`@RPC2(FAIL), CCD5=`Other assorted calamities,
-	Text=`Removes the binding associated with the specified connection.  Normally
+Unbind.
+	RPC2_Unbind, Terminate a connection by client or server,
+	<bf>in</bf> RPC2_Handle ConnHandle.
+	<tag/ConnHandle./ identifies the connection to be terminated,
+	<em>RPC2_SUCCESS./ All went well.
+	<em>RPC2_NOCONNECTION./ ConnHandle is bogus.
+	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a minor failure.
+	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.
+	<em>RPC2_FAIL./ Other assorted calamities,
+	Removes the binding associated with the specified connection.  Normally
 		a higher-level  disconnection should be done by an RPC just prior to
 		this call.  Note that this call may be used both by a server and a client, and that
 		no client/server communication occurs: the unbinding is unilateral.
-	)
+	
 
-@PasCall(Tag=&lt;AllocBuffer&gt;,
-	CallName=`@RPC2(AllocBuffer), Abstract=`Allocate a packet buffer,
-	ParmList =`@w&lt;<bf>in</bf> long MinBodySize&gt;, @w&lt;<bf>out</bf> @RPC2(PacketBuffer) **Buff&gt;,
-	P1=`MinBodySize, PD1=`Minimum acceptable body size for the packet buffer.,
-	P2=`Buff, PD2=`Pointer to the allocated buffer.,
-	CC1=`@RPC2(SUCCESS), CCD1=`Buffer has been allocated and *Buff points to it.,
-	CC2=`@RPC2(FAIL), CCD2=`Could not allocate a buffer of requested size.,
-	Text=`Allocates a packet buffer of at least the requested size.  The BodyLength field in the header of the
+AllocBuffer.
+	RPC2_AllocBuffer./ Allocate a packet buffer,
+	<bf>in</bf> long MinBodySize, <bf>out</bf> RPC2_PacketBuffer **Buff,
+	<tag/MinBodySize./ Minimum acceptable body size for the packet buffer.
+	<tag/Buff./ Pointer to the allocated buffer.
+	<em>RPC2_SUCCESS./ Buffer has been allocated and *Buff points to it.
+	<em>RPC2_FAIL./ Could not allocate a buffer of requested size.
+	Allocates a packet buffer of at least the requested size.  The BodyLength field in the header of the
 		 allocated packet is set to MinBodySize.  The RPC runtime system maintains its own free list of buffers.
 		 Use this call in preference to malloc ().
-	)
+	
 
-@PasCall(Tag=&lt;FreeBuffer&gt;,
-	CallName=`@RPC2(FreeBuffer), Abstract=`Free a packet buffer,
-	ParmList =`@w&lt;<bf>inout</bf> @RPC2(PacketBuffer) **Buff&gt;,
-	P1=`Buff, PD1=`Pointer to the buffer to be freed. Set to NULL by the call.,
-	CC1=`@RPC2(SUCCESS), CCD1=`Buffer has been freed. *Buff has been set to NULL.,
-	CC2=`@RPC2(FAIL), CCD2=`Could not free buffer.,
-	Text=`Returns a packet buffer to the internal free list.  Buff is set to NULL specifically
+FreeBuffer,
+	RPC2_FreeBuffer, Free a packet buffer,
+	<bf>inout</bf> RPC2_PacketBuffer **Buff.
+	<tag/Buff. Pointer to the buffer to be freed. Set to NULL by the call.
+	<em>RPC2_SUCCESS./ Buffer has been freed. *Buff has been set to NULL.
+	<em>RPC2_FAIL./ Could not free buffer.
+	Returns a packet buffer to the internal free list.  Buff is set to NULL specifically
 		to simplify locating bugs in buffer usage.
-	)
+	
 
 
-@PasCall(Tag=&lt;GetPrivate&gt;,
-	CallName=`@RPC2(GetPrivatePointer), Abstract=`Obtain private data mapping for a connection.,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) WhichConn&gt;, @w&lt;<bf>out</bf> char **PrivatePtr&gt;,
-	P1=`WhichConn, PD1=`Connection whose private data pointer is desired.,
-	P2=`PrivatePtr, PD2=`Set to point to private data.,
-	CC1=`@RPC2(SUCCESS), CCD1=`*PrivatePtr now points to the private data associated with this connection.,
-	CC2=`@RPC2(FAIL), CCD2=`Bogus connection specified.,
-	Text=`Returns a pointer to the private data associated with a connection.  No attempt is made to validate
+GetPrivate.
+	RPC2_GetPrivatePointer, Obtain private data mapping for a connection.
+	<bf>in</bf> RPC2_Handle WhichConn, <bf>out</bf> char **PrivatePtr.
+	<tag/WhichConn./ Connection whose private data pointer is desired.
+	<tag/PrivatePtr./ Set to point to private data.
+	<em>RPC2_SUCCESS./ *PrivatePtr now points to the private data associated with this connection.
+	<em>RPC2_FAIL./ Bogus connection specified.
+	Returns a pointer to the private data associated with a connection.  No attempt is made to validate
 		this pointer.
-	)
+	
 
-@PasCall(Tag=&lt;SetPrivate&gt;,
-	CallName=`@RPC2(SetPrivatePointer), Abstract=`Set private data mapping for a connection.,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) WhichConn&gt;, @w&lt;<bf>in</bf> char *PrivatePtr&gt;,
-	P1=`WhichConn, PD1=`Connection whose private data pointer is to be set.,
-	P2=`PrivatePtr, PD2=`Pointer to private data.,
-	CC1=`@RPC2(SUCCESS), CCD1=`Private pointer set for this connection.,
-	CC2=`@RPC2(FAIL), CCD2=`Bogus connection specified.,
-	Text=`Sets the private data pointer associated with a connection.  No attempt is made to validate
+SetPrivate.
+	RPC2_SetPrivatePointer, Set private data mapping for a connection.
+	<bf>in</bf> RPC2_Handle WhichConn, <bf>in</bf> char *PrivatePtr.
+	<tag/WhichConn./ Connection whose private data pointer is to be set.
+	<tag/PrivatePtr./ Pointer to private data.
+	<em>RPC2_SUCCESS./ Private pointer set for this connection.
+	<em>RPC2_FAIL, Bogus connection specified.
+	Sets the private data pointer associated with a connection.  No attempt is made to validate
 		this pointer.
-	)
+	
 
-@PasCall(Tag=&lt;GetSideEffect&gt;,
-	CallName=`@RPC2(GetSEPointer), Abstract=`Obtain per-connection side-effect information..,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) WhichConn&gt;, @w&lt;<bf>out</bf> char **SEPtr&gt;,
-	P1=`WhichConn, PD1=`Connection whose side-effect data pointer is desired.,
-	P2=`SEPtr, PD2=`Set to point to side-effect data.,
-	CC1=`@RPC2(SUCCESS), CCD1=`*SEPtr now points to the side effect data associated with this connection.,
-	CC2=`@RPC2(FAIL), CCD2=`Bogus connection specified.,
-	Text=`Returns a pointer to the side effect data associated with a connection.  No attempt is made to validate
+GetSideEffect.
+	RPC2_GetSEPointer, Obtain per-connection side-effect information..
+	<bf>in</bf> RPC2_Handle WhichConn, <bf>out</bf> char **SEPtr.
+	<tag/WhichConn./ Connection whose side-effect data pointer is desired.
+	<tag/SEPtr./ Set to point to side-effect data.
+	<em>RPC2_SUCCESS./ *SEPtr now points to the side effect data associated with this connection.
+	<em>RPC2_FAIL./ Bogus connection specified.
+	Returns a pointer to the side effect data associated with a connection.  No attempt is made to validate
 		this pointer.  This call is should only by the side effect routines, not by clients.
-	)
+	
 
-@PasCall(Tag=&lt;SetSideEffect&gt;,
-	CallName=`@RPC2(SetSEPointer), Abstract=`Set per-connection side-effect connection.,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) WhichConn&gt;, @w&lt;<bf>in</bf> char *SEPtr&gt;,
-	P1=`WhichConn, PD1=`Connection whose side effect pointer is to be set.,
-	P2=`SEPtr, PD2=`Pointer to side effect data.,
-	CC1=`@RPC2(SUCCESS), CCD1=`Side effect pointer set for this connection.,
-	CC2=`@RPC2(FAIL), CCD2=`Bogus connection specified.,
-	Text=`Sets the side effect data pointer associated with a connection.  No attempt is made to validate
+SetSideEffect.
+	RPC2_SetSEPointer, Set per-connection side-effect connection.
+	<bf>in</bf> RPC2_Handle WhichConn, <bf>in</bf> char *SEPtr.
+	<tag/WhichConn./ Connection whose side effect pointer is to be set.
+	<tag/SEPtr./ Pointer to side effect data.
+	<em>RPC2_SUCCESS./ Side effect pointer set for this connection.
+	<em>RPC2_FAIL./ Bogus connection specified.
+	Sets the side effect data pointer associated with a connection.  No attempt is made to validate
 		this pointer.  This call should only be used by the side effect routines, not by clients.
-	)
+	
 
-@PasCall(Tag=&lt;GetPeerInfo&gt;,
-	CallName=`@RPC2(GetPeerInfo), Abstract=`Obtain miscellaneous connection information.,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) WhichConn&gt;, @w&lt;<bf>out</bf> @RPC2(PeerInfo) *PeerInfo&gt;,
-	P1=`WhichConn, PD1=`Connection whose peer you wish to know about,
-	P2=`PeerInfo, PD2=`Data structure to be filled.,
-	CC1=`@RPC2(SUCCESS), CCD1=`Peer information has been obtained for this connection.,
-	CC2=`@RPC2(FAIL), CCD2=`Bogus connection specified.,
-	Text=`Returns the peer information for a connection.  Also returns other miscellaneous
+GetPeerInfo.
+	RPC2_GetPeerInfo, Obtain miscellaneous connection information.
+	<bf>in</bf> RPC2_Handle WhichConn, <bf>out</bf> RPC2_PeerInfo *PeerInfo.
+	<tag/WhichConn./ Connection whose peer you wish to know about.
+	<tag/PeerInfo./ Data structure to be filled.
+	<em>RPC2_SUCCESS./ Peer information has been obtained for this connection.
+	<em>RPC2_FAIL./ Bogus connection specified.
+	Returns the peer information for a connection.  Also returns other miscellaneous
 	    connection-related information, such as the securrity level in use.
 	    This information may be used by side-effect routines or high-level
 	    server code to perform RPC bindings in the opposite direction.
 	    The RemoteHandle and Uniquefier  information are  useful
 	    as end-to-end identification between client code and server code.
-	)
+	
 
-@PasCall(Tag=&lt;LamportTime&gt;,
-	CallName=`@RPC2(LamportTime), Abstract=`Get Lamport time,
-	ParmList =`,
-	Text=`Returns the current Lamport time.  Bears no resemblance to the actual time of day. Each call
+LamportTime.
+	RPC2_LamportTime, Get Lamport time.
+	,
+	Returns the current Lamport time.  Bears no resemblance to the actual time of day. Each call
 	is guaranteed to return a value at least one larger than the preceding call.  Every RPC packet sent
 	and received by this Unix process has a Lamport time field in its header.  The value returned by this
 	call is guaranteed to be  greater than any  Lamport time field received or sent before now.  Useful
 	for generating unique timestamps in a distributed system.
-	)
+	
 
-@PasCall(Tag=&lt;DumpState&gt;,
-	CallName=`@RPC2(DumpState), Abstract=`Dump internal RPC state.,
-	ParmList =`@w&lt;<bf>in</bf> FILE *OutFile&gt;, @w&lt;<bf>in</bf> long Verbosity&gt;,
-	P1=`OutFile, PD1=`File on which the trace is to be produced.  A value of NULL implies stdout.,
-	P2=`Verbosity, PD2=`Controls the amount of information dumped.  Right now two values 0 and 1 are meaningfull.,
-	CC1=`@RPC2(SUCCESS), CCD1=`The dump has been produced.,
-	Text=`You should typically call this routine after calling @RPC(DumpTrace).
-	)
+DumpState.
+	RPC2_DumpState, Dump internal RPC state.
+	<bf>in</bf> FILE *OutFile, <bf>in</bf> long Verbosity.
+	<tag/OutFile./ File on which the trace is to be produced.  A value of NULL implies stdout.
+	<tag/Verbosity./ Controls the amount of information dumped.  Right now two values 0 and 1 are meaningfull.
+	<em>RPC2_SUCCESS./ The dump has been produced.
+	You should typically call this routine after calling RPC(DumpTrace).
+	
 
-@PasCall(Tag=&lt;InitTraceBuffer&gt;,
-	CallName=`@RPC2(InitTraceBuffer), Abstract=`Set trace buffer size.,
-	ParmList =`@w&lt;<bf>in</bf> long HowMany&gt;,
-	P1=`HowMany, PD1=`How many entries the trace buffer should have.  Set it to zero to delete trace buffer.,
-	CC1=`@RPC2(SUCCESS), CCD1=`The trace buffer has been adjusted appropriately.,
-	Text=`Allows you to create and change the trace buffer at runtime.  All existing trace entries are lost.
-	)
+InitTraceBuffer.
+	RPC2_InitTraceBuffer, Set trace buffer size.
+	<bf>in</bf> long HowMany.
+	<tag/HowMany./ How many entries the trace buffer should have.  Set it to zero to delete trace buffer.
+	<em>RPC2_SUCCESS./ The trace buffer has been adjusted appropriately.
+	Allows you to create and change the trace buffer at runtime.  All existing trace entries are lost.
+	
 
-@PasCall(Tag=&lt;DumpTrace&gt;,
-	CallName=`@RPC2(DumpTrace), Abstract=`Print a trace of recent RPC calls and packets received.,
-	ParmList =`@w&lt;<bf>in</bf> FILE *OutFile&gt;, @w&lt;<bf>in</bf> long HowMany&gt;,
-	P1=`OutFile, PD1=`File on which the trace is to be produced.  A value of NULL implies stdout.,
-	P2=`HowMany, PD2=`The HowMany most recent trace entries are printed.  A value of NULL implies as many trace entries
-			as possible.  Values larger than TraceBufferLength specifed in @RPC2(Init) are meaningless.,
-	CC1=`@RPC2(SUCCESS), CCD1=`The requested trace has been produced.,
-	CC2=`@RPC2(FAIL), CCD2=`The trace buffer had no entries.,
-	Text=`Note that it is not necessary for @RPC2(Trace) to be currently set.  You can collect a trace and defer calling
-		@RPC2(DumpTrace) until a convenient time.  This call does not alter the current value of @RPC2(Trace).
-	)
+DumpTrace.
+	RPC2_DumpTrace, Print a trace of recent RPC calls and packets received.
+	<bf>in</bf> FILE *OutFile, <bf>in</bf> long HowMany.
+	<tag/OutFile./ File on which the trace is to be produced.  A value of NULL implies stdout.
+	<tag/HowMany./ The HowMany most recent trace entries are printed.  A value of NULL implies as many trace entries
+			as possible.  Values larger than TraceBufferLength specifed in RPC2_Init are meaningless.
+	<em>RPC2_SUCCESS./ The requested trace has been produced.
+	<em>RPC2_FAIL./ The trace buffer had no entries.
+	Note that it is not necessary for RPC2_Trace to be currently set.  You can collect a trace and defer calling
+		RPC2_DumpTrace until a convenient time.  This call does not alter the current value of RPC2_Trace.
+	
 
 
-@PasCall(Tag=&lt;SetDefaults&gt;,
-	CallName=`@XXX()SetDefaults, Abstract=`Set an SE initializer to its default values,
-	ParmList =`@w&lt;<bf>out</bf> @XXX()Initializer *Initializer&gt;,
-	P1=`Initializer, PD1=`Initializer for side effect XXX which you wish to set to default values.,
-	CC1=`@RPC2(SUCCESS), CCD1=`,	
-	Text=`  Each side effect type, XXX,  defines an initialization structure type, @XXX()Initializer,
-		and an initialization routine, @XXX()SetDefaults ().
+SetDefaults.
+	XXX()SetDefaults. Set an SE initializer to its default values.
+	<bf>out</bf> XXX()Initializer *Initializer.
+	<tag/Initializer, Initializer for side effect XXX which you wish to set to default values.
+	<em>RPC2_SUCCESS./ .	
+	  Each side effect type, XXX,  defines an initialization structure type, XXX()Initializer,
+		and an initialization routine, XXX()SetDefaults ().
 
 		A typical initialization sequence consists of the following: for each side effect, XXX, that you
 		care about,
-		@begin(format)
-	 (1) declare a local variable of type @XXX()Initializer,
-	 (2) call @XXX()SetDefaults () with this local variable as argument,
+		begin(format
+	 (1) declare a local variable of type XXX()Initializer.
+	 (2) call XXX()SetDefaults () with this local variable as argument.
 	 (3) selectively modify those initial values you care about in the local variable, and
-	 (4) call @XXX()Activate () with this local variable as argument.
-		@end(format)
+	 (4) call XXX()Activate () with this local variable as argument.
+		end(format
 		
-		Finally call @RPC2(Init).
+		Finally call RPC2_Init.
 
 		This allows you to selectively set parameters of XXX without having to know the  proper values
 		for all of the possible parameters.  
 		Alas, if only C allowed initialization in type declarations  this routine would be unnecessary.
-	)
+	
 
 
-@PasCall(Tag=&lt;Activate&gt;,
-	CallName=`@XXX()Activate, Abstract=`Activates a side effect type and initializes it,
-	ParmList =`@w&lt;<bf>in</bf> @XXX()Initializer *Initializer&gt;,
-	P1=`Initializer, PD1=`Initializer for side effect XXX.,
-	CC1=`@RPC2(SUCCESS), CCD1=`,	
-	Text=`Activates side effect XXX.  Code corresponding to this side effect will not be linked in
-	    otherwise. See comment for @XXX()SetDefaults () for further details.
-	)
+Activate.
+	XXX()Activate, Activates a side effect type and initializes it.
+	<bf>in</bf> XXX()Initializer *Initializer.
+	<tag/Initializer./ Initializer for side effect XXX.
+	<em>RPC2_SUCCESS./ .	
+	Activates side effect XXX.  Code corresponding to this side effect will not be linked in
+	    otherwise. See comment for XXX()SetDefaults () for further details.
+	
 
-@PasCall(Tag=&lt;ErrorMsg&gt;,
-        Type = `char *,
-	CallName=`@RPC2()ErrorMsg, Abstract=`Describe RPC2 error code,
-	ParmList =`@w&lt;<bf>in</bf> long ReturnCode&gt;,
-	P1=`ReturnCode, PD1=`Error code returned by any RPC2 call.,
-	CC1=`, CCD1=`,	
-	Text=`Converts ReturnCode into a string that can be used for printing error messages.  Note that this is the only RPC2 call that returns a non-integer value.
-	)
-
-
-@PasCall(Tag=&lt;SetColor&gt;,
-	CallName=`@RPC2(SetColor), Abstract=`Set the color of a connection,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) *Conn, <bf>in</bf> @RPC2(Integer) NewColor&gt;,
-	P1=`Conn, PD1=`Connection whose color is to be changed,
-	P2=`NewColor, PD2=`The lowest-order byte of this value is used as the new color for this connection.,
-	CC1=`@RPC2(SUCCESS), CCD1=`The connection has been colored as requested.,
-	CC2=`@RPC2(NOCONNECTION), CCD2=`Connection specified is bogus.,
-	Text=`A color is an integer between 0 and 255 that is associated with a connection.  When a packet is sent out on a connection, it acquires this color.  Colors have no implicit significance to RPC2.  But they can be used by other packages such as the Coda failure emulator package@cite&lsqb;CodaManual&rsqb; to selectively induce failures.  For example, in debugging an implementation of a two-phase commit protocol, one needs to test the situation where a failure occurs between the two phases. This situation can be detected by the failure emulator by using packets of different colors for the different phases.  A change in color of a connection takes effect with the next packet that is sent out.
-	)
+ErrorMsg,
+        Type = char *,
+	RPC2_ErrorMsg, Describe RPC2 error code,
+	<bf>in</bf> long ReturnCode,
+	<tag/ReturnCode./ Error code returned by any RPC2 call.,
+	<em>. .	
+	Converts ReturnCode into a string that can be used for printing error messages.  Note that this is the only RPC2 call that returns a non-integer value.
+	
 
 
-@PasCall(Tag=&lt;GetColor&gt;,
-	CallName=`@RPC2(GetColor), Abstract=`Obtain current color of a connection,
-	ParmList =`@w&lt;<bf>in</bf> @RPC2(Handle) *Conn, <bf>out</bf> @RPC2(Integer) *Color&gt;,
-	P1=`Conn, PD1=`Connection whose color is to be obtained,
-	P2=`Color, PD2=`Current color of connection.,
-	CC1=`@RPC2(SUCCESS), CCD1=`Color obtained.,
-	CC2=`@RPC2(NOCONNECTION), CCD2=`Conn is bogus.,
-	Text=`Useful if a package using RPC2 wants to save current color, set new color, then restore original color.
-	)
+SetColor.
+	RPC2_SetColor, Set the color of a connection,
+	<bf>in</bf> RPC2_Handle *Conn, <bf>in</bf> RPC2_Integer NewColor,
+	<tag/Conn./ Connection whose color is to be changed.
+	<tag/NewColor./ The lowest-order byte of this value is used as the new color for this connection.
+	<em>RPC2_SUCCESS./ The connection has been colored as requested.
+	<em>RPC2_NOCONNECTION./ Connection specified is bogus.
+	A color is an integer between 0 and 255 that is associated with a connection.  When a packet is sent out on a connection, it acquires this color.  Colors have no implicit significance to RPC2.  But they can be used by other packages such as the Coda failure emulator package cite&lsqb;CodaManual&rsqb; to selectively induce failures.  For example, in debugging an implementation of a two-phase commit protocol, one needs to test the situation where a failure occurs between the two phases. This situation can be detected by the failure emulator by using packets of different colors for the different phases.  A change in color of a connection takes effect with the next packet that is sent out.
+	
+
+
+GetColor.
+	RPC2_GetColor, Obtain current color of a connection,
+	<bf>in</bf> RPC2_Handle *Conn, <bf>out</bf> RPC2_Integer *Color.
+	<tag/Conn./ Connection whose color is to be obtained.
+	<tag/Color,/ Current color of connection./
+	<em>RPC2_SUCCESS./ Color obtained.
+	<em>RPC2_NOCONNECTION./ Conn is bogus.
+	Useful if a package using RPC2 wants to save current color, set new color, then restore original color.
+	
 
 
 

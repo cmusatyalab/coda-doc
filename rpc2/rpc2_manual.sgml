@@ -80,19 +80,20 @@
 <book>
 &cover;
 
+
 <toc>
 
 &preface;
 
 <!-- PART I:  RPC2User Reference  done by lesa -->
 <bf>RPC2 User Reference</bf><P>
-
+&rpc2examples;
 
 
 <!-- CHAPTER 1 OVERVIEW & EXAMPLES  done by lesa -->
 
        
- &rpc2examples;
+
       
 
 <!-- CHAPTER 2 RP2GEN STUB GEN  done by lesa -->

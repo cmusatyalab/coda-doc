@@ -93,15 +93,15 @@ The basic RPC code itself knows nothing about these side-effect routines.
 <sect>Security<p>
 A <em>Security Level</em> is associated with each connection between a client and
 a server.  Currently four levels of security are supported:
-@begin(itemize)
-neither authenticated nor secure
+<itemize>
+neither authenticated, nor secure
 
-authenticated but not secure
+authenticated, but not secure
 
-authenticated and headers secure
+authenticated, and headers secure
 
-authenticated and fully secure
-@end(itemize)
+authenticated, and fully secure
+</itemize>
 
 <em>Authenticated</em> in this context means that 
 the client and server start out as mutually suspicious parties and
@@ -165,20 +165,20 @@ and used in awaiting an RPC request by calling @RPC2(GetRequest).
 On receiving a request,  the server decodes and executes it
 by calling <tt>rtime&lowbar;ExecuteRequest.</tt>
 <tt>rtime&lowbar;ExecuteRequest,</tt>
-which is actually defined in the server stub file
+rpcwhich is actually defined in the server stub file
 calls the server code for <tt>GetRTime</tt> routine
 and sends the response to the client.
 The server then goes back to waiting for more requests.
 
 
 
-<sect2>Interface Specification (<em>in file rtime_rpc.sgml</em>)<P>
+<sect2>Interface Specification (<em>in file: rtime_rpc.sgml</em>)<P>
 &rtimerpc;
 
-<sect2>Client Code (<em>in file rtime_clnt.c.sgml</em>)<P>
+<sect2>Client Code (<em>in file: rtime_clnt.c.sgml</em>)<P>
 &rtimeclntc;
 
-<sect2>Server Code (<em>in file rtime_srv.c.sgml</em>)<P>
+<sect2>Server Code (<em>in file: rtime_srv.c.sgml</em>)<P>
 &rtimesrvc;
 
 
@@ -197,20 +197,20 @@ for any subsystems.
 
 
 
-<sect2>Interface Specifications for Auth Subsystem<P>
+<sect2>Interface Specifications for Auth Subsystem (<em>in file: auth_rpc.c.sgml)</em><P>
 &authrpc;
 
-<sect2>Interface Specifications for Comp Subsystem<P>
+<sect2>Interface Specifications for Comp Subsystem(<em>in file: comp_rpc.c.sgml)</em><P>
 &comprpc;
 
-<sect2>Client Code<P>
+<sect2>Client Code(<em>in file: authcomp_clnt.c.sgml</em><P>
 &authcompclntc;
 
-<sect2>Server Code<P>
+<sect2>Server Code(<em>in file: authcomp_srv.c.sgml)</em><P>
 &authcompsrvc;
 
-<sect1>Makefile for All Examples<P>
+<sect2>Makefile for All Examples(<em>in file: Makefile_exam.sgml)</em><P>
 &Makefileexample;
 
 
-In the next chapter we will see how the stub generator can create such files.
+In chapter 2, "The RP2Gen Stub Generator," we will see how the stub generator can create such files.
