@@ -1,0 +1,117 @@
+
+<manpage TITLE="vice-setup" SECTNUM=1>
+<mansect>NAME 
+ <P> <bf>vice-setup</bf> setup a Coda server
+
+<mansect>SYNOPSIS<P>
+<bf>vice-setup</bf><P>
+
+<mansect>DESCRIPTION<P>
+<bf>vice-setup</bf> is actually a family of scripts designed to setup
+a Coda server based on question-answer responses.  The most critical
+question asked needed for the vice-setup family of scripts to work 
+properly is:
+<p>
+<tscreen><verb>
+Is this the master server, aka the SCM machine? (y/n) 
+</verb></tscreen>
+<p>
+Answering ``yes'' to this question causes the following 
+sequence of scripts to be called:
+
+<itemize>
+<item><bf>vice-setup-scm</bf>
+<item><bf>vice-setup-user</bf>
+<item><bf>vice-setup-rvm</bf>
+<item><bf>vice-setup-srvdir</bf>
+</itemize>
+<p>
+where as answering ``no'' causes only
+
+<itemize>
+<item><bf>vice-setup-rvm</bf>
+<item><bf>vice-setup-srvdir</bf>
+</itemize>
+<p>
+to be run.
+<p>
+
+<mansect>OVERVIEW<p>
+<descrip>
+
+<tag><bf>vice-setup</bf></tag> is designed to be called first. It performs the
+following tasks common to both SCM and non-SCM servers:
+<itemize>
+<item>Creates the directories <em>/vice,/vice/{backup,db,srv,vol}</em>
+and <em>/vice/vol/remote</em> if they do not already exist.
+<item>Sets up the authentication files needed by Coda for an SCM.
+<item>Sets up <em>/vice/db/files</em> to be distributed by
+<bf>updateclnt</bf> and <bf>updatesrv</bf> from the SCM.
+<item>Creates initial locking files under <em>/vice/vol</em>
+<item>Adds Coda port numbers to <em>/etc/services</em>.
+<item>Sets up the Coda server to start at system startup is so indicated.
+<item>Records the hostname in <em>/vice/hostname</em>.
+</itemize>
+
+<tag/vice-setup-scm/
+TO BE COMPLETED
+
+<tag/vice-setup=user/
+TO BE COMPLETED
+
+<tag/vice-setup-rvm/
+TO BE COMPLETED
+
+<tag/vice-setup-srvdir/
+TO BE COMPLETED
+
+</descrip>
+
+For a detailed explanation of each question asked by the scripts,
+please see the chapter ``Installing a Coda Server'' in the Coda Manual.
+
+<mansect>BUGS<p>
+Many of which the highlights are:
+<itemize>
+<item><bf>vice-setup-rvm</bf> will not warn you if run a second time after
+setting up an otherwise working server.  This essentially causes all
+data stored on the Coda server in question to be wiped out.
+<item><bf>vice-setup-rvm</bf> will add entries to <em>/vice/srv.conf</em>
+each time it is run without removing the previous contents.  If more than
+one line of server information is present in <em>srv.conf</em>, a 
+``Multiple instance error''z is returned by <bf>srv</bf> because multiple 
+lines in <em>srv.conf</em> are treated as a single set of command line
+arguments to <bf>srv</bf>.  Essentially, the resulting error is made
+sufficiently out of context that it is difficult to spot.
+<item><bf>vice-setup</bf> does not determine the host ip address.
+<item>Error messages returned by the scripts or the programs called
+from within the scripts do not jump out and bark out you.  Instead, 
+errors are easily missed while running the scripts and these errors 
+tend to come back and bite you later.
+<item>If a non-SCM server is being setup, you still must respond
+with tokens to <bf>vice-setup</bf> when asked.  However, <bf>auth2</bf>,
+<bf>updateclnt</bf> and <bf>updatesrv</bf> must be started manually
+on a non-SCM to suck down the real versions of these files from
+the actual SCM.  This error in logic can be misleading.
+</itemize>
+
+<mansect>FILES<p>
+<em>/vice/db/vicetab</em> The Vice Table Configuration file for srv.<p>
+<em>/vice/vol/VolumeList</em> VolumeList of the server.<p>
+<em>/vice/db/scm</em> The SCM hostname.<p>
+<em>/vice/hostname</em> The hosts hostname.<p>
+<em>/vice/srv.conf</em> The <bf>srv</bf> configuration file.
+
+And many more files are touched by these scripts than are listed here.
+
+<mansect>SEE ALSO<P>
+srv (8), rvmutl (8), rdsinit (8), auth2 (8), authmom (8), updatemon (8),
+updatesrv (8), updateclnt (8), startserver (8), srv.conf (8)
+<p> 
+Coda Manual: ``Installing A Coda Server''<p>
+The RVM Manual<p>
+
+<mansect>AUTHOR<P>
+Henry M. Pierce, 1998
+
+</manpage>
