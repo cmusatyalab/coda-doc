@@ -17,12 +17,12 @@ will be a full special purpose debugger that allows you to manipulate
 the structures as well.  <em>Norton</em>s command interface uses the gnu
 <em>readline</em> library which features Emacs style command editting as
 well as maintaining a command history.  Command completion is also
-supported by using <em>&lt;tab&gt;</em> and @&lsqb;&lt;esc&gt;-?&rsqb;.
+supported by using <em>&lt;tab&gt;</em> and <em>&lt;esc&gt;-?&rsqb;</em>.
 
 The available commands are:
 <descrip>
 <tag><bf>show directory</bf> <em>&lt;volid&gt; &lt;vnum&gt; &lt;unique&gt;</em></tag>Lists
-the contents of the directory indicated by <em>volid.vmun.unique</em>.
+the contents of the directory indicated by <em>volid.vnum.unique</em>.
 Each entries vnode number and uniquifier are also listed.
 <P></descrip>
 
@@ -74,7 +74,7 @@ summary of the specified volume.
 <P></descrip>
 
 <descrip>
-<tag><bf>examine</bf> <em>&lt;addr&gt; &lt;len&gt;</em></tag>Print &lt;<em>len</em>&gt;
+<tag><bf>x</bf> <em>&lt;addr&gt; &lt;len&gt;</em></tag>Print &lt;<em>len</em>&gt;
 bytes starting from &lt;<em>addr</em>&gt; in hex and ascii.  An alias for
 <bf>examine</bf>.
 <P></descrip> 
