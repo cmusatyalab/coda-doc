@@ -260,12 +260,11 @@ Unless you do "huge" things 16k will be plenty.
 <qandaentry id="RestoringBackups"><question><para>How to restore a backup from tape </para></question>
 <answer>
 <!-- Change into less fairy-tale fashioned -->
-<para>Tuesday I have lost my email folder - the whole volume <filename>moose:braam.life</> was corrupted on server <systemitem class="systemname">moose</> ant it wouldn't salvage.  Here is how I got it back.  </para>
+<para>Tuesday I have lost my email folder - the whole volume <filename>moose:braam.mail</> was corrupted on server <systemitem class="systemname">moose</> and it wouldn't salvage.  Here is how I got it back.  </para>
 
 <procedure>
 <step>
-<para>First I tried mounting <filename>moose.braam.life.0.backup</> but this was
-corrupted too.</para>
+<para>First I tried mounting <filename>moose:braam.mail.0.backup</> but this was corrupted too.</para>
 </step>
 
 <step>
@@ -274,15 +273,19 @@ replicated volume number <literal>7f000427</> and the volume number <literal>ce0
 </step>
 
 <step>
-<para>I logged in as root to <systemitem class="systemname">bison</>, our backup controlller.  I read the <filename>backuplog</> for Tuesday morning in <filename>/vice/backuplogs/backuplog.DATE</> and saw that the incremental dump for August 31st had been fine.  At the end of that log, I saw the name <literal>f0000427.ce000011</> listed as dumped under <filename>/backup</> (a mere symlink) and<filename>/backup2</> as spool directory with the actual file. The backup log almost shows how to move the tape to the correct place and invoke restore:
+<para>I logged in as root to <systemitem class="systemname">bison</>, our
+backup controller.  I read the <filename>backuplog</> for Tuesday morning in
+<filename>/vice/backuplogs/backuplog.DATE</> and saw that the incremental dump
+for August 31st had been fine.  At the end of that log, I saw the name
+<literal>7f000427.ce000011</> listed as dumped under <filename>/backup</> (a mere symlink) and<filename>/backup2</> as spool directory with the actual file. The backup log almost shows how to move the tape to the correct place and invoke restore:
 
 <screen>
-<prompt>#</> <userinput>cd /backup2</>
-<prompt>#</> <userinput>mt -f /dev/nst0 rewind</>
-<prompt>#</> <userinput>restore -b 500 -f /dev/nst0 -s 3 -i</>
+<prompt>root@bison#</> <userinput>cd /backup2</>
+<prompt>root@bison#</> <userinput>mt -f /dev/nst0 rewind</>
+<prompt>root@bison#</> <userinput>restore -b 500 -f /dev/nst0 -s 3 -i</>
 <lineannotation>Value after <option>-s</> depends upon which <filename>/backup<replaceable>[123]</></filename> volume we pick to restore backup.</lineannotation>
 <prompt>restore></> <userinput>cd 31Aug1998</>
-<prompt>restore></> <userinput>add viotti.coda.cs.cmu.edu-f0000427.ce000011</>
+<prompt>restore></> <userinput>add moose.coda.cs.cmu.edu-7f000427.ce000011</>
 <prompt>restore></> <userinput>extract</>
 <prompt>Specify volume #:</> <userinput>1</>
 </screen>
@@ -290,14 +293,17 @@ replicated volume number <literal>7f000427</> and the volume number <literal>ce0
 </step>
 
 <step>
-<para>In <filename>/vice/db/dumplist</> I saw that the last full backup had been on Friday Aug28. I went to the machine room and inserted that tape (recent tapes are above <systemitem class="systemname">bison</>).  This time <literal>f0000427.ce000011</literal> was a 200MB file (the last full dump) in <filename>/backup3</>. I extract the file as above.  </para>
+<para>In <filename>/vice/db/dumplist</> I saw that the last full backup had
+been on Friday Aug28. I went to the machine room and inserted that tape
+(recent tapes are above <systemitem class="systemname">bison</>).  This time
+<literal>7f000427.ce000011</literal> was a 200MB file (the last full dump) in <filename>/backup3</>. I extract the file as above.  </para>
 </step>
 
 <step>
 <para>Then I merged the two dumps:
 <screen>
-<prompt>#</> <userinput>merge /restore/peter.mail /backup2/28Aug1998/f0000427.ce000011 \</>
-<prompt>></> <userinput>/backup3/31Aug1998/f0000427.ce000011</>
+<prompt>root@bison#</> <userinput>merge /restore/peter.mail /backup2/28Aug1998/*7f000427.ce000011 \</>
+<prompt>></> <userinput>/backup3/31Aug1998/*7f000427.ce000011</>
 </screen>
 </step>
 
@@ -306,7 +312,7 @@ replicated volume number <literal>7f000427</> and the volume number <literal>ce0
 This took a minute or two to create /restore/peter.mail. Now all that was needed was to upload that to a volume:
 
 <screen>
-<prompt>#</> <userinput>volutil -h moose restore /restore/peter.mail /vicepa vio:braam.mail.restored</>
+<prompt>root@bison#</> <userinput>volutil -h moose restore /restore/peter.mail /vicepa moose:braam.mail.restored</>
 </screen>
 </para>
 </step>
@@ -315,7 +321,7 @@ This took a minute or two to create /restore/peter.mail. Now all that was needed
 <para>
 Back to the SCM, to update the volume databases:
 <screen>
-<prompt>#</> <userinput>bldvldb.sh viotti</>
+<prompt>root@SCM#</> <userinput>bldvldb.sh moose</>
 </screen>
 </para>
 </step>
@@ -324,7 +330,7 @@ Back to the SCM, to update the volume databases:
 <para>
 Now I could mount the restored volume: 
 <screen>
-<prompt>#</> <userinput>cfs mkm restored-mail vio:braam.mail.restored</>
+<prompt>root@SCM#</> <userinput>cfs mkm restored-mail moose:braam.mail.restored</>
 </screen>
 
 and copy it into a read write volume using cpio or tar. 

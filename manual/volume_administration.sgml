@@ -89,10 +89,10 @@ time (see <xref linkend="VLDB"> below).  </para>
 <para>A few concrete examples should clarify the use of some of these
 commands. On the SCM,  the <command>createvol_rep</> <option>u.hbovik</>
 <option>E0000107</> <option>/vicepa</> will create a replicated volume named
-<literal>user.hbovik</> on each server in the Volume Server Group (VSG)
+<literal>u.hbovik</> on each server in the Volume Server Group (VSG)
 identified by <literal>E0000107</>.  The file <filename>/vice/db/VSGDB</>
 contains the mapping between VSGs and servers. The names of the replicas will
-be <literal>user.hbovik.</><replaceable>n</>, where <replaceable>n</> is a
+be <literal>u.hbovik.</><replaceable>n</>, where <replaceable>n</> is a
 number between <literal>0</> and <literal>|VSG| - 1</literal>.  </para>
 </sect1>
 

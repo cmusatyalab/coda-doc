@@ -591,7 +591,7 @@ server, as well as the fileserver by typing:
   <arg choice="plain">-rvm 
     <arg choice="plain"><replaceable>log_partition</replaceable></arg> 
     <arg choice="plain"><replaceable>data_partition</replaceable></arg> 
-    <arg choice="plain"><replaceable>size_of_log_partition</replaceable></arg>
+    <arg choice="plain"><replaceable>size_of_data_partition</replaceable></arg>
   </arg>
 </cmdsynopsis>
 
@@ -754,7 +754,7 @@ with <command>volutil shutdown</command> or disconnect its network.  You can als
 specify the size of the log segment.  In specifying the size, you can use
 <literal>M</> for megabyte and <literal>K</> for kilobyte.  For example, to
 initialize a log on partition 1 on the 3rd SCSI drive on a Linux machine to
-eight megabytes:
+22 megabytes:
 <informalexample>
 <screen>
 <prompt>#</><userinput>rvmutl</>
@@ -780,7 +780,7 @@ eight megabytes:
 <informalexample>
 <screen>
 <prompt>#</> <userinput>rdsinit /dev/hdc1 /dev/sdb1</userinput>
-<prompt>Enter the length of the device /dev/hdc1:</><userinput>119070700</>
+<prompt>Enter the length of the device /dev/sdb1:</><userinput>119070700</>
 Going to initialize data file to zero, could take awhile.
 done.
 rvm_initialize succeeded.
