@@ -1,0 +1,311 @@
+============================
+Coda Release 
+============================
+
+version: 4.4.0
+date: 03/18/98
+
+
+These are partial instructions how to setup, build and configure the
+Coda file system. Refer to the manual in doc.  Use RPMS to install on Linux. 
+
+Contents
+========
+I. Configuring and Building Coda
+   0a. Changes
+   0b. Known issues
+   1. Configuration
+   2. Usage
+   3. What gets build
+   4. Building coda
+
+II.   Building Coda.
+
+III.  Information about our Makefile setup
+
+LICENSE:
+======== 
+READ THE FILE COPYING 
+
+========
+WARNING: 
+========
+
+CODA IS BARELY READY FOR PRODUCTION USE. THIS RELEASE IS JUST FOR
+THOSE INTERESTED IN EXPLORING THOSE FEATURES WHICH WORK. IT CONTAINS
+KERNEL CODE, AND SERVERS RUNNING WITH ROOT PRIVILEGES, AND COULD LEAD
+TO DATA LOSS.
+
+
+I. Installing and configuring Coda: first install.
+===================================================
+
+0a.  Changes: there have been numerous bug fixes and other improvement
+    since the last release. Particularly the kernel code has been improved. 
+    There is support for Linux 2.1, and our aim is to improve only 2.1. 
+
+0b.  The following issues are known annoyances with Coda under Linux:
+
+	a) ksh is picked up as dependencies by our rpm
+           build process. If these are the only dependency messages
+	   you get when installing either the client or the server,
+	   it is safe to use the --nodeps option to rpm.
+
+        b) An rpm configure script for the coda-debug-clients package
+           not only expects tixindex to be installed, but executable.
+           The Red Hat tix package installs tixindex without execute
+           permissions set, so 
+           
+		chmod 755 /usr/bin/tixindex 
+      
+           is necessary before attempting to install the coda-debug-clients
+           rpm package -- or bluntly ignore the error. 
+
+1.  Installation & Configuration
+	a) You should install the following rpms:
+              coda-debug-client-(?)libc-4.4.0-2.i386.rpm
+              coda-debug-kernel-2.0.(??)-module-4.4.0-2.i386.rpm
+	      coda-doc-4.4.0-6.i386.rpm (man pages etc).
+
+	   If you have a kernel which is not from RedHat 5.0 read
+	   README.kernel-module how to build a kernel module for 
+           Coda.
+
+           On a client run the script linux-utils/venus-setup.
+
+	     venus-setup <comma,separated,hosts> <cachesizeinkb>
+
+           NOTE: the cache size should be at least 10000, but
+           preferably more. 
+
+           By default you are talking to testserver.coda.cs.cmu.edu
+	   I strongly recommend you try that first. 
+
+	   First test if your kernel module matches your kernel:
+              insmod coda 
+              lsmod coda
+           should proceed without errors and show a Coda module 
+           in the kernel.  If not recompile the kernel module, 
+           read README.kernel-module. 
+
+           Start Venus with
+               venus &
+           Follow the log with
+               tail -f /usr/coda/venus.log
+           Type 
+               codacon 
+           in an xterm to see the actions. 
+	
+	   You can turn up debugging with 
+               coda-debug 4095 (see coda_linux.h for the bitmask)
+               coda-trace 1
+           (these set constants in /proc/sys/coda/?)
+	
+	   NOTE: Please make sure your have enough free space on the
+                 filesystem in which /usr/coda/venus.cache resides for the
+                 cache-size indicated.  That is, if you specify 20000 for 
+                 for twenty-thousand kilobytes, this means you must have at
+	         least 20MB of free on the partition containing venus.cache.
+
+	   See above how to point your client at your own server.
+
+
+        b) Servers: this is a bit more work. Also note that running
+           a server seriously dips into your virtual memory. Running a 
+           server _and_ a client and X11 I have needed slightly over
+           64M of available VM. The command free gives information.
+
+	   Install the following RPMS:
+                 coda-debug-server-glibc-4.4.0-2.i386.rpm
+                 coda-doc-4.4.0-6.i386.rpm
+
+
+           To set up an SCM server, you need to have available: 
+             1) an empty directory ( /vicepa ) where the fileserver will
+                put files (not directories and metadata, these are in
+                RVM).
+             2) a raw partition for RVM metadata (you can use a file but it 
+                will be quite slow on a decent size server). This partition
+                must be around 4% of the total size of the files you wish 
+                to store under /vicepa (e.g. on a 2GB server we use around
+                80M of rvm data). Consider 10M to be the minimum. 
+	     3) a LOG partition, preferably on a disk by itself. This 
+                needs not be large. 
+             4) two secret tokens of _exactly_ 8 characters (eg elephant).
+             The RVM files involve the journalling/transactional aspects 
+             of Coda.
+
+	 A)
+           Then run:
+		vice-setup 
+
+	 B)
+	   When done: start the update server, client and the auth server, 
+           as well as the fileserver by typing 
+		/etc/rc.d/init.d/vice.init start
+	   Now follow the log:
+            	  xterm -e tail -f  /vice/srv/SrvLog & 
+
+	   Assert with ps that srv, updatesrv and updateclnt are running.
+	   The log should show "File Server started".  If not, you have 
+           a problem. 
+
+	  C)
+  	   NOTE: you need the package bc (binary calculator on the server).
+                   get it from Red Hat or from our ftp directory.
+
+	   Make a root volume (coda:root should be the name you gave to
+           vice-setup for the root volume): 
+		createvol_rep coda:root E0000100 /vicepa
+           
+
+	   NOTE2: E0000100 is the Volume Storage Group set up for you
+                  by vice-setup . With more servers you can define other
+                  groups in /vice/db/VSGDB -- see the Coda User Manual.	
+
+	   Now you are ready to point a Venus (client) at this server. 
+
+           The vice-setup program installed an administrative user on
+           the server, named admin.  It needs to have uid: 500 and has
+           been assigned password changeme.  Read section 7.7 in the 
+	   Coda Manual to find out how to set up another user and 
+           password database (such users must be installed on clients too, 
+           but need not be in /etc/passwd on the servers). 
+
+	   You should remove the file /vice/db/passwd.coda since it 
+           contains cleartext passwords.
+
+2. Usage:
+	a) server startup:
+
+	    	startserver &
+
+	   it comes up at boot time from vice.init, unless you said "No" 
+           to automatic startup, OR if the there is a file /vice/srv/CRASH
+           exists, which indicates the fileserver crashed. Howver you need
+           the update server and client for system administration and the 
+           authserver for authentication -- see /etc/rc.d/init.d/vice.init. 
+ 
+        b) Re-run venus-setup and point your server to your own server.
+
+           client: (** make sure the server is up _AND_ you have
+                       made root volumes **)
+	   start venus with 
+
+            	venus -init &
+             	xterm -e tail -f /usr/coda/venus.cache/venus.log
+            	xterm -e tail -f /usr/coda/etc/console
+            	xterm -e codacon
+
+	   When the server is up cd to /coda and start playing.
+
+
+        c) Restarting a server:
+		
+		volutil shutdown
+
+	   shuts down the server.  Restart as above.
+
+	d) Restarting a client. You should umount /coda, since this 
+ 	   may not get done automatically. If it fails, make sure you
+           kill all processes using /coda; cd out of Coda directories etc. 
+	   The command `fuser` under Linux can help:
+
+		fuser -m /coda
+
+	   will list all processes accessing files in /coda/*.  NOTE:
+	   Linux 2.1.X kernels will not list processes cd'd in /coda,
+	   however, under Linux 2.0.X, fuser will show such processes.
+	   Then,
+
+		fuser -m -k -9 /coda
+
+	   will kill all of those processes it lists.
+
+	   If ps aux | grep venus displays a Zombie venus, reboot 
+           your machine before trying again.  (If you don't you'll
+           likely have to run fsck by hand later.)
+
+	
+
+II BUILDING Coda 
+================
+
+1.  There are 5 subsystems that need to be build
+
+	a) kernel-src kernel code for coda filesystem calls and 
+	   inode manipulation kernel code.
+	b) lib-src contains libraries needed by other components,
+	   including a threads package used by many other user
+	   level components
+	c) rvm-src contains the rvm transaction package, depends 
+           on threads
+        d) coda-src contains source for coda, depends on a, b, c
+        e) util-src contains nothing right now but will contain
+	   a variety of tools, for testing, kernel
+           hacking. Dependency varies.
+
+
+2.  Building coda (outside CMU):
+       a) unpack the source; you need gcc, g++, flex, ncurses, gdbm, 
+           readline etc, and 
+           have 80MB free to build from source.
+	b) at the top level type ./configure 
+	c) at the top level type make coda
+	d) at the top level type make install-client, or make install-server
+	e) rebuild kernels if needed
+	f) configure clients/servers and you should be up.
+
+Peter J. Braam
+braam@cs.cmu.edu
+
+
+III. Makefile Information
+==========================
+
+(Makefile setup converted to GNU tools by Peter Braam and Josh Raiff.
+Further substantial improvements by Bob Baron.)
+
+
+Every
+Makefile includes (says what/how to process in this directory)
+     1.	Makeconf includes (sets VPATH, DIRS, FLAGS, LIBRARIES, _RPC2)
+	     a.	Makefile.setup (variables set as part of the configure process)
+	     b.	configs/Makeconf.$(SYS) (sets machine dependent VARIABLES, flags)
+     2.	Makerules (says how to build/install/clean & some specific rules)
+
+		GLOBAL VARIABLES you set on the command line
+
+GFLAG=	 request debugging info on compilation (GFLAG=-g is the default)
+OPTFLAG= request optimization (OFLAG=-O is the default)
+LIBFLAG= {G}CC options used when creating a a.out
+MYFLAGS= any old thing you want
+
+		GLOBAL VARIABLES CREATED BY configure
+
+TOPDIR	top of source tree
+srcdir	here
+SECSRC	user source area
+SHOB	shared objects
+TOPOBJ	top of build area subquently define
+
+		GLOBAL VARIABLES PROCESSED BY Makerules
+
+EXECUTABLES
+	build; install to .../bin; rm on clean
+HEADERS
+	no build;install to .../include; no clean
+LIBRARIES
+	build; install to .../lib; rm on clean
+RP2FILES
+	rp2gen these files; no install; rm *.multi.c *.client.c *.server.c
+RP2HEADERS
+	no build; no install; rm on clean
+SCRIPTS
+	no build; install to .../bin; no clean
+SUBDIRS
+	visit & install or all
+TESTS
+	build; no install ??; rm on clean
+
+
