@@ -1,12 +1,39 @@
 
-
 SHELL = /bin/sh
 srcdir = @srcdir@
 VPATH = @srcdir@
 
-SUBDIRS=
-PSDOCS=manual.ps
-HTMLDOCS=manual.html
+SGMLSRC := manual.sgml
 
 
-include ../Makerules
+##include $(srcdir)/Makerules
+
+
+PS    := $(patsubst %.sgml, %.ps, $(SGMLSRC))
+PDF   := $(patsubst %.sgml, %.pdf, $(SGMLSRC))
+HTML  := $(patsubst %.sgml, %.html, $(SGMLSRC))
+
+all: $(PS) $(HTML)
+
+
+DVI   := $(patsubst %.sgml, %.dvi, $(SGMLSRC))
+AUX   := $(patsubst %.sgml, %.aux, $(SGMLSRC))
+TEX   := $(patsubst %.sgml, %.tex, $(SGMLSRC))
+LOG   := $(patsubst %.sgml, %.log, $(SGMLSRC))
+
+clean:
+	$(RM) $(DVI) $(AUX) $(TEX) $(LOG)
+
+distclean: clean
+	$(RM) $(PS) $(PDF) $(HTML)
+
+
+%.ps: %.sgml
+	db2ps $<
+
+%.pdf: %.sgml
+	db2pdf $<
+
+%.html: %.sgml
+	db2html $<
+

@@ -1,0 +1,126 @@
+<chapter id="SysAdmUsr">
+<title>User Administration</title>
+
+<para>As of 5.2.x the user and group administration tools and databases have been replaced. Now, instead of editing <filename>user.coda</> and <filename>group.coda</>, and then converting them with <command>pwdtopdb</> and <command>pcfgen</> has been replaced by the new <application>pdbtool</> program.  </para>
+
+<sect1>
+<title>Short introduction to pdbtool </title>
+<para> The pdbtool is an interactive command to manipulate and query user and group information. The most commonly used commands in the <application>pdbtool</> are:
+
+<informalexample>
+<itemizedlist>
+<listitem><para><cmdsynopsis><command>nui</> <arg choice=req>username</arg> <arg choice=req>userid</arg></cmdsynopsis>	     -- create a new user, with the specified id.  </para></listitem>
+<listitem><para><cmdsynopsis><command>ng</> <arg choice=req>groupname</arg> <arg choice=req>ownerid</arg></cmdsynopsis>     -- create a new group, with the specified owner.  </para></listitem>
+<listitem><para><cmdsynopsis><command>ci</> <arg choice=req>user/groupname</arg> <arg choice=req>newid</arg></cmdsynopsis>  -- change the id of an existing user or group.  </para></listitem>
+<listitem><para><cmdsynopsis><command>ag</> <arg choice=req>group-id</arg> <arg choice=req>user/groupid</arg></cmdsynopsis> -- add a user/group to a group.  </para></listitem>
+<listitem><para><cmdsynopsis><command>n</> <arg choice=req>user/groupname</arg></cmdsynopsis>           -- list all information about the user or group.  </para></listitem>
+</itemizedlist>
+</informalexample>
+
+<note><para>User-ids are supposed to be positive integers, group-ids are negative integers.  </para></note>
+
+<para>For more information read the manualpage (<citerefentry><refentrytitle>pdbtool</><manvolnum>8</></citerefentry>), which is included in the <filename>coda-doc-<replaceable>version</></filename> rpms and tarball, or simply play around with the <application>pdbtool</>'s <command>help</> command.  </para>
+</sect1>
+
+<sect1 id="AddUsers">
+<title>Adding a new user</title>
+
+<informalexample>
+<para>This is a step-by-step example of the administrative steps involved in adding a new user to Coda. Here we assume that the host named <systemitem class="systemname">scm</> is one that has the read-write copy of the databases. The new user is going to be added to the groups Users and Developers.  </para>
+
+<screen>
+<prompt>root@scm#</> <userinput>pdbtool</>
+<prompt>pdbtool></> <userinput>nui jan 768</>
+<prompt>pdbtool></> <userinput>n jan</>
+USER jan
+  *  id: 768
+  *  belongs to no groups
+  *  cps: [ 768 ]
+  *  owns no groups
+<prompt>pdbtool></> <userinput>n Users</>
+GROUP Users OWNED BY System
+  *  id: -221
+  *  owner id: 777
+  *  belongs to no groups
+  *  cps: [ -221 ]
+  *  has members: [ 22 178 184 303 545 697 822 823 835 894 712 738
+  *  777 901 902 ]
+<prompt>pdbtool></> <userinput>n Developers</>
+GROUP Developers OWNED BY System
+  *  id: -225
+  *  owner id: 777
+  *  belongs to no groups
+  *  cps: [ -225 ]
+  *  has members: [ 122 835 ]
+<prompt>pdbtool></> <userinput>ag -221 768</>
+<prompt>pdbtool></> <userinput>ag -225 768</>
+<prompt>pdbtool></> <userinput>n jan</>
+USER jan
+  *  id: 768
+  *  belongs to groups: [ -221 -225 ]
+  *  cps: [ -221 -225 768 ]
+  *  owns no groups
+<prompt>pdbtool></> <userinput>q</>
+</screen>
+
+<para>This sequence has created the new user account, and added the account to the appropriate groups. Now in order to activate the account, we need to set an initial password with the authentication server.  </para> 
+
+<screen>
+<prompt>admin@anymachine$</> <userinput>au -h <replaceable>scm</> nu</userinput>
+<prompt>Your Vice Name:</> <userinput>codaadmin</>
+<prompt>Your Vice Password:</> <userinput>********</>
+<prompt>New User Name:</> <userinput>jan</>
+<prompt>New User Password:</> <userinput>newpassword</>
+</screen>
+
+<para>To finish up, we can create a home volume, mount it, set the ACLs, and the user is set up. So all the user needs to do is change his password.  </para>
+
+<screen>
+<prompt>root@scm#</> <userinput>createvol_rep users:jan E0000100 /vicepa</>
+<prompt>admin@anymachine$</> <userinput>cfs mkm /coda/usr/jan users:jan</>
+<prompt>admin@anymachine$</> <userinput>cfs sa /coda/usr/jan jan all</>
+
+<prompt>jan@anymachine$</> <userinput>cpasswd -h scm</>
+</screen>
+</informalexample>
+</sect1>
+
+<sect1>
+<title>Upgrading existing user.coda and group.coda databases</title>
+
+<para>To upgrade the user and group databases to the new format, a script called <application>pwdtopdbtool.py</> has been added to the distribution. You might need to alter the pathnames of <filename>/vice/db/user.coda</> and
+<filename>/vice/db/group.coda</>. Simply run this script on the SCM and it will
+parse out all entries from the old user and group files, and uses the pdbtool
+to create the new <filename>prot_users.db</> and <filename>prot_index.db</> files in <filename>/vice/db</>.  </para>
+
+<para>To distribute these files to the other servers, you should add the following lines to <filename>/vice/db/files</>:</para>
+
+<informalexample>
+<screen>
+prot_users.db
+prot_index.db
+</screen>
+</informalexample>
+
+<para>As long as there are pre-5.2 servers in the group, it is advised to stick to the old way of adding users, and use the <application>pwdtopdbtool.py</> script to keep the new files in sync.  </para>
+</sect1>
+
+<sect1>
+<title>Upgrading from the coda.pdb/name.pdb databases used in 5.2.0/5.2.2</title>
+
+<para>The initial release using the pdbtools used gdbm as the underlying data store. However we were unable to reliably use the resulting databases across heterogeneous servers. So we decided to switch to libdb 1.85.  </para>
+
+<para>There is no script available to automatically upgrade your gdbm databases to libdb 1.85 format. If you still have existing <filename>users.coda</>/<filename>groups.coda</>, simply run <application>pwdtopdbtool.py</>.  </para>
+
+<para>Otherwise, you must extract all information using the old pdbtool <emphasis>before</> upgrading your SCM.  </para>
+
+<informalexample>
+<screen>
+<prompt>#</> <userinput>echo list | pdbtool > full_pdb_dump</>
+</screen>
+</informalexample>
+
+<para>However, it is not possible to easily use this dump to recreate the database. Everything needs to be re-added to the new pdb database by hand.  </para>
+
+</sect1>
+</chapter>

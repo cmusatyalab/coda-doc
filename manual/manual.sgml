@@ -1,127 +1,118 @@
-<!doctype linuxdoc SYSTEM  [
-
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN"  [
 <!entity abstract SYSTEM "abstract.sgml">
 <!entity preface SYSTEM "preface.sgml">
 <!entity starting SYSTEM "getting_started.sgml">
+<!entity obtain SYSTEM "obtaining_coda.sgml">
 <!entity scenar SYSTEM "scenarios.sgml">
-<!entity trouble SYSTEM "trouble.sgml">
 <!entity sysovr SYSTEM "system_overview.sgml">
 <!entity kernel SYSTEM "kernel.sgml">
-<!entity servin SYSTEM "server_installation.sgml">
 <!entity clientin SYSTEM "client_installation.sgml">
+<!entity servin SYSTEM "server_installation.sgml">
+<!entity trouble SYSTEM "trouble.sgml">
 <!entity running SYSTEM "running_coda.sgml">
-<!entity savol SYSTEM "sa_volumes.sgml">
-<!entity sauser SYSTEM "sa_users.sgml">
+<!entity voladm SYSTEM "volume_administration.sgml">
+<!entity useradm SYSTEM "user_administration.sgml">
 <!entity backsys SYSTEM "backup.sgml">
+<!entity biblio SYSTEM "bibliography.sgml">
 <!entity reinit SYSTEM "reinit.sgml">
 <!entity layout SYSTEM "layout.sgml">
 
-<!entity refapx SYSTEM "user_ref.sgml">
+<!entity quickrefapx SYSTEM "quick_ref.sgml">
 <!entity fileapx SYSTEM "file_list.sgml">
-<!entity probapx SYSTEM "problems.sgml">
 <!entity examapx SYSTEM "examples.sgml">
-<!entity manapx SYSTEM "manapx.sgml">
-
-<!entity cfs		SYSTEM "../man/man1/cfs.sgml">
-<!entity clog		SYSTEM "../man/man1/clog.sgml">
-<!entity cmon		SYSTEM "../man/man1/cmon.sgml">
-<!entity cpwd		SYSTEM "../man/man1/cpasswd.sgml">
-<!entity ctokens	SYSTEM "../man/man1/ctokens.sgml">
-<!entity cunlog		SYSTEM "../man/man1/cunlog.sgml">
-<!entity filcon         SYSTEM "../man/man1/filcon.sgml">
-<!entity hoard		SYSTEM "../man/man1/hoard.sgml">
-<!entity mvdb		SYSTEM "../man/man1/mvdb.sgml">
-<!entity repair		SYSTEM "../man/man1/repair.sgml">
-<!entity spy		SYSTEM "../man/man1/spy.sgml">
-<!entity ttyfcon	SYSTEM "../man/man1/ttyfcon.sgml">
-<!entity venussu     SYSTEM "../man/man1/venussetup.sgml">
-<!entity vicesu      SYSTEM "../man/man1/vicesetup.sgml">
-<!entity volmung       SYSTEM "../man/man1/volmunge.sgml">
-
-<!entity histo		SYSTEM "../man/man3/histo.sgml">
-<!entity timing		SYSTEM "../man/man3/timing.sgml">
-
-<!entity backupl	SYSTEM "../man/man5/backuplogs.sgml">
-<!entity dumpfile	SYSTEM "../man/man5/dumpfile.sgml">
-<!entity dumplist	SYSTEM "../man/man5/dumplist.sgml">
-<!entity grpscoda	SYSTEM "../man/man5/group.coda.sgml">
-<!entity maxgrpid	SYSTEM "../man/man5/maxgroupid.sgml">
-<!entity mcstagen	SYSTEM "../man/man5/multicastagents.sgml">
-<!entity mcstgrps	SYSTEM "../man/man5/multicastgroups.sgml">
-<!entity servers	SYSTEM "../man/man5/servers.sgml">
-<!entity srvconf	SYSTEM "../man/man5/srvconf.sgml">
-<!entity usrcoda	SYSTEM "../man/man5/user.coda.sgml">
-<!entity pwdcoda	SYSTEM "../man/man5/passwd.coda.sgml">
-<!entity vicetab        SYSTEM "../man/man5/vicetab.sgml">
-<!entity volulist	SYSTEM "../man/man5/volumelist.sgml">
-<!entity vrdb		SYSTEM "../man/man5/vrdb.sgml">
-<!entity vrlist		SYSTEM "../man/man5/vrlist.sgml">
-<!entity vsgdb		SYSTEM "../man/man5/vsgdb.sgml">
-<!entity vstab		SYSTEM "../man/man5/vstab.sgml">
-
-<!entity au		SYSTEM "../man/man8/au.sgml">
-<!entity auth2		SYSTEM "../man/man8/auth2.sgml">
-<!entity backup		SYSTEM "../man/man8/backup.sgml">
-<!entity bldvldb	SYSTEM "../man/man8/bldvldb.sgml">
-<!entity crvol		SYSTEM "../man/man8/createvol.sgml">
-<!entity crvolrep	SYSTEM "../man/man8/createvol_rep.sgml">
-<!entity initpw		SYSTEM "../man/man8/initpw.sgml">
-<!entity makeftr        SYSTEM "../man/man8/makeftree.sgml">
-<!entity merge		SYSTEM "../man/man8/merge.sgml">
-<!entity norton		SYSTEM "../man/man8/norton.sgml">
-<!entity pcfgen		SYSTEM "../man/man8/pcfgen.sgml">
-<!entity prgvol		SYSTEM "../man/man8/purgevol.sgml">
-<!entity prgvolre	SYSTEM "../man/man8/purgevol_rep.sgml">
-<!entity pwd2pdb	SYSTEM "../man/man8/pwd2pdb.sgml">
-<!entity readdump	SYSTEM "../man/man8/readdump.sgml">
-<!entity codasrv	SYSTEM "../man/man8/codasrv.sgml">
-<!entity strsrver	SYSTEM "../man/man8/startserver.sgml">
-<!entity updtclnt	SYSTEM "../man/man8/updateclnt.sgml">
-<!entity updtsrv	SYSTEM "../man/man8/updatesrv.sgml">
-<!entity venus		SYSTEM "../man/man8/venus.sgml">
-<!entity volutil	SYSTEM "../man/man8/volutil.sgml">
-<!entity vutil		SYSTEM "../man/man8/vutil.sgml">
-
-<!entity % latex "INCLUDE">
-<!entity % html  "IGNORE">
-<![ %latex; [ <!entity newpage PI "\newpage"> ]]>
-<![ %html; [ <!entity newpage PI "<HR>"> ]]>
-<!entity newpage PI "">
 ]>
 
-<report>
-
-<title>Coda File System &nl; User and System Administrators Manual
-     <author>M. Satyanarayanan, Maria R. Ebling, Joshua Raiff, Peter J. Braam
-     <date>v1.1, 20 August 1997
-
-
+<book>
+<bookinfo>
+<title>Coda File System User and System Administrators Manual</title>
+<authorgroup>
+      <author>
+        <surname>M. Satyanarayanan</surname>
+        <affiliation>
+          <address>
+            <email>satya@cs.cmu.edu</email>
+          </address>
+        </affiliation>
+      </author>
+      <author>
+        <surname>Maria R. Ebling</surname>
+        <affiliation>
+          <address>
+            <email>mre@cs.cmu.edu</email>
+          </address>
+        </affiliation>
+      </author>
+      <author>
+        <surname>Joshua Raiff</surname>
+        <affiliation>
+          <address>
+            <email>jraiff@cs.cmu.edu</email>
+          </address>
+        </affiliation>
+      </author>
+      <author>
+        <surname>Peter J. Braam</surname>
+        <affiliation>
+          <address>
+            <email>braam@cs.cmu.edu</email>
+          </address>
+        </affiliation>
+      </author>
+       <author>
+        <surname>Jan Harkes</surname>
+        <affiliation>
+          <address>
+            <email>jaharkes@cs.cmu.edu</email>
+          </address>
+        </affiliation>
+      </author>
+    </authorgroup
+    <pubdate>August 1997</pubdate>
+    <copyright>
+      <year>1995</year>
+      <year>1996</year>
+      <year>1997</year>
+      <year>1998</year>
+      <year>1999</year>
+      <year>2000</year>
+      <holder>Coda Team</holder>
+    </copyright>
+<!-- Insert legal mumbo-jumbo 
+&bookinfo.legalnotice;
+-->
 &abstract;
+</bookinfo>   
+
 <toc>
 
 &preface;
+
 &starting;
 &scenar;
-&trouble;
+
 &sysovr;
+&obtain;
+
+<!--
 &kernel;
-&servin;
+-->
+
 &clientin;
-&running;
-&savol;
-&sauser;
+&servin;
+&trouble;
+
+&voladm;
+&useradm;
 &backsys;
 &reinit;
-&layout;
 
-<appendix>
+&biblio;
 
-&refapx;
+&quickrefapx;
 &fileapx;
-&probapx;
+
+<!-- 
 &examapx;
-&manapx;
+-->
 
-<biblio style="alpha" files="manual">
-
-</report>
+</book>

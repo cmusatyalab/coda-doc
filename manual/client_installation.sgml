@@ -1,220 +1,236 @@
-<chapt> Installing and Configuring a Coda Client <p>
-<label id="ClientInstall">
-<p>
-A Coda client can be run on any workstation that has kernel support
-for Coda in its kernel.  This chapter assumes the chapter on <ref
+<chapter id="ClientInstall">
+<title>Installing and Configuring a Coda Client</>
+<para>A Coda client can be run on any workstation that has kernel support for Coda in its kernel.  Supported <trademark>UNIX</>-like platforms are currently Linux,
+FreeBSD and NetBSD.  </para>
+
+<!--   This chapter assumes the chapter on <ref
 id="KernelsforCoda" name="Configuring Kernels for use with Coda"> has
 been read.  It contains valuable information for building a kernel if
 a pre-built kernel with Coda support (or loadable coda kernel modules)
-cannot be used. Supported UNIX&tm;-like platforms are currently Linux,
-FreeBSD and NetBSD.
+cannot be used. -->
 
-<sect>Installing and Configuring the Coda Client Binaries and Documentation<p>
+<sect1>
+<title>Installing and Configuring the Coda Client Binaries and Documentation</>
 
-We currently provide binary distributions of the Coda client software
-for Red Hat Linux (i386 and Sparc), FreeBSD and NetBSD (i386).  
-Red Hat Linux's rpm package format is supported.  NetBSD 1.3.X and FreeBSD
-package format are supported as well.
-Please consult the <tt>INSTALL.&lt;platform&gt;</tt> available on
-<htmlurl url="ftp://ftp.coda.cs.cmu.edu/pub/coda" 
-        name="ftp://ftp.coda.cs.cmu.edu/pub/coda"><tt>/&lt;platform&gt;</tt>
-for the current version of Coda and for last minute updates which possibly  have not
-made their way into the manual.  To install the binaries for each platform, 
-the following instructions apply:
+<formalpara>
+<title>Linux</>
+<para>Install RPMS using following commands:
+<informalexample>
+<screen>
+<prompt>#</> <userinput>rpm -Uvh lwp-<replaceable>release</replaceable>.i386.rpm</userinput>
+<prompt>#</> <userinput>rpm -Uvh rvm-<replaceable>release</replaceable>.i386.rpm</userinput>
+<prompt>#</> <userinput>rpm -Uvh rpc2-<replaceable>release</replaceable>.i386.rpm</userinput>
+<prompt>#</> <userinput>rpm -Uvh coda-debug-client-<replaceable>release</replaceable>.i386.rpm</userinput>
+</screen>
+</informalexample>
+</para>
+</formalpara>
 
-<descrip>
+<formalpara>
+<title>FreeBSD</>
+<para>Build and install coda5_client port from <filename>/usr/ports/net/coda5_client</>:
+<informalexample>
+<screen>
+<prompt>#</> <userinput>cd /usr/ports/net/coda5_client</userinput>
+<prompt>#</> <userinput>make</userinput>
+<prompt>#</> <userinput>make install</userinput>
+</screen>
+</informalexample>
+</para>
+</formalpara>
 
-<tag/For Linux/
-Obtain:
-<htmlurl url="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux/i386/" 
-        name="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux/i386/">
-<itemize>
-<item>
-<tt>coda-debug-module-&lt;kernel_version&gt;-&lt;coda_release&gt;.i386.rpm</tt>
-<item>
-<tt>coda-debug-clients-&lt;kernel_version&gt;-&lt;coda_release&gt;.i386.rpm</tt>
-<item><tt>coda-doc-&lt;coda_release&gt;.i386.rpm</tt>
-</itemize>
+<formalpara>
+<title>NetBSD</>
+<para>Build and install coda5_client source package from <filename>/usr/pkgsrc/net/coda5_client</>:
+<informalexample>
+<screen>
+<prompt>#</> <userinput>cd /usr/pkgsrc/net/coda5_client</userinput>
+<prompt>#</> <userinput>make</userinput>
+<prompt>#</> <userinput>make install</userinput>
+</screen>
+</informalexample>
+</para>
+</formalpara>
 
-<EM>NOTE:</EM> We provide a binary glibc (GNU C library) version of
-Coda for Red Hat 5.X and higher.  Coda has run successfully on other
-versions of Linux and with different C libraries too.
-<p>
-To install the binary and documentation packages, do:
-<itemize>
-<item>
-<tt>rpm -Uvh coda-module-&lt;kernel_version&gt;-&lt;coda_release&gt;.i386.rpm</tt><item>
-<tt>rpm -Uvh coda-debug-clients-&lt;kernel_version&gt;-&lt;coda_release&gt;.i386.rpm</tt>
-<p>
-<item><tt>rpm -Uvh coda-doc-&lt;coda_release&gt;.i386.rpm</tt>
-</itemize>
+<formalpara>
+<title>Windows95/98</>
+<para>Install Coda client by running ??????. 
+</para>
+</formalpara>
 
-<tag/FreeBSD and NetBSD:/
-For FreeBSD, obtain:
-<htmlurl url="ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/" 
-name="ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/"><tt>&lt;OS-RELEASE&gt;/i386/</tt>
-<p>
+<para>Currently, client files for the supported platforms are installed
+into the following directories: </para>
 
-For NetBSD, obtain:
-<htmlurl url="ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/" 
-    name="ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/"><tt>&lt;OS-RELEASE&gt;/i386/</tt>
-<p>
-Once the binary and documentation packages have been obtained, the following
-will install them:
-<itemize>
-<item>
-<tt>pkg_add coda-clients-&lt;OS_RELEASE&gt;-&lt;coda_release&gt;/</tt>
-<item>
-<tt>tar zxfc coda-doc-&lt;coda_release&gt;.tgz -C /usr/share</tt>
-</itemize>
-<p>
-Please make sure the correct path for your platform is set
-in your environmental PATH variable:
+<formalpara>
+<title>Linux</title> 
+<para>
+<itemizedlist mark="dash">
+<listitem><para> user applications - <filename>/usr/bin</filename>;</para></listitem>
+<listitem><para> system binaries  - <filename>/usr/sbin</filename>;</para></listitem>
+<listitem><para> other files - <filename>/etc</filename>.</para></listitem>
+</itemizedlist>
+</para>
+</formalpara>
 
-</descrip>
+<formalpara><title>FreeBSD</title>
+<para>
+<itemizedlist mark="dash">
+<listitem><para> user applications - <filename>/usr/local/bin</filename>;</para></listitem>
+<listitem><para> system binaries  - <filename>/usr/local/sbin</filename>;</para></listitem>
+<listitem><para> other files - <filename>/usr/local/etc</filename>.</para></listitem>
+</itemizedlist>
+</para>
+</formalpara>
 
-<descrip>
+<formalpara><title>NetBSD</title>
+<para>
+<itemizedlist mark="dash">
+<listitem><para> user applications - <filename>/usr/local/bin</filename>;</para></listitem>
+<listitem><para> system binaries  - <filename>/usr/local/sbin</filename>;</para></listitem>
+<listitem><para> other files - <filename>/usr/local/etc</filename>.</para></listitem>
+</itemizedlist>
+</para>
+</formalpara>
 
-<tag/For Linux:/
-Coda installs in the standard /usr tree:
-<tscreen><verb>
-/usr/sbin
-/usr/bin
-</verb></tscreen>
+<formalpara><title>Windows95/98</title>
+<para>
+<itemizedlist mark="dash">
+<listitem><para>All executables can be found in the directory <filename>C:\usr\coda\bin</filename>.  </para></listitem>
+</itemizedlist>
+</formalpara>
 
-<tag/For FreeBSD:/
-Coda installs in the /usr/local tree:
-<tscreen><verb>
-/usr/local/sbin
-/usr/local/bin
-</verb></tscreen>
-which is not usually part of the FreeBSD path search, particularly
-for the root account.  Please make sure this is part of your
-seach PATH.
+<note><para>Please make sure your PATH environment variable is set properly for your platform.  That is, ensure FreeBSD has <filename>/usr/local/{bin,sbin}</filename> and NetBSD has <filename>/usr/pkg/{bin,sbin}</filename> in its default search paths.  Linux installs Coda into the default system paths, so Linux should not need its default search path modified.</para></note>
 
-<tag/NetBSD:/
+<sect1>
+<title>Linux and the BSD's: running venus, the client cache manager</>
 
-Please note the NetBSD has elected to create a new tree to install
-NetBSD packages into (NetBSD uses <tt>/usr/pkg</tt> instead of
-<tt>/usr/local</tt>).  Coda creates package based on this
-<tt>/usr/pkg</tt> tree.  Please make sure this tree is in your search
-path as the /usr/pkg is not part of the default PATH settings under
-NetBSD.
+<para>Once the binaries and documentation are installed, configuration of venus is identical for all platforms when <application>venus-setup</> is used.  To run the script, type:
+<cmdsynopsis>
+<command>venus-setup</command>
+<arg choice="req">comma,seperated,list,of,servers</arg>
+<arg choice="req">cache_size_in_kilobytes</arg>
+</cmdsynopsis> 
+</para>
 
-</descrip>
+<para>The <application>venus-setup</> script does all the hard work, it will setup the coda control files, create <filename>/dev/cfs0</> to communicate with the
+kernel, ...  It also initializes a directory for cache files.  In your first Coda run we recommend a small cache, say 20MB. The cache size should be at least 10Meg, typically 60-200Meg is used.  Do not go above 300Meg.  All the files created will be placed under <filename>/usr/coda</>.  You should make sure that there is enough space in the file system on which <filename>/usr/coda</> resides to hold a fully populated cache.  </para
 
-Once the binaries and documentation are installed, configuration of
-Venus is identical for all platforms when 
-<tt>venus-setup</tt> is used.  To run the script, type:
+<para>For example, <command>venus-setup</> <option>micky,minnie,goofy</> <option>40000</> will setup up <application>venus</application> to look for the set of servers <systemitem class="systemname">micky</>, <systemitem class="systemname">minnie</> and <systemitem class="systemname">goofy</> and configure it to use 40MB of disk space for caching.  This information is kept in <filename>/usr/coda/etc/vstab</>.  We strongly recommend that you initially try your client against <systemitem class="systemname">testserver.coda.cs.cmu.edu</> first, and keep the cache size to 20000.  </para>
 
-<tscreen><verb>
-venus-setup <comma,seperated,list,of,servers> <cache_size_in_kilobytes>
-</verb></tscreen>. For example,
+<para>Start venus with <command>venus &amp;</command>.  An <option>-init</> flag can be given when <application>venus</> is started to flush the local cache contents.  Installation procedure performed by <application>venus-setup</> forces <application>venus</> to inititialize cache upon first startup.  The <option>-init</> flag can be given if Coda cannot recover it's cache after a crash or after re-editing the <filename>vstab</> file manually.  </para>
 
-<tscreen><verb>
-venus-setup micky,minnie,goofy 40000
-</verb></tscreen>
+<para>Observe the venus log with <command>tail -f /usr/coda/etc/console</>, it will tell you when <application>venus</> has started and give status.  Type <command>codacon</> to see the communications between the <application>venus</> and <application>vice</>.  </para>
 
-will setup up <tt>venus</tt> to look for the set of servers micky, minnie
-and goofy and configure Venus to use 40MB of disk space for caching.  This
-information is kept in <tt>/usr/coda/etc/vstab</tt>.
+<para>It is possible to see the upcalls from the kernel to <application>venus</> by turning up logging, but they are not very interesting.  (To turn on minimal debugging, type <command>vutil -d 1</> and then <command>tail -f /usr/coda/coda.cache/venus.log</>.)  </para>
 
-<em>NOTE:</em>At least one Coda server must be specified and the minimum 
-cache size is 10MB ( <tt>10000</tt> ).
+<para>To halt venus, type:
+<informalexample>
+<screen>
+<prompt>#</> <userinput>vutil shutdown</>
+<prompt>#</> <userinput>umount /coda  #(Linux only)</>
+</screen>
+</informalexample>
+Or you can kill -9 venus, if you must.  
+</para>
 
-This script not only creates <tt>/usr/coda</tt>
-and the necessary sub-directories, but creates <tt>/usr/coda/etc/vstab</tt>,
-and adds necessary Coda port numbers to <tt>/etc/services</tt>.
-<p>
-To start venus for the first time, become root and issue the following
-commands:
-<tscreen><verb>
-# venus -init &
-# xterm -e tail -f /usr/coda/etc/console &
-</verb></tscreen>
-The last command allows you to monitor Venus as it reports messages
-to <tt>/usr/coda/etc/console</tt>.
+<note><title>Linux</>
+<para>
+<itemizedlist>
 
-<sect>Upgrading from a previous Release<p>
+<listitem><para>Before restarting venus, <filename>/coda</filename> must be unmounted.  If umounting <filename>/coda</> gives trouble, make sure to exit all process that hang on to the Coda filesystem, e.g. by having files open or being cd'd into /coda.  A utility like <application>lsof</> and <application>fuser</> can help with this.  </para></listitem>
 
-If you are upgrading Coda from a previous release, do not
-run <tt>venus-setup</tt> again!  Simply obtain
-the packages for your platform as indicated above.  Then,
-shutdown venus by becoming root and issue the following command:
-<tscreen><verb>
-# vutil -shutdown
-</verb></tscreen>
-Next, install the binary packages following the installation instructions 
-above.  Make sure you have the appropriate kernel for *BSD systems
-or the correct module for Linux systems.  The <tt>INSTALL.&lt;platform&gt;</tt>
-document available from the ftp site will contain relevant notes about
-upgrading the kernel for *BSD systems and the module for Linux systems.
-INSTALL.&lt;platform&gt; will provide necessary advice on which 
-kernel to use with a provided Coda release.
+<listitem><para> <filename>/proc/fs/coda</> has interesting Coda statistics. 
+</para></listitem>
 
-Also, the Chapter on <ref id="KernelsforCoda" name="Installing and Configuring
-a kernel for use with Coda"> has information on configuring and building
-a kernel kernel (or loadable module) if a pre-build kernel or module
-won't work for the target platform.
-<p>
-Once the new binaries are installed and the any necessary kernel updates are
-completed, you need to start the new venus for the first time by becoming
-root and typing:
-<tscreen><verb>
-# venus -init &
-</verb></tscreen>
-The &lt;-init&gt; flag is used to re-initialize the 
-<tt>/usr/coda/venus.cache/</tt>.
- 
-<sect>Configuration Changes made by venus-setup<p>
+<listitem><para> You can enable kernel debugging  with <command>vutil -kdebug 4095</command> and call tracing with <command>vutil ktrace 1</>. The messages appear in <filename>/var/log/messages</>.  </para></listitem>
 
-This section describes the changes that must be made to various 
-configuration files.  Samples of the files are contained in Appendix 
-<ref id="ExampleFiles" name="XXX">.
+</itemizedlist>
+</note>
+</sect1>
 
-<sect1>/usr/coda/etc/vstab<p>
-Create a <tt>vstab</tt> file in <tt>/usr/coda/etc</tt> to contain
-the Coda file system table information.  The contents of this
-file are explained in the man page <tt>vstab(5)</tt>.
+<sect1 id="sec-win95-start-conf">
+<title>Windows 95: Starting and Configuring a Coda client</title> 
 
-<sect1>/etc/rc.*<p>
-To automatically
-start Venus at boot time, the script <tt>rc.venus</tt> is provided
-in <tt>/usr/local/etc</tt> for FreeBSD systems and <tt>/usr/pkg/etc</tt> 
-for NetBSD. <tt>venus.init</tt> is provided for Red 
-Hat Linux in <tt>/etc/rc.d/init.d</tt>.  
-<p>
-Linux uses should create the following symbolic link if it doesn't already
-exist:
-<tscreen><verb>
-ln -sf /etc/rc.d/init.d/venus.init /etc/rc.d/
-</verb></tscreen>
-This will allow <tt>init</tt> to process the file and start Venus
-at boot time on Red Hat Linux systems.
-<p>
-*BSD systems should append the following line to <tt>/etc/rc.local</tt>:
-<descrip>
-<tag/For FreeBSD:/
-<tscreen><verb>
-if [ -f /usr/local/etc/rc.venus ]; then
-	. /usr/local/etc/rc.venus
-fi
-</verb></tscreen>
+<para>During installation you will be prompted for the IP address of your Coda server(s).  Enter this as indicated.  </para>
 
-<tag/For NetBSD:/
-<tscreen><verb>
-if [ -f /usr/pkg/etc/rc.venus ]; then
-	. /usr/pkg/etc/rc.venus
-fi
-</verb></tscreen>
+<formalpara>
+<title>CodaStart</>
+<para>The <application>CodaStart</> is a Win32 windows-based application to control and observe the Windows 95 Coda client. It will be enhanced in the future. For now it provides a convenient way to start <application>venus.exe</>.  It also displays the kernel-venus communication for debugging purposes.  Printing the messages can be stopped by unticking the <guimenuitem>Monitor</> check box. The <guibutton>Reset</> button clears the display.  </para>
 
-</descrip>
+<para>When you start venus for the first time, or you want to reinitialize its cache, tick the <guimenuitem>Init venus</> check box. This will start venus with the <option>-init</> and <option>-cf 1500</> flag set. To add or override flags use the <guibutton>Configure</> button.  Start venus by clicking the left <guibutton>Start</> button. The 'Status' message will tell you 'Running' when <application>venus</> starts.  </para>
 
-<sect1>/etc/services<p>
+<para>Coda will be mounted automatically on the drive specified in the <filename>C:\usr\coda\etc\vstab</> file. <filename>Vstab</> is created by the installer.  </para>
 
-The following port numbers are added to <tt>/etc/services</tt> by
-<tt>venus-setup</tt>:
-<tscreen><verb>
+<para>To unmount, type <command>cfs uk</> in a DOS window. This will cleanly shut down venus as well.  </para>
+
+<para>You are now ready to browse through the Coda filesystem using the explorer!</para>
+
+<important><para>In some installations the DPMI DOS Extender window suspends when it is not active. In this case untick the window property <menuchoice><guimenu>Properties</><guisubmenu>Misc</><guisubmenu>Background</><guimenuitem>Always Suspend</></menuchoice>. If it is unticked, ticking and unticking it again might help. Also untick the <guimenuitem>Termination</> flag, to allow Coda to automatically shutdown, when the system shuts down. For your convenience tick the <guimenuitem>Close on Exit</> check box in the <guimenu>Program</> tab.  </para></important>
+</sect1>
+
+<sect1>
+<title>Upgrading from a previous Release</title>
+
+<para>If you are upgrading Coda from a previous release, do not run <application>venus-setup</application> again!  Simply obtain the packages for your platform as indicated above.  Then, shutdown <application>venus</> by becoming root and issue the following command:
+<informalexample><screen>
+<prompt>#</> <userinput>vutil -shutdown</userinput>
+</screen></informalexample>
+Next, install the binary packages following the installation instructions above.  Make sure you have the appropriate kernel or module for *BSD systems or the correct module for Linux systems.  The <filename>INSTALL.<replaceable>platform</replaceable></filename> document available from the Coda ftp site will contain relevant notes about upgrading your system core components.  </para>
+
+<para>Once the new binaries are installed and the any necessary kernel updates are completed, you need to start the new venus for the first time by becoming root and typing:
+<informalexample><screen>
+<prompt>#</> <userinput>venus -init &</userinput>
+</screen></informalexample>
+The <option>-init</> flag is used to re-initialize the <filename>/usr/coda/venus.cache/</>.  </para>
+</sect1>
+
+<sect1>
+<title>Configuration changes made by venus-setup</title>
+
+<para>This section describes the changes that must be made to various configuration files.  Samples of the files are contained in <xref linkend="ExampleFiles">.  </para>
+
+<formalpara>
+<title>/usr/coda/etc/vstab</title>
+<para>Create a <filename>vstab</> in <filename>/usr/coda/etc</> to contain the Coda file system table information.  The contents of this file are explained in the man page <citerefentry><refentrytitle>vstab</><manvolnum>5</></citerefentry>.  </para>
+</formalpara>
+
+<formalpara>
+<title>/etc/rc.*</title>
+<para>To automatically start venus at boot time, the script <application>rc.venus</application> is provided in <filename>/usr/local/etc</> for FreeBSD systems and <filename>/usr/pkg/etc</> for NetBSD. <application>venus.init</application> is provided for RedHat Linux in <filename>/etc/rc.d/init.d</>.  </para>
+</formalpara>
+
+<para>Linux users should create the following symbolic link if it doesn't already exist:
+<informalexample>
+<screen>
+<prompt>#</> <userinput>ln -sf /etc/rc.d/init.d/venus.init /etc/rc.d/</>
+</screen>
+</informalexample>  
+This will allow <application>init</application> to process the file and start venus at boot time on Red Hat Linux systems.  </para>
+<!-- this should be fixed by propper port -->
+<formalpara><title>FreeBSD</title>
+<para>FreeBSD system users should create <filename>/usr/local/etc/rc.d/venus.sh</> (with <literal>rwxr-xr-x</> permitions), containing:  
+<literallayout>
+#!/bin/sh
+echo -n " venus"
+/usr/local/sbin/venus &
+</literallayout>
+</para>
+</formalpara>
+<!--Same here -->
+<formalpara><title>NetBSD</title>
+<para>NetBSD system users should create <filename>/usr/pkg/etc/rc.d/venus.sh</> (with <literal>rwxr-xr-x</> permitions), containing:
+<literallayout>
+#!/bin/sh
+echo -n " venus"
+/usr/pkg/sbin/venus &
+</literallayout>
+</para>
+</formalpara>
+
+<formalpara>
+<title>/etc/services</title>
+<para>The following port numbers are added to <filename>/etc/services</> by <application>venus-setup</application>:
+<literallayout>
 coda_opcons     1355/udp                        # Coda opcons
 coda_auth       1357/udp                        # Coda auth
 coda_udpsrv     1359/udp                        # Coda udpsrv
@@ -228,46 +244,57 @@ coda_aux2       1433/tcp                        # coda auxiliary service
 coda_aux2       1433/udp                        # coda auxiliary service
 coda_aux3       1435/tcp                        # coda auxiliary service
 coda_aux3       1435/udp                        # coda auxiliary service
-</verb></tscreen>
+</literallayout>
+</para>
+</formalpara>
 
-<sect1>/dev/cfs0<p>
-The following major and minor numbers are used for the various
-platforms:
-<p>
-<itemize>
-<item>Character-special with Major 67 and minor 0 for Linux
-<tscreen><verb>
-# mknod /dev/cfs0 c 67 0
-</verb></tscreen>
-<item>Character-special with Major 93 and minor 0 for FreeBSD
-<tscreen><verb>
-# mknod /dev/cfs0 c 93 0
-</verb></tscreen>
-<item>Character-special with Major 46 and minor 0 for NetBSD 1.2
-<tscreen><verb>
-# mknod /dev/cfs0 c 46 0
-</verb></tscreen>
-<item>Character-special with Major 51 and minor 0 for NetBSD 1.3
-<tscreen><verb>
-# mknod /dev/cfs0 c 51 0
-</verb></tscreen>
-</itemize>
-Please be sure to check the <tt>INSTALL.&lt;platform&gt;</tt> to make
-sure these numbers have not changed.  For Linux and FreeBSD, the above
-numbers are officially registered.  Coda on NetBSD at present does not
-have formally registered major device numbers so these are subject to
-change from release to release.
+<formalpara>
+<title>/dev/cfs0</title>
+<para>The following major and minor numbers are used for the various platforms:
+<itemizedlist>
+<listitem><para>Character-special with Major 67 and minor 0 for Linux
+<informalexample><screen>
+<prompt>#</> <userinput>mknod /dev/cfs0 c 67 0</userinput>
+</screen></informalexample>
+</para></listitem>
+<listitem><para>Character-special with Major 93 and minor 0 for FreeBSD
+<informalexample><screen>
+<prompt>#</> <userinput>mknod /dev/cfs0 c 93 0</userinput>
+</screen></informalexample>
+</para></listitem>
+<listitem><para>Character-special with Major 46 and minor 0 for NetBSD 1.2
+<informalexample><screen>
+<prompt>#</> <userinput>mknod /dev/cfs0 c 46 0</userinput>
+</screen></informalexample>
+</para></listitem>
+<listitem><para>Character-special with Major 51 and minor 0 for NetBSD 1.3
+<informalexample><screen>
+<prompt>#</> <userinput>mknod /dev/cfs0 c 51 0</userinput>
+</screen></informalexample>
+</para></listitem>
+</itemizedlist>
+Please be sure to check the <application>INSTALL.<replaceable>platform</replaceable></application> to make sure these numbers have not changed.  For Linux and FreeBSD, the above numbers are officially registered.  Coda on NetBSD at present does not have formally registered major device numbers so these are subject to change from release to release.  </para>
+</formalpara>
 
-<sect>Where Data and Configuration Information is Stored<p>
-<itemize>
-<item>
-<tt>/usr/coda/etc</tt> Coda configuration files critical for Venus startup.
-<item>
-<tt>/usr/coda/venus.cache</tt> Cached copies of Coda files.
-<item>
-<tt>/usr/coda/spool</tt> Save CMLs from aborted reintegrations.
-<item><tt>/usr/coda/tmp</tt> Temporary hoard related files.
-<item>
-<tt>/etc/services</tt> Various port numbers used by Coda for client
+<formalpara>
+<title>Where Data and Configuration Information is Stored</title>
+<para>
+<itemizedlist>
+<listitem><para>
+<filename>/usr/coda/etc</> Coda configuration files critical for venus startup.
+</para></listitem>
+<listitem><para>
+<filename>/usr/coda/venus.cache</> Cached copies of Coda files.
+</para></listitem>
+<listitem><para>
+<filename>/usr/coda/spool</> Save CMLs from aborted reintegration.
+</para></listitem>
+<listitem><para><filename>/usr/coda/tmp</> Temporary hoard related files.
+</para></listitem>
+<listitem><para>
+<filename>/etc/services</> Various port numbers used by Coda for client
 and server communication.
-</itemize>
+</para></listitem>
+</itemizedlist>
+</sect1>
+</chapter>

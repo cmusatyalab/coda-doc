@@ -11,7 +11,7 @@ process is user-level code that uses existing kernel services.  The Venus
 client, however, requires some Coda-specific changes be made to the kernel.   
 The kernel specific changes add Coda specific definitions to
 the Vnode layer in the kernel which are needed to satisfy the 
-requirements of the Coda file system to the vfs layer in the kernel.
+requirements of the Coda file system to the VFS layer in the kernel.
 
 <sect>VFS Interface<p>
 
@@ -39,7 +39,7 @@ We have a reasonably flexible method to build kernel modules. You
 can build the module for a kernel which you are not running at the
 time of the build.
 <p>
-To build a custom coda kernel module you need to obtain the tarball
+To build a custom coda kernel module you need to obtain the tar-ball
 from:
 <p>
 <htmlurl 
@@ -51,7 +51,7 @@ And follow the instructions in the rest of this file.
 <em>NOTE:</em> The code here is always newer than or equal to:
 <itemize>
 <item> the kernel 
-<item> the big Coda tarball
+<item> the big Coda tar-ball
 </itemize>
 
 <sect1> To Build 2.1 kernels modules<p>
@@ -119,7 +119,7 @@ module for Coda is not available, Venus support is compiled into the
 kernel.  The Coda Development Group releases a pre-built GENERIC
 FreeBSD kernel with Coda Venus support.  The only differences between
 the GENERIC FreeBSD kernel and the GENERIC Coda kernel is the addition
-of Coda Filesystem and the enabling of the kernel debugger.
+of Coda File-system and the enabling of the kernel debugger.
 
 <p>
 For those who wish to compile their own kernel, go to:
@@ -171,7 +171,7 @@ The two lines that need to be added to the Coda configuration will look somethin
 
 <tscreen><verb>
 options               CFS     #Coda File System
-pseudo-device vcfs    4       # coda minicache <-> venus comm.
+pseudo-device vcoda    4       # coda minicache <-> venus comm.
 </verb></tscreen>
 
 Look at the LINT file in the configuration directory to find the most
@@ -222,7 +222,7 @@ a loadable module for Coda is not available, Venus support is compiled
 into the kernel.  The Coda Development Group releases a pre-built
 GENERIC NetBSD kernel with Coda Venus support.  The only difference
 between the GENERIC NetBSD kernel and the Coda kernel is the addition
-of Coda Filesystem.
+of Coda File-system.
 
 <p>
 For those who wish to compile their own kernel, go to:
@@ -269,7 +269,7 @@ The two lines that are need for to the Coda configuration will look something li
 
 <tscreen><verb>
 options               CFS     #Coda File System
-pseudo-device vcfs    4       # coda minicache <-> venus comm.
+pseudo-device vcoda    4       # coda minicache <-> venus comm.
 </verb></tscreen>
 
 These should have been added to the GENERIC file by the above patches.

@@ -1,0 +1,58 @@
+<!-- DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN" -->
+<chapter id="GetCoda">
+<title>Obtaining Coda</title>
+
+<para>As of time of writing, Coda is supported on Linux, NetBSD and FreeBSD. Alpha quality Windows95/98 Coda client and WindowsNT Coda server are also available for testing purposes.  We provide source code tarballs, precompiled Linux binaries in RPM packages, FreeBSD ports and NetBSD source packages.  </para>
+
+<tip><para>Always check the INSTALL and README files on (<ulink url="ftp://ftp.coda.cs.cmu.edu/pub/coda">ftp://ftp.coda.cs.cmu.edu/pub/coda/<replaceable>platform</>/</ulink>) for last minute changes and updates that have not yet found their way into the manual.</para></tip>
+
+<para>Here are the specific steps to obtain packaged distributions for supported platforms:
+</para>
+
+<formalpara>
+<title>Linux</>
+<para>Download RedHat RPMS for <application>lwp</application>, <application>rvm</application>, <application>rpc2</application>, <application>coda-debug-client</application>, and, if necessary, <application>coda-debug-server</application> from <ulink url="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux/i386/"> ftp://ftp.coda.cs.cmu.edu/pub/coda/linux/i386/</ulink>
+</para></formalpara>
+
+<formalpara>
+<title>FreeBSD</>
+
+<para>Download FreeBSD ports for <application>lwp</application>,
+<application>rvm</application>, <application>rpc2</application> and
+<application>coda</application> from <ulink
+url="ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/">
+ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/</ulink>
+and untar them into <filename>/usr/ports</filename> directory on your system:
+
+<screen>
+<prompt>#</> <userinput>cd /usr/ports</userinput>
+<prompt>#</> <userinput>tar xvzf <replaceable>path_to_downloaded_files</replaceable>/ports-lwp-<replaceable>version</replaceable>.tgz</userinput>
+<prompt>#</> <userinput>tar xvzf <replaceable>path_to_downloaded_files</replaceable>/ports-rvm-<replaceable>version</replaceable>.tgz</userinput>
+<prompt>#</> <userinput>tar xvzf <replaceable>path_to_downloaded_files</replaceable>/ports-rpc2-<replaceable>version</replaceable>.tgz</userinput>
+<prompt>#</> <userinput>tar xvzf <replaceable>path_to_downloaded_files</replaceable>/ports-coda-<replaceable>version</replaceable>.tgz</userinput>
+</screen>
+</formalpara>
+
+<formalpara>
+<title>NetBSD</> 
+
+<para>Download NetBSD source packages for <application>lwp</application>, <application>rvm</application>, <application>rpc2</application> and <application>coda</application> from <ulink url="ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/">ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/</ulink> and untar them into <filename>/usr/pkgsrc</filename> directory on your system:
+
+<screen>
+<prompt>#</> <userinput>cd /usr/pkgsrc</userinput>
+<prompt>#</> <userinput>tar xvzf <replaceable>path_to_downloaded_files</replaceable>/pkgsrc-lwp-<replaceable>version</replaceable>.tgz</userinput>
+<prompt>#</> <userinput>tar xvzf <replaceable>path_to_downloaded_files</replaceable>/pkgsrc-rvm-<replaceable>version</replaceable>.tgz</userinput>
+<prompt>#</> <userinput>tar xvzf <replaceable>path_to_downloaded_files</replaceable>/pkgsrc-rpc2-<replaceable>version</replaceable>.tgz</userinput>
+<prompt>#</> <userinput>tar xvzf <replaceable>path_to_downloaded_files</replaceable>/pkgsrc-coda-<replaceable>version</replaceable>.tgz</userinput>
+</screen>
+</formalpara>
+
+<formalpara>
+<title>Source tarballs</>
+<para>You can obtain source code tarballs from <ulink url="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/">ftp://ftp.coda.cs.cmu.edu/pub/coda/src/</ulink>.  To compile Coda you mast get following tarballs: <filename>lwp-<replaceable>version</>.tar.gz</filename>, <filename>rpc2-<replaceable>version</>.tar.gz</filename>, <filename>rvm-<replaceable>version</>.tar.gz</filename> and <filename>coda-<replaceable>version</>.tar.gz</filename>.  
+</para>
+</formalpara>
+
+<important><para>FreeBSD ports and NetBSD packages are actualy only frameworks for compilation, they will download source tarballs and build Coda on your system.  If you wish to perform Coda installation at later time, when Internet access would not be available, please download tarballs listed above and put them into <filename>/usr/ports/distfiles</> (FreeBSD) or <filename>/usr/pkgsrc/distfiles</>(NetBSD) on your system.  </para></important>
+
+</chapter>

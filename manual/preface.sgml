@@ -1,94 +1,34 @@
-<chapt> Preface					<label id="Preface">
-<p>
-Welcome to Coda!  Whether you are at Carnegie Mellon or elsewhere, 
-we hope that this manual will help you make effective use of the Coda
-File System.  The manual is written from two different perspectives:
-end user and system administrator.  Chapters <ref id="GettingStarted">
-through <ref id="TroubleShooting"> are intended for end users, while
-Chapters <ref id="SystemOverview"> through <ref id="ReinitCoda"> are
-intended for system administrators.  Also, <ref id="SourceLayout">
-gives an overview of the Coda source tree layout.  The Unix-style man
-pages in Appendix <ref id="ManPages"> provide the gory details of
-Coda commands and file formats.
+<preface id="Preface">
+<title>Preface</>
 
-In writing this manual, we have assumed that you are an experienced
-Unix user, familiar with the broad concepts of distributed file
-systems.  If you are a system administrator, we assume that you are
-familiar with administering Unix systems.  You will find Coda
-especially easy to use if you are already fluent in using AFS.
+<para> Welcome to Coda!  Whether you are at Carnegie Mellon or elsewhere, we hope that this manual will help you make effective use of the Coda File System.  The manual is written from two different perspectives: end user and system administrator. If your organization is already running Coda, and you need to learn how to use it - <xref linkend="GettingStarted"> and <xref linkend="CommonScenarios"> should fully answer your questions. For more adventurous among you, who wan't to maintain your own Coda client, please read <xref linkend="SysOvr"> through <xref linkend="ClientInstall">. The rest of the book is dedicated specifics of system administration.</para>
 
-We have also assumed that you are familiar with the design goals and
-architecture of Coda.  The best way to learn about these is to read
-the overview and design rationale papers on Coda <cite
-id="Satyanarayanan90z">, <cite id="Satyanarayanan90y">, <cite
-id="Kistler92">.  We urge you to obtain copies of these papers and to
-read them before attempting to use Coda.  Those papers provide context
-and information upon which this manual relies and does not repeat.  
+<para>In writing this manual, we have assumed that you are an experienced Unix user, familiar with the broad concepts of distributed file systems.  If you are a system administrator, we assume that you are familiar with administering Unix systems.  You will find Coda especially easy to use if you are already fluent in using <acronym>AFS</>.  </para>
 
-Since Coda is an experimental system and not a commercial product, you
-will inevitably encounter rough edges.  Within the limits of our
-resources, we will do our best to fix these problems and to improve
-the system over time.  But we do ask that you try to characterize the
-problem as accurately as possible, and to try and obtain a repeatable
-and concise instance of it.
+<para>We have also assumed that you are familiar with the design goals and architecture of Coda.  The best way to learn about these is to read the overview and design rationale papers on Coda <xref linkend="Satyanarayanan90z">, <xref linkend="Satyanarayanan90y">, <xref linkend="Kistler92">.  We urge you to obtain copies of these papers and to read them before attempting to use Coda.  Those papers provide context and information upon which this manual relies and does not repeat.  </para>
 
-We encourage you to talk to other Coda users and to share your
-experience.  If you are at CMU-SCS, you should subscribe to the Coda
-bulletin boards.  The three most important ones for you as an end user
-are <tt>cmu.cs.proj.coda.&lcub;general,laptops,bugs&rcub;</tt>.
-Report bugs that you find to the latter bboard.  System administrators
-should also subscribe to the
-<tt>cmu.cs.proj.coda.&lcub;changelog,backuplogs&rcub;</tt>.
+<para>Since Coda is an experimental system and not a commercial product, you will inevitably encounter rough edges.  Within the limits of our resources, we will do our best to fix these problems and to improve the system over time.  But we do ask that you try to characterize the problem as accurately as possible, and to try and obtain a repeatable and concise instance of it.  </para>
 
-After you have taken the time to learn the system well, please give us your
-feedback.  We would like to improve the system and this manual.
+<para>After you have taken the time to learn the system well, please give us your feedback.  We would like to improve the system and this manual.</para>
+
+<sect1>
+<title>Further Reading</>
+
+<para>Besides the three papers mentioned above, there are a number of papers that address specific aspects of Coda.  These include:
+<itemizedlist>
+<listitem><para>A description of the MiniCache, which allows the client manager to reside outside the kernel without excessive loss of performance <xref linkend="Steere90">.  </para></listitem>
+<listitem><para> A description and performance analysis of the technique used in Coda for transparent directory resolution <xref linkend="Kumar93">.  </para></listitem>
+<listitem><para> A manual on the remote procedure call, <acronym>RPC2</>, and threading, <acronym>LWP,</> mechanisms used in Coda <xref linkend="Satya91">.  </para></listitem>
+<listitem><para> A paper and manual on the transactional facility, <acronym>RVM</>, used on Coda clients and servers <xref linkend="Satyanarayanan93">, <xref linkend="Mashburn92">.  </para></listitem>
+<listitem><para>A detailed description of support for disconnected operation in Coda <xref linkend="Kistler93">.  Chapter 4 of this document offers an excellent overview of the implementation structure of clients and servers.  </para></listitem>
+<listitem><para> A discussion of relevant security issues and mechanisms to address them <xref linkend="Satyanarayanan89c">.  This paper discusses security in AFS-2, but the mechanisms in Coda are virtually identical.  </para></listitem>
+</itemizedlist>
+</para>
+</sect1>
 
 
-<sect> Further Reading <p>
-
-Besides the three papers mentioned above, there are a number of papers that 
-address specific aspects of Coda.  These include:
-<itemize>
-<item>
-A description of the MiniCache, which allows the client manager to
-reside outside the kernel without excessive loss of performance <cite
-id="Steere90">.
-<item>
-A description and performance analysis of the technique used in Coda for 
-transparent directory resolution <cite id="Kumar93">.
-<item>
-A manual on the remote procedure call, <em>RPC2,</em> and threading,
-<em>LWP,</em> mechanisms used in Coda <cite id="Satya91">.
-<item>
-A paper and manual on the transactional facility, <em>RVM,</em> used
-on Coda clients and servers <cite id="Satyanarayanan93">,
-<cite id="Mashburn92">.
-<item>
-A detailed description of support for disconnected operation in
-Coda <cite id="Kistler93">.  Chapter 4 of this document offers an
-excellent overview of the implementation structure of clients and
-servers.
-<item>
-A discussion of relevant security issues and mechanisms to address
-them <cite id="Satyanarayanan89c">.  This paper discusses security in
-AFS-2, but the mechanisms in Coda are virtually identical.
-</itemize>
-
-
-<sect> Acknowledgements <p>
-
-Coda is the work of many individuals.  Contributors to the design and
-implementation of various aspects of the system include: Jay Kistler,
-Puneet Kumar, David Steere, Lily Mummert, Maria Ebling,
-M. Satyanarayanan, Hank Mashburn, Brian Noble, Lu Qi, Josh Raiff,
-Ellen Siegel, Anders Klemets, and Kudo Masahi.  Many of these
-individuals have also contributed to the writing of this manual.  The
-system has improved considerably in response to feedback from users
-outside the Coda project.  The earliest of these users (Tom Mitchell,
-Manuela Veloso, and Matt Zekauskas) deserve special thanks for their
-willingness to sail into uncharted waters!
-
-
-<sect> Reading List <p>
-
-<!-- biblio style="alpha" files="manual"  FAILS HERE -->
+<sect1>
+<title>Acknowledgments</>
+<para>Coda is the work of many individuals.  Contributors to the design and implementation of various aspects of the system include: Jay Kistler, Puneet Kumar, David Steere, Lily Mummert, Maria Ebling, M. Satyanarayanan, Hank Mashburn, Brian Noble, Lu Qi, Josh Raiff, Ellen Siegel, Anders Klemets, and Kudo Masahi.  Many of these individuals have also contributed to the writing of this manual.  The system has improved considerably in response to feedback from users outside the Coda project.  The earliest of these users (Tom Mitchell, Manuela Veloso, and Matt Zekauskas) deserve special thanks for their willingness to sail into uncharted waters!  </para>
+</sect1>
+</preface>

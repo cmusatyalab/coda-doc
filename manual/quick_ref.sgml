@@ -1,0 +1,97 @@
+<appendix id="QuickRef">
+<title>Quick Reference</>
+
+<table>
+<title>Popular commands</>
+<tgroup cols=2>
+<tbody>
+<row>
+  <entry>
+    <cmdsynopsis>
+      <command>cfs</>
+      <arg choice=req>checkpointml</>
+    </cmdsynopsis>
+  </entry>
+  <entry>Checkpoint Coda modify log</entry>
+</row>
+<row>
+  <entry>
+    <cmdsynopsis>
+      <command>cfs</>
+      <arg choice=req>la</>
+      <arg><replaceable>dir</></arg>
+    </cmdsynopsis>
+  </entry>
+  <entry>Display a Coda access control list</entry>
+</row>
+<row>
+  <entry>
+    <cmdsynopsis>
+      <command>cfs</>
+      <arg choice=req>sa</>
+      <arg><replaceable>dir</></arg>
+    </cmdsynopsis>
+  </entry>
+  <entry>Set a Coda access control list</entry>
+</row>
+<row>
+  <entry>
+    <cmdsynopsis>
+      <command>clog</>
+    </cmdsynopsis>
+  </entry>
+  <entry>Authenticate to Coda servers</entry>
+</row>
+<row>
+  <entry>
+    <cmdsynopsis>
+      <command>cpasswd</>
+    </cmdsynopsis>
+  </entry>
+  <entry>Change your Coda password</entry>
+</row>
+<row>
+  <entry>
+    <cmdsynopsis>
+      <command>ctokens</>
+    </cmdsynopsis>
+  </entry>
+  <entry>List Coda tokens</entry>
+</row>
+<row>
+  <entry>
+    <cmdsynopsis>
+      <command>hoard</>
+    </cmdsynopsis>
+  </entry>
+  <entry>Set your hoard database</entry>
+</row>
+<row>
+  <entry>
+    <cmdsynopsis>
+      <command>hoard</>
+      <arg choice=req>list</>
+    </cmdsynopsis>
+  </entry>
+  <entry>List your hoard database</entry>
+</row>
+<row>
+  <entry>
+    <cmdsynopsis>
+      <command>repair</>
+    </cmdsynopsis>
+  </entry>
+  <entry>Repair inconsistent files and directories</entry>
+</row>
+<row>
+  <entry>
+    <cmdsynopsis>
+      <command>spy</>
+    </cmdsynopsis>
+  </entry>
+  <entry>List all Coda files that are referenced</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+</appendix>

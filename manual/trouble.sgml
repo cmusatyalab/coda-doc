@@ -1,16 +1,579 @@
-<chapt> Troubleshooting <label id="TroubleShooting">
-<p>
-This chapter is meant to help solve some of the problems you may run
-into when using Coda.  
+<!-- DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN" -->
+<chapter id="TroubleShooting">
+<title>Troubleshooting</>
 
-<sect>File System Full
-<p>
-You may get a message of the form, <em>/usr: file system full</em> when you
-have not put any extra data on that disk.  If the venus.cache directory is on
-that disk, that is probably your problem.  You can execute either <em>cfs
-flushobject &lt;object&gt;</em> or <em>cfs flushvolume &lt;dir&gt;</em> to try
-to free up some disk space.  <bf>Be careful when flushing anything while
-disconnected.  You will lose any changes that you made</bf>.  In the long
-term, the cache size in <em>/usr/coda/etc/vstab</em> is proabably too large
-for the disk and should be made smaller.
+<para>The Coda filesystem is still under development, and there certainly are several bugs which can crash both clients and servers. However, many problems users observe are related to semantical differences of the Coda filesystem compared to well-known NFS or SMB network filesystems.  </para>
+
+<para>This chapter will point out several logs to look at for identifying the cause of problems. Even if the source of the problem cannot be found, the information gathered from Coda's logging mechanisms will make it easier for people on the coda mailinglist <ulink url="mailto:codalist@coda.cs.cmu.edu">codalist@coda.cs.cmu.edu</ulink> to assist in solving the problem(s).  </para>
+
+<para>Some of the more common problems are illustrated in detail. At the end of this chapter some of the more involved debugging techniques will be addressed. This will be helpful to developers to isolate problems more easily.  At the end there is a whole section describing how to solve some problems with using Coda client on Windows95.  </para>
+
+<sect1>
+<title>Basic Troubleshooting</>
+
+<para>Most problems can be solved, or at least recognized by using the information logged by the clients and servers. The first step in finding out where the problems stems from is doing a <command>tail -f</> on the logfiles.  </para>
+
+<para>It must also be noted that, when coda clients and servers crash they do not `dump core', but start sleeping so that we developers can attach debuggers.
+As a result, a crashed client or server still shows up in the <command>ps auxwww</> output, and only the combination of lack of file-service and error messages in logfiles indicate that something is really wrong.  </para>
+
+<para>Since release 5.3.4 servers now actually exit when they crash, create a file <filename>/vice/srv/ZOMBIFY</filename> to force a server to go into an endless sleep again.  </para>
+
+<formalpara>
+<title>Client debugging output</>
+<para>
+<itemizedlist>
+<listitem><para><application>codacon</application> is a program which connects to venus and provides the user with run-time information. It is the initial source of information, but cannot be used to look back into the history. It is therefore advisable to always have a codacon running in a dedicated xterm.  
+<screen>
+    <prompt>client$</> <userinput>codacon</>
+</screen>
+</para>
+</listitem>
+
+<listitem><para> <filename>/usr/coda/etc/console</filename> is a logfile which contains mostly error or warning messages, and is a place to look for errors which might have occured. When assertions in the code fail, it is logged here.  </para></listitem>
+
+<listitem><para><filename>/usr/coda/venus.cache/venus.log</filename> contains more in-depth information about the running system, which can be helpful to find out what the client is or was doing.</para></listitem>
+</itemizedlist>
+</para>
+</formalpara>
+
+<formalpara>
+<title>Server logs</>
+<para>
+<itemizedlist>
+<listitem><para><application>cmon</application> is an ncurses program that can be run on a client to gather and display statistics from a group of servers. When a server goes down it will not respond to the statistics requests, which makes this a simple method for monitoring server availability.  
+<screen>
+    <prompt>client$</> <userinput>cmon server1 server2 server3 ...</>
+</screen>
+</para>
+</listitem>
+
+<listitem><para><filename>/vice/srv/SrvLog</filename> and <filename>/vice/srv/SrvErr</filename> are the server logfiles.</para></listitem>
+</itemizedlist>
+</para>
+</formalpara>
+
+<para>Other logfiles that could be helpful in discovering problems are:
+<itemizedlist>
+<listitem><para><filename>/vice/auth2/AuthLog</filename></para></listitem>
+<listitem><para><filename>/vice/srv/portmaplog</filename></para></listitem>
+<listitem><para><filename>/vice/srv/UpdateClntLog</filename></para></listitem>
+<listitem><para><filename>/vice/srv/UpdateLog</filename></para></listitem>
+</itemizedlist>
+</para>
+</sect1>
+
+<sect1 id="ClientTroubleshooting">
+<title>Client Problems</>
+
+<qandaset>
+<qandaentry>
+<question><para>Client does not connect to <systemitem class="systemname">testserver.coda.cs.cmu.edu</systemitem>.  </para></question>
+<answer>
+<para>When you have set up your client for the first time, and it can not connect to the testserver at CMU, there are a couple of possible reasons. You might be running an old release of Coda, check the Coda web-site to see what the latest release is.  </para>
+
+<para>Another common reason is that your site is behind a firewall, which blocks, or allows only outgoing, udp traffic. Either try Coda on a machine outside of the firewall, or set up your own server.  </para>
+
+<para>The third reason is that the testserver might be down, for maintenance or
+upgrades. That does not happen often, but you can check whether it is up, and
+how long it has been running using <application>cmon</>. </para>
+
+<informalexample>
+<screen>
+<prompt>client$</> <userinput>cmon testserver.coda.cs.cmu.edu</>
+</screen>
+</informalexample>
+</answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>Venus comes up but prints <computeroutput>cannot find RootVolume</computeroutput>.  </para></question>
+<answer>
+<para>All of the reasons in the previous item could be the cause.  It is also possible that your <filename>/etc/services</filename> file is not allright.  It needs the entries:
+<screen>
+# IANA allocated Coda filesystem port numbers
+rpc2portmap     369/tcp    
+rpc2portmap     369/udp    # Coda portmapper
+codaauth2       370/tcp    
+codaauth2       370/udp    # Coda authentication server
+
+venus           2430/tcp   # codacon port
+venus           2430/udp   # Venus callback/wbc interface 
+venus-se        2431/tcp   # tcp side effects
+venus-se        2431/udp   # udp sftp side effect
+codasrv         2432/tcp   # not used
+codasrv         2432/udp   # server port
+codasrv-se      2433/tcp   # tcp side effects
+codasrv-se      2433/udp   # udp sftp side effect
+</screen>
+</para>
+</answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>Trying to access a file returns <computeroutput>Connection timed out (ETIMEDOUT)</computeroutput>. </para></question>
+
+<answer>
+<para>The main reason for getting <computeroutput>Connection timed out</> errors is that the volume where the file is located is disconnected from the servers. However, it can also occur in some cases when the client is in write-disconnected mode, and there is an attempt to read a file which is open for writing. See
+<xref linkend="Disconnections"> for more information.  </para>
+</answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>Commands do not return, except by using <literal>^C</literal>.</para></question>
+<answer>
+<para>When command are hanging it is likely that <application>venus</> has crashed. Check <filename>/usr/coda/etc/console</filename> and <filename>/usr/coda/venus.cache/venus.log</filename>.  </para>
+</answer>
+</qandaentry>
+
+<qandaentry><question><para><application>Venus</> fails when restarted.  </para></question>
+<answer>
+<para>If venus complains in <filename>venus.log</filename> about not being able to open <filename>/dev/cfs0</filename>, it is because <filename>/coda</filename> is still mounted.
+
+<screen>
+<prompt>#</> <userinput>umount /coda</>
+</screen>
+
+Another reason for not restarting is that another copy of venus is still around, and venus is unable to open it's network socket. In this case there will be a message in <filename>venus.log</> stating that RPC2_CommInit has failed.  </para>
+</answer>
+</qandaentry>
+
+<qandaentry><question><para><application>Venus</> doesn't start.</para></question>
+<answer>
+<para>A reason is that you do not have the correct kernel module. This can be tested by inserting the module by hand, and then listing the available modules. <literal>coda</> should show up in that listing. Otherwise reinstall (or recompile) a new module.  
+
+<screen>
+<prompt>#</> <userinput>depmod -a</>
+<prompt>#</> <userinput>insmod coda.o</>
+<prompt>#</> <userinput>lsmod</>
+Module                  Size  Used by
+coda                   50488   2
+</screen>
+
+If the kernel-module can be loaded without errors, check <filename>venus.log</>. A message <literal>Cannot get rootvolume name</> indicated either a misconfigured server or the <literal>codasrv</> and/or <literal>codasrv-se</> ports are not defined in <filename>/etc/services</filename>, which should contain the following entries. See above for the entries needed.  </para>
+</answer>
+</qandaentry>
+
+<qandaentry><question><para>I'm disconnected and <application>Venus</> doesn't start.  </para></question>
+<answer>
+<para>Put the hostnames of your servers in <filename>/etc/hosts</filename>.  </para>
+</answer>
+</qandaentry>
+
+<qandaentry><question><para>I cannot get tokens while disconnected. </para></question>
+<answer>
+<!-- That is really nasty -->
+<para>Take a vacation until we release a version of Coda which uses it's
+telepathic abilities to contact the <application>auth2</> server. We will add this feature.  </para>
+</answer>
+</qandaentry>
+
+<qandaentry><question><para>Hoard doesn't work.  </para></question>
+<answer>
+<para>Make sure you have version 5.0 of Coda or later.  Before you can hoard you must make sure that:
+
+<itemizedlist>
+<listitem><para> You started <application>Venus</> with the flag <option>-primaryuser <replaceable>youruid</></option></para></listitem>
+<listitem><para> You have tokens</para></listitem>
+</itemizedlist>
+</para>
+</answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>File System Full</para></question>
+<answer>
+<para>You may get a message of the form, <computeroutput>/usr: file system full</> when you have not put any extra data on that disk.  If the <filename>venus.cache</> directory is on that disk, that is probably your problem.  You can execute either <command>cfs flushobject <replaceable>object</replaceable></command> or <command>cfs flushvolume <replaceable>dir</replaceable></command> to try to free up some disk space.  <warning><para>Be careful when flushing anything while disconnected.  You will lose any changes that you made.  </para></warning>In the long term, the cache size in <filename>/usr/coda/etc/vstab</> is probably too large for the disk and should be made smaller.  </para>
+</answer>
+</qandaentry>
+</qandaset>
+</sect1>
+
+<sect1>
+<title>Server Problems</>
+
+<qandaset>
+<qandaentry><question><para>The server crashed and prints messages about <computeroutput>AllocViaWrapAround</>.  </para></question>
+<answer>
+<para>This happens when you have a resolution log that is full.  In the <filename>SrvLog</> you will usually be able to see which volume is affected, take down it's volume id (you may need to consult <filename>/vice/vol/VRList</filename> on the SCM to do this.  Kill the dead (zombied) server, and restart it.  The moment it is up you do:
+
+<screen>
+<prompt>#</> <userinput>filcon isolate -s <replaceable>this_server</></userinput>
+<lineannotation>We need to prevent clients from overwriting the log again</>
+<prompt>#</> <userinput>volutil setlogparms <replaceable>volid</> reson 4 logsize 16384</userinput>
+<prompt>#</> <userinput>filcon clear -s <replaceable>this_server</></userinput>
+</screen>
+
+Unless you do "huge" things 16k will be plenty. 
+</para>
+</answer>
+</qandaentry>
+
+<qandaentry><question><para>server doesn't start due to salvaging problems</para></question> 
+<answer>
+<para>If this happens you have several options.  If the server has crashed during salvaging it will not come up by trying again, you must either repair the damaged volume or not attach that volume.  </para>
+
+<informalexample>
+<para>Not attaching the volume is done as follows.  Find the volume id of the damaged volume in the <filename>SrvLog</filename>. Create a file named <filename>/vice/vol/skipsalvage</filename> with the lines:
+</para>
+<screen>
+1		<co id="first">
+0xdd000123	<co id="second">
+</screen>
+<calloutlist>
+<callout arearefs="first">
+<para>indicates that a single volume is to be skipped</>
+</callout>
+<callout arearefs="second">
+<para>volume id of the replica that should not be attached.  If this volume is a replicated volume, take all replicas offline, since otherwise the clients will get very confused.  </para>
+</callout>
+</calloutlist>
+</informalexample>
+
+<para>You can also try to repair the volume with <application>norton</>.  <application>Norton</> is invoked as: 
+<cmdsynopsis>
+<command>norton</> <arg>LOG</> <arg>DATA</> <arg>DATA-SIZE</>
+</cmdsynopsis>  These parameters can be found in /vice/srv.conf.   See <citerefentry><refentrytitle>norton</><manvolnum>8</></citerefentry> for detailed information about <application>norton</>'s operation. Built-in help is also available while running <application>norton</>.  </para>
+
+<para>
+  <note>
+    <para>
+      <orderedlist>
+	  <listitem><para>Often corruption is replicated.  This means that if you find a server has crashed and does not want to salvage a volume, your other replicas may suffer the same fate: the risk is that you may have to go back to tape (you do make tapes, right?).  Therefore <emphasis>first</emphasis> copy out good data from the available replicas, <emphasis>then</emphasis> attend to repairing or skipping them in salvage.  </para></listitem>
+
+	  <listitem><para>Very often you have to take both a volume and its most recent clone (generated during backup) offline, since corruption in a volume is inherited by the clone.  </para></listitem>
+
+	  <listitem><para>If you find that a replica of a volume is corrupt, <emphasis>do not attempt to merely replace that replica</>.  We have found that this corrupts the volume databases.  It is better to make a new replicated volume and copy of the data from the healthy replicas (keep the server with the bad replica down).  </para></listitem>
+      </orderedlist>
+    </para>
+  </note>
+</para>
+</answer>
+</qandaentry>
+
+<qandaentry><question><para>How to restore a backup from tape </para></question>
+<answer>
+<!-- Change into less fairy-tale fashioned -->
+<para>Tuesday I have lost my email folder - the whole volume <filename>moose:braam.life</> was corrupted on server <systemitem class="systemname">moose</> ant it wouldn't salvage.  Here is how I got it back.  </para>
+
+<procedure>
+<step>
+<para>First I tried mounting <filename>moose.braam.life.0.backup</> but this was
+corrupted too.</para>
+</step>
+
+<step>
+<para>On the SCM in <filename>/vice/vol/VRList</filename> I found the replicated volume number <literal>f0000427</> and the volume number <literal>ce000011</> (fictious) for the volume.  </para>
+</step>
+
+<step>
+<para>I logged in as root to <systemitem class="systemname">bison</>, our backup controlller.  I read the <filename>backuplog</> for Tuesday morning in <filename>/vice/backuplogs/backuplog.DATE</> and saw that the incremental dump for August 31st had been fine.  At the end of that log, I saw the name <literal>f0000427.ce000011</> listed as dumped under <filename>/backup</> (a mere symlink) and<filename>/backup2</> as spool directory with the actual file. The backup log almost shows how to move the tape to the correct place and invoke restore:
+
+<screen>
+<prompt>#</> <userinput>cd /backup2</>
+<prompt>#</> <userinput>mt -f /dev/nst0 rewind</>
+<prompt>#</> <userinput>restore -b 500 -f /dev/nst0 -s 3 -i</>
+<lineannotation>Value after <option>-s</> depends upon which <filename>/backup<replaceable>[123]</></filename> volume we pick to restore backup.</lineannotation>
+<prompt>restore></> <userinput>cd 31Aug1998</>
+<prompt>restore></> <userinput>add viotti.coda.cs.cmu.edu-f0000427.ce000011</>
+<prompt>restore></> <userinput>extract</>
+<prompt>Specify volume #:</> <userinput>1</>
+</screen>
+</para>
+</step>
+
+<step>
+<para>In <filename>/vice/db/dumplist</> I saw that the last full backup had been on Friday Aug28. I went to the machine room and inserted that tape (recent tapes are above <systemitem class="systemname">bison</>).  This time <literal>f0000427.ce000011</literal> was a 200MB file (the last full dump) in <filename>/backup3</>. I extract the file as above.  </para>
+</step>
+
+<step>
+<para>Then I merged the two dumps:
+<screen>
+<prompt>#</> <userinput>merge /restore/peter.mail /backup2/28Aug1998/f0000427.ce000011 \</>
+<prompt>></> <userinput>/backup3/31Aug1998/f0000427.ce000011</>
+</screen>
+</step>
+
+<step>
+<para>
+This took a minute or two to create /restore/peter.mail. Now all that was needed was to upload that to a volume:
+
+<screen>
+<prompt>#</> <userinput>volutil -h moose restore /restore/peter.mail /vicepa vio:braam.mail.restored</>
+</screen>
+</para>
+</step>
+
+<step>
+<para>
+Back to the SCM, to update the volume databases:
+<screen>
+<prompt>#</> <userinput>bldvldb.sh viotti</>
+</screen>
+</para>
+</step>
+
+<step>
+<para>
+Now I could mount the restored volume: 
+<screen>
+<prompt>#</> <userinput>cfs mkm restored-mail vio:braam.mail.restored</>
+</screen>
+
+and copy it into a read write volume using cpio or tar. 
+</para>
+</step>
+</procedure>
+</answer>
+</qandaentry>
+
+<qandaentry><question><para>createvol_rep reports RPC2_NOBINDING.</para></question>
+<answer>
+<para>When trying to create volumes, and createvol_rep reports <computeroutput>RPC2_NOBINDING</>, it is an indication that the server is not (yet) accepting connections.  </para>
+
+<para>It is useful to look at <filename>/vice/srv/SrvLog</>, the server performs the equivalent of <command>fsck</> on startup, which might take some time. Only when the server logs <computeroutput>Fileserver Started</> in <filename>SrvLog</>, it starts accepting incoming connections.  
+</para>
+
+<para>Another reason could be that an old server is still around, blocking the new server from accessing the network ports.  </para>
+</answer>
+</qandaentry>
+
+<qandaentry><question><para><computeroutput>RPC2_DUPLICATESERVER</> in the rpc2portmap/auth2 logs</para></question>
+<answer>
+<para>Some process has the UDP port open which <application>rpc2portmap</> or <application>auth2</> is trying to obtain. In most cases this is an already running copy of <application>rpc2portmap</> or <application>auth2</>.  Kill all running copies of the program in question and restart them.  </para>
+</answer>
+</qandaentry>
+
+<qandaentry><question><para>Server crashed shortly after updating files in <filename>/vice/db</filename>.</para></question>
+<answer>
+<para>Servers can crash when they are given inconsistent or bad data-files. You should check whether <application>updateclnt</> and <application>updatesrv</> are both running on the SCM and the machine that has crashed. You can kill and restart them. Then restart <application>codasrv</> and it should come up.  </para>
+ </answer>
+</qandaentry> 
+
+<qandaentry><question><para>Users cannot authenticate or created volumes are not mountable.</para></question>
+<answer>
+<para>Check whether <application>auth2</>, <application>updateclnt</>, and <application>updatesrv</> are running on all fileservers.  Also check their logfiles for possible errors.  </para>
+</answer>
+</qandaentry>
+</qandaset>
+</sect1>
+
+<sect1 id="Disconnections">
+<title>Disconnections.</>
+
+<qandaset>
+<para>As most common problems are related to the semantical differences arising as a result of `involuntary' disconnections, this section contains some background information of why volumes become disconnected or write-disconnected. And how to get them to reconnect again.  </para>
+<qandaentry>
+<question><para>Volume is fully disconnected.  </para></question>
+<answer>
+<para>There are several reasons why a coda client may have disconnected some or all volumes from an accessible server.</para>
+
+<itemizedlist>
+<listitem>
+<formalpara><title> Pending reintegration.</>
+<para>When modifications have been made to the volume in disconnected mode, the client will not reconnected the volume until all changes have been reintegrated. Also, reintegration will not occur without proper user authentication tokens. Furthermore, reintegration is suspended as long as there are objects in conflict.
+</para>
+</formalpara>
+
+<para>The most important item here is to have a <application>codacon</application> process running, since it will give up-to-date information on what venus is doing. Venus will inform the user about missing coda authentication tokens, <computeroutput>Reintegration: pending tokens for user <replaceable>uid</replaceable></computeroutput>.  In this case the user should authenticate himself using the <application>clog</application> command.  </para>
+
+<para>Conflicts, which require us to use the <application>repair</application> tool, are conveyed using the <computeroutput>local object <replaceable>pathname</replaceable> inconsistent</> message. Otherwise <application>codacon</> should show messages about <literal>backfetches</>, and how many modifications were successfully reintegrated.  </para>
+</listitem>
+
+<listitem>
+<formalpara><title> Access permissions.</>
+<para>The client may also disconnect when a servers reports an error to an operation, when according to the client this is a valid operation. Causes for this are authentication failure; check tokens using <application>ctokens</application> and optionally obtain new tokens using <application>clog</application>. Or inconsistencies between the data cached on the client and the actual data stored on the server; this will reveal itself as an inconsistent object during subsequent reintegration.  </para>
+</formalpara>
+</listitem>
+
+<listitem>
+<formalpara><title> Lost connections.</>
+<para>Sometimes the client does not receive a prompt reply from an accessible server, and marks the server as dead. This will ofcourse disconnect the volume if the last server is lost. Once every five minutes, the client automatically verifies connectivity with all known servers, and can thus recover from lost connections. However, this action can also be triggered by the user by excecuting the <command>cfs checkservers</>.  If <command>cfs checkservers</> reports that servers are unreachable, it might be interesting to check with <application>cmon</application>, if the server is responding at all, since we might be faced with a crashed server. When a server was considered unreachable, but is successfully contacted after <command>cfs checkservers</>, reintegration will automatically start (when a user has tokens, and there are no inconsistencies).
+</para>
+</formalpara>
+</listitem>
+</itemizedlist>
+</answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>Volume is write-disconnected.</para></question>
+<answer>
+<para><emphasis>Write-disconnected operation</> is used as often as <emphasis>weakly connected mode</> to describe this volume state, and they are effectively the same. This is the special situation where a client observes a weak connectivity with a server, and therefore forces the associated volumes in weakly connected mode. Weakly connected volumes postpone writing to the server to significantly reduce waiting on a slow network connection. Read operations are still serviced by the local cache and the servers, as in fully connected mode. Which is why this mode of operation is also called write-disconnected operation.  </para>
+
+<para>The write operations are effectively a continuous reintegration (<emphasis>trickle-reintegration</>) in the background. This mode, therefore, requires users to be authenticated and gives more chance for possible file conflicts.  The following points are several reasons for write-disconnected operation.  </para>
+
+<itemizedlist>
+<listitem>
+<formalpara><title> Weak network connectivity.</>
+<para>Venus uses bandwidth estimates made by the RPC2 communication layer to decide on the quality of the network connection with the servers. As soon as the connectivity to one of the servers drops to below the weakly connected treshhold (currently 50 KB/s), it will force all volumes associated with that server into weakly-connected mode. The <command>cfs wr</> can be used to force the volumes back into fully connected mode, and immediately reintegrate all changes.
+</para>
+</formalpara>
+
+<para>To avoid switching to weakly connected mode, use <command>cfs strong</>. This way <application>venus</> ignores bandwidth estimates. <command>cfs adaptive</> will make <application>venus</> revert to interpreting bandwidth estimates.  </para>
+
+<para>When the user was not authenticated, or conflicts were created during the write-disconnected operation, the user must first obtain proper authentication tokens or repair any inconsistent objects before the volume becomes fully connected again. Here again <application>codacon</application> is an invaluable tool for obtaining insight into the client's behaviour.  </para>
+</listitem>
+
+<listitem>
+<formalpara><title> User requested write-disconnect mode.</>
+<para>Users can ask venus to force volumes in write-disconnected mode, exchanging high consistency for significantly improved performance. By using the <option>-age</> and <option>-time</> flags in the <command>cfs wd</> commandline, some control is given about the speed at which <application>venus</> performs the trickle-reintegration. For instance, to perform the trickle-reintegrate more quickly than the default, where only mutations to the filesystem older than 15 minutes are reintegrated. You could use <command>cfs wd -age 5</>, which will attempt to reintegrate all mutations older than 5 seconds.  </para>
+</formalpara>
+</listitem>
+
+<listitem>
+<formalpara><title> Pending reintegration.</>
+<para>When a volume is write-disconnected, it will stay write-disconnected until a user properly authenticates using <application>clog</application>.  </para>
+</formalpara>
+</listitem>
+</itemizedlist>
+</answer>
+</qandaentry>
+</qandaset>
+</sect1>
+
+<sect1>
+<title>Advanced Troubleshooting</>
+
+<qandaset>
+<qandaentry>
+<question><para>Troubleshooting network problems with rpc2tcpdump</para></question>
+<answer>
+<para><application>rpc2tcpdump</> is the regular tcpdump, which is modified to decode rpc2 protocol headers. This makes it a very useful tool for analyzing why programs fail to work.  </para>
+
+<informalexample>
+<para>All traffic between <application>venus</> and the Coda servers can be viewed using the following command:
+<screen>
+<prompt>#</> <userinput>tcpdump -s120 -Trpc2 port venus or port venus-se</>
+</screen>
+</para>
+</informalexample>
+
+
+<informalexample>
+<para>To identify problems with <application>clog</>, for instance which server it is trying to get tokens from. 
+<screen>
+<prompt>#</> <userinput>tcpdump -s120 -Trpc2 port codaauth</>
+</screen>
+</para>
+</informalexample>
+</answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>Debugging with gdb</para></question>
+<answer>
+<para>To be able to debug programs that use RVM, most coda related application will go into an endless sleep when something goes really wrong. They print their process-id in the log (f.i. <filename>venus.log</> or <filename>SrvLog</>), and a user can attach a debugger to the crashed, but still running, program.
+<screen>
+<prompt>#</> <userinput>gdb /usr/sbin/venus `pidof venus`</>
+</screen>
+</para>
+
+<para>This makes it possible to get a stack backtrace (<command>where</>), go to a specific stack frame (<command>frame <replaceable>x</replaceable></command>), or view the contents of variables, (<command>print <replaceable>varname</replaceable></command>). By installing the coda sources in same place as where the binaries were initially built from, it is possible to view the surrounding code fragment from within the debugger using the <command>list</>.  </para>
+
+<para>When using RedHat Linux rpms, you can install the sources in the right place by installing the coda source rpm file.  
+<screen>
+<prompt>#</> <userinput>rpm -i coda-x.x.x.src.rpm</>
+<prompt>#</> <userinput>rpm -bp /usr/src/redhat/SPECS/coda.spec</>
+</screen>
+</para>
+
+<para>On other platforms look at the paths reported in the backtrace and unpack the source tarball in the correct place.
+<screen>
+<prompt>(gdb)</> <userinput>where</>
+#0  CommInit () at /usr/local/src/coda-5.3.6/coda-src/venus/comm.cc:175
+#1  0x80fa8c3 in main (argc=1, argv=0xbffffda4)
+    at /usr/local/src/coda-5.3.6/coda-src/venus/venus.cc:168
+<prompt>(gdb)</> <userinput>quit</>
+<prompt>#</> <userinput>cd /usr/local/src</>
+<prompt>#</> <userinput>tar -xvzf coda-5.3.6.tgz</>
+</screen>
+</para>
+</answer>
+</qandaentry>
+</qandaset>
+</sect1>
+
+<sect1>
+<title>Troubleshooting on Windows 95</>
+
+<sect2>
+<title>Common problems</>
+<qandaset>
+<qandaentry>
+<question><para>Unable to shutdown Windows95.  </para></question>
+<answer>
+<para>Check the DOS Windows settings of <application>Venus</>. The check box in 
+<menuchoice>
+  <guimenu>Properties</>
+  <guisubmenu>Misc</>
+  <guimenuitem>Termination</>
+</menuchoice> 
+must be unticked.  </para>
+</answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>I cannot reboot Windows95 and I think it is due to the VXDs loaded for Coda.</para></question>
+<answer>
+<para>Boot your System in DOS mode by pressing <keycap>F8</> on boot time. <command>Cd</> to the Windows directory and type <command>edit system.ini</>. In the section <literal>[enh386]</> you will find following entries:
+
+<screen>
+device=c:\usr\coda\bin\mmap.vxd 
+device=c:\usr\coda\bin\mcstub.vxd
+</screen>
+
+Comment them out by using a <literal>;</> in front of the lines. Try to restart
+Windows again.  </para>
+</answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>How can I find out why <filename>venus.exe</filename> crashed.</para></question>
+<answer>
+<para>See <xref linkend="ClientTroubleshooting">. When this happens it might not be possible to restart Venus, if it is still mounted. In this case try to unmount by typing <command>unmount <replaceable>drive</></command>. If it does not work, you want to reboot the machine. </para>
+</answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>How can I find out more about what has happend</para></question>
+<answer>
+<para>Look in the file <filename>c:\vxd.log</filename>. The file system driver <application>codadev.vxd</> prints information about all requests and answers in this file. the information is only stored if the debug level has been turned on. the debug level is specified in the registry key <literal>HKLM/System/CurrentControlSet/Services/VxD/Codadev/Debuglevel</>. Set the debug level higher than <literal>0</> to receive messages in the debug file.  </para>
+</answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>I hook my running machine off the network and the explorer blocks.</para></question>
+<answer>
+<para><application>Venus</> switches to disconnected mode after a short timeout. After that it should work fine. If it doesn't, check if you have 'network connections' set up in the explorer (e.g. samba drive). 'Network connections' block your system, when no network is available.  </para>
+</answer>
+</qandaentry>
+</qandaset>
+</sect2>
+
+<sect2>
+<title>Restrictions</>
+
+<itemizedlist>
+<listitem>
+<para>Most command line tools, that talk to <application>Venus</> through the ioctl interface of the Coda kernel module seem to work even when they print error messages.  </para>
+</listitem>
+
+<listitem>
+<para>Handling large files (in particular executables) does not work well in a low bandwidth scenario.  </para>
+</listitem>
+
+<listitem>
+<para><application>cfs.exe</> and <application>hoard.exe</> use absolute pathnames so far.  </para>
+</listitem>
+
+<listitem>
+<para>Long filenames are not supported under DOS environment yet. You can access
+files, but you need to use the long filenames.  </para>
+</listitem>
+</itemizedlist> 
+</sect2>
+</sect1>
+</chapter>
+
+
 

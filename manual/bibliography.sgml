@@ -1,0 +1,231 @@
+<!-- DOCTYPE bibliography PUBLIC "-//OASIS//DTD DocBook V3.1//EN" -->
+<bibliography><title>References</title>
+
+<biblioentry id=Satyanarayanan89c>
+  <biblioset relation=article>
+    <author>
+      <surname>Satyanarayanan</>
+      <firstname>M.</>
+    </author>
+    <title role=article>Integrating Security in a Large Distributed System</>
+  </biblioset>
+    
+  <biblioset relation=journal>
+    <title>ACM Transactions on Computer Systems</>
+    <volumenum>7</>
+    <issuenum>3</>
+    <pubdate>August, 1989</>
+  </biblioset>
+</biblioentry>
+
+<biblioentry id=Satyanarayanan90y>
+  <biblioset relation=article>
+    <authorgroup>
+      <author>
+  	<surname>Satyanarayanan</>
+    	<firstname>M.</>
+      </author>
+      <author>
+      	<surname>Kistler</>
+	<firstname>J.</>
+	<othername role=mi>J.</>
+      </author>
+      <author>
+      	<surname>Kumar</>
+	<firstname>P.</>
+      </author>
+      <author>
+      	<surname>Okasaki</>
+	<firstname>M.</>
+	<othername role=mi>E.</>
+      </author>
+      <author>
+	<surname>Siegel</>
+	<firstname>E.</>
+	<othername role=mi>H.</>
+      </author>
+      <author>
+      	<surname>Steere</>
+	<firstname>D.</>
+	<othername role=mi>C.</>
+      </author>
+    </authorgroup>
+    <title role=article>Coda: A Highly Available File System for a Distributed Workstation Environment</>
+  </biblioset>
+    
+  <biblioset relation=journal>
+    <title>IEEE Transactions on Computers</>
+    <volumenum>39</>
+    <issuenum>4</>
+    <pubdate>April, 1990</>
+  </biblioset>
+</biblioentry>
+
+<biblioentry id=Satyanarayanan90z>
+  <biblioset relation=article>
+    <author>
+      <surname>Satyanarayanan</>
+      <firstname>M.</>
+    </author>
+    <title role=article>Scalable, Secure, and Highly Available Distributed File Access</>
+  </biblioset>
+    
+  <biblioset relation=journal>
+    <title>IEEE Computer</>
+    <volumenum>23</>
+    <issuenum>5</>
+    <pubdate>May, 1990</>
+  </biblioset>
+</biblioentry>
+
+<biblioentry id=Steere90>
+  <biblioset relation=article>
+    <authorgroup>
+      <author>
+	<surname>Steere</>
+	<firstname>D.</>
+	<othername role=mi>C.</>
+      </author>
+      <author>
+      	<surname>Kistler</>
+	<firstname>J.</>
+	<othername role=mi>J.</>
+      </author>
+      <author>
+  	<surname>Satyanarayanan</>
+    	<firstname>M.</>
+      </author>
+    </authorgroup>
+    <title role=article>Coda: A Highly Available File System for a Distributed Workstation Environment</>
+  </biblioset>
+  
+  <biblioset relation=proceedings>
+    <title>Summer Usenix Conference Proceedings</>
+  </biblioset>
+</biblioentry>
+
+<biblioentry id=Satya91>
+  <biblioset relation=book>
+    <author>
+      <surname>Satyanarayanan</>
+      <firstname>M.</>
+    </author>
+    <title>RPC2 User Guide and Reference Manual</>
+    <pubdate>October, 1991</>
+    <orgname>School of Computer Science, Carnegie Mellon University</>
+  </biblioset>
+</biblioentry>
+
+<biblioentry id=Mashburn92>
+  <biblioset relation=book>
+    <authorgroup>
+      <author>
+	<surname>Mashburn</>
+	<firstname>H.</>
+      </author>
+      <author>
+	<surname>Satyanarayanan</>
+	<firstname>M.</>
+      </author>
+    </authorgroup>
+    <title>RVM: Recoverable Virtual Memory User Manual</>
+    <pubdate>June, 1992</>
+    <orgname>School of Computer Science, Carnegie Mellon University</>
+  </biblioset>
+</biblioentry>
+
+<biblioentry id=Kistler92>
+  <biblioset relation=article>
+    <authorgroup>
+      <author>
+	<surname>Mashburn</>
+	<firstname>H.</>
+      </author>
+      <author>
+  	<surname>Satyanarayanan</>
+	<firstname>M.</>
+      </author>
+    </authorgroup>
+    <title role=article>Disconnected Operation in the Coda File System</>
+  </biblioset>
+    
+  <biblioset relation=journal>
+    <title>ACM Transactions on Computer Systems</>
+    <volumenum>10</>
+    <issuenum>1</>
+    <pubdate>February, 1992</>
+  </biblioset>
+</biblioentry>
+
+<biblioentry id=Kumar93> 
+  <biblioset relation=article>
+    <authorgroup>
+      <author>
+	<surname>Kumar</>
+	<firstname>P.</>
+      </author>
+      <author>
+  	<surname>Satyanarayanan</>
+    	<firstname>M.</>
+      </author>
+    </authorgroup>
+    <title role=article>Log-based Directory Resolution in the Coda File System</>
+  </biblioset>
+  
+  <biblioset relation=proceedings>
+    <title>Proceedings of the Second International Conference on Parallel and Distributed Information Systems</>
+    <pubdate>January, 1993</>
+  </biblioset>
+</biblioentry>
+
+<biblioentry id=Kistler93>
+  <biblioset relation=thesis>
+      <author>
+    	<surname>Kistler</>
+	<firstname>J.</>
+	<othername role=mi>J.</>
+    </author>
+    <title>Disconnected Operation in a Distributed File System</>
+    <pubdate>May, 1993</>
+    <orgname>Computer Science Department, Carnegie Mellon University</>
+  </biblioset>
+</biblioentry>
+
+<biblioentry id=Satyanarayanan93>
+  <biblioset relation=book>
+    <authorgroup>
+      <author>
+  	<surname>Satyanarayanan</>
+    	<firstname>M.</>
+      </author>
+      <author>
+      	<surname>Kistler</>
+	<firstname>J.</>
+	<othername role=mi>J.</>
+      </author>
+      <author>
+      	<surname>Kumar</>
+	<firstname>P.</>
+      </author>
+      <author>
+      	<surname>Okasaki</>
+	<firstname>M.</>
+	<othername role=mi>E.</>
+      </author>
+      <author>
+	<surname>Siegel</>
+	<firstname>E.</>
+	<othername role=mi>H.</>
+      </author>
+      <author>
+      	<surname>Steere</>
+	<firstname>D.</>
+	<othername role=mi>C.</>
+      </author>
+    </authorgroup>
+    <title>Lightweight Recoverable Virtual Memory</>
+    <pubdate>March, 1993</>  
+    <orgname>School of Computer Science, Carnegie Mellon University</>
+  </biblioset>
+</biblioentry>
+</bibliography>

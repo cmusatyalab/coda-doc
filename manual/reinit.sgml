@@ -1,106 +1,102 @@
-<chapt> Reinitializing Coda Servers after a Disaster	<label id="ReinitCoda">
-<p>
-As Coda is still an experimental system, the state of a Coda
-File System may sometimes get to the point where 
-you will want to reinitialize all of the servers.  
-<em>Note that this is a fairly drastic step and should be treated as a
-last resort</em>.  It will typically take an entire day or more to perform
-and the system will be unavailable during that time.  <em>You will
-<bf>not</bf> be able to reintigrate after a reinitialization</em>.
+<chapter id="ReinitCoda">
+<title>Reinitializing Coda Servers after a Disaster</>
+<para>As Coda is still an experimental system, the state of a Coda File System may sometimes get to the point where you will want to reinitialize all of the servers.  </para>
 
-This chapter explains the steps necessary to reinitialize your system
-and restore your data on "clean" servers.  The basic steps are as follows:
-<enum>
-<item>
-Obtain backup dump files for all of the volumes in the system.
-<item>
+<note><para>This is a fairly drastic step and should be treated as a last resort.  It will typically take an entire day or more to perform and the system will be unavailable during that time. You will <emphasis>not</> be able to reintegrate after a re-initialization.  </para></note>
 
-Reinitialize RVM on the servers.
-<item>
+<para>This chapter explains the steps necessary to reinitialize your system
+and restore your data on "clean" servers.  The basic steps are as follows:  </para>
 
-Recreate the volumes that existed before the reinitialization.
-<item>
-Restore and mount the backup clones created in step 1.
-<item>
-Mount the volumes created in step 3.
-<item>
-Copy the data from the restored volumes to the newly created volumes.
-<item>
-Unmount the new volumes and backup clones.
-<item>
-Flush client caches.
-<item>
-Test the system.
-</enum>
+<procedure>
+<step>
+<para>Obtain backup dump files for all of the volumes in the system.  </para>
+</step>
+<step>
+<para>Reinitialize RVM on the servers.  </para>
+</step>
+<step>
+<para>Recreate the volumes that existed before the re-initialization.  </para>
+</step>
+<step>
+<para>Restore and mount the backup clones created in step 1.  </para>
+</step>
+<step>
+<para>Mount the volumes created in step 3.  </para>
+</step>
+<step>
+<para>Copy the data from the restored volumes to the newly created volumes.  </para>
+</step>
+<step>
+<para>Unmount the new volumes and backup clones.  </para>
+</step>
+<step>
+<para>Flush client caches.  </para>
+</step>
+<step>
+<para>Test the system.  </para>
+</step>
+</procedure>
 
-<sect>Obtaining Backup Dump Files<p>
-<label id="ReinitDump">
-If the system is in a state that backups can be successfully run, we
-suggest running the <bf>backup.sh</bf> script to capture the most recent
-state.  You may, however, use the tapes from your last successfule
-backup and skip this step.  See Chapter <ref id="Backup" name="XXX"> and
-<bf>backup (8)</bf> for more details on creating backups.  You will need to
-create new <em>dumplist</em> files for the backups.  If you include the
-volumes that you do not normally back up in the newly created
-dumplists, you will be able to restore those volumes rather than
-re-create their contents.  See <bf>dumplist (5)</bf> for details on the
-format of these files.  To create the dumplists, use the following steps: 
 
-<enum>
-<item>Use <em>/vice/vol/VolumeList</em> and <em>/vice/vol/VRList</em> to create a list
-of all of the volumes on the servers you want to reinitialize.
-<item>
-Sort the volumes by size.  Use the <bf>cfs lv</bf> command to get an
-estimate on the size that each volume will take.  Remember that if a
-volume is replicated, each replica will need space on the tape.
-<item>
-Divide the volumes into groups that will fit onto a single backup tape (at CMU this is about 1.5 GB)
-<item>
-Run <bf>backup</bf> on the dumplist files.
-</enum>
+<sect1 id="ReinitDump">
+<title>Obtaining Backup Dump Files</>
 
-<sect>Reinitializing RVM on the Servers<p>
-Use <bf>rvmutl</bf> and <bf>rdsinit</bf> to initialize RVM.  Unless you are
-reinitializing in order to change the size of the RVM heap, be sure to
-use the same sizes that you used previously.  See section
-<ref id="RVMInitialization" name="XXX"> for the details of initializing RVM. 
+<para>If the system is in a state that backups can be successfully run, we suggest running the <command>backup.sh</> script to capture the most recent state.  You may, however, use the tapes from your last successful backup and skip this step.  See <xref linkend="Backup"> and <citerefentry><refentrytitle>backup</><manvolnum>8</></citerefentry> for more details on creating backups.  You will need to create new <filename>dumplist</filename> files for the backups.  If you include the volumes that you do not normally back up in the newly created dumplists, you will be able to restore those volumes rather than re-create their contents.  See <citerefentry><refentrytitle>dumplist</><manvolnum>5</></citerefentry> for details on the format of these files.  To create the dumplists, use the following steps:  </para>
 
-<sect>Recreate the Backed Up Volumes<p>
-<label id="ReinitCreateVols">
-Use <bf>createvol (8)</bf> and <bf>createvol&lowbar;rep (8)</bf> to create all of the
-volumes that you backed up in section <ref id="ReinitDump" name="XXX">.
+<procedure>
+<step>
+<para>Use <filename>/vice/vol/VolumeList</filename> and <filename>/vice/vol/VRList</filename> to create a list of all of the volumes on the servers you want to reinitialize.  </para>
+</step>
+<step>
+<para> Sort the volumes by size.  Use the <command>cfs</> <option>lv</> command to get an estimate on the size that each volume will take.  Remember that if a volume is replicated, each replica will need space on the tape.  </para>
+</step>
+<step>
+<para> Divide the volumes into groups that will fit onto a single backup tape (at CMU this is about 1.5 GB)</para>
+</step>
+<step>
+<para> Run <command>backup</> on the dumplist files.</para>
+</step>
+</procedure>
+</sect1>
 
-<sect>Restore the Backup Clones<p>
-First, restore the read only coda of the <em>coda&lowbar;root</em> volume.  This
-should have been backup up in section <ref id="ReinitDump" name="XXX">.  In section
-<ref id="ReinitCreateVols" name="XXX">, you should have created your <em>coda&lowbar;root.tmp</em>
-volume.  This will automatically be mounted when <em>coda&lowbar;root</em> is
-restored.  Next create a directory  <em>/coda/tmp/restore</em> and use the
-<bf>volutil restore</bf> to restore each of the backup clones to
-<em>/coda/tmp/restore</em>.  See the <bf>volutil (8)</bf> man page for more details
-on restoring the volumes.
+<sect1>
+<title>Reinitializing RVM on the Servers</title>
 
-<sect>Mount the Recreated Volumes<p>
-Create a directory <em>/coda/tmp/inited</em> and mount all of the volumes
-created in <ref id="ReinitCreateVols" name="XXX"> in this directory.
+<para>Use <command>rvmutl</> and <command>rdsinit</> to initialize RVM.  Unless you are reinitializing in order to change the size of the RVM heap, be sure to use the same sizes that you used previously.  See <xref linkend="RVMInitialization"> for the details on RVM initialization process.  </para>
 
-<sect>Populate the New Volumes<p>
-Run the script <bf>restorevolumes (8)</bf> to restore all of the volumes
-that were backed up in section <ref id="ReinitDump" name="XXX">.  
+<sect1 id="ReinitCreateVols">
+<title>Recreate the Backed Up Volumes</title>
 
-<sect>Unmount the Volumes<p>
-Use <bf>cfs rmmount</bf> to unmount all of the volumes in
-<em>/coda/tmp/restored</em> and <em>/coda/tmp/inited</em>.  Then remove these
-directories.  See the man page <bf>cfs (8)</bf> for more details on
-unmounting volumes.
+<para>Use <citerefentry><refentrytitle>createvol</><manvolnum>8</></citerefentry> and <citerefentry><refentrytitle>createvol_rep</><manvolnum>8</></citerefentry> to create all of the volumes that you backed up in <xref linkend="ReinitDump">.  </para>
 
-<sect>Flush Client Caches<p>
-You need to flush the client caches as they will not have the correct
-volume information anymore.  Use the
-<bf>cfs flushcache</bf>
-command to do this.
+<sect1>
+<title>Restore the Backup Clones</title>
 
-<sect>Test the system<p>
-After youve flushed the client caches the system is ready to run.  Do
-some testing to make sure Coda is functioning correctly and allow the
-users back into the system.
+<para> First, restore the read only coda of the <filename>coda_root</filename> volume.  This should have been backup up in <xref linkend="ReinitDump">.  In <xref linkend="ReinitCreateVols">, you should have created your <filename>coda_root.tmp</> volume.  This will automatically be mounted when <filename>coda_root</filename> is restored.  Next create a directory  <filename>/coda/tmp/restore</filename> and use the <command>volutil</> <option>restore</> to restore each of the backup clones to <filename>/coda/tmp/restore</filename>.  See the <citerefentry><refentrytitle>volutil</><manvolnum>8</></citerefentry> man page for more details on restoring the volumes.  </para>
+
+<sect1>
+<title>Mount the Recreated Volumes</title>
+
+<para>Create a directory <filename>/coda/tmp/inited</filename> and mount all of the volumes created in <xref linkend="ReinitCreateVols"> in this directory.  </para>
+
+<sect1>
+<title>Populate the New Volumes</title>
+
+<para>Run the script <citerefentry><refentrytitle>restorevolumes</><manvolnum>8</></citerefentry> to restore all of the volumes that were backed up in <xref linkend="ReinitDump">.  </para>
+
+<sect1>
+<title>Unmount the Volumes</title>
+
+<para>Use <command>cfs</> <option>rmmount</> to unmount all of the volumes in <filename>/coda/tmp/restored</filename> and <filename>/coda/tmp/inited</filename>.  Then remove these directories.  See the man page <citerefentry><refentrytitle>cfs</><manvolnum>8</></citerefentry> for more details on unmounting volumes.  </para>
+
+<sect1>
+<title>Flush Client Caches</title>
+
+<para>You need to flush the client caches as they will not have the correct volume information anymore.  Use the <command>cfs</> <option>flushcache</> command to do this.  </para>
+
+<sect1>
+<title>Test the system</title>
+
+<para>After youve flushed the client caches the system is ready to run.  Do some testing to make sure Coda is functioning correctly and allow the users back into the system.  </para>
+</sect1>
+</chapter>

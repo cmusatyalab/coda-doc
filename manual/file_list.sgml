@@ -1,46 +1,171 @@
-<chapt> System Files					<label id="SysFiles">
-<p>							<!-- Appendix II -->
-
-<table>
-<tabular ca=lllll>
-File|Where|Created By|Edited By|Purpose@
---------------|-------------|-------------|-------------|--------------------------@
-auth2.pw|/vice/db|initpw||Authentication server to generate secret tokens.@
-auth2.tk|/vice/db|hand||Used for secure communication among Coda servers.@
-dumplist|/vice/db|hand|createvol|Specifies which volumes to backup and when.@
-files|/vice/db|hand|hand|Update uses the files in files as a list of@
-||||files to keep up to date.@
-groups&lowbar;coda||hand|hand|By pwd2pdb to create vice.pdb file@
-hosts|/vice/db|hand|hand|Lists all of the servers in this Coda installation.  @
-pro.db|/vice/db|adduser||Coda protection database@
-servers|/vice/db|hand|hand|Server number.  Used as part of a volume number.@
-VLDB|/vice/db|buildvldb.sh||Volume Location Database.  Used by clients to @
-||||locate volumes.@
-vice.pcf|/vice/db|pcfgen|pcfgen|Auth2 binary password database@
-vice.pdb|/vice/db|pwd2pdb|pwd2pdb|Auth2 clear text password file@
-volutil.tk|/vice/db|hand||Used for secure communication among Coda servers.@
-VRDB|/vice/db|volutil|volutil|Map group volume names and numbers from @
-||makevrdb|makevrdb|a replicated volume to a VSG and the read-write @
-||||volumes that make up the replicated volume.@
-VSGDB|/vice/db|hand|hand|By createvol&lowbar;rep to map a VSG to a set of servers@
-@
-AllVolumes|/vice/vol|buildvldb.sh||Human readable version of VLDB@
-maxgroupid|/vice/vol|hand|createvol&lowbar;rep|By creatvol&lowbar;rep when allocating@
-||||group ids@
-partitions|/vice/vol|bldvldb||Lists vice partitions for all servers.@
-RWlist|/vice/vol|createvol||Lists all read write volumes.@
-user&lowbar;coda||hand|hand|By pwd2pdb to create vice.pdb file@
-VolumeList|/vice/vol|createvol||List of volumes on server@
-VRlist|/vice/vol|volutil|volutil|Human readable version of VRDB.@
-@
-SrvLog|/vice/srv|srv||Log of server activity.@
-SrvLog-xx|/vice/srv/|volutil||Old SrvLog.@
-UpdateLog|/vice/srv|update|update|Log of update activity.@
-@
-AuthLog|/vice/auth2|auth2||Log of authenication server activity.@
-@
-vstab|/usr/coda/etc|hand|hand|Venus configuration file@
-||||Several other programs use vstab to get server names@
-</tabular>
-</table>
-</chapt>
+<appendix id="SysFiles">
+<title>System Configuration Files</>					
+<informaltable frame=none>
+<tgroup cols=5>
+<thead>
+<row>
+<entry><filename>File</></entry>
+<entry>Where</entry>
+<entry>Created By</entry>
+<entry>Edited By</entry>
+<entry>Purpose</>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><filename>auth2.pw</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>initpw</></entry>
+<entry><application>auth2</></entry>
+<entry>User password database of in binary format used by <application>auth2</>.  </entry>
+</row>
+<row>
+<entry><filename>auth2.tk</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>vice-setup</></entry>
+<entry></entry>
+<entry>Used for secure communication among Coda servers.  </>
+</row>
+<row>
+<entry><filename>dumplist</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>vice-setup</></entry>
+<entry><application>createvol_rep</></entry>
+<entry>Specifies which volumes to backup and when.  </>
+</row>
+<row>
+<entry><filename>files</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>vice-setup</></entry>
+<entry>hand</entry>
+<entry>Update uses the files in files as a list of files to keep up to date.  </>
+</row>
+<row>
+<entry><filename>servers</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>vice-setup</></entry>
+<entry>hand</entry>
+<entry>Server number.  Used as part of a volume number.  </>
+</row>
+<row>
+<entry><filename>VLDB</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>buildvldb.sh</></entry>
+<entry></entry>
+<entry>Volume Location Database.  Used by clients to locate volumes.  </>
+</row>
+<row>
+<entry><filename>prot_users.db, prot_index.db</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>pdbtool</></entry>
+<entry><application>pdbtool</></entry>
+<entry>User and group database used by Coda file-servers</>
+</row>
+<row>
+<entry><filename><application>volutil</>.tk</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>vice-setup</></entry>
+<entry></entry>
+<entry>Used for secure communication among Coda servers.  </>
+</row>
+<row>
+<entry><filename>VRDB</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>volutil</>, makevrdb</entry>
+<entry><application>volutil</>, makevrdb</entry>
+<entry>Map group volume names and numbers from a replicated volume to a VSG and the read-write volumes that make up the replicated volume.  </>
+</row>
+<row>
+<entry><filename>VSGDB</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>vice-setup</></entry>
+<entry>hand</entry>
+<entry>By <application>createvol_rep</> to map a VSG to a set of servers </>
+</row>
+<row>
+<entry><filename>AllVolumes</></entry>
+<entry>SCM: <filename>/vice/vol</></entry>
+<entry><application>bldvldb.sh</></entry>
+<entry></entry>
+<entry>Human readable version of VLDB </>
+</row>
+<row>
+<entry><filename>maxgroupid</></entry>
+<entry><filename>/vice/vol</></entry>
+<entry><application>vice-setup</></entry>
+<entry><application>createvol_rep</></entry>
+<entry>By creatvol_rep when allocating group ids</>
+</row>
+<row>
+<entry><filename>partitions</></entry>
+<entry>SCM: <filename>/vice/vol</></entry>
+<entry><application>bldvldb.sh</></entry>
+<entry></entry>
+<entry>Lists vice partitions for all servers.  </entry>
+</row>
+<row>
+<entry><filename>RWlist</></entry>
+<entry>SCM: <filename>/vice/vol</></entry>
+<entry><application>createvol_rep</></entry>
+<entry></entry>
+<entry>Lists all read write volumes.  </>
+</row>
+<row>
+<entry><filename>VolumeList</></entry>
+<entry><filename>/vice/vol</></entry>
+<entry><application>createvol_rep</></entry>
+<entry></entry>
+<entry>List of volumes on server </>
+</row>
+<row>
+<entry><filename>VRlist</></entry>
+<entry><filename>/vice/vol</></entry>
+<entry><application>volutil</></entry>
+<entry><application>volutil</></entry>
+<entry>Human readable version of VRDB.  </>
+</row>
+<row>
+<entry><filename>SrvLog</></entry>
+<entry><filename>/vice/srv</></entry>
+<entry><application>codasrv</></entry>
+<entry></entry>
+<entry>Log of server activity.  </>
+</row>
+<row>
+<entry><filename>SrvLog-<replaceable>??</></filename></entry>
+<entry><filename>/vice/srv</></entry>
+<entry><application>volutil</></entry>
+<entry></entry>
+<entry>Old SrvLog.  </entry>
+</row>
+<row>
+<entry><filename>UpdateClntLog</></entry>
+<entry><filename>/vice/srv</></entry>
+<entry><application>updateclnt</></entry>
+<entry><application>updateclnt</></entry>
+<entry>Log of <application>updateclnt</>activity.  </>
+</row>
+<row>
+<entry><filename>UpdateSrvLog</></entry>
+<entry><filename>/vice/srv</></entry>
+<entry><application>updatesrv</></entry>
+<entry><application>updatesrv</></entry>
+<entry>Log of <application>updatesrv</>activity.  </>
+</row>
+<row>
+<entry><filename>AuthLog</></entry>
+<entry><filename>/vice/<application>auth2</></></entry>
+<entry><application>auth2</></entry>
+<entry></entry>
+<entry>Log of authentication server activity.  </>
+</row>
+<row>
+<entry><filename>vstab</></entry>
+<entry>Client: <filename>/usr/coda/etc</></entry>
+<entry><application>venus-setup</></entry>
+<entry>hand</entry>
+<entry>Venus configuration file.  Several other programs use it to get server names.  </>
+</row>
+</tbody>
+</informaltable>
+</appendix>

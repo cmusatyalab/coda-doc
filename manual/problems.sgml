@@ -4,13 +4,13 @@
 <descrip>
 <tag><bf><tt>ls /coda</tt> fails</bf></tag>If the return code is either 
 "Invalid Argument" or "No Device", venus was probably restarted recently 
-and hasnt yet finished initializing. Solution:  Wait a few minutes a try again.
+and hasn't yet finished initializing. Solution:  Wait a few minutes a try again.
 <tag><bf>Newly created volume is</bf></tag> If a newly created volume, when mounted
 <bf>dangling link</bf>for the first time, shows up as a dangling symbolic 
 link (it looks inconsistent), the problem is that new databases have 
 not been distributed to the other replication sites.  Solution:  Unmount 
 the volume, wait five minutes and try again. You'll have to reinitialize 
-the venus which failed to find the volume, since vldb information 
+the venus which failed to find the volume, since VLDB information 
 cant be flushed.
 <tag>
 <bf>Venus Fails on Startup with</bf> </tag>There exists a process with an reference to a file in /coda. Its
