@@ -9,6 +9,6 @@ ChangeLog		- Nitty gritty details about changes in this release
 WARNING			- Generic problems
 WARNING.NetBSD		- Platform specific issues/problems
 
-INSTALL			- How to install Coda
-RUN			- Quick start guide for Coda
-BUILD			- How to build Coda
+INSTALL.NetBSD		- How to install Coda
+RUN.BSD			- Quick start guide for Coda
+BUILD.NetBSD		- How to build Coda
