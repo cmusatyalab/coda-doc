@@ -10,7 +10,9 @@
 <mansect>DESCRIPTION<P>
 The <bf>venus-setup</bf> command takes a  list of servers separated
 by commas, one of which must be the SCM and a cache size given in 
-kilobytes.  <bf>venus-setup</bf> then performs the following operations:
+kilobytes.  <em>NOTE</em> At least one server must be specified.  And
+if only one server is specified, it must be the SCM for the Coda Cell.
+<bf>venus-setup</bf> then performs the following operations:
 <itemize>
 <item>creates up the <em>/coda</em> root directory if not present.
 <item>creates <em>/usr/coda</em> if not present.
