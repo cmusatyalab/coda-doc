@@ -84,7 +84,7 @@
 </row>
 <row>
 <entry><filename>AllVolumes</></entry>
-<entry>SCM: <filename>/vice/vol</></entry>
+<entry><filename>/vice/vol</></entry>
 <entry><application>bldvldb.sh</></entry>
 <entry></entry>
 <entry>Human readable version of VLDB </>
@@ -98,14 +98,14 @@
 </row>
 <row>
 <entry><filename>partitions</></entry>
-<entry>SCM: <filename>/vice/vol</></entry>
+<entry><filename>/vice/vol</></entry>
 <entry><application>bldvldb.sh</></entry>
 <entry></entry>
 <entry>Lists vice partitions for all servers.  </entry>
 </row>
 <row>
 <entry><filename>RWlist</></entry>
-<entry>SCM: <filename>/vice/vol</></entry>
+<entry><filename>/vice/vol</></entry>
 <entry><application>createvol_rep</></entry>
 <entry></entry>
 <entry>Lists all read write volumes.  </>
@@ -139,15 +139,22 @@
 <entry>Old SrvLog.  </entry>
 </row>
 <row>
+<entry><filename>update.tk</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>vice-setup</></entry>
+<entry><application></></entry>
+<entry>Used for securing the communication between the update daemons.  </>
+</row>
+<row>
 <entry><filename>UpdateClntLog</></entry>
-<entry><filename>/vice/srv</></entry>
+<entry><filename>/vice/misc</></entry>
 <entry><application>updateclnt</></entry>
 <entry><application>updateclnt</></entry>
 <entry>Log of <application>updateclnt</>activity.  </>
 </row>
 <row>
 <entry><filename>UpdateSrvLog</></entry>
-<entry><filename>/vice/srv</></entry>
+<entry><filename>/vice/misc</></entry>
 <entry><application>updatesrv</></entry>
 <entry><application>updatesrv</></entry>
 <entry>Log of <application>updatesrv</>activity.  </>
@@ -160,11 +167,12 @@
 <entry>Log of authentication server activity.  </>
 </row>
 <row>
-<entry><filename>vstab</></entry>
-<entry>Client: <filename>/usr/coda/etc</></entry>
+<entry><filename>venus.conf</></entry>
+<entry>Client: <filename>/etc/coda</></entry>
 <entry><application>venus-setup</></entry>
 <entry>hand</entry>
-<entry>Venus configuration file.  Several other programs use it to get server names.  </>
+<entry>Venus configuration file.  Several other programs use it to get server
+names.  </>
 </row>
 </tbody>
 </informaltable>

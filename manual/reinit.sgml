@@ -51,7 +51,8 @@ and restore your data on "clean" servers.  The basic steps are as follows:  </pa
 <para> Sort the volumes by size.  Use the <command>cfs</> <option>lv</> command to get an estimate on the size that each volume will take.  Remember that if a volume is replicated, each replica will need space on the tape.  </para>
 </step>
 <step>
-<para> Divide the volumes into groups that will fit onto a single backup tape (at CMU this is about 1.5 GB)</para>
+<para> Divide the volumes into groups that will fit onto a single backup tape
+(at CMU this is about 4 GB)</para>
 </step>
 <step>
 <para> Run <command>backup</> on the dumplist files.</para>
@@ -60,43 +61,69 @@ and restore your data on "clean" servers.  The basic steps are as follows:  </pa
 </sect1>
 
 <sect1>
-<title>Reinitializing RVM on the Servers</title>
+<title>Reinitializing the Servers</title>
 
-<para>Use <command>rvmutl</> and <command>rdsinit</> to initialize RVM.  Unless you are reinitializing in order to change the size of the RVM heap, be sure to use the same sizes that you used previously.  See <xref linkend="RVMInitialization"> for the details on RVM initialization process.  </para>
+<para>
+<itemizedlist mark="dash">
+<listitem> <para>Reinitializing RVM on the Servers</para>
+<para>Use <command>rvmutl</> and <command>rdsinit</> to initialize RVM.
+Unless you are reinitializing in order to change the size of the RVM heap, be
+sure to use the same sizes that you used previously.  See
+<xref linkend="RVMInitialization"> for the details on RVM initialization
+process.
+</para>
+</listitem>
 
-<sect1 id="ReinitCreateVols">
-<title>Recreate the Backed Up Volumes</title>
+<listitem> <para>Recreate the Backed Up Volumes</para>
+<para>Use
+<citerefentry><refentrytitle>createvol</><manvolnum>8</></citerefentry> and
+<citerefentry><refentrytitle>createvol_rep</><manvolnum>8</></citerefentry> to
+create all of the volumes that you backed up in <xref linkend="ReinitDump">.
+</para>
+</listitem>
 
-<para>Use <citerefentry><refentrytitle>createvol</><manvolnum>8</></citerefentry> and <citerefentry><refentrytitle>createvol_rep</><manvolnum>8</></citerefentry> to create all of the volumes that you backed up in <xref linkend="ReinitDump">.  </para>
+<listitem> <para>Restore the Backup Clones</para>
+<para> First, restore the read only backup of the
+<filename>coda_root</filename> volume. You should have created the new
+<filename>coda_root</> volume in the previous step.  This will be automatically
+be mounted.  Next create a directory  <filename>/coda/tmp/restore</filename>
+and use the <command>volutil</> <option>restore</> to restore each of the
+backup clones to <filename>/coda/tmp/restore</filename>.  See the
+<citerefentry><refentrytitle>volutil</><manvolnum>8</></citerefentry> man page
+for more details on restoring the volumes.  </para>
+</listitem>
 
-<sect1>
-<title>Restore the Backup Clones</title>
+<listitem> <para>Mount the Recreated Volumes</para>
+<para>Create a directory <filename>/coda/tmp/inited</filename> and mount all
+of the volumes that were created earlier into this directory. </para>
+</listitem>
 
-<para> First, restore the read only coda of the <filename>coda_root</filename> volume.  This should have been backup up in <xref linkend="ReinitDump">.  In <xref linkend="ReinitCreateVols">, you should have created your <filename>coda_root.tmp</> volume.  This will automatically be mounted when <filename>coda_root</filename> is restored.  Next create a directory  <filename>/coda/tmp/restore</filename> and use the <command>volutil</> <option>restore</> to restore each of the backup clones to <filename>/coda/tmp/restore</filename>.  See the <citerefentry><refentrytitle>volutil</><manvolnum>8</></citerefentry> man page for more details on restoring the volumes.  </para>
+<listitem> <para>Populate the New Volumes</para>
+<para>Run the script
+<citerefentry><refentrytitle>restorevolumes</><manvolnum>8</></citerefentry>
+to restore all of the volumes that were backed up in <xref
+linkend="ReinitDump">.  </para>
+</listitem>
 
-<sect1>
-<title>Mount the Recreated Volumes</title>
+<listitem> <para>Unmount the Volumes</para>
+<para>Use <command>cfs</> <option>rmmount</> to unmount all of the backup
+volumes in <filename>/coda/tmp/restored</filename> and the new replicated
+volumes in <filename>/coda/tmp/inited</filename>.  Then remove these
+directories.  See the man page
+<citerefentry><refentrytitle>cfs</><manvolnum>8</></citerefentry> for more
+details on unmounting volumes.  </para>
+</listitem>
 
-<para>Create a directory <filename>/coda/tmp/inited</filename> and mount all of the volumes created in <xref linkend="ReinitCreateVols"> in this directory.  </para>
+<listitem> <para>Flush Client Caches</para>
+<para>You need to flush the client caches as they will not have the correct
+volume information anymore.  Use the <command>cfs</> <option>flushcache</>
+command to do this.  </para>
+</listitem>
 
-<sect1>
-<title>Populate the New Volumes</title>
-
-<para>Run the script <citerefentry><refentrytitle>restorevolumes</><manvolnum>8</></citerefentry> to restore all of the volumes that were backed up in <xref linkend="ReinitDump">.  </para>
-
-<sect1>
-<title>Unmount the Volumes</title>
-
-<para>Use <command>cfs</> <option>rmmount</> to unmount all of the volumes in <filename>/coda/tmp/restored</filename> and <filename>/coda/tmp/inited</filename>.  Then remove these directories.  See the man page <citerefentry><refentrytitle>cfs</><manvolnum>8</></citerefentry> for more details on unmounting volumes.  </para>
-
-<sect1>
-<title>Flush Client Caches</title>
-
-<para>You need to flush the client caches as they will not have the correct volume information anymore.  Use the <command>cfs</> <option>flushcache</> command to do this.  </para>
-
-<sect1>
-<title>Test the system</title>
-
-<para>After youve flushed the client caches the system is ready to run.  Do some testing to make sure Coda is functioning correctly and allow the users back into the system.  </para>
-</sect1>
+<listitem> <para>Test the system</para>
+<para>After youve flushed the client caches the system is ready to run.  Do
+some testing to make sure Coda is functioning correctly and allow the users
+back into the system.  </para>
+</listitem>
+</itemizedlist>
 </chapter>
