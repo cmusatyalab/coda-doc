@@ -742,6 +742,50 @@ directory. Read the next section to find out how to do more with Coda.
 
 <sect>Exploring Coda's features<p>
 
+
+<sect1> Repairing conflicts <p>
+
+Files and directories can get into conflict due to disconnections of
+clients or servers from the net, as well as through overlapping
+open/write/close sequences on two clients.  A object that is in
+conflict is representd as a dangling symbolic link and
+<tt/X-&gt;@vol.vnode.unique/ is the file the symlinks points to.
+
+How do we get rid of this conflict? 
+
+<enum>
+
+<item> type <tt/cfs beginrepair X/.  This changes X from a symlink
+into a directory.  By doing <tt/ls X/ you will see either <tt/local
+global/ or <tt/server1 server2 server3/.  In the first case we have a
+local global conflict and in the second case a server server conflict.
+
+
+<item> If the objects in the directory <tt/X/ are files, you have a
+file conflict, they can also be directories, in which case you can
+find the content underneath.
+
+<item> If you are nervous, this is a good moment to make copy of your
+files. They can be found under the directory X while the repair
+session is in progress.  
+
+<item> <tt/cfs endrepair X/ closes up the repair
+session.
+
+<item> All local global conflicts are repaired with <tt/repair/.  Type
+<tt/repair/ and follow its cryptic instructions.
+
+<item> Server-server conflicts on files are fixed with either
+<tt/filerepair/ or with <tt/removeinc/.  Server-server conflicts on
+directories are fixed with <tt/repair/.
+
+</enum>
+
+
+
+
+
+
 V. Common Tasks
 
 1. Normal server startup:
@@ -1102,6 +1146,7 @@ user properly authenticates using <bf/clog/.
 
 </itemize>
 
+
 </sect1>
 
 <sect1>Advanced Troubleshooting<p>
@@ -1126,9 +1171,8 @@ get tokens from.
 # tcpdump -s120 -Trpc2 port codaauth
 </verb>
 
-</sect2>
 
-<sect2>with gdb<p>
+<sect2> debugging with gdb<p>
 
 To be able to debug programs that use RVM, most coda related application will
 go into an endless sleep when something goes really wrong. They print their
