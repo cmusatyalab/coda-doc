@@ -1,0 +1,50 @@
+<!doctype linuxdoc system[
+<!entity abstract SYSTEM "abstract.sgml">
+<!entity starting SYSTEM "getting_started.sgml">
+<!entity scenar SYSTEM "scenarios.sgml">
+<!entity trouble SYSTEM "trouble.sgml">
+<!entity ovv SYSTEM "system_overview.sgml">
+<!entity kernel SYSTEM "kernel.sgml">
+<!entity servin SYSTEM "server_installation.sgml">
+<!entity clientin SYSTEM "client_installation.sgml">
+<!entity running SYSTEM "running_coda.sgml">
+<!entity savol SYSTEM "sa_volumes.sgml">
+<!entity sauser SYSTEM "sa_users.sgml">
+<!entity backup SYSTEM "backup.sgml">
+<!entity reinit SYSTEM "reinit.sgml">
+<!entity layout SYSTEM "layout.sgml">
+<!entity qref SYSTEM "user_ref.sgml">
+<!entity files SYSTEM "file_list.sgml">
+<!entity problems SYSTEM "problems.sgml">
+<!entity expl SYSTEM "examples.sgml">
+
+]>
+
+<article>
+
+<title>Coda File System, User and System Administrators Manual
+     <author>M. Satyanarayanan, Maria R. Ebling, Joshua Raiff, Peter J. Braam
+     <date>v1.1, 20 August 1997
+
+
+&abstract;
+<toc>
+&starting;
+&scenar;
+&trouble;
+&ovv;
+&kernel;
+&servin;
+&clientin;
+&running;
+&savol;
+&sauser;
+&backup;
+&reinit;
+&layout;
+&qref;
+&files;
+&problems;
+&expl;
+</article>
+

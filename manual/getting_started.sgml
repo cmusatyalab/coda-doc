@@ -1,0 +1,239 @@
+<sect> Getting Started <p>
+
+The Coda file system expands the local file system hierarchy
+to include shared files much like the <em>Sun Network File System</em> and 
+the <em>Andrew File System</em>.  Figure <ref id="FSView" name="XXX"> below shows the 
+users view of the file system hierarchy on a machine with all three types 
+of file systems.
+
+<figure>
+  <eps file="figure1">
+  <caption><label id="FSView">Coda filesystem view at a workstation
+  
+</figure>
+
+Data sharing in Coda, like that in Andrew, is supported by a distributed
+file system that appears as a single large subtree of the local file system
+on each workstation.  This subtree is identical on all workstations.  Thus,
+processes on two different workstations can read and write files in this
+subtree just as if they were running on a single timesharing system
+with the difference that processes on the different workstations see
+changes only when files are opened and closed.  Familiarity with AFS
+is helpful when learning about Coda.
+
+This chapter introduces essential Coda commands.  For more details on these
+commands, refer to their man pages.
+
+<sect1>Authentication<p>
+Once you are logged in to your workstation, you need to get a Coda
+authentication token by running the <bf>clog</bf> program.
+<bf>clog</bf> will prompt you for your Coda password and use it
+to get a token from the <em>authentication server</em>.  This token will
+expire in about 25 hours.  After the token expires, you must use
+<bf>clog</bf> to authenticate for another 25 hours.  The
+following in an example of running <bf>clog</bf> twice.  The
+first time, the wrong password was entered:
+
+
+
+<code>
+% clog
+Password:
+Invalid login (RPC2_NOTAUTHENTICATED (F))
+% clog
+Password:
+% 
+</code>
+
+
+To see your newly acquired token, use <bf>ctokens</bf>.  This
+will display the tokens and their expiration time for your UID.
+
+<code>
+% ctokens
+
+Tokens held by the Cache Manager:
+
+UID=2534 : &lsqb;Expires Mar 19 10:50&rsqb;
+</code>
+
+Use the <bf>cpasswd</bf> command to change your Coda password.
+As with <bf>passwd</bf>, <bf>cpasswd</bf> will prompt for
+your current password, then ask you to enter a new password twice.
+
+
+<code>
+% cpasswd
+Changing password for raiff
+Old password:
+New password for raiff:
+Retype new password:
+Password changed, it will be in effect in about 1 hour
+</code>
+
+You can "log out" of Coda by using the <bf>cunlog</bf> command to
+tell <em>venus</em> to forget your tokens.  Once you run
+<bf>unlog</bf>, you will have the same privileges as an anonymous
+Coda user until you acquire a new authentication token.
+
+<sect1>Coda File Protection<p>
+Coda provides a close approximation to UNIX protection semantics. 
+An <em>access control list</em> (ACL) controls access to directories by granting and
+restricting the rights of users or groups of users.  An entry in an access
+list maps a member of the protection domain into a set of rights.  User
+rights are determined by the rights of all of the groups that he or she is
+either a direct or inderect member.  In addition to the Coda access lists, the
+three owner bits of the file mode are used to indicate readability, writability,
+and executability.  You should use <em>chmod</em>(1) to set the permissions on
+individual files.  Coda rights are given as a combination of <bf>rlidwka</bf> where:
+
+<itemize>
+<item><bf>r</bf> <em>Read</em>.  With this right, you can read any file in the directory.
+<item><bf>l</bf> <em>Lookup</em>.  Lookup allows you to obtain status information about the files in the directory.  An example is to list the directory contents.
+<item><bf>i</bf> <em>Insert</em>.  Allows the user to create new files or subdirectories in the directory.
+<item><bf>d</bf> <em>Delete</em>.  Allows the user to remove files or subdirectories.
+<item><bf>w</bf> <em>Write</em>.  Allows the user to overwrite existing files in the directory.
+<item><bf>k</bf> <em>Lock</em>.  The lock right is obsolete and only maintained for historical reasons.
+<item><bf>a</bf> <em>Administer</em>.  Allows the user to change the directorys access control list.
+</itemize>
+
+Coda also has <em>negative</em> rights, which deny access.  Any of the
+normal rights listed above can also be negative.
+
+Access control lists are managed with the <bf>cfs</bf> command
+through the <bf>listacl</bf> and <bf>setacl</bf> options.  These commands can be
+abbreviated as <bf>la</bf> and <bf>sa</bf> respectively.  To see the access
+control list of any directory in a Coda file system, use
+<bf>cfs la</bf>.  The following example displays the current
+directorys ACL:
+
+<code>
+% cfs la .
+      System:AnyUser  rl
+               raiff  rlidwka
+</code>
+
+The displayed list, shows that the user "raiff" has all of the access
+rights possible on the directory and that the group "System:AnyUser"
+has read and lookup privileges.  System:AnyUser is a special Coda group
+that includes all users.
+
+A second example shows another group, System:coda.  Anyone who is a
+member of the group, will have the groups access rights:
+<code>
+% cfs la /coda
+         System:coda  rlidwka
+      System:AnyUser  rl
+</code>
+
+Use <bf>cfs sa</bf> to change or set a directorys access control
+list.  Options to <bf>cfs sa</bf> include <em>-negative</em> to assign
+negative rights to a user and <em>-clear</em> to clear the access list
+completely before setting any new access rights.  You can also use
+<em>all</em> or <em>none</em> to specify all rights or no rights respectively.
+To remove System:AnyUsers access to the current directory, you would
+issue the following command:
+<code>
+% cfs sa . System:AnyUser none
+</code>
+
+To give System:AnyUser read and lookup rights, use:
+<code>
+% cfs sa . System:AnyUser rl
+</code>
+
+To deny rights to a user, use the <bf>-negative</bf> switch:
+<code>
+% cfs sa -negative . baduser rl
+</code>
+This will deny "baduser" read and lookup rights, even though any other
+user has these rights.  Note that negative rights are maintained
+separately from the normal rights, so to re-instate badusers read and
+lookup access, you must use:
+<code>
+% cfs sa -negative . baduser none
+</code>
+If you omit the <em>-negative</em> switch, then "baduser" will still be
+denied read and lookup access.
+
+
+<sect1>Disconnected Operation<p>
+If all of the servers that an object resides on become
+inaccessable, then the client will use the cached copy of the object (if present) as a valid replica.  When the client does this, it is operating in
+<em>disconnected mode</em>.  
+
+Disconnected mode may be the result of a network failure, or it could
+be the result of removing a laptop from the network.  If you make sure
+all of the files you want to use are cached on your laptop, you can
+travel with it and access your files as if you were still on the network.
+
+Unfortunately, a cache miss while operating in disconnected mode is
+not maskable, and you will get a <em>connection timed out</em> error
+message.  Coda allows you to mark or <em>hoard</em> files with caching
+priorities to help keep the ones you want in the cache.
+
+When you are in disconnected mode, you may want to checkpoint the
+modify log that Coda keeps of which directories have
+changed.  Use <bf>cfs checkpointml</bf> to do this.
+Checkpointing the modify log will ensure that changes you have made
+will not be lost  if the system crashes.  
+Coda uses this modify log when it reintegrates with the servers.
+
+Coda also supports low bandwidth access over SLIP.  You can use this
+to periodically reintegrate and cache new files when you are on a
+trip.  
+
+When you reintegrate after operating in disconnected mode, watch your
+<bf>codacon</bf> or run the
+command:
+<code>
+% tail -f /usr/coda/etc/console
+</code>
+
+This file will let you know if the reintegration was successful.  If
+it was not, then the files that you modified will be put in a tar file
+in <em>/usr/coda/spool/&lt;uid&gt;</em>.  Reintegration fails, for example, when
+you modified a file in disconnected mode and someone else also
+modified that file on the servers.  Section <ref id="reintegration" name="XXX"> has
+more on reintegration. 
+
+<sect1>Hoarding<p>
+Coda allows you to advise the cache manager, <em>venus</em>, of critical
+files that it should  try to keep in
+the cache.  You indicate the relative importance of the files by
+assigning priorities to them.  
+This is known as <em>hoarding</em>.  Venus maintains an internal <em>hoard database</em>
+of these files.  Hoarding a file helps to ensure that
+it will be available when operating in disconnected mode.  See the 
+<bf>hoard</bf>(1) man page for information on hoard files and sections
+<ref id="ConstructHoard" name="XXX"> and <ref id="HoardDB" name="XXX"> of this document for an example of how
+to set up your hoard database.  A convenient way of setting up your
+hoard database is by creating a file with commands for the <bf>hoard</bf>
+program.  This file is known as a <em>hoard file</em>.
+
+
+<sect1>Repairing Conflicts<p>
+<label id="Conflicts">
+As a result of Codas optimistic replica management, object replicas 
+can conflict on different servers.  A conflict arises when the same object
+is updated in different partitions of a network.
+For instance, suppose a file is replicated at 
+two sites (say, serverA and serverB).  If these two sites become partitioned
+and a user on each side of the partition updates the file (userA updates the
+file on serverA while userB updates the file on serverB), the file will be in
+conflict when the partition ends.  Conflicts may also arise at the end
+of disconnected operation.
+
+Coda guarantees conflict detection at the first request for that object
+when both servers are accessible.  When a conflict is detected, Coda
+attempts to perform automatic conflict resolution.  In simple cases, the
+conflict will be resolved automatically, a process which is transparent
+to the user except for a time delay in accessing the object.  However, in 
+more difficult cases, automatic conflict resolution fails and the object is 
+marked <em>in conflict</em>.  File system calls on an object which is in conflict 
+fail with the same error code as if the object were a dangling, read-only
+symbolic link (usually, ENOENT).  The conflict must be resolved by
+a user with appropriate access to the object.  To help users resolve
+conflicts, Coda provides a repair tool which is discussed in Section 
+<ref id="Inconsistent" name="XXX">.
+

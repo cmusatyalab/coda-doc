@@ -1,0 +1,1328 @@
+%!PS-Adobe-3.0
+%%Creator: Cricket Draw III
+%%Title: coda-releases-fig
+%%BoundingBox: 0 0 552 730 
+%%DocumentData: Clean7Bit
+%%CreationDate: 9/23/92 5:58 PM
+%%DocumentFonts: Courier
+%%DocumentProcessColors: Cyan Magenta Yellow Black
+%%ColorUsage: Color
+%%EndComments
+save
+200 dict begin
+%%BeginProlog
+/FindFlatness %% Proc -- %%
+{
+{
+dup 
+{flattenpath exec} stopped
+{
+pop currentflat 100 ge {exit} if 
+currentflat 1.25 mul setflat
+}
+{exit} ifelse
+} bind loop
+pop
+newpath
+} def
+/QDShow %% string qdwidth -- %%
+{
+1 index length 1 le
+{
+pop show
+}
+{
+1 index stringwidth pop sub 1 index length 1 sub div 0 3 -1 roll ashow
+} ifelse
+} def
+/PathText %% string offset -- %%
+{
+/cd_FM true def
+/cd_offset exch def
+/cd_string exch def
+/cd_offset cd_offset cd_string 0 1 getinterval stringwidth pop 2 div add def
+/cd_pathdist 0 def 
+/cd_setdist cd_offset def
+/cd_charcount 0 def
+gsave
+flattenpath 
+{mtp}{ltp}{ctp}{cpp}pathforall 
+grestore
+} bind def
+/mtp 
+{
+/cd_newy exch def
+/cd_newx exch def
+/cd_firstx cd_newx def
+/cd_firsty cd_newy def
+/cd_ovr 
+cd_FM 
+{cd_offset /cd_FM false def}
+{0} ifelse 
+def 
+cd_newx cd_newy transform 
+/cd_cpy exch def
+/cd_cpx exch def
+}bind def
+/ltp 
+{
+/cd_oldx cd_newx def
+/cd_oldy cd_newy def
+/cd_newy exch def
+/cd_newx exch def
+/cd_dx cd_newx cd_oldx sub def
+/cd_dy cd_newy cd_oldy sub def
+/cd_dist cd_dx dup mul cd_dy dup mul add sqrt def 
+cd_dist 0 ne
+{
+/cd_dsx cd_dx cd_dist div cd_ovr mul def 
+/cd_dsy cd_dy cd_dist div cd_ovr mul def 
+cd_oldx cd_dsx add cd_oldy cd_dsy add transform
+/cd_cpy exch def
+/cd_cpx exch def
+/cd_pathdist cd_pathdist cd_dist add def
+{
+cd_setdist cd_pathdist le
+{
+cd_charcount cd_string length lt
+{setchar}
+{exit} ifelse
+}
+{
+/cd_ovr cd_setdist cd_pathdist sub def
+exit
+} ifelse
+}loop
+} if
+} bind def
+/cpp 
+{
+cd_firstx cd_firsty ltp 
+cd_firstx cd_firsty mtp
+} bind def 
+/setchar 
+{
+/cd_char cd_string cd_charcount 1 getinterval def
+/cd_charcount cd_charcount 1 add def
+/cd_charwidth cd_char stringwidth pop 2 div def 
+gsave
+cd_cpx cd_cpy itransform translate
+cd_dy cd_dx atan rotate 
+cd_charwidth neg 0 moveto 
+cd_char 
+cd_setdist 0 lt 
+{stringwidth pop 0 rmoveto}
+{show} ifelse
+cd_charcount cd_string length lt
+{
+cd_string cd_charcount 1 getinterval stringwidth pop 2 div 0 rmoveto
+} if
+currentpoint transform 
+/cd_cpy exch def 
+/cd_cpx exch def 
+grestore
+/cd_setdist cd_setdist cd_charwidth add def
+/cd_pathoffset cd_pathoffset cd_charwidth 2 mul add store
+cd_charcount cd_string length lt
+{
+/cd_setdist cd_setdist cd_string cd_charcount 1 getinterval stringwidth pop 2 div add def
+} if
+} bind def
+/OffsetCalc
+{
+/cd_textlength exch def
+/cd_just exch def
+/cd_dist 0 def
+gsave
+flattenpath
+{
+/cd_newy exch def 
+/cd_newx exch def
+/cd_firsty cd_newy def
+/cd_firstx cd_newx def
+}
+{
+/cd_oldy exch def
+/cd_oldx exch def
+/cd_dx cd_oldx cd_newx sub def 
+/cd_dy cd_oldy cd_newy sub def
+/cd_dist cd_dx dup mul cd_dy dup mul add sqrt cd_dist add def
+/cd_newx cd_oldx def
+/cd_newy cd_oldy def
+}
+{
+}
+{
+/cd_dx cd_firstx cd_newx sub def
+/cd_dy cd_firsty cd_newy sub def
+/cd_dist cd_dx dup mul cd_dy dup mul add sqrt cd_dist add def
+}
+pathforall
+cd_just 0 eq
+{
+/cd_pathoffset 0 store
+} if
+cd_just 1 eq
+{
+/cd_pathoffset cd_dist cd_textlength sub 2 div store
+}if
+cd_just 2 eq
+{
+/cd_pathoffset cd_dist cd_textlength sub store
+}if
+grestore
+} bind def
+/MakeUnderlineFont 
+{
+dup FontDirectory exch known 
+{ 
+pop pop
+}
+{
+20 dict begin
+exch /BaseFont exch findfont def
+/uniqueid 
+BaseFont dup /UniqueID known 
+{/UniqueID get 1 add}
+{pop 1} ifelse
+def
+/FontType 3 def
+/Upos 
+BaseFont /FontInfo 2 copy known
+{
+get /UnderlinePosition 2 copy known
+{get}
+{pop pop -100 }ifelse
+}
+{ pop pop -100 }ifelse 
+def
+/Uwid 
+BaseFont /FontInfo 2 copy known
+{
+get /UnderlineThickness 2 copy known
+{get}
+{pop pop 50} ifelse
+}
+{pop pop 50} ifelse
+def
+/FontMatrix BaseFont /FontMatrix get def
+/FontBBox BaseFont /FontBBox get
+dup 1 get Upos gt
+{
+dup 1 Upos put
+}if
+def
+/Encoding BaseFont /Encoding get def
+/theChar 1 string def
+/BuildChar
+{
+exch
+begin
+theChar 0 3 -1 roll put
+BaseFont 1000 scalefont setfont
+theChar stringwidth FontBBox setcachedevice
+0 0 moveto
+theChar show
+0 Upos rmoveto 0 Upos lineto
+Uwid setlinewidth stroke
+end
+} def
+currentdict 
+end
+definefont pop
+} ifelse
+} def
+/MakeOutlineFont 
+{
+dup FontDirectory exch known 
+{ 
+pop pop
+}
+{
+/pathwidth 1000 24 div def 
+/newfontname exch def 
+/basefontname exch def 
+/uniqueid 
+basefontname findfont dup /UniqueID known 
+{
+/UniqueID get 1 add
+}
+{
+pop 1
+}ifelse
+def
+/BaseFont basefontname findfont def 
+/numentries BaseFont maxlength 1 add def 
+BaseFont /UniqueID known not
+{
+/numentries numentries 1 add def
+} if
+/NewFont numentries dict def 
+BaseFont
+{ 
+exch dup /FID ne
+{exch NewFont 3 1 roll put}
+{pop pop} ifelse
+}forall
+NewFont /FontName newfontname put
+NewFont /PaintType 2 put
+NewFont /StrokeWidth pathwidth put
+NewFont /UniqueID uniqueid put
+newfontname NewFont definefont pop
+}ifelse
+}def
+/macvec dup where not 
+{ 256 array def
+macvec 0 StandardEncoding
+0 128 getinterval putinterval
+macvec 16#27 /quotesingle put
+macvec 16#60 /grave put
+/Adieresis /Aring /Ccedilla /Eacute /Ntilde /Odieresis /Udieresis /aacute
+/agrave /acircumflex /adieresis /atilde /aring /ccedilla /eacute /egrave
+/ecircumflex /edieresis /iacute /igrave /icircumflex /idieresis /ntilde /oacute
+/ograve /ocircumflex /odieresis /otilde /uacute /ugrave /ucircumflex /udieresis
+/dagger /degree /cent /sterling /section /bullet /paragraph /germandbls
+/registersans /copyrightsans /trademarksans /acute /dieresis /notequal /AE /Oslash
+/infinity /plusminus /lessequal /greaterequal /yen /mu /partialdiff /summation
+/product /pi /integral /ordfeminine /ordmasculine /Omega /ae /oslash
+/questiondown /exclamdown /logicalnot /radical /florin /approxequal /Delta /guillemotleft
+/guillemotright /ellipsis /space /Aacute /Atilde /Otilde /OE /oe
+/endash /emdash /quotedblleft /quotedblright /quoteleft /quoteright /divide /lozenge
+/ydieresis /Ydieresis /fraction /currency /guilsinglleft /guilsinglright /fi /fl
+/daggerdbl /periodcentered /quotesinglbase /quotedblbase /perthousand
+/Acircumflex /Ecircumflex /Agrave
+/Edieresis /Egrave /Iacute /Icircumflex /Idieresis /Igrave /Oacute /Ocircumflex
+/apple /Ograve /Uacute /Ucircumflex /Ugrave /dotlessi /circumflex /tilde
+/macron /breve /dotaccent /ring /cedilla /hungarumlaut /ogonek /caron
+macvec 128 128 getinterval astore pop
+}
+{pop pop} ifelse
+/CreateFontDict 
+{
+dup length dict
+/cd_NewFontDict exch def
+{
+1 index
+/FID ne
+{
+cd_NewFontDict 3 1 roll put
+}
+{
+pop pop
+} ifelse
+} forall
+cd_NewFontDict
+} def
+/CoordinateFont 
+{
+dup 
+/cd_FontString exch def 
+length 7 add string
+/cd_CoFontString exch def
+cd_CoFontString 0 (|______) putinterval cd_CoFontString 7 cd_FontString putinterval
+/cd_FontName cd_CoFontString cvn def 
+FontDirectory cd_FontName known not
+{
+cd_FontString cvn findfont CreateFontDict
+/cd_NewFontDict exch def
+cd_NewFontDict dup 
+/FontName cd_FontName put 
+/Encoding macvec put
+cd_FontName cd_NewFontDict definefont pop
+} if
+} def
+/cd_defaultscreen [ currentscreen ] def
+/SetDefaultScreen
+{
+cd_defaultscreen aload pop setscreen
+} def
+/Default
+{
+cd_defaultscreen 2 get exec
+} def
+/WhiteDot 
+{
+dup mul exch dup mul add 1 sub
+} bind def
+/BlackDot 
+{
+dup mul exch dup mul add 1 exch sub
+} bind def
+/HLines 
+{
+exch pop abs 1 exch sub
+} bind def
+/VLines 
+{
+pop abs 2 mul 1 exch sub
+} bind def
+/Poster
+{
+{
+dup 0.5 lt 
+{
+dup 0.3 gt 
+{pop 0.4} 
+{0.1 gt 
+{0.2} 
+{0.0} ifelse
+} ifelse
+}
+{
+dup 0.7 lt 
+{pop 0.6} 
+{
+0.9 lt 
+{0.8} 
+{1.0} ifelse
+} ifelse
+} ifelse
+} settransfer
+} def 
+/Ellipse 
+{
+dup mul .625 mul exch dup mul add 1 exch sub
+} bind def
+/Square 
+{
+abs exch abs 2 copy gt{exch} if pop
+} bind def
+/Diamond 
+{
+abs exch abs add 1 exch sub
+} bind def
+/BlackCircle 
+{
+dup mul exch dup mul add 0.6 exch sub abs -0.5 mul
+} bind def
+/WhiteCircle 
+{
+dup mul exch dup mul add 0.6 exch sub abs 0.5 mul
+} bind def
+/Triangle 
+{
+2 exch sub exch abs 2 mul sub 3 div
+} bind def
+/Grid 
+{
+2 copy abs exch abs gt {exch} if pop 2 mul 1 exch sub 3.5 div
+} bind def
+/Ripples 
+{
+/wy exch def 180 mul cos 2 div wy dup dup dup mul mul sub mul wy add 180 mul cos
+} bind def
+/Star 
+{
+abs exch abs 2 copy gt {exch} if 1 sub dup 0 eq {0.01 add} if atan 360 div
+} bind def
+/max
+{
+2 copy lt{exch}if pop
+} def
+/min
+{
+2 copy gt{exch}if pop
+} def
+/concatprocs %% Proc1 Proc2 -- Proc1Proc2 %%
+{
+/Proc1 exch cvlit def
+/Proc2 exch cvlit def
+/NewProc Proc1 length Proc2 length add array def
+NewProc 0 Proc1 putinterval
+NewProc Proc1 length Proc2 putinterval
+NewProc cvx
+} def
+/ndf %% key value -- %%
+{
+1 index where{pop pop pop}{dup xcheck{bind}if def}ifelse
+} def
+/setcmykcolor %% Cyan Magenta Yellow Black -- %%
+{
+1 exch sub 3 {dup 5 -1 roll sub 0 max exch} repeat pop setrgbcolor
+} ndf
+/findcmykcustomcolor %% Cyan Magenta Yellow Black SpotName -- Object %%
+{
+[ 6 1 roll ] 
+} ndf
+/setcustomcolor %% object tint -- %%
+{
+/cd_tint exch def
+0 4 getinterval
+{ cd_tint mul } forall
+setcmykcolor
+} ndf
+/cmyktorgb %% Cyan Magenta Yellow Black -- Red Green Blue %%
+{
+3 {dup 5 -1 roll add dup 1 gt {pop 1} if 1 exch sub exch} repeat pop
+} def
+/rgbtocmyk %% Red Green Blue -- Cyan Magenta Yellow Black %%
+{
+3 {3 -1 roll 1 exch sub} repeat
+3 copy min min 
+3 {4 -1 roll 1 index sub exch} repeat
+} def
+/cmyktohls %% Cyan Magenta Yellow Black -- Hue Lightness Saturation %%
+{
+cmyktorgb
+3 copy min min 4 1 roll
+3 copy max max 5 -1 roll
+2 copy add 2 div 6 1 roll
+2 copy eq 
+{
+5 {pop} repeat
+0 exch 0
+}
+{
+5 index
+0.5 le
+{
+2 copy 2 copy
+sub 3 1 roll
+add div
+}
+{
+2 copy 2 copy
+sub 2 exch sub 3 1 roll
+sub exch div 
+} ifelse
+6 1 roll
+2 copy sub
+5 index 3 index eq
+{
+3 1 roll pop pop
+4 -3 roll sub exch pop exch div
+}
+{
+4 index 3 index eq
+{
+3 1 roll pop pop
+4 -3 roll exch pop exch sub 2 add exch div
+}
+{
+3 1 roll pop pop
+4 -3 roll pop sub 4 add exch div
+} ifelse
+} ifelse
+60 mul dup 0 lt {360 add} if
+3 1 roll
+} ifelse
+} def
+/value
+{
+dup 360 gt {360 sub} if
+dup 0 lt {360 add} if
+dup
+60 lt 
+{
+60 div 3 1 roll 2 copy sub 4 -1 roll mul add exch pop
+}
+{
+dup 180 lt
+{
+pop pop
+}
+{
+dup 240 lt
+{
+240 exch sub 60 div
+3 copy pop sub mul add exch pop
+}
+{
+pop exch pop
+} ifelse
+} ifelse
+} ifelse
+} def
+/hlstocmyk %% Hue Lightness Saturation -- Cyan Magenta Yellow Black %%
+{
+dup 0 eq
+{
+pop exch pop dup dup
+}
+{
+1 index 0.5 le
+{
+2 copy 1 add mul
+}
+{
+2 copy 2 copy add 3 1 roll mul sub
+} ifelse
+2 index 1 index sub 2 mul
+5 -3 roll pop pop
+3 copy 120 add value 4 1 roll
+3 copy value 4 1 roll
+120 sub value 
+} ifelse
+rgbtocmyk
+} def
+/D3PathProc %% PathArray -- %%
+{
+{
+dup length
+dup 6 eq
+{ pop aload pop curveto }
+{ 
+dup 2 eq
+{ pop aload pop lineto }
+{
+3 eq
+{ aload pop pop moveto }
+{ pop closepath } ifelse
+} ifelse
+} ifelse
+} forall
+} def
+/fntnIncColor %% StartDistance EndDistance CurrentDistance -- %%
+{
+fntnBColor length 6 eq
+{
+fntnMix 0 eq
+{
+2 index sub 3 -2 roll exch sub div
+}
+{
+3 -1 roll sub exch pop fntnGrain idiv fntnBuf exch get
+} ifelse
+fntnEColor 5 get fntnBColor 5 get sub mul fntnBColor 5 get add
+fntnBColor aload pop pop findcmykcustomcolor exch setcustomcolor
+}
+{
+dup 3 index eq fntnMix 0 eq and
+{ pop pop pop fntnBColor aload pop fntnModel 0 ne {hlstocmyk} if }
+{
+dup 2 index eq fntnMix 0 eq and
+{ pop pop pop fntnEColor aload pop fntnModel 0 ne {hlstocmyk} if }
+{
+fntnMix 0 eq
+{ 2 index sub 3 -2 roll exch sub div }
+{ 3 -1 roll sub exch pop fntnGrain idiv fntnBuf exch get } ifelse
+dup fntnBColor 0 get fntnEColor 0 get 1 index sub 3 -1 roll mul add exch
+dup fntnBColor 1 get fntnEColor 1 get 1 index sub 3 -1 roll mul add exch
+fntnModel 0 eq
+{
+dup fntnBColor 2 get fntnEColor 2 get 1 index sub 3 -1 roll mul add exch
+fntnBColor 3 get fntnEColor 3 get 1 index sub 3 -1 roll mul add
+}
+{
+fntnBColor 2 get fntnEColor 2 get 1 index sub 3 -1 roll mul add
+hlstocmyk
+} ifelse
+} ifelse
+} ifelse
+setcmykcolor
+} ifelse
+} def
+/fntnlinear %% DirectionData -- %%
+{
+aload pop
+/stop [ 4 -2 roll] def
+pop pop 4 2 roll
+/start [ 4 -2 roll] def
+start 1 get sub exch 
+start 0 get sub
+fntnSteps div exch fntnSteps div
+3 -1 roll pop
+gsave
+0 fntnGrain fntnSteps 1 sub mul dup fntnIncColor
+/eofill load FindFlatness
+grestore
+2 copy 2 div exch 2 div exch
+translate
+0 fntnGrain dup fntnSteps 1 sub mul 
+{
+0 fntnGrain fntnSteps mul 3 -1 roll fntnIncColor
+newpath
+start aload pop
+moveto
+stop aload pop
+lineto
+stroke
+1 index 1 index
+translate
+} for
+pop pop
+} def
+/fntnecho %% DirectionData -- %%
+{
+aload
+5 {pop} repeat
+2 index sub exch 4 -1 roll sub
+3 -1 roll pop
+fntnSteps div exch fntnSteps div
+3 -1 roll pop
+gsave
+0 fntnGrain fntnSteps 1 sub mul dup fntnIncColor
+/eofill load FindFlatness
+grestore
+2 copy 2 div exch 2 div exch
+translate
+0 fntnGrain dup fntnSteps 1 sub mul 
+{
+0 fntnGrain fntnSteps mul 3 -1 roll fntnIncColor
+D3ObjectProc closepath
+/stroke load FindFlatness
+1 index 1 index
+translate
+} for
+pop pop
+} def
+/fntnradial %% OffsetData -- %%
+{
+aload pop
+/fntnERadius exch fntnGrain 2 div sub round cvi def
+/fntnBRadius exch fntnGrain 2 div sub round cvi def
+translate
+gsave
+fntnBRadius fntnERadius fntnBRadius fntnIncColor
+/eofill load FindFlatness
+grestore
+fntnBRadius fntnGrain fntnERadius 
+{
+fntnBRadius fntnERadius 2 index fntnIncColor 
+newpath 0 0 3 -1 roll 0 360 arc
+/stroke load FindFlatness
+} for
+} def
+/fntnshape %% OffsetData -- %%
+{
+aload pop
+/fntnERadius exch fntnGrain 2 div sub round cvi def
+/fntnBRadius exch fntnGrain 2 div sub round cvi def
+D3ObjectProc pathbbox
+2 index add 2 div exch
+4 -2 roll pop add 2 div exch
+/objCX 2 index def /objCY 1 index def
+2 index sub exch 
+4 -2 roll pop sub fntnSteps div neg exch
+fntnSteps div neg
+gsave
+fntnBRadius fntnERadius fntnERadius fntnIncColor
+/eofill load FindFlatness
+grestore
+fntnBRadius fntnGrain fntnERadius 
+{
+fntnBRadius fntnERadius 2 index fntnIncColor
+gsave
+objCX objCY 
+translate
+fntnERadius dup 3 -1 roll sub exch div dup
+scale
+objCX neg objCY neg 
+translate
+D3ObjectProc
+/eofill load FindFlatness
+grestore
+1 index 1 index
+translate
+} for
+2 {pop} repeat
+} def
+/fntn %% OffsetData Grain Steps Startcolor Endcolor Buffer Mix Model Style -- %%
+{ 
+/fntnStyle exch def
+/fntnModel exch def
+/fntnMix exch def
+/fntnBuf exch def
+fntnModel 0 eq
+{
+/fntnEColor exch def
+/fntnBColor exch def
+}
+{
+/fntnEColor [ 3 -1 roll aload pop cmyktohls ] def
+/fntnBColor [ 3 -1 roll aload pop cmyktohls ] def
+} ifelse
+/fntnSteps exch def
+/fntnGrain exch def
+fntnGrain setlinewidth
+fntnStyle 0 eq {fntnlinear}
+{ fntnStyle 1 eq {fntnecho} 
+{ fntnStyle 2 eq {fntnradial} 
+{fntnStyle 3 eq {fntnshape} 
+{ pop } ifelse
+} ifelse
+} ifelse
+} ifelse
+} def 
+/shdwIncColor %% StartDistance EndDistance CurrentDistance -- %%
+{
+shdwBColor length 6 eq
+{
+2 index sub 3 -2 roll exch sub div
+shdwEColor 5 get shdwBColor 5 get sub mul shdwBColor 5 get add
+shdwBColor aload pop pop findcmykcustomcolor exch setcustomcolor
+}
+{
+dup 3 index eq
+{ pop pop pop shdwBColor aload pop shdwModel 0 ne {hlstocmyk} if }
+{
+dup 2 index eq 
+{ pop pop pop shdwEColor aload pop shdwModel 0 ne {hlstocmyk} if }
+{
+2 index sub 3 -2 roll exch sub div
+dup shdwBColor 0 get shdwEColor 0 get 1 index sub 3 -1 roll mul add exch
+dup shdwBColor 1 get shdwEColor 1 get 1 index sub 3 -1 roll mul add exch
+shdwModel 0 eq
+{
+dup shdwBColor 2 get shdwEColor 2 get 1 index sub 3 -1 roll mul add exch
+shdwBColor 3 get shdwEColor 3 get 1 index sub 3 -1 roll mul add
+}
+{
+shdwBColor 2 get shdwEColor 2 get 1 index sub 3 -1 roll mul add
+hlstocmyk
+} ifelse
+} ifelse
+} ifelse
+setcmykcolor
+} ifelse
+} def
+/shdwdrop %% -- %%
+{
+shdwDColor length 6 eq
+{
+shdwDColor aload pop
+/cd_tint exch def
+findcmykcustomcolor cd_tint setcustomcolor
+D3ObjectProc shdwOp
+}
+{
+shdwDColor aload 
+length 0 gt
+{
+shdwModel 0 ne { hlstocmyk } if
+setcmykcolor
+D3ObjectProc shdwOp
+} if
+} ifelse
+} def
+/shdwfull %% -- %%
+{
+shdwLength shdwAngle cos mul shdwSteps div neg
+shdwLength shdwAngle sin mul shdwSteps div neg
+0 shdwGrain dup shdwSteps 1 sub mul 
+{
+dup 0 eq 
+{pop shdwdrop}
+{
+0 shdwGrain shdwSteps mul 3 -1 roll shdwIncColor
+D3ObjectProc shdwOp
+} ifelse
+1 index 1 index
+translate
+} for
+pop pop
+} def
+/shdw %% StartRGB EndRGB DropRGB Steps Grain Length Angle Mix Model Style -- %%
+{
+/shdwStyle exch def
+/shdwModel exch def
+/shdwMix exch def
+/shdwAngle exch def
+/shdwLength exch def
+/shdwGrain exch def
+/shdwSteps exch def
+shdwModel 0 eq
+{
+/shdwDColor exch def
+/shdwBColor exch def
+/shdwEColor exch def
+}
+{
+/shdwDColor [ 3 -1 roll aload length 0 gt {cmyktohls} if ] def
+/shdwBColor [ 3 -1 roll aload pop cmyktohls ] def
+/shdwEColor [ 3 -1 roll aload pop cmyktohls ] def
+} ifelse
+shdwSteps 0 ne shdwLength 0 ne and
+{
+gsave
+shdwLength shdwAngle cos mul 
+shdwLength shdwAngle sin mul
+translate
+shdwStyle 0 eq
+{ shdwdrop }
+{ shdwfull } ifelse
+grestore
+} if
+} def
+/colorimage %% width height bitspersample matrix proc xxx numplanes --
+{
+3 ne {exit} if
+{exit} if
+pop
+{
+currentfile cd_ImageStr readhexstring pop /cd_string exch def
+0 1 cd_string length 3 div 1 sub
+{
+dup 3 mul
+dup cd_string exch get 6 mul exch
+dup 1 add cd_string exch get 3 mul exch 
+2 add cd_string exch get
+add add 10 div round cvi
+cd_string 3 1 roll put
+} for
+cd_string dup length 3 idiv 0 exch getinterval
+}
+image
+} ndf
+/ReadToAsterick %% --
+{
+/cd_String 1 string def
+0
+{
+currentfile cd_String readstring not {pop exit} if
+0 get dup 42 eq 
+{ 
+pop 1 eq 
+{ 
+(BitMap Error: To much data) ==
+} if 
+exit
+} 
+{
+32 gt 
+{pop 1} if 
+} ifelse
+} loop
+} def
+/D3ImageProc %% Width Height -- %%
+{
+/cd_ImageStr 2 index 7 add 8 idiv string def
+true
+[ 3 index 0 dup 5 index neg 0 dup ]
+{ currentfile cd_ImageStr readhexstring pop }
+imagemask
+ReadToAsterick
+} def
+/D3ColorImageProc %% Width Height BitsPerSample -- %%
+{
+/cd_ImageStr 3 index 8 3 index idiv dup 1 sub 3 -1 roll add exch idiv 3 mul string def
+[ 3 index 0 dup 5 index neg 0 dup ]
+{ currentfile cd_ImageStr readhexstring pop }
+false 3
+colorimage
+ReadToAsterick
+} def
+%%EndProlog
+%% -------- Begin Program --------- %%
+systemdict /setpacking known
+{
+true setpacking
+} if
+2 setlinecap
+0 setlinejoin
+
+(Courier) CoordinateFont
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [279 650 0 ] put
+D3PathArray 1 [19 541.001 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [284 648 0 ] put
+D3PathArray 1 [83.5 541.080 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [288 648 0 ] put
+D3PathArray 1 [153 539.5 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [291 646 0 ] put
+D3PathArray 1 [190.501 540.5 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [296 647 0 ] put
+D3PathArray 1 [242.093 540.48 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [299 645 0 ] put
+D3PathArray 1 [282.726 540.215 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [303 647 0 ] put
+D3PathArray 1 [337 538.501 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [309.999 648 0 ] put
+D3PathArray 1 [386 537 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 230 668 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier findfont 12 scalefont setfont
+14 -14 moveto
+(...../beta) 70 QDShow
+grestore
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 -11 542.5 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier findfont 9 scalefont setfont
+12 -12 moveto
+(include) 35 QDShow
+grestore
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 33.5 542.5 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier findfont 9 scalefont setfont
+12 -12 moveto
+(include-special) 75 QDShow
+grestore
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 170 542.5 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier /CourierU MakeUnderlineFont
+/CourierU findfont 9 scalefont setfont
+11 -12 moveto
+(bin) 15 QDShow
+grestore
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 204.445 542.5 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier /CourierU MakeUnderlineFont
+/CourierU findfont 9 scalefont setfont
+5 -12 moveto
+(bin-special) 55 QDShow
+grestore
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 269.803 542.5 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier /CourierU MakeUnderlineFont
+/CourierU findfont 9 scalefont setfont
+7 -12 moveto
+(lib) 15 QDShow
+grestore
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 295 542.5 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier /CourierU MakeUnderlineFont
+/CourierU findfont 9 scalefont setfont
+6 -12 moveto
+(lib-special) 55 QDShow
+grestore
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 136 542.5 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier findfont 9 scalefont setfont
+10 -12 moveto
+(src) 15 QDShow
+grestore
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 358 542.5 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier findfont 9 scalefont setfont
+6 -12 moveto
+(pmax_mach) 45 QDShow
+grestore
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [313 650 0 ] put
+D3PathArray 1 [494 538.5 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 456 542.5 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier findfont 9 scalefont setfont
+14 -12 moveto
+(i386_mach) 45 QDShow
+grestore
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 340.223 488.5 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier findfont 9 scalefont setfont
+4 -12 moveto
+(bin...lib-special) 85 QDShow
+grestore
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [381.5 524.5 0 ] put
+D3PathArray 1 [351.107 484.266 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [385 523.5 0 ] put
+D3PathArray 1 [367.467 484.265 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [394.5 524 0 ] put
+D3PathArray 1 [416.017 483.21 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 453.75 489.25 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier findfont 9 scalefont setfont
+4 -12 moveto
+(bin..lib-special) 80 QDShow
+grestore
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [489.75 525.25 0 ] put
+D3PathArray 1 [466.25 484.75 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [493.25 524.25 0 ] put
+D3PathArray 1 [479.344 483.738 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [502.75 524.75 0 ] put
+D3PathArray 1 [530.25 483.75 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 98.5 488 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier findfont 9 scalefont setfont
+5 -12 moveto
+(README...... vtools) 95 QDShow
+grestore
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [147.5 527.5 0 ] put
+D3PathArray 1 [107 485.5 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [150.5 526.5 0 ] put
+D3PathArray 1 [139.5 487.5 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [158.5 527.5 0 ] put
+D3PathArray 1 [197.5 486 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [319.5 651 0 ] put
+D3PathArray 1 [551.499 573.001 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+% Object: Text 
+gsave
+SetDefaultScreen
+[ 1 0 0 1 450 583.5 ] concat
+0 0 0 1 setcmykcolor
+/|______Courier findfont 9 scalefont setfont
+13 -12 moveto
+(............) 60 QDShow
+grestore
+% Object: Bezier Path Stroked 
+SetDefaultScreen
+/D3PathArray 2 array def
+D3PathArray 0 [154.019 525.428 0 ] put
+D3PathArray 1 [166.157 488.487 ] put
+/D3ObjectProc {newpath
+D3PathArray D3PathProc } def
+D3ObjectProc
+1 setlinewidth
+[ ] 0 setdash
+2 setlinecap
+0 0 0 1 setcmykcolor
+/stroke load
+FindFlatness
+end
+showpage
+restore
+%%Trailer

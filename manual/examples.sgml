@@ -1,0 +1,54 @@
+<sect> Example Configuration files<p>
+
+<sect1>/vice/db/user.coda<p>
+<tscreen<verb>
+rootl:8eyUkE/DLFLOA:0:1:Local System Manager:/:/bin/csh
+admin:A4SCSN80lqBao:2127:21:AccountsAdministrator:/usr0/admi
+n:/etc/adm
+jjk:trFEGNo9DEuN.:2954:32767:James Kistler:/usr0/jjk:/usr/cs
+/bin/csh
+satya:.Z.COf9BKQBPM:122:32767:M Satya:/cmu/itc/satya:/bin/cs
+h
+</verb></tscreen>
+
+<sect1>/vice/db/groups.coda<p>
+<tscreen<verb>
+System:Administrators	-204	dcs jjk mre pkumar satya
+System:coda		-221	dcs jjk mre pkumar satya
+System:codastudents		-222	dcs jjk mre pkumar
+</verb></tscreen>
+
+<sect1>/vice/db/servers<p>
+<tscreen<verb>
+These server ids must not be reassigned.
+Server id's must not be greater than 255.
+Aliasing no longer allowed (i.e. do not map more than one name to one
+number)
+
+MAHLER.CODA.CS.CMU.EDU		201
+VIVALDI.CODA.CS.CMU.EDU		202
+RAVEL.CODA.CS.CMU.EDU		203
+</verb></tscreen>
+
+<sect1>/.rhosts<p>
+<tscreen<verb>
+bach
+bach.coda.cs.cmu.edu
+chopin
+chopin.coda.cs.cmu.edu
+debussy
+debussy.coda.cs.cmu.edu
+handel
+handel.coda.cs.cmu.edu
+mahler
+mahler.coda.cs.cmu.edu
+mozart
+mozart.coda.cs.cmu.edu
+pachelbel
+pachelbel.coda.cs.cmu.edu
+ravel
+ravel.coda.cs.cmu.edu
+vivaldi
+vivaldi.coda.cs.cmu.edu
+</verb></tscreen>
+

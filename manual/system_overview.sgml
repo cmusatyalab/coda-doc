@@ -1,0 +1,149 @@
+<sect> System Overview<p>
+
+Each Coda client sees the Coda File System as a single tree,
+/coda.  In reality this tree is an illusion supported by <em>system
+control machine</em> (SCM), serveral dedicated file servers and a local area
+network.  One of the file servers may double as the (SCM).  Figure
+<ref id="ServerOrg" name="XXX"> illustrates the server organization. 
+
+<figure>
+  <eps file="serverorg">
+  <caption><label id="ServerOrg">Typical Coda Server Organisation
+</figure>
+
+<sect1>Machines<p>
+
+The Coda architecture recognizes three types of machines, <em>clients</em>,
+<em>servers</em> and a <em>system control machine</em> (or SCM).
+Client machines are 
+typically single-user workstations used to access shared information.  
+These machines are not trusted by servers
+except for the duration of a login session by an authenticated user.
+Server machines are secure, trusted machines
+whose purpose is to service client requests for shared data.  
+As the custodians of shared information, servers must require 
+authentication of each user before releasing shared data to the users 
+client workstation.  The third machine type is the system control machine  (SCM).  The purpose of the SCM is to provide a single point of 
+control for ease of administration.  Logically, the SCM is distinct from the
+servers, but, physically, the SCM can also act as a server.  
+
+<sect1>Processes<p>
+
+Each of the dedicated file servers must run a number of processes.
+These processes are shown in Figure <ref id="ServerOrg" name="XXX"> and are described
+below.
+
+<table>
+<tabular ca=ll>
+<bf>File Server Process</bf>| The <em>srv</em> process interacts with the venus
+process on clients.  Together they fulfill user requests for shared data stored 
+on the server.   When started, the server process will salvage the
+file system.   The presence of a file called <tt>SHUTDOWN</tt> in the 
+<tt>/vice/srv</tt> directory indicates that the server process
+exited normally. @
+<bf>Auth Server Process</bf>| The <em>auth2</em> process runs on all
+servers.  It validates user passwords and issues a token for that user
+if the password is correct.   However, passwords may only be changed
+at the SCM.  Hence,  
+the password database is read-only replicated to all servers and the SCM 
+maintains the read-write replica.  Changes to the password file are 
+updated automatically through the <em>update</em> process described below. 
+If auth2 exits for any reason, the <em>authmon</em> process restarts it. 
+On all servers (except the SCM), auth2 is invoked with the <em>-chk</em> 
+option.@
+<bf>Update Client Process</bf>|The <em>updateclnt</em> process works in conjuction
+with the <em>updatesrv</em> process (running on the SCM) to keep
+read-only copies of system files and databases in sync with their
+corresponding read-write copy.  The updateclnt process checks with the 
+updatesrv process on the SCM
+periodically to ensure that the read-only copy on this server is
+the latest copy.  Thus, when the read-write copy is updated, the read-only
+copies will be automatically updated after some delay.  If the 
+updateclnt or the updatesrv processes exit for any reason, the 
+<em>updatemon</em> process restarts them.
+</tabular>
+<caption> Server Processes </caption>
+</table>
+
+Figure <ref id="SrvProcesses" name="XXX"> lists the typical processes of a running file server.
+
+<tscreen>
+<verb>
+  PID TT STAT  TIME COMMAND
+    0 ?  R <   53hr  (kernel idle)
+    1 ?  SW    0:00     init -a (init)
+    2 ?  U <  10:00  (inode_pager)
+    3 ?  S <   0:00  (device pager)
+    4 ?  S <   0:00  (device server)
+    5 ?  S     0:00  (exception hdlr)
+    6 ?  SW    0:00 /etc/mach_init -a
+  150 ?  SW    0:00 authmon
+  152 ?  SW    0:00 UpdateMonitor       -s -p /vice/db
+  156 ?  SW    0:00 auth2
+  165 ?  S     0:35 /vice/bin/updatemon -s -p /vice/db
+  179 ?  SW    3:19 /etc/update
+  182 ?  SW    0:00 /etc/cron
+  190 ?  SW    0:07 /usr/cs/etc/nanny -init /usr/cs/etc/nanny.config
+  202 ?  SW    0:00 /etc/inetd
+  203 ?  SW    0:07 /etc/named
+  204 ?  SW    0:00 /usr/cs/etc/supfilesrv
+  205 ?  SW    0:00 /usr/cs/lib/lpd -l
+  206 ?  SW    0:00 RFS Listener.
+ 1217 ?  SW    0:00 sh /vice/bin/startserver
+ 1222 ?  S     6:56 srv           -time -maxworktime 15 -nodumpvm -trunc 1 -rvm
+/dev/rrz3c /dev/rrz0h 69206016
+ 1358 t0 R     0:00 ps axww
+</verb>
+</tscreen>
+
+<sect1>Data Location<p>
+The information stored on Coda servers is organized into several
+directories.  These directories are are described below.
+
+<itemize>
+<item>
+<bf>/vice/auth2</bf> This directory contains information related to
+the authentication process, including its log file.
+<item>
+<bf>/vice/bin</bf> contains the Coda file system
+binaries for servers and the SCM.
+<item>
+<bf>/vice/db</bf>contains the log file for the update
+processes as well as a number of databases important to servers.
+<item>
+<bf>/vice/srv</bf>contains information related to
+the server process, including its log file.
+<item>
+<bf>/vice/vol</bf> contains information related to
+the volumes contained in the Coda file system.
+<item>
+<bf>/vice/vol/remote</bf> exists only on the SCM and
+contains volume information for all remote servers.
+</itemize>
+
+A more detailed description of the files in the these directories is
+listed in Appendix <ref id="FileList" name="XXX">.
+
+<sect1>File System Consistency<p>
+
+After a crash, many subsystems of Coda must be checked to maintain
+file system consistency.  
+To ensure that Coda data partitions are internally consistent, CMUs modified
+version of fsck, is run during reboot.  Coda accesses files by inode
+rather than name.  The normal fsck would toss out Coda files because
+they have no name.
+The <em>salvager</em>, run by the file process during initialization,
+checks that every inode is referenced by at least one Coda
+directory.  Thus, CMUs fsck and salvage together provide what fsck normally
+provides for the Unix file system.  The reason fsck is not a sufficient check
+on Coda file systems is that it does not recognize Coda directories (Coda 
+directories appear to be regular files in the Unix file system) so it cannot
+perform the inode reference check.
+
+
+
+
+
+
+
+

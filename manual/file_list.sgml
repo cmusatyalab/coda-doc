@@ -1,0 +1,44 @@
+<sect> Appendix: System Files <p>
+
+<table>
+<tabular ca=lllll>
+File|Where|Created By|Edited By|Purpose@
+--------------|-------------|-------------|-------------|--------------------------@
+auth2.pw|/vice/db|initpw||Authentication server to generate secret tokens.@
+auth2.tk|/vice/db|hand||Used for secure communication among Coda servers.@
+dumplist|/vice/db|hand|createvol|Specifies which volumes to backup and when.@
+files|/vice/db|hand|hand|Update uses the files in files as a list of@
+||||files to keep up to date.@
+groups&lowbar;coda||hand|hand|By pwd2pdb to create vice.pdb file@
+hosts|/vice/db|hand|hand|Lists all of the servers in this Coda installation.  @
+pro.db|/vice/db|adduser||Coda protection database@
+servers|/vice/db|hand|hand|Server number.  Used as part of a volume number.@
+VLDB|/vice/db|buildvldb.sh||Volume Location Database.  Used by clients to @
+||||locate volumes.@
+vice.pcf|/vice/db|pcfgen|pcfgen|Auth2 binary password database@
+vice.pdb|/vice/db|pwd2pdb|pwd2pdb|Auth2 clear text password file@
+volutil.tk|/vice/db|hand||Used for secure communication among Coda servers.@
+VRDB|/vice/db|volutil|volutil|Map group volume names and numbers from @
+||makevrdb|makevrdb|a replicated volume to a VSG and the read-write @
+||||volumes that make up the replicated volume.@
+VSGDB|/vice/db|hand|hand|By createvol&lowbar;rep to map a VSG to a set of servers@
+@
+AllVolumes|/vice/vol|buildvldb.sh||Human readable version of VLDB@
+maxgroupid|/vice/vol|hand|createvol&lowbar;rep|By creatvol&lowbar;rep when allocating@
+||||group ids@
+partitions|/vice/vol|bldvldb||Lists vice partitions for all servers.@
+RWlist|/vice/vol|createvol||Lists all read write volumes.@
+user&lowbar;coda||hand|hand|By pwd2pdb to create vice.pdb file@
+VolumeList|/vice/vol|createvol||List of volumes on server@
+VRlist|/vice/vol|volutil|volutil|Human readable version of VRDB.@
+@
+SrvLog|/vice/srv|srv||Log of server activity.@
+SrvLog-xx|/vice/srv/|volutil||Old SrvLog.@
+UpdateLog|/vice/srv|update|update|Log of update activity.@
+@
+AuthLog|/vice/auth2|auth2||Log of authenication server activity.@
+@
+vstab|/usr/coda/etc|hand|hand|Venus configuration file@
+||||Several other programs use vstab to get server names@
+</tabular>
+</table>

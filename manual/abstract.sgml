@@ -1,0 +1,11 @@
+
+<abstract>
+The <em>Coda File System</em> is a descendant of the <em>Andrew File System.</em>
+Like AFS, Coda offers location-transparent access to a shared Unix file namespace that
+is mapped on to a collection of dedicated file servers.  
+But Coda  represents a substantial improvement over AFS because it offers considerably higher availability
+in the face of server and network failures.   The improvement in availability is 
+achieved using the complementary techniques of <em>server replication</em> and <em>disconnected operation.</em>
+Disconnected operation has proved to be especially valuable in supporting portable computers.
+This document is a reference manual for Coda users and system administrators.
+</abstract>

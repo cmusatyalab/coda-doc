@@ -1,0 +1,17 @@
+<sect> Troubleshooting <p>
+
+This chapter is meant to help solve some of the problems you may run
+into when using Coda.  
+
+<sect1>File System Full<p>
+You may get a message of the form, <em>/usr: file system
+full</em> when you have not put any extra data on that disk.  If the
+venus.cache directory is on that disk, that is probably your problem.
+You can execute euther <em>cfs flushobject &lt;object&gt;</em> or <em>cfs
+flushvolume &lt;dir&gt;</em> to try to free up some disk space.  <bf>Be carful
+when flushing anything while disconnected.  You will lose any changes
+that you made</bf>.  In the long term, the cache size in
+<em>/usr/coda/etc/vstab</em> is proabably too large for the disk and should
+be made smaller. 
+
+

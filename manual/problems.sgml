@@ -1,0 +1,37 @@
+<sect> Appendix: Common Problems and Suggestions<p>
+
+<descrip>
+<tag>
+<bf>ls on /coda fails</bf></tag>If the return code is either "Invalid Argument" or "No Device",
+venus was probably restarted recently and hasnt yet finished 
+initializing. Solution:  Wait a few minutes a try again.
+<tag>
+<bf>Newly created volume is</bf></tag> If a newly created volume, when mounted
+<bf>dangling link</bf>for the first time, shows up as a dangling symbolic 
+link (it looks inconsistent), the problem is that new databases have 
+not been distributed to the other replication sites.  Solution:  Unmount 
+the volume, wait 5 minutes and try again. Youll have to reinitialize 
+the venus which failed to find the volume, since vldb information 
+cant be flushed.
+<tag>
+<bf>Venus Fails on Startup with</bf> </tag>There exists a process with an reference to a file in /coda. Its
+<bf>"unable to unmount" message</bf>either a running process <bf>cd</bf>-ed into <tt>/coda</tt> To solve
+the problem, either get the process out of /coda (in case its
+a shell) or kill it the process. If you cant find the right process
+rebooting the workstation should clear it up.
+<tag>
+<bf>Venus error messages fail to print on console window of window manager</bf></tag>Use the <em>-console filename</em> option to <bf>startcodav</bf> on startup.
+This will force stderr messages to print to the specified file.
+ Use <bf>tail -f filename</bf> in a window to observe any error messages.
+<tag>
+<bf>Rvm gets Trashed</bf></tag><bf>ABSOLUTE LAST RESORT</bf>
+If Rvm gets trashed -- it asserts, wont recover, there are many failures
+on salvage, dumpvm fails -- there are probably serious <bf>venus</bf> or <bf>srv</bf>
+bugs which must be fixed. Talk to Coda experts before continuing!!!
+<tag>
+<bf>Performing the following actions will result in the loss of ALL Coda file system data.</bf></tag>
+
+Reinitializing the RVM Data segment (i.e. with rdsinit)
+Reinitializing the RVM Log (i.e. with rvmutl)
+Rewriting or trashing the file containing the Log or Data segment.
+</descrip>

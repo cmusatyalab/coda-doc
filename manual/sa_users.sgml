@@ -1,0 +1,96 @@
+<sect> System Administration: Users<p>
+
+<sect1>Adding users<p>
+<label id="AddUsers">
+
+There are several steps in adding a new user to the Coda file system. First,
+create a Unix account for the new user on some or all of the Coda clients.
+Second, add the user to the Coda authentication database and the
+protection database (described below). Third, create a volume for
+the user and mount it at the appropriate place in the Coda name space  (See section <ref id="CreateVolume)" name="XXX">.
+
+<sect2>Constructing new protection database files<p>
+
+Add a line for each new user to the <tt>user.coda</tt> file
+using the userId from the new users Unix account.
+@Foot(If you are at Carnegie Mellon and the user you intend 
+to add does not have a CMU-CS account, STOP!  The user <bf>must</bf> get a CMU-CS
+account before you may continue.  To determine the CMU-CS UID, <bf>grep</bf>
+for the login name in <tt>/etc/passwds</tt>.)  You may copy the entry in 
+<tt>/etc/passwds</tt> for this user if you wish.  Note that only the login name (the
+first field) and the uid (the third field) are relevant and that you may delete the 
+other fields as long as you leave all the "<bf>:</bf>" characters intact.
+
+Now, add the users name to the appropriate group in the file <tt>groups.coda</tt>.  
+Note that Coda groups are totally separate from AFS groups and CS unix groups.  
+Adding a user to group <bf>system:administrators</bf> is about the equivalent of giving 
+that user the <bf>root</bf> password.  Only hard core Coda developers should be in this group.
+Add all Coda developers (hard and soft core) to the <bf>system:coda</bf> group.  Add casual
+Coda users to the <bf>system:guests</bf> group.
+
+Execute 
+<tt>% /usr/coda/bin/pwd2pdb -p user.coda -g groups.coda &gt; vice.pdb</tt>
+
+to generate a Coda protection database.
+
+Finally, execute 
+<tt>% /usr/coda/bin/pcfgen vice</tt>
+to generate thefile <tt>vice.pcf</tt>.
+
+<sect2>Installing the protection database files<p>
+
+Now that you have generated the new protection database files, you must install
+these files.  Follow these steps:
+
+<enum>
+<item>
+Login into the SCM.
+<item>
+<tt>cd /vice/db</tt>
+<item>
+<tt>/vice/bin/mvdb &lt;srcdir&gt; vice.pdb vice.pcf</tt>) where  &lt;srcdir&gt;
+is the name of the directory containing the new vice.pdb and vice.pcf.
+</enum>
+
+<sect2>Modifying the authentication database<p>
+
+User accounts are added to the authentication database by the
+<bf>/usr/coda/bin/au</bf> program. The <bf>/usr/coda/bin/au</bf>
+program can be used to add, delete, and modify user accounts, change passwords,
+or get tokens. Below we give an example of how to add a new user.
+
+On a Coda client workstation, run
+<tt>% /usr/coda/bin/au -h &lt;SCM&gt; nu</tt>
+
+where &lt;SCM&gt; is the name of the SCM.  
+In response to the prompts, provide your Coda userId and password
+and then the new users name and temporary password.  (Give the new users
+full name to the "Other info" prompt.) You must be a member of the
+system:administrators group in order to successfully modify the
+authentication database.  Figure <ref id="NewUser" name="XXX"> shows adding the user
+"guest" to the authentication database.  Note that the new password
+will echo to the screen.
+
+<verb>
+% /usr/coda/bin/au -h scarlatti nu
+Your Vice name: raiff
+Your password:
+RPC2&lowbar;Bind () --&gt; RPC2&lowbar;SUCCESS
+Vice user: guest
+New password: guestpwd
+New info: Guest User
+</verb>
+
+
+Updates made via <bf>au</bf> will be automatically
+distributed to the other servers by the Update daemon.
+Now, the <bf>auth</bf>
+server knows about the new users.  New users may change their temporary 
+passwords using the <bf>cpasswd</bf> command.
+
+<sect1>Monitoring Auth Server Activity<p>
+
+The file <tt>/vice/auth2/AuthLog</tt> has a log of the
+auth server activity and can be used to monitor failed login attempts.
+You can also monitor password changes in the file
+<tt>/vice/db/auth2.pw</tt>.

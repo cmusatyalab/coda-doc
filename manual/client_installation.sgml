@@ -1,0 +1,71 @@
+<sect> Installing a Coda Client<p>
+
+A Coda client can be run on any workstation that supports the Sun VFS
+interface.  Our experience has been limited to Mach kernels, but it
+would take minimal effort to port Coda to another kernel.
+
+<sect1>Binaries and Devices<p>
+
+The <tt>&dollar;INSTALLATION&lowbar;DIR</tt> contains a shell script,
+<tt>installclient.sh</tt>, to install the binaries.  This script has
+a number of user-defined constants at the beginning which can be
+changed to suit the particular client.  These constants include the
+name of <tt>&dollar;INSTALLATION&lowbar;DIR</tt> (called ROOT),
+the type of CPU (called CPU), and the copy program (called COPY).  
+If the client is at Carnegie Mellon, the COPY variable should be set
+to <bf>copy</bf> (<bf>copy) is the same as cp -p</bf> except that it doesnt
+copy programs which have not changed and preserves symbolic links.
+
+
+The Coda file system requires a directory, called <tt>/usr/coda</tt> 
+on our systems, which will contain all Coda-related local files
+required to access the Coda file system.   To create
+the necessary directories, install the binaries in them, and also create
+the necessary devices, run the command
+
+<bf>installclient.sh</bf> <em>install</em>
+
+Two other commands which can be given to this script (instead of install) 
+are <bf>clean</bf> and
+<bf>update</bf>.  The <bf>clean</bf> command removes all files within the
+<tt>/usr/coda</tt> directory.  The <bf>update</bf> command updates
+the Coda client binaries from the installation directory.  
+
+<sect1>Configuration Changes<p>
+
+This section describes the changes that must be made to various 
+configuration files.  Examples of the files are contained in Appendix 
+<ref id="ExampleFiles" name="XXX"> as well as in the appropriate  place in the 
+<tt>&dollar;INSTALLATION&lowbar;DIR</tt>.
+
+<sect2>/usr/coda/etc/vstab<p>
+Create a <tt>vstab</tt> file in <tt>/usr/coda/etc</tt> to contain
+the Coda file system table information.  A default version of this file
+is copied over in the <bf>installclient.sh</bf> script suitable
+for use with the Coda servers at Carnegie Mellon.  The contents of this
+file are explained in <bf/vstab/.
+
+<sect2>/etc/rc.local<p>
+Changes to <tt>/etc/rc.local</tt> are necessary to automatically
+start Venus at boot time.  Append the following lines to
+<tt>/etc/rc.local</tt> if you want Venus to run automatically.
+
+<verb>
+if [ -f /usr/coda/etc/venus ]; then
+	echo  "Starting Coda Venus" > /dev/console
+	/usr/coda/etc/venus &
+fi
+</verb>
+
+<sect1>Where Data is Stored<p>
+<itemize>
+<item>
+<tt>/usr/coda/bin</tt> Symlink to Coda binaries not critical for
+Venus startup.
+<item>
+<tt>/usr/coda/etc</tt> Coda binaries critical for Venus startup.
+<item>
+<tt>/usr/coda/venus.cache</tt> Cached copies of Coda files.
+<item>
+<tt>/usr/coda/spool</tt> Save CMLs from aborted reintegrations.
+</itemize>

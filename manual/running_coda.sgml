@@ -1,0 +1,176 @@
+<sect> Running Coda <p>
+
+<sect1>Server<p>
+<label id="ServerMonitor">
+Each process running on a server maintains a log file of its
+activities.  This file may be monitored by running 
+<bf>tail -f</bf> on the particular file.  For intance, an
+operator might want to run this command in a small window on
+the file server console.  The table below shows the absolute pathname 
+of the log file for each server process.
+
+<table>
+<tabular ca=ll>
+<bf/Server Process/|<bf/Log File/@
+File Server|<tt>/vice/srv/SrvLog</tt>@
+Authentication|<tt>/vice/auth2/AuthLog</tt>@
+Update|<tt>/vice/srv/UpdateLog</tt>@
+</tabular>
+<caption> Server Log Files</caption>
+</table>
+
+The processes append new log entries to the end of the log file.  To
+control the growth of the log files over extended periods of
+operation, the files should be removed periodically.
+<tt>SrvLog</tt> may be removed by the <bf>swaplog</bf> option
+of the <bf>volutil</bf> command; this will move the current
+<tt>SrvLog</tt> to <tt>SrvLog-1</tt> and begin a new log.  Swaplog
+also keep the last 6 log files, by removing, <tt>SrvLog-7</tt> and
+renaming the remaining log files.  a swaplog is also performed during
+fileserver startup.  The
+log files of the other processes should be removed only when their
+respective processes are not running.
+
+<sect2>Startup<p>
+<label id="ServerStartup">
+
+Starting the servers srv process is relatively straightforward.  You
+need only ensure that there is no file server currently running on the
+node, and give the file server information about the RVM log and data
+segments.
+
+The pid of the last file process to run is contained in
+<tt>/vice/srv/pid</tt>.  This is used by the
+<bf>startserver</bf>, one of our example scripts in Appendix
+<ref id="examplefiles" name="XXX">, to avoid accidentally starting a new server when
+one is already running.  If the old server process is still running, and
+you wish to shut it down, follow the instructions in Section
+<ref id="ServerShutdown" name="XXX">.  If <tt>/vice/srv/pid</tt> exists, but the
+server is not running, then either the machine crashed and the server
+process did not get a chance to remove the file, or the server has
+entered a <em>zombie</em> state.  The server goes into a zombie state
+whenever it receives an unexpected signal.  This allows us to debug
+it.  The end of the server log file will tell you if the server
+becomes a zombie process.  See section <ref id="SrvDebug" name="XXX"> for more
+details on a server becomming a zombie.
+
+The server process requires three parameters that must be user-supplied:
+the device on which the RVM log resides, the device on which the RVM
+data segment resides, and the length of the RVM data segment.  These
+parameters are the same ones that were set when RVM was initialized in
+section <ref id="RVMInitialization" name="XXX">.  To start the server, type as root:
+
+<tt>
+% /vice/bin/srv -nodumpvm -rvm &lt;logdevice&gt; &lt;datadevice&gt; &lt;datalength&gt;</tt>
+
+Appendix <ref id="examplefiles" name="XXX"> contains two example scripts,
+<bf>startserver</bf> and <bf>restartserver</bf>, that
+simplify server startup.  Be sure to change the three RVM parameters
+to suit your system.  A common failure with these scripts is the
+presence of the file <tt>/vice/srv/pid</tt>; the scripts we have
+included remove this file unless the server completely crashed.  If
+<bf>startserver</bf> or <bf>restartserver</bf> complain that
+a server is already running, <tt>pid</tt> might need to be removed.
+
+<sect2>Shutdown<p>
+<label id="ServerShutdown">
+To shutdown the file server gracefully, use the volume utility client
+procedure, <bf>volutil</bf>.  Issue the command 
+<bf>volutil shutdown</bf> and then monitor the log file for
+the server process (<tt>/vice/srv/SrvLog)</tt> until it reflects
+that the server has shutdown  completely.  For example, here are the
+last few lines before file server shutdown.
+
+<verb>
+VShutdown: Taking volume usr.grajen(0xcc0006d1) offline...... Done
+VShutdown: Taking volume synrgen.rep(0xcc00057c) offline...... Done
+VShutdown: Taking volume i386.omega(0xcd0004fc) offline...... Done
+VShutdown: Taking volume trace.rep.0(0xcc00057d) offline...... Done
+VShutdown: Taking volume usr.mmv.rep.0(0xcc00057e) offline...... Done
+VShutdown: Taking volume trace.backup(0xcc00057f) offline...... Done
+VShutdown:  complete.
+</verb>
+
+<sect2>Monitoring and Debugging<p>
+<label id="SrvDebug">
+
+The <bf>volutil</bf> program talks to the volume utility
+subsystem of the file server.  The volume utilities not only allow you
+to perform administrative functions (like creating and purging
+volumes) but also help you to monitor the file system dynamically by
+setting the debugging level and "peeking" at system information.
+
+The <bf>volutil</bf> program allows you to control the level of
+debugging information which is logged.  Level 0 is the lowest level of
+debugging available (<em>i.e.) no extra information is printed</em> while
+the highest level of debugging available is 1000 (<em>i.e.) all
+debugging information is printed</em>.  As with all other server output,
+debugging output will appear in <tt>SrvLog</tt>.  Be careful to turn
+off debugging when its output is not in use since the log will grow
+rapidly and can easily fill the partition with debugging information.
+
+As a debugging tool, we force the file program into a "zombie" state
+if it receives an unexpected signal.  (When the file process becomes a
+"zombie," it logs a message to the log file which includes its Unix
+pid number).  We then use <bf>gdb</bf> to attach to the zombie
+process.  Now you may use gdb as you normally would to examine
+the process stack as it existed at the time of the error@Foot( If the
+"zombied" process is running on an IBM RT, you must first execute the
+command <bf>setcontext OldContext</bf> in order to set the
+context to the point of the error.  To return to the current context,
+use the <bf>restore</bf> command.  (Note that before quitting from gdb, you
+MUST return to the current context.)).
+
+<sect1>Client<p>
+
+<sect2>Startup<p>
+<label id="ClientStartup">
+
+To begin running the Coda file system on a client machine, become root
+on that machine and execute the command
+<bf>/usr/coda/etc/venus</bf>.  Venus first scans the cache for
+files and directories.  After the scan of the FSDB finishes, access to
+the "/coda" subtree is available.  If the command <bf>ls
+/coda</bf> lists the file <tt>NOTREALLYCODA</tt>@Foot(This assumes
+that in setting up the client workstation, you have created the
+directory <tt>/coda</tt> and placed the file
+<tt>NOTREALLYCODA</tt> in it.  Venus will mount the file system on
+top of this directory), Venus has either not finished initialization
+or has exited.
+
+<sect2>Shutdown<p>
+
+To shutdown a Coda file system client, execute the command 
+<bf>/usr/coda/etc/vutil -shutdown</bf> as <bf>root</bf> on the client 
+machine.  This script kills the Venus running on the client machine and 
+unmounts the Coda file system.  Note that as part of the shutdown,
+Venus tries to unmount <tt>/coda</tt>.  This will fail if any
+process is cded into <tt>/coda</tt> or any binaries are running
+from <tt>/coda</tt>.
+
+<sect2>Debugging and Monitoring<p>
+
+The Venus log file is found in <tt>/usr/coda/venus.cache/venus.log</tt>.  
+All monitoring and debugging information is written to this file.
+
+Once Venus is running you may run the command
+
+<tt>% /usr/coda/etc/vutil -d level</tt>
+
+to have Venus produce debugging output at the level
+requested.  If you want debugging output generated by Venus during
+startup, you should use the <em>-d</em> option to Venus.  The debugging
+information will be printed to Venus console file.
+
+The <bf>vutil</bf> program is a utility to dynamically control
+and monitor the <bf>venus</bf> program.  It has a number of
+options other than the debugging option described above.  For more
+information, please refer to <bf>vutil</bf>s manual page
+in Appendix <ref id="ManualPages" name="XXX">.
+
+<sect2>Redirecting STDERR from Venus<p>
+
+If you give <bf>venus</bf> the parameter 
+<em>-console filename</em>, stderr will print to the file <tt>filename</tt>
+rather than to the console.  The default console file is
+<em>/usr/coda/etc/console</em>.

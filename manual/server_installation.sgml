@@ -1,0 +1,453 @@
+<sect>Installing a Coda Server <p>
+
+An instance of Coda is a set of servers which all believe one of the set
+to be the master, or SCM. All modifications to important Coda databases
+should be made on the SCM.  The update daemon will propagate changes
+from the SCM to the other servers. The first server you setup must be the
+SCM.
+
+<sect1>Recoverable Virtual Memory<p>
+
+To help ensure that data is not lost between server restarts, Coda uses
+<em>Recoverable Virtual Memory</em> (RVM) to maintain the system state.
+nUpon startup, the Coda servers use RVM to restore the systems state.
+See section <ref id="RVMInitialization" name="XXX"> for more details on RVM.
+
+<sect1>Server Disk Organization<p>
+
+Coda servers require a number of disk partitions in addition to those
+used in Standard Unix or Mach kernels.  Two partitions are used by
+RVM, one as a log device and one as a data device. Although these could be
+setup as UNIX files, we suggest you dedicate raw disk partitions, for
+reasons of permanence and safety from accidental deletion.
+For better performance, you might consider putting the RVM log partition
+on its own device. This would eliminate sharing of the disk head and should
+substantially reduce disk seek times on log operations.
+
+Coda servers also need one or more Unix partitions to store Coda file data.
+These partitions should have the names <tt>/vicepa</tt>,
+<tt>/vicepb</tt>, etc.
+The table
+below shows a possible partitioning of disks on Coda servers with
+their respective purpose, mount points, typical sizes and consistency
+check program.  Please note that the sizes of these partitions were
+taken from one of the Coda servers at CMU-SCS: the actual sizes may
+vary at other installations. Add the partitions with Unix File systems
+to <tt>/etc/fstab</tt> to ensure they are mounted at system startup.
+
+<table>
+<tabular ca=lllll>
+<bf/Partition/|<bf/Storage Purpose/|<bf/Mounted/|<bf/Typical Size/|<bf/Whether fscked/@
+0a|Root File System|/|13.8MB|Yes@
+0d|System Sources|/sys0|41.7MB|Yes@
+0e|User file system|/usr0|52.5MB|Yes@
+0g|RVM Log|Not|8.7MB|No@
+0h|RVM Data|Not|70MB|No@
+1c|Coda FS Data0|/vicepa|1GB|Yes@
+2c|Coda FS Data1|/vicepb|1GB|Yes@
+3*, 4*, ...|Coda FS Data*|/vicep*|?|Yes@
+</tabular>
+<caption>Example of Partitions for a Coda Server
+</caption>
+</table>
+
+<sect1>Binaries and Devices<p>
+Installing the binaries on a server still has to be done by hand as
+this has not yet been fully automated.  The rest of this section
+details the process of installing a server.  For simplicitys sake,
+the directory that the Coda files are being copied from will be
+refered to as &dollar;&lcub;INSTALL&lowbar;DIR&rcub;.
+
+<sect2>Server directories<p>
+Create the following directories:
+<itemize>
+<item><tt>/vice</tt>: This is the root of the Coda server tree, and may be a
+symbolic link to another file system.  For example create the
+directory /usr0/vice and link /vice to it.
+<item>
+/vice/bin  The Coda server binary directory.
+<item>
+/vice/backup Used by the Coda backup subsystem.
+<item>
+/vice/srv Contains log files for standard output and standard error.
+<item>
+/vice/vol Contains various files for the volume utility.
+<item>
+/vice/db Contains Coda database files.
+</itemize>
+In addition to creating the above directories, a couple of other files
+need to be created:
+
+<itemize>
+<item>Create a <tt>/vice/.hostname</tt> file to contain the name of this server.
+For example, on @Machine(vivaldi.coda.cs.cmu.edu), the <tt>/.hostname</tt>
+simply contains the word "vivaldi".
+<item>
+Create a <tt>/.scm</tt> file to contain the name of the SCM.  
+The name of this machine should be unique and should be the same on all 
+servers.  Note that if the SCM acts as a server as well, this file and the
+<tt>/.hostname</tt> file will be identical on that one machine.
+<item>
+<tt>ln -s /vice/.hostname / ; ln -s /vice/.scm /</tt>
+</itemize>
+
+<sect2>Populating /vice/bin<p>
+Executing the following commands will populate <em>/vice/bin</em> with the
+required binaries.
+
+<itemize>
+<item>cp -p &dollar;&lcub;INSTALL&lowbar;DIR&rcub;/bin/&lcub;au,auth2,authmon,printvrdb,pwd2pdb,pcfgen,srv&rcub; /vice/bin
+<item>cp -p &dollar;&lcub;INSTALL&lowbar;DIR&rcub;/bin/&lcub;initpw,updateclnt,updatemon,updatesrv,volutil&rcub; /vice/bin
+<item>cp -p &dollar;&lcub;INSTALL&lowbar;DIR&rcub;/bin-special/&lcub;rds&lowbar;test,rdsinit,rvmutl&rcub; /vice/bin
+<item>cp -p &dollar;&lcub;INSTALL&lowbar;DIR&rcub;/scripts/&lcub;bldvldb.sh,createvol,createvol&lowbar;rep,purgevol&rcub; /vice/bin
+<item>cp -p &dollar;&lcub;INSTALL&lowbar;DIR&rcub;/scripts/&lcub;purgevol&lowbar;rep,restartserver,startfromboot,startserver&rcub; /vice/bin
+</itemize>
+
+
+<sect2>Setting up /vice/vol<p>
+<itemize>
+<item>Create a file containing the number 2130706432 (0x7f000000) called
+<tt>/vice/vol/maxgroupid</tt>. This number will be used to assign identifiers
+to replicated volumes.
+<item>
+Create a file called <tt>/vice/vol/.anonr</tt> containing the word "VolumeList".
+<item>
+Create a directory <tt>/vice/vol/remote</tt> which will be used by the
+fileserver script <tt>bldvldb.sh</tt>
+<item>
+Create the empty files /vice/vol/fs.lock and /vice/vol/volutil.lock
+</itemize>
+
+<sect2>/vice/db/servers<p> 
+Select an id for this server and append
+it to the list of existing servers in the file
+<tt>/vice/db/servers</tt>, creating the file if necessary.  The
+server ids must not be greater than 255 and cannot be reassigned to
+another server.  See the <bf>servers (5)</bf> manual page for more details.
+
+<sect2>/vice/db/hosts<p>
+
+Each server should have an entry in <tt>hosts</tt>.  The file should
+have one server per line, with each line containing the IP number of
+the host, followed by a tab, followed by the name of the server.
+Additionally, the SCM should have the two words "localhost scm"
+appended at the end of its line.  For example:
+
+<verb>
+128.2.222.11	mahler localhost scm
+128.2.222.16	vivaldi
+128.2.222.215	ravel
+</verb>
+<sect1>Configuration Changes<p>
+Because of the <bf>sup</bf> program which runs on most CMU-SCS 
+machines, all files normally in / should actually reside in
+<em>/vice</em> and have symbolic links from / to the actual file. The directions above
+have already taken this into account.
+
+In addition, the following changes must be made to various configuration files.
+Examples of most
+configuration files are contained in their respective directories in
+<tt>&dollar;INSTALLATION&lowbar;DIR</tt> as well as in Appendix 
+<ref id="ExampleFiles" name="XXX">.
+
+<sect2>/etc/services<p>
+
+A number of the programs that make up the Coda clients and servers
+must have standard, known port numbers, and must be entered in
+<tt>/etc/services</tt>.  All Coda services run on sockets.  The
+services that require known port numbers, as well as the numbers they
+have been assigned at CMU-SCS, are
+
+<verb>
+coda_opcons	1355/udp			# Coda opcons
+coda_auth	1357/udp			# Coda auth
+coda_udpsrv	1359/udp			# Coda udpsrv
+coda_filesrv	1361/udp			# Coda filesrv
+coda_venus	1363/udp			# Coda venus
+</verb>
+
+<sect2>/etc/rc.local<p>
+
+The following should be added to <tt>/etc/rc.local</tt>:
+
+<verb>
+if [ `cat /.hostname` = `cat /.scm` ]; then
+ if [ -f /vice/bin/authmon ]; then
+   /vice/bin/authmon &
+   echo 'Starting Authentication Server' >/dev/console
+ fi
+ if [ -f /vice/bin/updatemon ]; then
+   /vice/bin/updatemon -s -p /vice/db &
+   echo 'Starting Update Server for file server updates' >/dev/console
+ fi
+else
+ if [ -f /vice/bin/authmon ]; then
+   /vice/bin/authmon -chk &
+   echo 'Starting Authentication Server (read only)' >/dev/console
+ fi
+ if [ -f /vice/bin/updatemon ]; then
+   /vice/bin/updatemon -h `cat /.scm`  -q coda_udpsrv &
+   echo 'Starting Update Client for file server updates' >/dev/console
+ fi
+fi
+
+# Start the Coda file server if necessary.
+/vice/bin/startfromboot&
+
+</verb>
+
+<sect1>RVM Initialization<p>
+<label id="RVMInitialization">
+
+RVM initialization requires the selection of several parameters, each
+of which involve tradeoffs.  For the CMU-SCS Coda DS-5000 servers, use
+the parameters in <em>/afs/cs/user/raiff/serverinfo/(server&lowbar;name&gt;</em>.
+Other sites may want to think about thier choices first.  Although the
+RVM log and data can be kept as regular UFS files, <bf>this is not
+recommended</bf>.  Raw partitions have much stronger consistency
+guarantees.  It is probably best to plan out the RVM partitions on
+paper first, taking into consideration both the effect on RVM
+performance as well as overall disk usage.
+
+<sect2>The Log Partition<p>
+
+The size of the log device is based on available space and issues
+involving truncation. Larger logs provide a longer accessible history
+of operations, are truncated less frequently, but each truncation will
+take a longer chunk of time. Shorter logs truncate more often, but
+each truncation takes less time.  We use an 8M log size, on a
+partition of roughly 9M.  (We suggest leaving a little space at the
+end of the RVM log partition for safety, as RVM automatically adds
+about one extra page to the amount you specify).
+
+The log is initialized with <bf>rvmutl</bf>.  At
+<bf>rvmutl</bf>s prompt, use the command <bf>i</bf>, and
+then specify the size of the log segment.  In specifying the size, you
+can use M for megabyte and K for kilobyte.  For example, to initialize
+a log on partition 0g to eight megabytes:
+
+<verb>
+# @B(rvmutl)
+* i
+Enter name of log file or device: /dev/rrz0g
+Enter length of log data area: 8M
+* q
+</verb>
+
+
+<sect2>The Data Partition<p>
+
+The data segment contains the meta-data of the system such as
+volume headers, Coda directories, vmond lists, resolution logs,  etc.
+The size of the data 
+segment depends on the amount of disk space for file data, i.e. the
+size of the /vicep? partitions.  As a rule of thumb, you will need
+about 1/20 to 1/30 of the total file data space for recoverable
+storage. In our systems the data segment is 65Meg for 2 gigabytes of
+disk space. By making it smaller, you can reduce server startup time.
+However, if you run out of space you 
+will be forced to reinitialize the system, a costly penalty.
+
+In the reinitialization, you need to pick several parameters. The
+first is the starting address of the recoverable segment in your
+address space.  On our servers we start the RVM segment at 0x70000000.
+The second is the amount of space to give the recoverable heap. The
+heap will obviously grow over use, so plan accordingly.  Our heap
+space is 0x400000.  We suggest that for the last parameters you use
+1Meg (0x100000) for the static area, use 80 free lists (or nlists),
+and a chunksize of 32.  These numbers will work well with the internal
+structure of the fileserver.
+
+To perform the data initialization, run the program
+<bf>rdsinit</bf>.  <bf>rdsinit</bf> takes two parameters,
+the names of the RVM log and data devices.  For example, to initialize
+one of our DS-5000 servers:
+
+<verb>
+# rdsinit /dev/rrz0g /dev/rrz0h
+Enter the length of the device /dev/rrz0h: 69206016
+Going to initialize data file to zero, could take awhile.
+done.
+rvm_initialize succeeded.
+starting address of rvm: 0x70000000
+heap len: 0x4000000
+static len: 0x100000
+nlists: 80
+chunksize: 32
+rds_zap_heap completed successfully.
+rvm_terminate succeeded.
+</verb>
+
+<sect1>Update Monitor<p>
+The update monitor is used to propagate changes to the Coda server databases
+to all servers from the SCM. Client update processes run on all the Coda servers
+and connect to a server udpate process running on the SCM. The server process
+uses the file <tt>/vice/db/files</tt> to determine which files should be
+kept consistent on all the servers.  See the <em>updatemon</em>(8) man page
+for more details.
+
+Create the file <tt>/vice/db/files</tt> on the SCM. Currently our
+<tt>/vice/db/files</tt> looks like this:
+
+<code>
+VLDB
+auth2.pw
+auth2.tk
+auth2.tk.BAK
+pro.db
+servers
+hosts
+vice.pdb
+vice.pcf
+volutil.tk
+VRDB
+files
+VSGDB
+dumplist
+</code>
+
+<sect1>Authentication Database<p>
+
+Coda uses an authentication database that is seperate from the UNIX password
+file.  This database is maintained by the SCM.  When someone authenticates
+to Coda, their password is checked against this database and that person is
+issued a token if they successfully authenticate.  This section describes
+how to initialize the authentication database.
+
+<sect2>On the SCM<p>
+If the server you are installing is the SCM, you must set up the initial
+authentication database. Make sure you add at least one user to the
+<tt>System:Administrators group.</tt> You need to do the following:
+
+<itemize>
+<item>
+Create or modify an appropriate passwd file in the Vice format 
+<bf>passwd.coda (5)</bf>.  An example of <tt>passwd.coda</tt> can be 
+found in the directory <tt>&dollar;INSTALLATION&lowbar;DIR/vice/db</tt> as 
+well as in Appendix <ref id="examplefiles" name="XXX">.
+<item>
+Create or modify an appropriate groups file in the Vice format 
+<bf>groups.coda (5)</bf>.  It is vital that you add at least one user
+from the <tt>passwd.coda</tt> file to the group
+<tt>System:Administrators</tt>.  An example of <tt>groups.coda</tt> can be 
+found in the directory <tt>&dollar;INSTALLATION&lowbar;DIR/vice/db</tt> as 
+well as in Appendix <ref id="examplefiles" name="XXX">.  
+<item>
+
+<tt>/vice/bin/pwd2pdb -p passwd.coda -g groups.coda &gt; vice.pdb</tt>
+<item>
+<tt>/vice/bin/pcfgen vice.pdb) (will create vice.pcf) as a side affect</tt>
+<item>
+Create a file with the initial users in the passwd file (be sure to
+include at least one administrator).  The format of the file should be
+as follows: <bf>uid&lt;Tab&gt;actual password&lt;Tab&gt;any desired info</bf>.  The
+password has not been encrypted and should be changed as soon as
+possible by the user.  The information might be the full name of the
+user.  This file may be named anything you wish but for future
+reference call it <tt>users.file</tt>.  You need to choose a
+password that will be used to encrypt the user passwords.  It is
+helpful for the password to be hardwired into the Authentication
+server (auth2.c) as <bf>DefKey</bf>; otherwise it must be supplied on the
+command line with the -k switch.  (If it is hardwired, The
+Authentication server will need to be recompiled after the password is
+included).  Then, run the command 
+
+<tt>/vice/bin/initpw -k "&lt;password&gt;" &lt;users.file  &gt;auth2.pw</tt>
+
+This command produces the file
+auth2.pw in the format: <bf>uid&lt;Tab&gt;encrypted password&lt;Tab&gt;Desired
+info</bf>.  Note that all future changes of the password must be changed
+in both the Authentication server, via either hardwiring or the
+command line, as well as this command.  New passwords must be 8
+characters long.  To add additional users, please see Section
+<ref id="AddUsers" name="XXX">. 
+<item>
+You also must choose a password for the servers to use in generating the
+<em>secret</em> token (see Chapter <ref id="SystemOverview) for more
+information" name="XXX">.  This secret token is used for secure communication.
+Put the password in <tt>/vice/db/auth2.tk</tt>.
+<item>
+Create the ticket file
+<tt>/vice/db/volutil.tk</tt>, used for secure communication among
+the servers. This file should contain a single word which will be used to
+encrypt messages between the server and server applications.  The file
+should be present on all servers. The UpdateMon presently takes care of
+propagating them from the SCM.
+</itemize>
+
+<sect2>On Servers OTHER than the SCM<p>
+
+On servers other than the SCM, the <bf>Update</bf> monitor will
+ensure that the proper database files are propogated from the SCM.
+However, you must copy the file <tt>/vice/db/volutil.tk</tt>
+to the new server for the <bf>Update</bf> monitor to work.
+
+<sect1>Creating the Volume Storage Group DataBase (SCM only)<P>
+
+Every combination of servers you expect to use as a VSG must be given
+a multicast address in <tt>/vice/db/VSGDB</tt>.  This file must be
+created by hand; please refer to <bf>VSGDB (5)</bf> in Appendix
+<ref id="ManualPages" name="XXX"> for more details.
+
+<sect1>Starting the File Server<p>
+We have provided a script called <tt>/vice/bin/startserver</tt> which you
+need to edit to contain the appropriate information. In particular, the
+command line arguments you desire in your environment may differ from the
+standard command:
+
+<tt>% /vice/bin/srv &dollar;* -nodumpvm -rvm /dev/rrz0g /dev/rrz0h 69206016</tt>
+
+You should be careful to specify the correct partitions
+for the RVM log, data segment, and size of the data segment.
+
+Once this file has been correctly edited, you can start the server with
+<bf>/vice/bin/startserver&amp;</bf>. The script
+<tt>/vice/bin/restartserver</tt> can be put in the <tt>crontab</tt>
+file to periodically restart the servers. The script
+<tt>/vice/bin/startfromboot</tt> should be edited to remove the initial
+comment and premature exit.
+
+<sect1>Creating the Root Volume<p>
+<label id="RootVolume">
+If you are installing any server other than the SCM, please use the
+instructions in section <ref id="CreateVolume" name="XXX"> to create new volumes on 
+this server.
+
+The root of the Coda file system must reside on the /vicepa partition
+for correct functioning.  Since the SCM probably also acts as a
+server, place the root of the Coda file system in the /vicepa
+partition on the SCM.  Create the root volume by using the command
+
+<tt>% /vice/bin/createvol&lowbar;rep codaroot &lt;VSG&lowbar;ENTRY&gt; /vicepa</tt>
+
+where &lt;VSG&lowbar;ENTRY&gt; is the entry in the <tt>VSGDB</tt> for the volume storage
+group for this volume. Since it is likely that the root will be cloned
+and read-only replicated, you might wish to create this volume as
+singly replicated for simplicity.
+
+This command will create the <tt>/vice/db/VLDB</tt>, <tt>/vice/db/VRDB</tt>,
+<tt>/vice/vol/VolumeList</tt>, <tt>/vice/vol/BigVolumeList</tt>,
+and the <tt>/vice/vol/AllVolume</tt> files.
+
+Create or modify the file <tt>/vice/ROOTVOLUME</tt> to contain
+the volume id number corresponding to the root volume as listed in the
+file <tt>/vice/vol/VRList</tt>.  
+
+Finally, link /ROOTVOLUME to /vice/ROOTVOLUME
+
+<tt>% ln -s /vice/ROOTVOLUME /ROOTVOLUME</tt>
+
+<sect2>Creating a readonly root<p>
+You may wish for the root to be readonly. To do this, first create a root volume
+as above. Start a venus which can talk to this server. Setup the
+directory structure you want in your root volume. Once you are
+satisfied with the structure, clone the volume and 
+dump it to a disk file with the the <tt>volutil</tt> program. Now restore
+the dump file to the servers in the desired VSG for the readonly volume.
+Be sure to specify the volumeId and the volume Name for the new volume:
+
+<tt>% /vice/bin/volutil restore &lt;filename&gt; /vicepa &lt;newrootname&gt; &lt;volid&gt;</tt>
+
+Then modify the <tt>ROOTVOLUME</tt> file to contain the new rootvolume name,
+&lt;newrootname&gt;.
+

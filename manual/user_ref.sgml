@@ -1,0 +1,27 @@
+<sect> Quick Reference<p>
+
+<table>
+<tabular ca=ll>
+<bf>cfs checkpointml</bf>|Checkpoint Coda modify log@
+<bf>cfs la</bf>|Display a Coda access control list@
+<bf>cfs sa</bf>|Set a Coda access control list@
+<bf>clog</bf>|Authenticate to Coda servers@
+<bf>cpasswd</bf>|Change your Coda password@
+<bf>ctokens</bf>|List Coda tokens@
+<bf>hoard</bf>|Set your hoard database@
+<bf>hoard list /dev/tty</bf>|List your hoard database@
+<bf>repair</bf>|Repair inconsistent files and directories@
+<bf>spy</bf>|List all Coda files that are referenced@
+</tabular>
+</table>
+
+<bf>To Disconnect</bf>
+If you need to set up yout hoard database, run:
+
+<tscreen><verb>
+% hoard -f &lt;hoardfile&gt;
+</verb></tscreen>
+for each project file.
+
+If you already have your database set up, run:
+ <bf>hoard walk</bf>.
