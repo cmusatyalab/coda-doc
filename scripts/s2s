@@ -9,21 +9,36 @@ _,,&lowbar;,,&cons
 @[iI]\[,\],<em>,</em>,&cons
 @[iI]&lt;,&gt;,<em>,</em>,&cons
 
+@[uU]\(,\),<em>,</em>,&cons
 @[bB]\(,\),<bf>,</bf>,&cons
 @[bB]\[,\],<bf>,</bf>,&cons
 @b&lt;,&gt;,<bf>,</bf>,&cons
 
 @[Tt]\(\/,\),<tt>\/,</tt>,&cons
+@[Tt]\[,\],<tt>,</tt>,&cons
+@[Tt]\(,\),,,&cons
 {,,&lcub;,,&cons
 },,&rcub;,,&cons
 \[,,&lsqb;,,&cons
 \],,&rsqb;,,&cons
 @BeginCode\(,\),\@BeginCode<sect1>,,&cons
-@BeginCode,@EndCode\(\),,,&nlcons
+@BeginCode,@EndCode\(\),,,&cons
 @Man\(,\),,,&cman
 @part\(,\),,,&nullit
 @option\(,\),,,&copt
-
+@CommandName\(,\),<bf>,</bf>,&cons
+@CommandName[,],<bf>,</bf>,&cons
+@Section\(,\),<sect1>,<p>,&cons
+@Subsection\(,\),<sect2>,<p>,&cons
+@FileName\(,\),<tt>,</tt>,&cons
+@Begin\(Example\),@End\(Example\),<code>,</code>,&cons
+@Begin\(DISPLAY,\),,<code>,,
+@End\(DISPLAY\),,,</code>,,
+@Begin\(FILEEXAMPLE,\),,<code>,,
+@End\(FILEEXAMPLE\),,,</code>,,
+@Ref\(,\),<ref id=\",\" name=\"XXX\">,&cons
+@Label\(,\),<label id=\",\">,&cons
+@Begin\(Display\),@End\(Display\),<code>,</code>,&cons
 @BeginProse\(,\),\@BeginProse<sect1>,<P>,&cons
 @BeginProse,@EndProse\(\),,,&cons
 @comment&lcub;,&rcub;,<!--,-->,&cons
