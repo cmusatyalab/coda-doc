@@ -1,0 +1,12 @@
+
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+SUBDIRS=
+PSDOCS=coda-howto.ps
+HTMLDOCS=coda-howto.html
+
+
+include ../Makerules
