@@ -9,7 +9,7 @@ Robert Baron <tt/rvb@cs.cmu.edu/,
 Jan Harkes <tt/jaharkes@cs.cmu.edu/,
 Marc Schnieder <tt/smarc@cs.cmu.edu/.
 </author>
-<date>v1.00, 3 March, 1999
+<date>v1.00, 28 May, 1999
 
 <abstract>
 This HOWTO should give you help in running Coda.  We try to cover
@@ -346,8 +346,8 @@ Use the Server for Windows NT instead.
 
 Install these by double clicking on the installer files.
 
-<bf/NOTE:/ Before you start, make sure you know the IP address of your
-client and of the server you are connecting to.  The default server
+<bf/NOTE:/ Before you start, make sure you know the IP address of 
+the server you are connecting to.  The default server
 address offered is that of the testserver at CMU.
 
 
@@ -579,16 +579,14 @@ messages appear in <tt>/var/log/messages</tt>
 <sect1>Windows 95: Starting and Configuring a Coda client<label id="sec-win95-start-conf"><P> 
  
 During installation you will be prompted for the IP address of
-your client and of your Coda server(s).  Enter this as indicated.
+your Coda server(s).  Enter this as indicated.
 
 All executables can be found in the directory <tt>C:\usr\coda\bin</tt>
 
-There are two ways to play with Coda:
-
 <sect2>CodaStart<p>
-The CodaStart pogram is a Win32 windows-based application to control and
+The CodaStart program is a Win32 windows-based application to control and
 observe the Windows 95 Coda client. It will be enhanced in the future. For now
-it provides a convenient way to start Venus.exe and to load the kernel module.
+it provides a convenient way to start Venus.exe.
 It also displays the kernel-venus communication for debugging purposes.
 Printing the messages can be stopped by unticking the 'Monitor' check box. The
 button 'Reset' clears the display.
@@ -599,70 +597,17 @@ When you start Venus for the first time, or you want to reinitialize its
 cache, tick the 'Init Venus' check box. This will start Venus with the '-init'
 and '-cf 1500' flag set. To add or override flags use the 'Configure' button.
 Start Venus by clicking the left 'Start' button. The 'Status' message will
-tell you 'Running' when Venus starts. Note, Venus is still in the
-initialization process. 
+tell you 'Running' when Venus starts.
 <item>
-Load the kernel module by clicking on the right 'Start' button. If everything
-is all right you will see the 'Status' message 'Running'.
+Coda will be mounted automatically on the drive specified in the <tt>C:\usr\coda\etc\vstab</tt>
+file. <tt>Vstab</tt> is created by the installer.
 <item>
-Click the 'Mount' button to mount, when you see the first messages. When you
-disabled the 'Monitor', check the DOS box in which Venus runs. Venus must have
-printed 'Venus starting...' before you can 'Mount'.
-<item>
-To unmount, press the 'Unmount' button (the 'Mount' button changed to the
-'Unmount' button). This will unload the kernel module. If you are unable to
-unmount Coda with CodaStart try the method described in 'Starting Coda by
-hand'.
+To unmount, type <tt>cfs uk</tt> in a DOS window. This will cleanly shut down Venus as well.
 <item>
 See 'Important Note' below, please.
 </enum>
 
 You are now ready to browse through the Coda filesystem using the explorer!
-
-<sect2>Starting Coda by hand<p>
-<enum>
-<item> Type 
-<tscreen>
-<verb>
-relay.exe
-</verb>
-</tscreen>
-in a command Window.  This is a 32bit DOS application which you can
-also start by double clicking on the file in explorer.  
-<item> Now start Venus. Type 
-<tscreen>
-<verb>
-venus.exe -cf 1500 -init
-</verb>
-</tscreen>
-in a command window. 
-(this gives up to 1500 cache files, try with more if everythings works
-fine. Initialization will take longer the more cache file you specifiy.)
-<item> When Venus prints  "Venus starting ..." run 
-<tscreen>
-<verb>
-mount.exe N:
-</verb>
-</tscreen>
-This maps the Coda filesystem to the <tt>N:</tt> drive.
-</enum>
-
-You are now ready to browse through the Coda filesystem using the explorer!
-
-<enum> 
-<item> When you want to restart Venus without initializing the cache
-just run  <tt>venus.exe</tt>.  If <tt/venus/ crashes restarting it is
-normally all you need to do. 
-<item> If relay crashes you will want to unmount the <tt>N:</tt> drive
-run: 
-<tscreen>
-<verb>
-unmount.exe
-</verb>
-</tscreen>
-This will stop <tt>relay.exe</tt> (if it is still running)  and unload
-<tt>codadev.vxd</tt> which was loaded by <tt>relay.exe</tt>.  
-</enum> 
 
 <sect2>Important Note<p>
 <bf/NOTE:/ In some installations the DPMI DOS Extender window suspends when 
@@ -1575,17 +1520,6 @@ source tarball in the correct place.
 
 <sect2>Common problems<p>
 <descrip>
-<tag/Unable to mount Coda./
-
-It is only possible to mount coda when <tt>relay.exe</tt> and <tt>venus.exe
-</tt> are running. Do not type <tt>mount.exe n:</tt> before venus printed the 
-message <tscreen> <verb>venus starting...</verb></tscreen>
-
-In some installations the DPMI DOS Extender window, in which Venus
-is running suspends when it is not active. Because Venus serves the 
-<tt>mount.exe n:</tt> call, check your DOS Window settings. Untick the window 
-property Properties->Misc->Background->Always Suspend. If it is unticked, 
-ticking and unticking it again might help.
 
 <tag/Unable to shutdown Windows95./
 
@@ -1608,30 +1542,30 @@ device=c:\usr\coda\bin\mcstub.vxd
 Comment them out by using a <tt>;</tt> in front of the lines. Try to restart
 Windows again.
 
-<tag/How can I find out why <tt>relay.exe</tt> crashed./
-
-<tt>relay.exe</tt> is a very tiny program which hands requests from the file
-system driver up to <tt>venus.exe</tt> and the other way around. Crashes in
-<tt>relay.exe</tt> are most likely due to buffer overflows or null pointer
-referencing. <tt>relay.exe</tt> prints debug information in a file called
-<tt>relay.log</tt> which can be found in the directory where relay was started
-from.<p>
-
-When <tt>relay.exe</tt> crashed, the file system driver is still loaded. Just
-restart <tt>relay.exe</tt>. It might pretty well not be possible to unmount
-the system by calling <tt>unmount.exe</tt>.
-
 <tag>How can I find out why <tt>venus.exe</tt> crashed.</tag>
 
 See troubleshooting venus.
-When this happens it is possible to restart venus. The file system doesn't
-need to be unmounted before.
+When this happens it might not be possible to restart Venus, if it is still mounted.
+In this case try to unmount by typing 
+<tscreen>
+<verb>
+unmount <drive>:
+</verb>
+</tscreen>
+If it does not work, you want to reboot the machine.
 
 <tag/How can I find out more about what has happend/
 
 Look in the file <tt>c:\vxd.log</tt>. The file system driver
 <tt>codadev.vxd</tt> prints information about all requests and answers in this
-file. Check the requestnumbers to match with those in <tt>relay.log</tt>.
+file. the information is only stored if the debug level has been turned on. the debug
+level is specified in the registry 
+<tscreen>
+<verb>
+HKLM/System/CurrentControlSet/Services/VxD/Codadev/Debuglevel
+</verb>
+</tscreen>
+Set the debug level higher than 0 to receive messages in the debug file.
 
 <tag/I hook my running machine off the network and the explorer blocks.</tag>
 
@@ -2156,18 +2090,16 @@ Build CodaStart for a more convenient way to stat Coda.
 mc.vxd, mcstub.vxd, mmap.vxd in the directory called C:\usr\coda\bin. 
 <item> Create the file C:\usr\coda\etc\vstab which includes a line like 
 <tscreen>
-<verb>/coda:/dev/cfs0:<ip adress of server 1>,..,<ip adress of server n>,<cachesize>:1
+<verb>n:/dev/cfs0:<ip adress of server 1>,..,<ip adress of server n>,<cachesize>:1
 </verb>
 </tscreen> 
 Use
 <tscreen>
 <verb>
-/coda:/dev/cfs0:128.2.209.213:100000:1
+n:/dev/cfs0:128.2.209.213:100000:1
 </verb>
 </tscreen> 
-to work with the CMU-testserver. 
-<item> Create the file C:\usr\coda\venus.cache\myhost which includes your
-IP adress.
+to work with the CMU-testserver and mount on the N drive. 
 <item> Add the two VXDs mcstub.vxd, mmap.vxd to the C:\Windows\System.ini file 
 in the section 386Enh by typing "device=C:\usr\coda\bin\mcstub.vxd". 
 <item> Add the path <tt>c:\usr\coda\bin</tt> to the PATH environment variable 
