@@ -36,7 +36,7 @@ cfs - Coda File System Interface Program
 <bf>cfs uncompress</bf> &lt;file&gt; &lsqb;&lt;file&gt; &lt;file&gt; ...&rsqb;<P>
 <bf>cfs waitforever</bf> &lsqb;-on&rsqb; &lsqb;-off&rsqb;<P>
 <bf>cfs whereis</bf> &lt;dir&gt; &lsqb;&lt;dir&gt; &lt;dir&gt; ...&rsqb;<P>
-<bf>cfs writedisconnect</bf> &lsqb;&lt;dir&gt; &lt;dir&gt; ...&rsqb;<P>
+<bf>cfs writedisconnect</bf> &lsqb;-age &lt;secs&gt; -time &lt;secs&gt; &lt;dir&gt; &rsqb;<P>
 <bf>cfs writereconnect</bf> &lsqb;&lt;dir&gt; &lt;dir&gt; ...&rsqb;<P>
 
 
@@ -226,11 +226,13 @@ on.
 
 
 <descrip>
-<tag><bf>writedisconnect</bf></tag>Tell venus to write
-disconnect on the given volumes, or all volumes if none are provided.
-Write disconnected operation will fetch files from the server, but
-does not propagate changes back immediately.<P>
-Abbreviation: <bf>wd</bf>
+<tag><bf>writedisconnect</bf></tag>Tell venus to write disconnect on
+the given volumes, or all volumes if none are provided.  Write
+disconnected operation will fetch files from the server, but does not
+propagate changes back immediately.<P> An <bf>-age</bf> argument gives
+the age of the CML before it should be reintegrated.  The
+<bf>-time</bf> arguments gives the number of seconds the sending of a
+reintegration fragment should take.  Abbreviation: <bf>wd</bf>
 <P></descrip>
 
 <descrip>
