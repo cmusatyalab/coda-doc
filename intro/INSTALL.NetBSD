@@ -47,8 +47,8 @@ pkg_add in the ftp area.
 
 II. Obtaining Pre-compiled Packages
 
-You may obtain the pre-compiled packages from the Coda site or other
-mirrors:
+You may obtain the newest pre-compiled packages from the Coda site or
+other mirrors:
 
 Coda-intro is a quick get started guide to using Coda.
 	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/current/i386/coda-intro-4.6.5.1.tgz
@@ -67,9 +67,8 @@ Aprox Size = 1,543,686
 	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/current/i386/coda-doc-4.6.5.3.tgz
 
 Note:
-We have observed that the packages may not install and `pkg_add`, in
-fact, will exit without complaint.  Please make sure you have at least
-25MB of free space available in /var/tmp to install the each package.
+pkg_add may fail silently.  Please make sure you have at least 25MB of
+free space available in /var/tmp to install the each package.
 
 III. Generating Packages the Hard Way
 	cd /usr/pkgsrc/net/coda_intro
@@ -81,8 +80,8 @@ III. Generating Packages the Hard Way
 	cd /usr/pkgsrc/net/coda_doc
 		make package
 
-NOTE: The client and server need about 85Meg for the work area and another 15Meg
-to install.  They are compiled -g for debugging.
+NOTE: The client and server each need about 85Meg for the work area
+and another 15Meg to install.  They are compiled -g for debugging.
 
 
 IV. The Kernel
@@ -94,6 +93,7 @@ You should make sure that your kernel or GENERIC (if that's what you
 use) was compiled with "file-system CODA" and "pseudo-device vcoda"
 enabled.  Alternatively, you may obtain a Coda lkm from the Coda site:
 	cd /usr/lkm
+Check if coda.o is there already, otherwise:
 	ftp ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/current/i386/coda-1_3H.o
 Then you would install the lkm with:
 	modload -v -e coda_lkmentry -o /var/run/lkm.coda /usr/lkm/coda-1_3H.o

@@ -1,7 +1,7 @@
 			Building Coda 
 
 
-1.  Building the kernel
+1.  Building the Kernel
 
 The Coda kernel files are in the FreeBSD -current kernel sources.  All
 you need to do to get a Coda capable kernel is to build a
@@ -13,8 +13,9 @@ It currently gives:
 # Coda stuff:
 options		CODA			#CODA filesystem.
 pseudo-device	vcoda	4		#coda minicache <-> venus comm.
-Add these lines to the GENERIC kernel configuration or your standard personal
-configuration.  You might also want to turn on DDB and BPF.
+Add these lines (or whatever the grep yields) to the GENERIC kernel
+configuration or your standard personal configuration.  You might also
+want to turn on DDB and BPF.
 
 I'll assume you call the new config file CODA.  You type:
 	config CODA
@@ -26,19 +27,33 @@ Then cd to the build area and do a make:
 Finally as root install the kernel with:
 	make install 
 
+2. Building an LKM
 
-2. Building Coda.
+Alternatively, you could just build an lkm for Coda and insert it
+into the kernel.  To do that you
+	cd /usr/lkm/coda
+and type
+	make
+	make install
 
-a. The Package Way
+This will build coda_mod.o and copy it to /lkm.  You load it
+by typing:
+	modload -v -e coda_mod -o /var/run/lkm.coda /lkm/coda_mod.o
+
+Remember, when using an lkm:
+	You must boot /netbsd not /netbsd.old or /netbsd.<something>
+	There are no symbols available for debugging.
+
+3. Building Coda: The Package Way
 	cd /usr/ports/net/coda_client
 		make install
 	cd /usr/ports/net/coda_server
 		make install
 
-NOTE: The client and server need about 85Meg for the work area and another 15Meg
-to install.  They are compiled -g for debugging.
+NOTE: The client and server each need about 85Meg for the work area
+and another 15Meg to install.  They are compiled -g for debugging.
 
-b. The bleading edge way.
+4. Building Coda: The Bleading Edge Way
 
 First you need several external packages to build coda: gnu make,
 gdbm, readline, and perl.
@@ -65,3 +80,5 @@ To install the client suite type:
 To install the server suite type:
 	gmake server-install
 
+NOTE: On our ftp site there are also beta, alpha, and less stable
+source releases available for the daring.
