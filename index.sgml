@@ -60,7 +60,7 @@ download the whole package <url url="ftp://ftp.coda.cs.cmu.edu/pub/coda/doc"  na
 
 <itemize>
 <item> <url url="../ps/index.ps.gz"  name="This document">
-<item> <url url="../ps/coda-howto.ps.gz"  name="This document">
+<item> <url url="../ps/coda-howto.ps.gz"  name="The CODA-HOWTO">
 <item> <url url="../ps/manual.ps.gz"  name="The Coda Administration and User Manual">
 <item> <url url="../ps/rvm&lowbar;manual.ps.gz"  name="The RVM Manual">
 <item> <url url="../ps/rpc2&lowbar;manual.ps.gz"  name="The RPC2 Manual">
