@@ -1,0 +1,21 @@
+Code organization:
+
+ViceResolve
+    LockAndFetch                    - res/reslock.cc
+    RecovDirResolve // DirResolve   - rvmres/rvmrescoord.cc
+    UnlockVol
+
+
+RecovDirResolve
+    resolve ancestors
+    RegResRequired
+          CoordPhase2 ------> fetch logs: RS_ResPhase2 (rvmres/subresphase2.cc)
+          CoordPhase3 ------> compute & perform: RS_ResPhase3
+          CoordPhase34------>
+          CoordPhase4 ------>
+          RS_MarkInc
+
+
+RS_ResPhase3:
+    ComputeCompOps -- rvmres/compops.cc
+    GetResObjs -- res/resclient.cc

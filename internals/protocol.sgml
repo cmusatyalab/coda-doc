@@ -1,0 +1,411 @@
+<!doctype linuxdoc SYSTEM  [
+
+<!entity % latex "INCLUDE">
+<!entity % html  "IGNORE">
+<![ %latex; [ <!entity newpage PI "\newpage"> ]]>
+<![ %html; [ <!entity newpage PI "<HR>"> ]]>
+<!entity newpage PI "">
+]>
+
+<article>
+
+
+
+<title> The Coda file protocol
+<author> Peter J. Braam
+<date>v1.0 Nov 11, 1998
+
+<abstract> This document describes the Coda file server and resolution 
+protocols.  We discuss the attributes of Coda files and their
+invariants and we describe the exchange of information between servers 
+and clients participating in file and resolution service.
+</abstract>
+
+
+<sect> Coda File Attributes <p>
+
+
+
+In order to understand the Coda file protocol, we will first take a
+look at the attributes of files and directories stored in Coda.  We
+follow this with a description of the invariants associated with the
+attributes. 
+
+<sect1> Vnode attributes <p>
+
+File attributes are stored in <em/vnodes/ on the server.  Such vnodes
+are similar to disk inodes in conventional disk filesystems and hold
+the attributes or meta data of the file.
+
+To support disconnected operation and server replication, Coda
+maintains significantly more attributes than conventional file
+systems. 
+
+The meta data in vnodes is supplemented by information in the
+<em/Access Control Lists/ of directories.  When meta data is
+transferred to the client, some of it is discarded or sent in summary
+information. 
+
+
+<tscreen>
+<verb>
+#define	NEWVNODEINODE -1	/* inode number for a vnode allocated 
+                                   but not used for creation */
+#define	  SMALLVNODEMAGIC	0xda8c041F
+#define	  LARGEVNODEMAGIC	0xad8765fe
+
+typedef struct VnodeDiskObjectStruct {
+    VnodeType	  type:3;	/* Vnode is file, directory, symbolic link
+    				   or not allocated */
+    unsigned	  cloned:1;	/* This vnode was cloned--therefore the inode
+    				   is copy-on-write; only set for directories*/
+    unsigned	  modeBits:12;	/* Unix mode bits */
+    bit16	  linkCount;	/* Number of directory references to vnode
+    				   (from single directory only!) */
+    bit32	  length;	/* Number of bytes in this file */
+    Unique_t	  uniquifier;	/* Uniquifier for the vnode; assigned
+				   from the volume uniquifier (actually
+				   from nextVnodeUnique in the Volume
+				   structure) */
+    FileVersion   dataVersion;	/* version number of the data */
+    Inode	  inodeNumber;	/* inode number of the data attached to
+    				   this vnode */
+    vv_t	  versionvector;/* CODA file version vector for this vnode */
+    int		  vol_index;	/* index of vnode's volume in 
+                                   recoverable volume array */
+    Date_t	  unixModifyTime;/* set by user */
+    UserId	  author;	/* Userid of the last user storing the file */
+    UserId	  owner;	/* Userid of the user who created the file */
+    VnodeId	  vparent;	/* Parent directory vnode */
+    Unique_t	  uparent;	/* Parent directory uniquifier */
+    bit32	  vnodeMagic;	/* Magic number--mainly for file server
+    				   paranoia checks */
+    ViceLock	  lock;		/* Advisory lock */
+    Date_t	  serverModifyTime;	/* Used only by the server;
+					   for incremental backup purposes */
+    rec_smolink	  nextvn;	/* link to next vnode with same vnodeindex */
+    rec_dlist	  *log;		/* resolution log in RVM */
+} VnodeDiskObject;
+</verb>
+</tscreen>
+
+
+The attributes of Coda files are stored in <tt/vnodes/ on the server
+and the on-disk structure is that of <tt/VnodeDiskObject/.  There are
+two types of vnodes:
+<descrip>
+<tag/Large/ vnodes are for directories
+<tag/Small/ vnodes are for files and symbolic links.
+</descrip>
+
+The Coda protocol relies on two crucial pieces of information.  The
+first is a <bf/File Identifier/ or <bf/Fid/.  The fid names an object
+in the filesystem.   The version of the object is determined by the
+<bf/Version Vector/. 
+<descrip>
+
+<tag/The Fid/ of the object.  The Fid is the identifier of the file. This
+fid consists of a <tt/VolumeId/, <tt/Vnode/ and <tt/Unique/, each a
+32bit integer.  The <tt/Vnode/ is the index of the
+<tt/VnodeDiskObject/ and is not a field in this structure.  The
+<tt/Unique/ field is present and the <tt/VolumeId/ is directly related
+to the <tt/vol_index/ through the volume location database.
+
+<tag/The Version Vector/ of the object.  This is directly stored in
+the structure.
+
+</descrip>
+
+The version vector is the central piece in Coda's semantics. 
+
+<tscreen>
+<verb>
+
+typedef RPC2_Struct
+{
+	RPC2_Unsigned	Host;
+	RPC2_Unsigned	Uniquifier;
+}	ViceStoreId;
+
+typedef RPC2_Struct
+{
+	RPC2_Integer	Site0;
+	RPC2_Integer	Site1;
+	RPC2_Integer	Site2;
+	RPC2_Integer	Site3;
+	RPC2_Integer	Site4;
+	RPC2_Integer	Site5;
+	RPC2_Integer	Site6;
+	RPC2_Integer	Site7;
+}	ViceVersionArray;
+
+typedef RPC2_Struct
+{
+	ViceVersionArray	Versions;
+	ViceStoreId	StoreId;
+	RPC2_Unsigned	Flags;
+}	ViceVersionVector;
+
+</verb>
+</tscreen>
+
+
+The version vector consists of two important pieces:
+
+<itemize>
+<item> The <bf/StoreId/ identifying the host and a unique store number 
+of the file. 
+<item> The <bf/version array/.  This is an array of integers, one for 
+each server in the replication group of the vnode. It is held on every 
+server of an object's storage group. (Unused entries
+are ignored).  On server <em/l/  the <em/k-th/ entry indicates the
+number of changes made on server <em/k/ to the vnode (since creation) 
+<em/and/ confirmed to server <em/l/. 
+</itemize>
+
+<sect1>  Usage and Invariants of the attributes <p>
+
+A key to understanding the Coda protocol is to realize first that
+objects have multiple storage locations.  Objects are cached on the
+client and stored on each of the servers in the storage group of the
+object. Each of the copies of a single object carries the same fid.
+Each server replica of an object has a <em/version vector/.
+
+Coda maintains the following invariants:
+<enum>
+<item> If two copies of an object carry the same <em/ViceStoreId/ the
+file or directory contents of the objects are identical. 
+<item> The <em/version arrays/ introduce a partial ordering between
+replicas.  If two replicas of the same fid have two version vectors
+<tt/v1,v2/ and <tt/v1/ is component wise bigger than or equal to
+<tt/v2/ then the copy of the object with version vector <tt/v1/ was
+stored more recently than that with <tt/v2/. 
+</enum>
+
+Clients will assert that version vectors of all server replicas are
+identical before fetching objects.  If version vectors are found to be
+unequal resolution is invoked, to remove server/server differences.
+If this ends successfully the version vectors will be equal, if not
+the object will be declared to be in conflict. 
+
+When rejoining the network after a disconnection of the client, the
+client will <em/revalidate/ the version vectors of the objects it
+holds, before declaring the objects to be <em/on-line/.
+
+When a server <tt/S/ re-joins the network, it is possible that the
+client has acquired an object, but does not know that the version
+vector of the replica
+
+In the following we will discuss how these data structures modified
+when the objec is modified.  It is important to realize that there are
+several modes of operation on object:
+<descrip>
+
+<tag/normal mode/ Changes in data and version vectors occur as a
+direct result of file system operations and central utilities, such as
+those used to set the access control lists. This mode is normal when
+all servers are reachable and respond to each request.
+
+A Coda client will never make an RPC to a server to modify an object
+in this mode, unless it knows that the version vector of the object
+which it wants to change is identical to that of the server replicas. 
+
+<tag/repair mode/ This mode is only invoked on objects that have been
+declared to be <em/in conflict/, that is, they have diverging version
+vectors (and <em/hence/, see below, their data or meta data is
+diverging). Here the client ships special repair operations to
+servers, and performs special operations on its cache to establish
+copies of an object that had diverging replicas.  The repair action
+finishes by installing an identical version vector on each of the
+replicas if it can be verified that the meta data and contents of the
+files are now indeed equal.
+
+<tag/resolution mode/ Here fileservers make modifications to stored
+objects to try to get all replicas to have the same version vector.
+Resolution can end in success or with objects that are in conflict.
+</descrip>
+
+
+
+
+The operations which involve a change in the version vector of an
+object are during normal operation:
+<descrip>
+<tag/for directories/ Makedir, rmdir, create, remove, symlink, link, store
+<tag/for files/ Store
+</descrip>
+Please note that a Coda <bf/store/ operation is invoked both for
+storing data and for storing metadata such as access control lists or
+mode bits. 
+
+
+
+
+<sect> The RPC interface <p>
+<sect1> Connection management <p>
+
+<descrip>
+<tag/ViceNewConnection/  Called as side effect of binding.  Informs higher
+level code in the server of binding parameters.
+
+<tag/ViceConnectFS/ Called after binding.  Server creates or validates the 
+callback connection and sets up a client sctructure.
+
+<tag/ViceDisconnectFS/
+
+<tag/ViceProbe/
+
+<tag/ViceGetTime/
+
+<tag/ViceGetStatistics/ RPC made by cmon. 
+
+</descrip>
+
+<sect1> Volume information <p>
+
+<descrip>
+<tag/ViceGetRootVolume/ Returns the Volume name of the root volume
+<tag/ViceSetRootVolume/ Sets the name of the root volume
+
+<tag/ViceGetVolStatus/ Returns volume information such as quota disk
+usage etc.
+
+<tag/ViceSetVolStatus/ Sets volume information such as quota disk
+usage etc. Not used. 
+
+<tag/ViceGetVolumeInfo/ Get volume location information.
+
+
+</descrip>
+
+<sect1> Version Management <p>
+
+<descrip>
+<tag/ViceCOP2/ Install a final version vector after a replicated
+operation. 
+
+<tag/ViceRemoveCallBack/ Remove a callback for a file on a server. Not 
+used.
+
+<tag/ViceResolve/ Resolve a conflict.
+
+<tag/ViceRepair/ Repair conflicts - ships a file using side effect.
+
+<tag/ViceSetVV/ Set a version vector.  Used solely by cfs (through
+pioctl). 
+
+<tag/ViceValidateAttrs/ Re-establish callbacks by validating
+attributes of files.
+
+<tag/ViceGetVolVS/ Get a volume version stamp and establish a callback 
+on a volume
+
+<tag/ViceValidateVols/Return version stamps for volumes and indicate
+if a callback was established on each. 
+
+</descrip>
+
+<sect1> Main fileserver protocol <p>
+
+<descrip> 
+<tag/ViceAllocFids/ Inform client of a range of fids it may use.
+<tag/ViceVRemove/ Remove a file.
+<tag/ViceVCreate/ Create a file
+<tag/ViceVRename/ Rename a directory entry
+<tag/ViceVSymlink/ Create a symbolic link
+<tag/ViceVLink/ Create a link
+<tag/ViceVMakeDir/ Create a directory
+<tag/ViceFetch/ Fetch attributes, Acls, directory or a file
+<tag/ViceNewVStore/ Store an ACL, status or file
+</descrip>
+
+<sect1> Reintegration <p>
+
+<descrip>
+<tag/ViceReintegrate/ Send a section of the reintegration log.
+
+<tag/ViceVIncReintegrate/ Obsolete, simply calls ViceReintegrate
+
+<tag/ViceOpenReintHandle/
+  ViceOpenReintHandle:  get a handle to store new data for
+  an upcoming reintegration call
+
+<tag/ViceQueryReintHandle/ ViceQueryReintHandle: Get the status of a
+partially transferred file for an upcoming reintegration.  Now returns
+a byte offset, but could be expanded to handle negotiation.
+
+<tag/ViceSendReintFragment/ Send a fragment of a file.
+
+<tag/ViceCloseReintHandle/  Close the handle.
+
+
+</descrip>
+
+
+<sect1> Protection Subsystem <p>
+
+Both of the following calls are not used by the client and their
+semantics is questionable. 
+
+<descrip>
+<tag/ViceEnableGroup/ Used to enable a group in the CPS
+
+<tag/ViceDisableGroup/ Used to disable a group in the CPS
+</descrip>
+
+<sect> COP2 handling <p>
+
+Version vectors are used for precise control of replicas.
+
+Example: during the removal of a file or directory the function
+<em/NewCOP1Update/ is called.  This adjusts the version vector of the
+objects affected by the operation.  Only this replica of the data is
+affected.  It also marks the Flag in the version vector as
+VV_COP2PENDING indicating a COP2 is expected.  
+
+Each time <em/NewCOP1Update/ is called, the StoreId passed from the
+client to the server is used to mark the VV.
+
+An array of fids is built (zero entries apparently don't count) and
+this array as well as the StoreId is used to build a new cpent.
+
+This cpent passed to CopPendingMan->add method.  
+
+A hash table is maintained (hashed by StoreId's using the hash
+function <em/coppenthashfn/) and cpent's are hung in this hash
+table. They are tagged with the time and expire 15 minutes
+later. There is no easy way to find these by fid.
+
+The <em/cpman/ function walks this hash table every minute and finds
+entries that are not marked for dequeing and have expired.  It removes
+these from the hash table.
+
+The function <em/cpman:findanddeq/ finds and sets the dequeing flag on
+an object with a given StoreId.
+
+The function <em/InternalCOP2/ is given a version vector and StoreId.
+It finds the cpent for the storeid and calls findanddeq.  It proceeds
+by setting the version vector for all the objects in the list of fids
+of the cpent.  (This involves an RVM transaction).  Finally the
+objects are removed from the hash table and destroyed.
+
+Every failed rpc to the server similarly findanddeq's the cpents
+associated with the StoreId's.  However, now they are simply thrown
+away and no transaction modifies the version vector.
+
+Normally an array (of type RPC2_CountedBS) is piggybacked on RPC's.
+During the ValidateParms call the server calls on ViceCOP2 to process
+this array. All that is done is an invocation of InternalCOP2 for
+every StoreId in the array. (In particular an RVM transaction is
+started separately for each StoreId.)
+
+The final issue which we have not yet discussed is how Venus selects
+the correct storeid to send to the server.
+
+Before sending the data, Venus calls <em/volent::GenerateStoreId/.
+
+
+
+
+
+</article>

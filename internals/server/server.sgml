@@ -165,7 +165,7 @@ and largeVnodeLists.
 
 <sect>The initialization of the volume package <p>
 
-
+<verb>
 VInitVolumePackage
     InitLRU
     InitVolTable
@@ -229,7 +229,7 @@ ViceGetVolumeInfo
 
 VgetVolume and VPutVolume are probably like iget iput.
 
-
+</verb>
 
 <itemize>
 <item> Volume databases (text) 

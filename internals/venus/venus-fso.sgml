@@ -1,0 +1,32 @@
+<tag/state/ 
+ - FsoDying: object has been Killed. 
+ - HAVESTATUS - != FsoRunt
+
+(HAVEDATA data.datavalid == 1
+
+<tag/refcount/
+ - refcount++: increased/decreased by 
+ FSO_RELE, 
+ FSO_HOLD
+ BUSY
+
+<tag/openers/ increased by open, decreased by close
+<tag/Writers/ number of openers for writing
+
+<tag/RcRights/ RC_STATUS, RC_DATA indicates if valid status and/or
+data is available in the fso.
+
+STATUSVALID and DATAVALID report this.
+
+<tag/
+
+
+fsobj::Kill - for deleting, and after callback break when not busy.
+Sets IsDying
+
+fsobj::Demote - after callbackbreak on busy object, revokes:
+RcRights
+AccessRights (this per user cached values of access rights)
+
+
+
