@@ -26,11 +26,17 @@ Each entries vnode number and uniquifier are also listed.
 <P></descrip>
 
 <descrip>
-<tag><bf>delete name</bf> <em>&lt;volid&gt; &lt;vnode&gt; &lt;unique&gt; &lt;file&gt;</em></tag>remove <em>file</em> from the directory specified by
-<em>&lt;volid&gt;.&lt;vnode&gt;.&lt;unique&gt;</em>.  <bf>NOTE: delete name does not do
-anything to the vnodes associated with <em>&lt;file&gt;</em>, you must remove the
-vnodes by hand or update their link count.</bf>
-<P></descrip>
+<tag><bf>delete name</bf> <em>&lt;volid&gt; &lt;vnode&gt; &lt;unique&gt; &lt;file&gt; &lt;flag&gt; </em></tag>
+remove <em>file</em> from the directory specified by
+<em>volid.vnode.unique</em>. If flag is nonzero the linkcount of the directory is reduced by one.   <bf>NOTE: delete
+name does not do anything to the vnodes associated with
+<em>file</em>, you must remove the vnodes by hand or update
+their link count.</bf> 
+
+<tag><bf>delete volume</bf> <em>&lt;volid&gt;</em></tag> mark a volume
+with a "destroyme" flag, so that the salvager will destroy it on the
+next serverstartup.
+</descrip>
 
 <descrip>
 <tag><bf>examine</bf> <em>&lt;addr&gt; &lt;len&gt;</em></tag>Print &lt;<em>len</em>&gt;
@@ -73,6 +79,14 @@ summary of the specified volume.
 <P></descrip>
 
 <descrip>
+<tag><bf>create name</bf> <em>&lt; parentvolid&gt;&lt; parentvnode&gt;&lt; parentuniqifier&gt;&lt; name&gt;&lt; childvnode&gt;&lt; childuniqifier&gt;</em></tag>
+Insert a vnode in a directory.  The parent fid gives
+the directory in which name is to be inserted. The child fid refers
+to the child vnode. The link count of the directory is increased if
+the child is a directory vnode.  
+<P></descrip>
+
+<descrip>
 <tag><bf>x</bf> <em>&lt;addr&gt; &lt;len&gt;</em></tag>Print &lt;<em>len</em>&gt;
 bytes starting from &lt;<em>addr</em>&gt; in hex and ascii.  An alias for
 <bf>examine</bf>.
@@ -81,7 +95,7 @@ bytes starting from &lt;<em>addr</em>&gt; in hex and ascii.  An alias for
 
 <sect1>AUTHOR<P>
 Joshua Raiff, 1995, Created.
-
+Peter Braam, 1997, new features.
 
 
 
