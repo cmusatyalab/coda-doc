@@ -34,6 +34,8 @@
 <!entity repair		SYSTEM "../man/man1/repair.sgml">
 <!entity spy		SYSTEM "../man/man1/spy.sgml">
 <!entity ttyfcon	SYSTEM "../man/man1/ttyfcon.sgml">
+<!entity venussetup     SYSTEM "../man/man1/venussetup.sgml">
+<!entity vicesetup     SYSTEM "../man/man1/vicesetup.sgml">
 
 <!entity histo		SYSTEM "../man/man3/histo.sgml">
 <!entity timing		SYSTEM "../man/man3/timing.sgml">
@@ -46,6 +48,7 @@
 <!entity mcstagen	SYSTEM "../man/man5/multicastagents.sgml">
 <!entity mcstgrps	SYSTEM "../man/man5/multicastgroups.sgml">
 <!entity servers	SYSTEM "../man/man5/servers.sgml">
+<!entity serconf	SYSTEM "../man/man5/srvconf.sgml">
 <!entity usrcoda	SYSTEM "../man/man5/user_coda.sgml">
 <!entity pwdcoda        SYSTEM "../man/man5/passwd_coda.sgml">
 <!entity vicetab        SYSTEM "../man/man5/vicetab.sgml">
