@@ -1,0 +1,19 @@
+
+
+<manpage TITLE="filcon" SECTNUM=1>
+<mansect>NAME 
+ <P>filcon - tty interface to failure emulator 
+
+
+
+<mansect>SYNOPSIS<P>
+<bf>filcon</bf><P>
+
+This is the replacement to ttyfcon.
+
+<mansect>DESCRIPTION<P>
+This is the replacement to ttyfcon.
+
+<mansect>AUTHOR<P>
+unknown
+</manpage>
