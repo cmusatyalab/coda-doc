@@ -1,0 +1,155 @@
+<!doctype linuxdoc SYSTEM  [
+
+<!entity % latex "INCLUDE">
+<!entity % html  "IGNORE">
+<![ %latex; [ <!entity newpage PI "\newpage"> ]]>
+<![ %html; [ <!entity newpage PI "<HR>"> ]]>
+<!entity newpage PI "">
+]>
+
+<article>
+
+
+
+<title> Coda Release Engineering at CMU
+<author> Peter J. Braam
+<date>v1.0, Jan 16, 1998
+
+<abstract> This document describes our building and release management
+procedures. </abstract>
+
+<toc>
+<sect> Releases <P> 
+
+Our CVS tree will contain tagged versions of Coda for every
+release. To start putting a release together
+
+<sect1> Layout <p>
+
+<sect2>  Volumes <p>
+
+We use the following volumes and mount points:
+<descrip>
+<tag/p.c.release/ mounted on <tt>/coda/project/releases</tt>
+<tag/p.c.src/ mounted on <tt>/coda/project/releases/sources</tt>
+<tag/p.c.linux/ mounted on <tt>/coda/project/releases/linux</tt>
+<tag/p.c.netbsd/ mounted on <tt>/coda/project/releases/netbsd</tt>
+<tag/p.c.freebsd/ mounted on <tt>/coda/project/releases/freebsd</tt>
+<tag/p.c.win32/ mounted on <tt>/coda/project/releases/win32</tt>
+<tag/p.c.dpmi/ mounted on <tt>/coda/project/releases/dpmi</tt>
+</descrip>
+
+
+<sect2> the directory layout for a release <p>
+A new release will have tag of the form 4.3.5, matched by a CVS tag
+c4_3_5. For this release the following directories, files and symbolic
+links will be made:
+
+<verb>
+d /coda/project/releases/4.3.5
+d /coda/project/releases/sources/coda-4.3.5
+d /coda/project/releases/linux/4.3.5
+d /coda/project/releases/netbsd/4.3.5
+d /coda/project/releases/freebsd/4.3.5
+d /coda/project/releases/win32/4.3.5
+d /coda/project/releases/dpmi/4.3.5
+
+l /coda/project/releases/4.3.5/src ---> /coda/project/releases/sources/coda-4.3.5
+l /coda/project/releases/4.3.5/linux ---> /coda/project/releases/linux/4.3.5
+l /coda/project/releases/4.3.5/netbsd ---> /coda/project/releases/netbsd/4.3.5
+l /coda/project/releases/4.3.5/freebsd ---> /coda/project/releases/freebsd/4.3.5
+l /coda/project/releases/4.3.5/win32 ---> /coda/project/releases/win32/4.3.5
+l /coda/project/releases/4.3.5/dpmi ---> /coda/project/releases/dpmi/4.3.5
+<verb>
+
+Each platform area has its own directory structure:
+<verb>
+linux
+linux/SRPMS/
+linux/i386/
+linux/sparc/
+linux/coda-fs-module-4.3.5/
+linux/coda-fs-module-4.3.5.tgz
+linux/README.linux.4.3.5
+
+netbsd/
+netbsd/1.2/
+netbsd/1.3/
+netbsd/README.netbsd.4.3.5
+
+freebsd
+freebsd/2.5
+freebsd/3.0
+</verb>
+
+packages are found under the subdirectories indicated.
+
+<sect1> Setting up the sources <p>
+
+<sect2> Using CVS tags to get the sources <p>
+Introduce a new cvs tag, .e. <bf/cvs rtag c4_3_5 coda/.
+
+cd to <tt>/coda/project/releases/sources/coda-4.3.5</tt>, check out
+the sources:
+<tt>cvs co -d . -r c4_3_5 coda</tt>
+
+Then make a tar ball:
+<verb>
+cd /coda/project/releases/sources
+tar zcvf /coda/project/releases/4.3.5/coda-4.3.5.tgz coda-4.3.5
+</verb>
+
+<sect2> Release Directory Layout <p>
+
+Our primary release area is in Coda:
+<tt>/coda/project/releases</tt>. Underneath the following structure is
+present.
+
+<verb>
+R=/coda/project/releases/4.5.1
+S=/coda/project/releases/sources
+mkdir $R
+mkdir $S/coda-4.5.1
+cvs co -r c4_5_1 -d . coda
+ln -s $S/coda-4.5.1 $R/src
+cd $S
+tar $R/coda-4.5.1.tgz coda-4.5.1
+cd $R
+mkdir linux linux/i386 linux/sparc linux/SRPMS linux/coda-fs-module
+mkdir netbsd
+mkdir freebsd
+</verb>
+
+<sect1> Building Linux rpms <p>
+
+Let R=/coda/project/releases/4.3.5
+
+Move the source tar ball to the redhat area:
+<tt> cp $R/coda-4.3.5.tgz /usr/src/redhat/SOURCES </tt>
+
+Now build a spec file. For this we use the script:
+<tt>$R/src/tools/build-coda-rpm.pl</tt>, which takes the following
+arguments: 
+<descrip>
+<tag/ --rel=?/ the rpm release number
+<tag/ --version=4.5.1/ the CVS version number
+<tag/ --libc={libc,glibc}/ the C library used
+<tag/ [--debug]/ an optional tag to indicate that a non stripped
+version needs to be built. 
+</descrip>
+
+This file reads from standard input a template spec file:
+<tt>$R/src/tools/coda.spec.in</tt> to produce a RedHat spec file for
+Coda. Issue the following command to produce the spec file:
+
+<verb>
+$R/src/tools/build-coda-rpm.pl --rel=1 --version=4.5.1 --libc=glibc --debug \
+      < $R/src/tools/coda.spec.in
+</verb>
+
+The correct rpm build command to issue will be printed to your terminal. 
+
+When done, move the new rpms to the
+<tt>$R/linux/{i386,sparc,SRPMS}</tt> area in <tt>$R</tt>.
+
+</article>
