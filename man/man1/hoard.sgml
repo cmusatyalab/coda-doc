@@ -36,6 +36,10 @@ The following hoard commands are currently recognized:
 <tag><bf>modify</bf>  filename  &lt;attributes&gt;</tag>
 <P></descrip>
 
+Hoard distinguishes between <em/children/ of a directory, which are
+members of the directory, <em/descendants/ which are either children
+or descendants of childres of the directory.
+
 Commands may be abbreviated by their first letter.  Parameters in angle
 brackets are optional, and have default values if unspecified.  The
  <em>attributes</em> parameter is specified as a string of options separated by
