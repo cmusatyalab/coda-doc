@@ -97,9 +97,10 @@ NOTE: that running a server seriously dips into your virtual memory.
 Running a server _and_ a client and X11 needs slightly over 64M of
 available VM.
 
-To set up an SCM server, you need to have the following available: 
-  1)	an empty directory ( /vicepa ) where the fileserver will
-	put files.
+To set up an SCM server, you need to have the following resources:
+  1)	an empty directory (viz  /vicepa) where the fileserver will
+	put files.  There must be as much free space on this filesystem
+	as the data you wish to store in Coda.
   2)	a raw partition for RVM metadata (you can use a file but it 
 	will be quite slow on a decent size server). This partition
 	must be around 4% of the total size of the files you wish 
@@ -109,7 +110,7 @@ To set up an SCM server, you need to have the following available:
 	needs not be large. 
   4)	two secret tokens of _exactly_ 8 characters (eg elephant).
 
-The RVM files involve the journalling/transactional aspects of Coda.
+The RVM files are used for the journalling/transactional aspects of Coda.
 
 Then run:
      vice-setup
@@ -118,17 +119,17 @@ and answer its questions.
 
 2. Running Vice:
 
-Start the update server, client and the auth server, as well as the
-fileserver by typing:
+Start the rpc2portmap server, update server, client and the auth
+server, as well as the fileserver by typing:
 
-	/usr/pkg/etc/rc.vice start
+	etc/rc.vice start
 
 Now observe the log:
 	xterm -e tail -f  /vice/srv/SrvLog & 
 
-Determine with ps that codasrv, updatesrv and updateclnt are running.
-The SrvLog should show "File Server started".  If not, you have a
-problem.
+Determine with ps that codasrv, rpc2portmap, updatesrv and updateclnt
+are running.  The SrvLog should show "File Server started".  If not,
+you have a problem.
 
 3: Making Volumes
 
@@ -145,10 +146,14 @@ vice-setup. With more servers you can define other groups in
 Now you are ready to point a Venus (client) at this server. 
 
 The vice-setup program installed an administrative user on the server,
-named admin.  It needs to have uid: 500 and has been assigned password
-changeme.  Read section 7.7 in the Coda Manual to find out how to set
-up another user and password database (such users must be installed on
-clients too, but need not be in /etc/passwd on the servers).
+named admin.  It has a uid you chose and has been assigned password
+changeme.  You may clog into Coda with this uid.
+
+Read section 7.7 in the Coda Manual to find out how to set up another
+user and password database (such users must be installed on clients
+too, but need not be in /etc/passwd on the servers).
+
+From the coda client side, the root volume will appear under /coda.
 
 V. Common Tasks
 
