@@ -9,7 +9,6 @@ VPATH = @srcdir@
 CH=8
 MANPAGEFILES = au.8 \
                auth2.8 \
-               authmon.8 \
                backup.8 \
                bldvldb.8 \
                createvol.8 \

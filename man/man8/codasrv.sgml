@@ -6,7 +6,7 @@
 
 
 <mansect>SYNOPSIS<P>
-<bf>codasrv</bf> &lsqb;-d (debug level)&rsqb; &lsqb;-p (number of processes)&rsqb; &lsqb;-b (buffers)&rsqb; <P>
+<bf>codasrv</bf> &lsqb;-d (debug level)&rsqb; [-rpcdebug rpc2debuglevel] &lsqb;-p (number of processes)&rsqb; &lsqb;-b (buffers)&rsqb; <P>
       &lsqb;-l (large vnodes)&rsqb; &lsqb;-s (small vnodes)&rsqb; &lsqb;-k (stack size)&rsqb; <P>
       &lsqb;-w (wait interval)&rsqb; &lsqb;-r (RPC retry count)&rsqb; <P>
       &lsqb;-o (RPC timeout)&rsqb; &lsqb;-c (check interval)&rsqb; <P>

@@ -8,7 +8,7 @@
 
 <mansect>SYNOPSIS<P>
 <bf>venus</bf>   &lsqb; -k kernel device &rsqb;  &lsqb; -h host list &rsqb;  &lsqb; -cf cache files &rsqb;  &lsqb; -c cache blocks &rsqb;  &lsqb;-mles CML entries&rsqb;<P>
-	&lsqb; -d debug level &rsqb;  &lsqb; -r root volume &rsqb;  &lsqb; -f cache directory &rsqb;  &lsqb; -m COP modes &rsqb;<P>
+	&lsqb; -d debug level &rsqb; [-rpcdebug rpc2debuglevel] &lsqb; -r root volume &rsqb;  &lsqb; -f cache directory &rsqb;  &lsqb; -m COP modes &rsqb;<P>
 	&lsqb; -mc 0 | 1 &rsqb;  &lsqb; -console console file &rsqb;  &lsqb; -retries RPC2 retries &rsqb;  &lsqb; -timeout RPC2 timeout &rsqb;<P>
 	&lsqb; -ws SFTP window size &rsqb;  &lsqb; -sa SFTP send ahead &rsqb;  &lsqb; -ap SFTP ack point &rsqb;  &lsqb; -init &rsqb;  &lsqb; -p &rsqb;<P>
         &lsqb; -hdbes hoard entries&rsqb; &lsqb;-rvmt RVM type&rsqb; &lsqb;-sim infile outfile filtfile systype&rsqb;<P>

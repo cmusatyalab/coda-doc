@@ -1,0 +1,31 @@
+coda_opcons     1355/udp                        # Coda opcons
+coda_venus      1363/udp                        # Coda venus
+coda_auth       1357/udp                        # Coda auth
+coda_udpsrv     1359/udp                        # Coda udpsrv
+coda_filesrv    1361/udp                        # Coda filesrv
+codacon         1423/tcp        venus.cmu       # Coda Console
+coda_aux1       1431/tcp                        # coda auxiliary service
+coda_aux1       1431/udp                        # coda auxiliary service
+coda_aux2       1433/tcp                        # coda auxiliary service
+coda_aux2       1433/udp                        # coda auxiliary service
+coda_aux3       1435/tcp                        # coda auxiliary service
+coda_aux3       1435/udp                        # coda auxiliary service
+
+
+new:
+
+
+rpc2portmap     369/tcp    
+rpc2portmap     369/udp    
+codaauth2       370/tcp    
+codaauth2       370/udp    
+
+venus           2430/tcp   
+venus           2430/udp   
+venus-se        2431/tcp   
+venus-se        2431/udp   
+codasrv         2432/tcp   
+codasrv         2432/udp   
+codasrv-se      2433/tcp   
+codasrv-se      2433/udp  
+

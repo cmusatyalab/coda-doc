@@ -1,0 +1,461 @@
+<!doctype linuxdoc system>
+
+<!-- Here's an SGML example file. Format it and print out the source, and
+     use it as a model for your own SGML files. As you can see this is a
+     comment. 
+ -->
+
+
+<!-- Title information -->
+<article>
+
+<title>Coda Projects
+<author>Peter Braam <tt/braam@cs.cmu.edu/
+<date>v1.0, Sept 18, 1997
+<abstract>
+Coda projects for interested hackers</abstract>
+
+<sect> Introduction <p>
+
+Below you can find a collection of projects for Coda. The difficulty
+has been indicated, as well as whether the design has been discussed
+already. Please get in touch with us if you want to hack, to see if
+others are already on their way with the project you are interested
+in.
+
+All contributors will be asked to grant CMU an unencumbred license
+before code can be included in Coda. Of course we will give
+contributors credit.
+
+<sect> System administration <p>
+<descrip>
+<tag/Volume Creation/ 
+
+Volume creation at the moment is hampered by a complex procedure to
+gather and distribute the location databases. Big improvements can
+fairly easily be made. This project is under way in our group.
+
+<itemize>
+<item> extend volutil createvol(rep) to dump the vldb to the calling
+workstation (normally the SCM).  
+<item> use perl and make this
+creavolrep script a transactional system, i.e. clean up after a crash
+<item> reduce the time to distribute the databases from the server
+</itemize>
+
+
+<tag/Database distribution/
+
+Our updatesrv and updateclnt are a secure database distribution
+tool. It should perhaps be made a little more flexible to move other
+useful files to and from other servers.  Perhaps the clients could be
+triggered to fetch new files using a small RPC2 interface and return a
+result code.
+
+Also, clients should perhaps be asked to push a file as well as fetch
+it on demand.
+
+In particular, it would be nice if the SCM could be easily moved from
+one machine to another.
+
+This should be a fun and fairly straightforward project.
+
+<tag/Server setup/ 
+
+A substantial extension of the server setup scripts is needed.  In
+conjunction with this we need a cleanup of the configuration
+files. There are far too many and many are not used at all.
+
+
+<tag/Moving volumes/
+
+There is code to move volumes from one server to another.  This needs
+to be tested.  It would be particularly interesting to move one
+replica from one server to another.
+
+<tag/Renaming volumes/ This would equally be quite useful.  A simple
+volutil command needs to be added, but also the system administrative
+databases have to be updated accordingly.
+
+<tag/Shrinking or extending the VSG for a volume/
+
+At the moment this is not possible.  It should be difficult but not
+impossible to write a volutil routine doing this.  You will have to
+grok through RVM to adjust the entries.
+
+<tag/Resolving a volume/
+
+We would like routines that can resolve a volume regardless of current
+contents of ACLs.  One way would be to install a user Administrator
+who has admin rights.  This user could go through a volume and add
+itself to the ACL for rl permissions and then walk the tree in the
+volume using volmunge to resolve all the directories and
+files. Finally the script should remove the entries in the ACL.
+
+<tag/Multi level backups/
+
+We currently have a two level backup system (backup.cc in volutil).
+It is planned to implement an normal multilevel backup system in the
+near future.
+
+
+<tag/GUIs/
+
+It would be great if the server administration tools could be given a
+nice gui, hopefully in conjunction with a library of scripts.
+Solutions should work on Windows too, so look into Web based forms, Tk
+or Java. Don't forget security. 
+
+</descrip>
+
+
+<sect>Client Utilities <p>
+<descrip>
+<tag/Improvements to the Norton readline interface/
+
+Our Norton tool comes with a useful set of routines for command line
+interpretaion, execution and help.  This is based on the readline
+library.  There are some changes to this library which can easily be
+made and would be very useful. 
+
+<itemize>
+<item> Organize the norton command line interface in a library, useful
+for other programs in Coda.
+<item> Help needs to be added to the dispatch table.  It is important
+to give two types of help: help for incomplete commands, and more
+detailed help when requested.
+
+currently help sometime executes a command. That's not good.
+ 
+<item> Get rid of sub menus which can execute by themselves.
+<item> Use history features of readline to have history available. 
+
+<item > The find command has a complicated algorithm.  Find decides
+what to do when parsing a token passed to the program on the command
+line. Let's call this token current. Then find can have 4 situations
+(at least):
+<enum>
+<item> bad command has been entered.  Print quick help for the options
+up to the previous subcommand.
+<item> command is complete: execute it
+<item> a component of the command correctly entered. Process next.
+<item> an ambiguous abbreviation has been entered. Give the
+completions.
+</enum>
+PJB has partly implemented this. Ask him for patches.
+<item> Help similarly faces decisions:
+<enum> 
+<item> ambiguous abbreviation has been entered: print the completions
+<item> incomplete command has been entered: print the completions.
+<item> bad command has been entered: give help for appropiate submenu
+<item> more detailed help is required on a correct full command.
+</enum>
+</itemize>
+
+
+<tag/Failure utilities/
+
+Our failure package allows us to quickly simulate failures.  Unfortunately the utilities are a bit clumpsy to use and could do with some improvement. A number of people are working on this now.
+
+<itemize> 
+<item> use Norton's readline base command interpreter for ttyfcon and
+simplify its interface a bit.
+<item> make tools to isolate or join any number of machines. Brian
+White has perl scripts to do this. Let's test these and see if they
+simplify our life. 
+<item> avoid typing portnumbers by dynamically figureing out whether a
+machine is a server or client.  
+</itemize>
+
+<tag/Repair/
+
+Our repair interface is not nearly nice enough.  The local repair code
+in Venus needs improvement and simplification.  A thorough design
+discussion will be needed before this work can be done. 
+
+A gui repair tool exists, but I can easily imagine a Rolls Royce
+version of this tool. 
+
+<tag/Vutil (Venus utilities)/
+
+It would be better if these used a pioctl interface rather than
+signals. Many systems don't have all the signals used. (An RPC2
+interface could be used too, but security would have to be thought
+through. Something like a token for local root would be need.)
+
+For security, the kernel should report the uid of the process calling
+pioctl to Venus. 
+
+Quick hack: get a working vutil for Venus on Linux. This would really
+be useful.  Just fix up the signal handling in Venus and the vutil
+script.  Perhaps it's equally quick to get a pioctl interface. 
+
+<tag/CFS/
+
+Some new flags are easy to imagine and probably easy to implement (for
+example, it would be nice to query some volume information on the
+client). Again using RPC2 interfaces instead of PIOCL's could be nicer.
+
+<tag/GUIs/
+
+Just dream and do it: cfs, repair and vutil.  Talk with Maria Ebling, 
+<tt/mre@cs.cmu.edu/, who has a very nice Coda Console
+
+</descrip>
+
+<sect> Peformance <p>
+<descrip>
+
+<tag/Fast Inode Libraries/
+
+We would like to use methods for partitions on servers to access the
+files. This will be implemented partially in the near future.
+
+We would like to use direct inode access conveniently for servers and
+perhaps for cache files on the client.  It requires some kernel
+hacking to complete this, but a prototype exists.
+
+Similarly a tree library could help and would be platform
+independent. (Windows NT has BTRees in its filesystem). 
+
+<tag/Write-back caching/
+
+Lily Mummert and Peter Braam designed a write back caching scheme for
+Coda. Lily implemented the framing for this just before she left and I
+hope to finish this during this academic year.  This is a rather hairy
+project.
+
+<tag/Asynchronous RVM flush and truncation/
+
+RVM can probably do its flusing asynchronously in a kernel thread.
+This will need great care but should not be too complicated.
+
+<tag/Server Disk IO/
+
+Reads and writes could be done more efficiently.  Writes incur a copy
+of buffers and block.  A clever solution to this might be to use mmap
+and let the SFTP read and write straight into the buffer.
+
+When receiving files, the client could do the same.
+
+This could be done as a pet project first in one of the RPC2 test
+programs and when the improvement has been established, we can put it
+in the server.  
+
+<tag/Profiling/
+
+We need a lot of profiling information to see where improvements can
+be made.
+
+In the first instance it would be great if:
+<itemize>
+<item> RPC's can be logged with args, results and timing.  This would
+also be a great debugging aid.  Probably all that needs to be done is
+to re-activate some old code.
+
+<item> Kernel upcalls and downcalls can be logged, with args, results
+and timing. Again, this should not be difficult. 
+
+<item> Make a comparison tool to compare coda with local filesystems
+or other network file systems. 
+
+</itemize>
+<tag/Debugging aids/
+
+Lots of tools could make our debugging easier.
+<itemize> 
+<item> Loggin of upcalls/downcalls with precise process information,
+sequence nubmer etc.
+<item> Logging RPC2's, again with details about the call, results
+etc. 
+<item> Visual display of the above two with filters.
+<item> Collect server logs on one server, for easy browsing. Again a
+nice graphical browsing tool would be great. Also it would be nice if
+the text pane in this window could be told to highlight certain
+expressions, or only display lines containing certain expressions. 
+<item> Write lots of tests to easily re-create complicated scenarios. 
+</itemize> 
+
+<tag/Piggybacking getattr/
+
+Both Linux and Windows need a getattr for every lookup. Why not piggy
+back the result, for better performance.  
+
+To go further, it might make sense to optionally fetch all attributes
+whenever a directory listing is made. On Windows this might be needed
+for decent performance. 
+
+<tag/Read ahead/
+
+Read latency is obviously a problem.  Perhaps someone can try read
+ahead? This is probably very difficult to get right. 
+
+</descrip>
+
+<sect> Cells <p>
+
+Clearly Coda should get cells.  This is a complicated project with
+many features which will need to be discussed extensively.
+
+<descrip>
+<tag/Naming of objects in remote cells/
+
+How do we name a cell? How do we name volumes, files and users in
+cells?
+
+<tag/Locating cells/
+
+How can cells be located.  We do not want a static scheme but more a
+DNS like scheme.
+
+<tag/Remote volume location service/
+
+Once a service for a remote cell has been located, we need to lookup
+volume information servers there to get rolling. 
+
+<tag/Locating file sets/
+
+Rather than mounting unwieldly remote /coda trees, I envisage that
+small filesets should be offered and made accessible through mounting
+just a remote volume and installing a symlink to the relative path of
+the set in the volume. 
+
+<tag/Adapting the FID for cells/
+
+What should our fid be for Cellular Coda.
+
+
+<tag/Authentication to remote cells/
+
+Authentication to remote cells should translate uids differently than
+for local cells. If a user is not explicitly mentioned in a
+translation list, she should be translated to nobody, or remote user. 
+
+</descrip>
+
+<sect> Security and user handling <p>
+
+For a general description of security issues see our Coda internals
+document on security.  Also Satya's paper is invaluable in
+understanding the concepts.
+
+<descrip>
+
+<tag/UID translation/
+
+It is desirable for Venus to translate a Coda uid to a client uid for authenticated connections.  Clients should have a translation table (to be manipulated by root) in the coda etc directory, giving Coda cells, uid's and their mapping to a local uid.  Whenever the kernel is handed a uid it should be handed the translated one.
+
+Example: suppose bovik has Coda uid 2 at CMU and 3 at MIT and uid 2 on
+his client. I envisage a translation file like:
+<verb>
+cmu   2   2
+mit   3   2
+</verb>
+
+The last column could even be replaced with the local username.  The
+default translation should perhaps translate ownership of Coda
+username to local usernames using the Coda and local uid.
+
+This will cause a ripple of small changes in the Venus code, and
+probably a few unexpected surprises in the authentication area.
+
+<tag/Linux minicache/ The Linux minicache does currently not store
+"cred" (uid) information in the minicache.  This gives a security
+problem since lookups will be serviced to unauthorized users.
+
+It is not difficult to implement this and the NetBSD code already has
+it. Make sure to update the /proc files to show the new entry.
+
+<tag/Kerberos/ This is a project that is ready to be implemented. A
+patch file is desired which changes Coda so that it uses a kerberos
+token for authentication. For reasons of exportability the patch file
+must remain separate from the distribution.
+
+The components of this task appear to be the following:
+<itemize>
+<item> Currently when a user authenticates, a session key is handed to
+Venus. This session key is used by RPC2_NewBinding to set up an
+authenticated and "encrypted" connection with the server.  Each time a
+new connection is established, the routine NewConnectFS should see if
+it has already acquired a kerberos session key. If so, this should be
+used by RPC2_NewBinding through a new GetToken routine. If not, it
+should see if a local TGT is available and get a session key from the
+TGS. 
+
+<item> Buffer sizes for the keys should be adapted.
+
+<item> Callback connections, failure package connections, resolution
+and volutil connections should be kerberized.
+
+<item> The mariner port should be changed from a TCP port to a
+kerberized RPC2 connection.
+</itemize>
+
+
+<tag/PTS/ Coda needs a server similar to PTS. While the code for this
+project is probably not terribly difficult to write, design decisions
+will have to be discussed.
+
+The project seems to have a couple of obvious components: 
+
+<itemize>
+
+<item> The <tt/.pdb/ database obviously contains sensitive information. Any
+manipulation should be through authenticated connections only.
+
+<item> The PTS server needs to have write access to the database, the
+fileserver needs to have readonly access to the database. Locking must
+be done properly.
+
+<item> The fileserver will need to cache records and needs to be
+notified when to flush cache entries.
+
+<item> The database should do pre-computation of the CPS and have
+access through fast indices (currently the fileserver computes indices
+(the <tt/.pcf/ file).)
+
+<item> The database should be suitable for distribution to many
+servers.  Since write access will not be that frequent, a single point
+of entry for modifications (on the SCM) may be allright.
+
+<item> A significant amount of code cleanup in this area is
+needed. This is described in our internals document.
+
+<item> It would be nice if existing AFS pdb's could be converted to
+Coda pdb's.
+
+<item> Originally I thought that LDAP was the obvious choice, but I'm
+no longer sure.  Constraints in the choice of database are the
+following considerations:
+
+<enum> 
+
+<item> it needs to run on Unix and Windows NT, or a really thin layer
+needs to arange access to the database for each platform (I wouldn't
+like this).
+
+<item> if it has a transactional interface that would be best, but we could do without one.
+
+<item> it should have a perl interface for system administration
+purposes that would be best.
+
+<item> if it could be used by the volume package too that would save
+writing two interfaces: so this is a must.
+
+</enum>
+
+</itemize>
+
+<tag/Fortezza Encryption/ 
+
+SRI has suggested that storing files in encrypted form on the server
+is a good feature.  Particularly for military applications this is
+undoubtedly so.  Work is about to start to implement this. Components:
+
+<itemize>
+<item> Fortezza drivers: this is kernel work. 
+<item> Small modifications to the <bf> Store</bf> RPC to encrypt the data. 
+</itemize>
+
+</descrip>
+</article>

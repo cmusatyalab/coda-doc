@@ -1,0 +1,76 @@
+This document provides a short overview of configuration files for a
+Coda installation
+
+1. Client
+---------
+
+There are entries in /etc/services defining the ports on which Venus
+listens
+
+There is the mount directory /coda and a "helpful" file:
+/coda/NOT_REALLY_CODA
+
+There is a character device: /dev/cfs0 
+crw-r--r--   1 root     root      67,   0 Mar 21 20:54 /dev/cfs0
+
+There is the tree /usr/coda with a single configuration file:
+|-coda-|-etc---------
+       |-spool-------
+       |-venus.cache-
+/usr/coda/etc/vstab
+
+Venus creates other files in this tree. The container files are held
+in venus.cache.
+
+
+
+2. Server
+---------
+
+RVM space: typically in /rvm which may well be a mount point of a
+partition. A LOG and DATA file are present.  
+
+/etc/services contains lines for vice services
+
+
+Configuration files in / directory:
+/ROOTVOLUME			contains name of the root volume
+/.hostname			file contains hostname of server
+/.scm		                file contains hostname of scm
+
+The /vice vice subtree is the most important:
+       |-backup-
+       |-bin----
+|-vice-|-db-----
+       |-srv----
+       |-vol----|-remote-
+
+Configuration databases installed by scripts:
+/vice/db/auth2.tk
+/vice/db/volutil.tk		token files
+/vice/db/files			files to be kept up to date by update
+
+/vice/vol/maxgroupid		largest id of volume allocated so far
+/vice/vol/fs.lock		empty lock file
+/vice/vol/volutil.lock
+/vice/vol/VolumeList            list of volume information
+/vice/vol/.anonrc               file for anonymous ftp transport
+
+/vice/db/servers		list of servers
+/vice/db/hosts			a copy of /etc/hosts more or less
+/vice/db/VSGDB                  volume storage group database
+
+Run coda-user-setup to create initial copies of:
+/vice/db/group.coda
+/vice/db/user.coda    these two files are processed by initpdb to create
+/vice/db/vice.pdb     processed by pcfgen to get:
+/vice/db/vice.pcf     (binary)
+
+
+
+/vice/vol/VRList
+/vice/db/VRDB: volume relocation database (binary)
+/vice/db/VLDB: volume location database (
+
+
+

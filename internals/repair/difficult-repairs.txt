@@ -1,0 +1,21 @@
+Repair strategies
+
+1. Dirsize repair
+
+ - disconnect from all but one server
+ - repair -allowclear
+   clear
+   (now the inconsistency is gone)
+ - now add dir entries until the directory gets the right size
+ - a normal repair should now work
+
+2. Local Global
+ - usuall people move stuff out of the way
+ - then call discard all global 
+
+3. Global Global
+
+ - here admin permissions may be needed to correct ACL's etc.
+ - scribble such commands in the repair file
+ - often the process needs to be repeated a few times.
+ - 

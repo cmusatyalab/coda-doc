@@ -1,0 +1,1651 @@
+<!doctype linuxdoc system> 
+
+<article>
+
+<title>The Coda HOWTO
+<author>
+Peter Braam, <tt/braam@cs.cmu.edu/,
+Robert Baron <tt/rvb@cs.cmu.edu/,
+Jan Harkes <tt/jaharkes@cs.cmu.edu/,
+Marc Schnieder <tt/smarc@cs.cmu.edu/.
+</author>
+<date>v0.46, Nov 04 1998
+
+<abstract>
+This HOWTO should give you help in running Coda.  We try to cover
+enough detail for you to install, build and run Coda, and also explain
+how to troubleshoot and prepare useful bug reports.
+</abstract>
+
+<toc>
+
+<sect>Coda's ingredients <p>
+
+Coda is a distributed file system.  Coda is very differently organized 
+from NFS and Windows/Samba shares.  Coda does have many similarities
+to AFS and DCE/DFS.  
+
+<sect1> Getting clued in with the Coda terminology <p>
+
+<descrip> 
+<tag/A single name space/ All of Coda appears under a single directory
+<tt>/coda</tt> on the client (or under a single drive under Windows).
+Coda does not have different exports or shares as do NFS and Samba
+that are individually mounted.  Under <tt>/coda</tt> the volumes (aka
+file sets) of files exported by all the servers (living in your Coda
+cell) are visible.  Coda automatically finds servers and all a client
+needs to know is the name of one bootstrap server that gives it
+information how to find the root volume of Coda.
+
+<tag/A Coda cell/ is a group of servers sharing one set of
+configuration databases.  A cell can consist of a single server or up to
+hundreds of servers. One server is designated as the <bf>SCM</bf>.  It
+is distinguished by being the only server modifying the configuration
+databases shared by all servers, and propagating such changes to other
+servers. At present a Coda client can belong to a single cell.  We
+hope to get a cell mechanism into Coda whereby a client can see files
+in multiple cells.
+
+<tag/Coda volumes:/ File servers group the files in volumes.  A volume
+is typically much smaller than a partition and much larger than a
+directory.   Volumes have a root and contain a directory tree with
+files. Each volume is "Coda mounted" somewhere under /coda and
+forms a subtree of the /coda.  Volumes can contain mountpoints of
+other volumes.  A volume mountpoint is not a Unix mountpoint or
+Windows drive - there is only one drive or Unix mountpoint for Coda.
+A Coda mountpoint contains enough information for the client to find
+the server(s) which store the files in the volume.  The group of
+servers serving a volume is called the <em>Volume Storage Group</em>
+of the volume.
+
+<tag/Volume Mountpoints/ One volume is special, it is the root volume,
+the volume which Coda mounts on <tt>/coda</tt>.  Other
+volumes are grafted into the <tt>/coda</tt> tree using the
+<bf> cfs makemount</bf>.  This command installs a volume
+mountpoint in the Coda directory tree, and in effect its result is
+similar to <bf> mkdir mountpoint ; mount device mountpoint
+</bf> under Unix.  When invoking the <bf> cfs
+makemount</bf> the two arguments given are the name of the
+mountpoint and the name of the volume to be mounted.  Coda mountpoints
+are persistent objects, unlike Unix mountpoints which needs
+reinstating after a reboot.
+
+<tag/Data storage/ The servers do not store and export volumes as
+directories in the local disk filesystem, like NFS and Samba.  Coda
+needs much more meta data to support server replication and
+disconnected operation and it has complex recovery which is hard to do
+within a local disk filesystem.  Coda servers store files identified
+by a number typically all under a directory <tt>/vicepa</tt>.  The
+meta data (owners, access control lists, version vectors) and
+directory contents is stored in an RVM data file which would often be
+a raw disk partition.
+
+<tag/RVM/ is a transaction mechanism and in addition to the RVM data
+file there is a LOG file.  The LOG file contains committed data that
+has not yet been incorporated into the data file on disk. 
+
+<tag/Client data/ is stored somewhat similarly: meta data in RVM
+(typically in <tt>/usr/coda/DATA</tt> and cached files in
+<tt>/usr/coda/venus.cache</tt>.   The cache on a client is
+persistent.  This cache contains copies of files on the server.
+The cache allows for quicker access to data for the client and
+allows for access to files when the client is not connected to 
+the server.  
+
+<tag/Authentication/
+Coda manages authentication and authorization through a token.
+Similar (the details are very different) to using a Windows share,
+Coda requires users to log in.  During the log in process, the client
+acquires a session key, or token in exchange for a correct
+password. The token is associated with a user identity, at present
+this Coda identity is the uid of the user performing the log in.
+
+
+<tag/Protection/
+To grant permissions the cache manager and servers use the token with
+its associated identity and match this against priviliges granted to
+this identity in access control lists (ACL).  If a token is not
+present, anonymous access is assumed, for which permissions are again
+granted through the access control lists.
+
+</descrip>
+
+<sect1> Organization of the client <p>
+
+<sect2> The kernel module and the cache manager <P>
+Like every filesystem a computer enabled to use the Coda
+filesystem needs kernel support to access Coda files.  Coda's kernel
+support is minimal and works in conjunction with the cache manager
+<bf>Venus</bf>.   User requests enter the kernel, which will
+either reply directly or ask the cache manager <bf>venus</bf> to
+assist in service.
+
+Typically the kernel code is in a kernel module, which is
+either loaded at boot time or dynamically loaded when Venus is
+started.  Venus will even mount the Coda filesystem on <tt>
+/coda</tt>. 
+
+<sect2> Utilities <p> 
+
+To manipulate acl's, the cache, volume
+mountpoints and possibly the network behaviour of a Coda client a
+variety of small utilities is provided. The most important one is the
+<bf>cfs </bf> command.
+
+There is also a <bf>clog</bf> program to authenticate to the Coda
+authentication server.
+
+
+<sect1> The server organization <p>
+
+The main program is the Coda fileserver <bf>codasrv</bf>.  It is
+responsible for doing all file operations, as well as volume location
+service.
+
+The Coda authentication server <bf>auth2</bf> handles requests from
+<bf>clog</bf> for tokens, and changes of password from <bf>au</bf> and
+<bf>cpasswd</bf>.  Only the the auth2 process on the SCM will modify
+the password database.
+
+All servers in a Coda cell share the configuration databases in
+<tt>/vice/db</tt> and retrieve them from the SCM when changes have
+occurred.  The <bf>updateclnt</bf> program is responsible for
+retrieving such changes, and it polls the <bf>updatesrv</bf> on the
+SCM to see if anything has changed.  Sometimes the SCM needs a
+(non-shared) database from another server to update a shared database.
+It fetches this through an <bf>updatesrv</bf> process on that server
+using <bf>updatefetch</bf>.
+
+<sect2> Utilities <p>
+
+On the server there are utilities for volume creation and management.
+These utilities consist of shell scripts and the volutil command.
+There is also a tool to manipulate the protection databases.
+
+<sect> Getting Coda <p>
+
+All code can be obtained from:
+<URL URL="ftp://ftp.coda.cs.cmu.edu/pub/coda"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda">.
+
+<sect1> Linux <p>
+
+<sect2> Getting RPM packages <P> 
+
+We have RPMS for a RedHat Linux at <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux/"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux/">.  You should get:
+<itemize> 
+<item>documentation and manual pages <em/coda-doc/ rpms
+<item>a client: <em/coda-debug-client/ rpms
+<item>a server: <em/coda-debug-server/ rpms
+<item> kernel code for the client: <em/coda-kernel-module/ rpms code
+</itemize>
+Install these as ususal. 
+
+You may need to build a Coda kernel module for which you will need
+source, see below.
+
+<sect1> FreeBSD <p>
+
+<sect2> Obtaining Packages <p>
+
+As of this writing, the elf packages have been built but not tested as
+heavily as the aout packages.  You may obtain the newest compiled
+packages from the <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-elf/i386/"
+NAME="Coda site"> or other mirrors.
+<bf/NOTE:/ Below I am using a specific Coda release, 4.6.6.1, you will
+no doubt find a different release on the ftp site when you access it;
+so use the newer release version.
+<p>
+<itemize>
+<item>
+Coda-intro is a quick get started guide to using Coda.
+<tscreen>
+<verb>
+pkg_add coda-intro-4.6.6.1.tgz
+</verb>
+</tscreen>
+<item>
+The Coda client is needed by a machine to use the Coda filesystem.
+Aprox Size =  3.6Meg
+<tscreen>
+<verb>
+pkg_add coda-client-4.6.6.1.tgz
+</verb>
+</tscreen>
+<item>
+The Coda server is needed by a machine to create and serve the filesystem to
+client machines.
+Aprox Size = 5.5Meg
+<tscreen>
+<verb>
+pkg_add coda-server-4.6.6.1.tgz
+</verb>
+</tscreen>
+<item>
+Finally, we have a wealth of documentation about Coda and need to generate still more.
+Aprox Size = 1.5Meg
+<tscreen>
+<verb>
+pkg_add coda-doc-4.6.5.3.tgz
+</verb>
+</tscreen>
+</itemize>
+<p>
+If you substitute 3.0-aout for 3.0-elf in the ftp directory, you will
+get the aout packages.  The aout packages for the client and server
+are about 1.5Meg larger than the elf packages.
+<p>
+<bf/NOTE:/
+pkg_add may fail silently.  Please make sure you have at least 25MB of
+free space available in <tt>/var/tmp</tt> to install the each package.
+
+
+<sect1> NetBSD <p>
+
+<sect2> Obtaining Pre-compiled Packages <p>
+
+You may obtain the newest pre-compiled packages from the Coda site <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/current/i386/"
+NAME="Coda site"> or
+other mirrors.
+<bf/NOTE:/ Below I am using a specific Coda release, 4.6.6.1, you will
+no doubt find a different release on the ftp site when you access it;
+so use the newer release version.
+<p>
+<itemize>
+<item>
+Coda-intro is a quick get started guide to using Coda.
+<tscreen>
+<verb>
+pkg_add coda-intro-4.6.6.1.tgz
+</verb>
+</tscreen>
+<item>
+The Coda client is needed by a machine to use the Coda filesystem.
+Aprox Size = 5Meg
+<tscreen>
+<verb>
+pkg_add coda-client-4.6.6.1.tgz
+</verb>
+</tscreen>
+<item>
+The Coda server is needed by a machine to create and serve the filesystem to
+client machines.
+Aprox Size = 6.8Meg
+<tscreen>
+<verb>
+pkg_add coda-server-4.6.6.1.tgz
+</verb>
+</tscreen>
+<item>
+Finally, we have a wealth of documentation about Coda and need to generate still more.
+Aprox Size = 1.5Meg
+<tscreen>
+<verb>
+pkg_add coda-doc-4.6.5.3.tgz
+</verb>
+</tscreen>
+</itemize>
+<p>
+<bf/Note:/
+pkg_add may fail silently.  Please make sure you have at least 25MB of
+free space available in /var/tmp to install the each package.
+
+
+<sect1> Windows 95 <p>
+
+Get the installer files for servers and clients from <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/win95" 
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/win95">. 
+
+Install these by double clicking on the installer files.
+
+<bf/NOTE:/ Before you start, make sure you know the IP address of your
+client and of the server you are connecting to.  The default server
+address offered is that of the testserver at CMU.
+
+
+<sect1> Windows NT <p>
+
+Do all your work as administrator. 
+
+First get the Cygwin kit from 
+<URL
+URL="http://www.cygnus.com/misc/gnu-win32/"
+NAME="http://www.cygnus.com/misc/gnu-win32/">
+and install this on the NT machine, for example in C:\Cygnus
+
+Get the installer files for servers and clients from <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/winnt" 
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/winnt">. 
+
+Install these by double clicking on the installer files. (Note: these
+replace the original cygwin32.dll with a patched version. A future
+version of Coda will strive to use the default version). 
+
+
+
+<sect> Configuring and starting Coda <p>
+
+<bf/WARNING:/
+
+CODA IS BARELY READY FOR PRODUCTION USE. THIS RELEASE IS JUST FOR
+THOSE INTERESTED IN EXPLORING THOSE FEATURES WHICH WORK. IT CONTAINS
+KERNEL CODE, AND SERVERS RUNNING WITH ROOT PRIVILEGES, AND COULD LEAD
+TO DATA LOSS.
+
+
+To get Coda running you will go through 3 steps:
+<enum>
+<item> Get a Coda enabled kernel for the client. (The server does not
+need a special kernel)
+<item> Configure and run the client cache manager Venus
+<item> Configure and run the file server, authentication server and
+update servers
+<item> Connect a client to your new server. 
+</enum>
+
+<sect1> Getting a Coda enabled kernel <p>
+
+Before you can use a Coda client you need a new filesystem driver in
+your kernel. For the most part this driver redirects requests to the
+user level cache manager <bf>venus</bf>.  Precompiled modules exist
+for commonly used kernels. If no module exists for you, you'll find
+instructions below where to find it.
+
+<sect2> Linux <p>
+
+Get a <URL NAME="coda-fs-module-k2.?.?-c?.?.?.arch.rpm"
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux"> rpm package and
+install it.  
+
+<sect2> FreeBSD <p>
+
+You may obtain a Coda lkm from your FreeBSD distribution:
+<tscreen><verb>
+cd /lkm
+</verb></tscreen>
+Check if <tt/coda_mod.o/ is there already.
+Otherwise, you may obtain a Coda lkm from the Coda site:
+<tscreen>
+<verb>
+ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-aout/i386/coda_mod.o
+</verb>
+</tscreen>
+<p>
+You then install the lkm with:
+<tscreen>
+<verb>
+modload -v -e coda_mod -o /var/run/lkm.coda /lkm/coda_mod.o
+</verb>
+</tscreen>
+<p>
+You can build support for the Coda VFS layer into your kernel.
+This is discussed later in the <em/Building FreeBSD/ section.
+
+
+<sect2> NetBSD <p>
+
+<bf/NOTE:/ The GENERIC NetBSD kernel should have Coda enabled.  Do
+an:
+<tscreen>
+<verb>
+nm -o /netbsd | grep coda_open
+</verb>
+</tscreen>
+If this is present, you are done with this section.  <bf/PROCEED NO
+FURTHER/
+<p>
+
+If you need to load an lkm it should be in the NetBSD distribution:
+<tscreen>
+<verb>
+cd /usr/lkm
+</verb>
+</tscreen>
+<p>
+Check if coda.o is there already.
+Otherwise, you may obtain a Coda lkm from the Coda site:
+<tscreen>
+<verb>
+ftp://ftp.coda.cs.cmu.edu/pub/coda/netbsd/current/i386/coda-1_3H.o
+</verb>
+</tscreen>
+<p>
+You then install the lkm with:
+<tscreen>
+<verb>
+modload -v -e coda_lkmentry -o /var/run/lkm.coda /usr/lkm/coda-1_3H.o
+</verb>
+</tscreen>
+<p>
+You can build support for the Coda VFS layer into your kernel, though
+this should be automatic.
+This is discussed later in the <em/Building NetBSD/ section.
+
+
+<sect2> Windows 95 & NT <p>
+
+The kernel module is part of the Coda client installer. 
+
+
+<sect1>Linux and the BSD's: running Venus, the client cache manager<p>
+
+These are partial instructions on how to setup and configure the Coda
+filesystem.  Refinements to the setup created here are discussed in <URL
+URL="http://ftp.coda.cs.cmu.edu/doc/html/manual.html"
+NAME="http://ftp.coda.cs.cmu.edu/doc/html/manual.html">   You
+will probably not need these refinements in the first instance.
+
+The <tt/venus-setup/ script does all the hard work, it will setup the coda
+control files, create <tt>/dev/cfs0</tt> to communicate with the
+kernel, ...  It also initializes a directory for cache files.  In your
+first Coda run we recommend a small cache, say 20MB. The cache size
+should be at least 10Meg, typically 60-200Meg is used.  Do not go
+above 300Meg.  All the files created will be placed under
+<tt>/usr/coda</tt>.  You should make sure that there is enough space
+in the file system on which <tt>/usr/coda</tt> resides to hold a fully
+populated cache.
+
+<tscreen>
+<verb>
+venus-setup <comma_separated_host_list> <cache_size_in_kb>
+</verb>
+</tscreen>
+
+
+<tt/venus-setup/ and <tt/venus/ (below) are in <tt>/usr/sbin</tt>.
+Make sure that <tt>/usr/sbin</tt> is in your path or that you use
+fully qualified pathnames.  We strongly recommend that you try
+testserver.coda.cs.cmu.edu as the <tt/comma_separated_host_list/
+first, and keep the cache size to 20000.
+
+<bf/NOTE:/ <tt/venus-setup/ will edit <tt>/etc/services</tt> to add some additional
+services. 
+
+The following assumes you are running X-Windows.  However, you could
+run these commands from virtual consoles as well, by omitting the
+<tt/xterm -e/ in front of the commands below.
+
+Start Venus with:
+<tscreen>
+<verb>
+venus &
+</verb>
+</tscreen>
+
+An <tt/-init/ flag can be given when <tt/venus/ is started; it flushes the
+local cache contents.  <tt/venus-setup/ forces an init to happen when
+venus is first started.  The <tt/-init/ flag can be given if Coda
+cannot recover it's cache after a crash, or after editing the
+<tt/vstab/ file manually. 
+
+Observe the venus log with:
+<tscreen>
+<verb>
+xterm -e tail -f /usr/coda/etc/console
+</verb>
+</tscreen>
+It will tell you when venus has started and give status.
+
+Type:
+<tscreen>
+<verb>
+xterm -e codacon &
+</verb>
+</tscreen>
+to see the communications between the Venus and Vice.
+
+It is possible to see the upcalls from the kernel to Venus by turning
+up logging in Venus, but they are not very interesting.  (To turn on
+minimal debugging, type:
+<tscreen>
+<verb>
+vutil -d 1
+</verb>
+</tscreen>
+and then <tt>tail -f /usr/coda/coda.cache/venus.log</tt>.)
+
+To halt venus, type:
+<tscreen>
+<verb>
+vutil shutdown
+umount /coda  (Linux only)
+</verb>
+</tscreen>
+Or you can kill -9 venus, if you must.  
+
+<bf/NOTES for Linux users:/
+<itemize>
+<item> Before restarting Venus <tt>/coda</tt> must
+be unmounted.  If umounting <tt>/coda</tt> gives trouble, make sure to
+exit all process that hang on to Coda, e.g. by having files open or
+being cd'd into /coda.  A utility like <tt/lsof/ and <tt/fuser/ can
+help with this.
+<item> <tt>/proc/fs/coda</tt> has interesting Coda statistics. 
+<item> You can enable kernel debugging  with <tt>vutil
+-kdebug 4095</tt> and call tracing with <tt>vutil ktrace 1</tt>. The
+messages appear in <tt>/var/log/messages</tt>
+</itemize>
+
+<sect1>Windows 95: Starting and Configuring a Coda client<P> 
+ 
+During installation you will be prompted for the IP address of
+your client and of your Coda server(s).  Enter this as indicated.
+
+All executables can be found in the directory <tt>C:\usr\coda\bin.</tt>
+<enum>
+<item> Type 
+<tscreen>
+<verb>
+relay.exe
+</verb>
+</tscreen>
+in a command Window.  This is a 32bit DOS application which you can
+also start by double clicking on the file in  explorer.  
+
+<item> If this is the first time you start Coda run 
+<tscreen>
+<verb>
+venus.exe -child
+</verb>
+</tscreen>
+in a command window. 
+<item> Run 
+<tscreen>
+<verb>
+venus.exe -cf 500 -init
+</verb>
+</tscreen>
+(this gives up to 500 cache files, try with more if everythings works
+fine.)
+<item> When Venus prints  "Venus starting ..." run 
+<tscreen>
+<verb>
+mount.exe N:
+</verb>
+</tscreen>
+This maps the Coda filesystem to the <tt>N:</tt> drive.
+</enum>
+
+You are now ready to browse through the Coda filesystem using the explorer!
+
+<enum> 
+<item> When you want to restart Venus without initializing the cache
+just run  <tt>venus.exe</tt>.  If <tt/venus/ crashes restarting it is
+normally all you need to do. 
+<item> If relay crashes you will want to unmount the <tt>N:</tt> drive
+run: 
+<tscreen>
+<verb>
+unmount.exe
+</verb>
+</tscreen>
+This will stop <tt>relay.exe</tt> (if it is still running)  and unload
+<tt>mc.vxd</tt> which was loaded by <tt>relay.exe</tt>.  
+</enum> 
+
+
+<sect1> Codasrv -- the server <p>
+
+<sect2>Configuring your server<p>
+
+To set up an SCM server, you need to have the following
+<bf>resources</bf>: 
+
+<descrip>
+
+<tag/file space/an empty directory (viz /vicepa) where the fileserver
+will put files.  There must be as much free space on this filesystem
+as the data you wish to store in Coda.
+
+<tag/RVM metadata storage/ a file or raw partition for RVM metadata.
+You can use a file but it will be quite slow on a larger server. This
+partition must be around 4% of the total size of the files you wish to
+store under /vicepa (e.g. on a 2GB server we use around 80M of rvm
+data). For first installations we recommend the default 22M options.
+
+<tag/virtual memory/  The metadata is memory mapped.  You need that
+amount of space as virtual memory on your system, in addition to
+virtual memory to run the server (~5MB) and other software.
+
+<tag/RVM transaction log/a LOG file, preferably a raw partition on a
+disk by itself. This 	needs not be large.  
+
+<tag/secret tokens/two secret tokens of _exactly_ 8 characters (eg
+elephant).
+</descrip>
+
+<bf/NOTE:/ you are now ready to run the setup script.  We
+<bf/strongly/ recommend that you stick to default choices offered as
+configuring a server differently is quite difficult. 
+
+Then run:
+<tscreen>
+<verb>
+vice-setup
+</verb>
+</tscreen>
+and answer its questions.  Note down the commands that vice-setup
+prints out for you at the end.
+
+
+<sect2> Running Vice:<p>
+
+Start the rpc2portmap server, update server, client and the auth
+server, as well as the fileserver by typing:
+<descrip>
+<tag/Linux/
+<tscreen>
+<verb>
+/etc/rc.d/init.d/auth2.init start
+/etc/rc.d/init.d/update.init start
+/etc/rc.d/init.d/codasrv.init start
+</verb>
+</tscreen>
+
+<tag/BSDs/
+<tscreen>
+<verb>
+/etc/rc.vice start
+</verb>
+</tscreen>
+
+<tag/Windows NT/
+<tscreen>
+<verb>
+codastart
+</verb>
+</tscreen>
+</descrip>
+
+Now observe the log:
+<tscreen>
+<verb>
+xterm -e tail -f  /vice/srv/SrvLog & 
+</verb>
+</tscreen>
+The <tt/SrvLog/ should show <em/File Server started/.  If not,
+you have a problem.
+
+Determine with <tt/ps/ that <tt/codasrv/, <tt/auth2/, <tt/rpc2portmap/,
+<tt/updatesrv/ and <tt/updateclnt/ are running.
+
+
+<sect2>Making your root volume<p>
+
+During your configuration session, you commmunicated a name for the
+root volume to the program.  This root volume now needs to be
+craeted: the precise command to do this was printed out by the
+vice-setup program, below we assume your file space is in
+<tt>/vicepa</tt>, and your root volume is <tt/coda:root/.
+
+<tscreen>
+<verb>
+createvol_rep coda:root E0000100 /vicepa
+</verb>
+</tscreen>
+
+<bf/NOTE:/
+E0000100 is the Volume Storage Group set up for you by
+vice-setup. With more servers you can define other groups in
+/vice/db/VSGDB -- see the Coda User Manual.
+
+
+<sect1>Connecting your client to a new Coda server<p>
+
+Now you are ready to point a Venus (client) at this server. You do
+this by typing
+
+<tscreen>
+<verb>
+venus-setup  server-name cache-szie-in-kb
+</verb>
+</tscreen>
+<bf/NOTE:/ Windows 95 users should type the IP address and not the
+hostname of the server.
+
+Start Venus as explained above.  From the coda client side, the root
+volume will appear under /coda.  To use it you must now authenticate
+to Coda, since it is write protected.
+
+The vice-setup program installed an administrative Coda user on the
+server.  It has a uid you chose and has been assigned password
+changeme.  You may clog into Coda with this uid:
+
+<tscreen>
+<verb>
+clog "adminuser"
+</verb>
+</tscreen>
+Validate that you have tokens with the <tt/ctokens/ utility. 
+
+You can now create files in <tt/coda/, because the administrative user
+is on the access control list (ACL) of the <tt>/coda</tt>
+directory. Read the next section to find out how to do more with Coda.
+
+
+<sect>Exploring Coda's features<p>
+
+V. Common Tasks
+
+1. Normal server startup:
+startserver &
+
+it comes up at boot time from rc.vice, unless you said <bf/No/ to
+automatic startup, OR if the there is a file /vice/srv/CRASH exists,
+which indicates the fileserver crashed. Howver you need the update
+server and client for system administration and the authserver for
+authentication -- see /usr/pkg/etc/rc.vice.
+
+2. Re-run venus-setup and point your server to your own server.
+
+* make sure the server is up _AND_ you have made root volumes*
+On your client do setup and start the client as follows:
+
+<tscreen> 
+<verb>
+venus-setup your-server 40000
+
+venus -init &
+     xterm -e tail -f /usr/coda/venus.cache/venus.log
+     xterm -e tail -f /usr/coda/etc/console
+     xterm -e codacon
+</verb>
+</tscreen>
+
+
+When the server is up cd to /coda and start playing.  You won't run
+-init the next time you start venus.  The flag is necessary in this
+case since we are switching the server venus is talking to.
+(Currently, venus does not support Cells.)
+
+
+3. Restarting a server:
+
+     volutil shutdown
+shuts down the server.  Restart as above.
+
+4. Restarting a client.
+
+The official procedure is to:
+vutil shutdown
+
+kill -9 venus works equally well.  Then restart as stated above.
+
+
+
+<sect>Troubleshooting<p>
+
+The Coda filesystem is still under development, and there certainly are
+several bugs which can crash both clients and servers. However, many problems
+users observe are related to semantical differences of the Coda filesystem
+compared to well-known NFS or SMB network filesystems.
+<p>
+
+This section will point out several logs to look at for identifying the cause
+of problems. Even if the source of the problem cannot be found, the
+information gathered from Coda's logging mechanisms will make it easier for
+people on the coda mailinglist
+<htmlurl url="mailto:coda-discuss@coda.cs.cmu.edu"
+         name="&lt;coda-discuss@coda.cs.cmu.edu&gt;">
+to assist in solving the problem(s).
+<p>
+
+Some of the more common problems are illustrated in detail. At the end of this
+section some of the more involved debugging techniques will be addressed. This
+will be helpful to developers to isolate problems more easily.
+
+
+<sect1>Basic Troubleshooting<p>
+
+Most problems can be solved, or at least recognized by using the information
+logged by the clients and servers. The first step in finding out where the
+problems stems from is doing a <bf/tail -f/ on the logfiles.
+
+It must also be noted that, when coda clients and servers crash they do not
+`dump core', but start sleeping so that we developers can attach debuggers.
+As a result, a crashed client or server still shows up in the <bf/ps auxwww/
+output, and only the combination of lack of file-service and error messages
+in logfiles indicate that something is really wrong.
+
+<sect2>Client logging<p>
+
+<itemize>
+<item> <bf/codacon/ is a program which connects to venus and provides the user
+with run-time information. It is the initial source of information, but cannot
+be used to look back into the history. It is therefore advisable to always
+have a codacon running in a dedicated xterm.
+<tscreen>
+    client$ xterm -e codacon
+</tscreen>
+
+<item> <tt>/usr/coda/etc/console</tt> is a logfile which contains mostly error
+or warning messages, and is a place to look for errors which might have
+occured. When assertions in the code fail, it is logged here.
+
+<item> <tt>/usr/coda/venus.cache/venus.log</tt> contains more in-depth
+information about the running system, which can be helpful to find out what
+the client is or was doing.
+</itemize>
+
+</sect2>
+  
+<sect2>Server logs<p>
+
+<itemize>
+<item> <bf/cmon/ is an ncurses program that can be run on a client to gather
+and display statistics from a group of servers. When a server goes down it
+will not respond to the statistics requests, which makes this a simple method
+for monitoring server availability.
+<tscreen>
+    client$ xterm -e cmon server1:100 server2:100 server3:100 ...
+</tscreen>
+
+<item> <tt>/vice/srv/SrvLog and /vice/srv/SrvErr</tt> are the server logfiles.
+
+<item> <tt>/vice/auth2/AuthLog</tt>
+<item> <tt>/vice/srv/portmaplog</tt>
+<item> <tt>/vice/srv/UpdateClntLog</tt>
+<item> <tt>/vice/srv/UpdateLog</tt>
+</itemize>
+
+</sect2>
+
+</sect1>
+
+<sect1>Common Problems<p>
+
+<sect2>Initial setup or configuration problems<p>
+
+<descrip>
+<tag>Client does not connect to <tt/testserver.coda.cs.cmu.edu/.</tag>
+Reasons: old coda release, firewall, server down.
+
+</descrip>
+</sect2>
+
+<sect2>Disconnections.<p>
+<label id="Disconnections">
+
+As most common problems are related to the semantical differences arising
+as a result of `involuntary' disconnections, this section contains some
+background information of why volumes become disconnected or
+write-disconnected. And how to get them to reconnect again.
+
+<bf/Volume is fully disconnected./<p>
+
+There are several reasons why a coda client may have disconnected some or all
+volumes from an accessible server.
+<p>
+
+<itemize>
+<item> Pending reintegration.<p>
+When modifications have been made to the volume in disconnected mode, the
+client will not reconnected the volume until all changes have been
+reintegrated. Also, reintegration will not occur without proper user
+authentication tokens. Furthermore, reintegration is suspended as long as
+there are objects in conflict.
+
+The most important item here is to have a <bf/codacon/ process running, since
+it will give up-to-date information on what venus is doing. Venus will inform
+the user about missing coda authentication tokens,
+<em/`Reintegration: pending tokens for user &lt;uid&gt;'/. In this case the user
+should authenticate himself using the <bf/clog/ command.
+
+Conflicts, which require us to use the <bf/repair/ tool, are conveyed using
+the <em/`local object &lt;pathname&gt; inconsistent'/ message. Otherwise codacon
+should show messages about <em/backfetches/, and how many modifications were
+successfully reintegrated.
+
+<item> Access permissions.<p>
+The client may also disconnect when a servers reports an error to an
+operation, when according to the client this is a valid operation. Causes for
+this are authentication failure; check tokens using <bf/ctokens/ and
+optionally obtain new tokens using <bf/clog/. Or inconsistencies between the
+data cached on the client and the actual data stored on the server; this will
+reveal itself as an inconsistent object during subsequent reintegration.
+
+<item> Lost connections.<p>
+Sometimes the client does not receive a prompt reply from an accessible
+server, and marks the server as dead. This will ofcourse disconnect the volume
+if the last server is lost. Once every five minutes, the client automatically
+verifies connectivity with all known servers, and can thus recover from lost
+connections. However, this action can also be triggered by the user by
+excecuting the <bf/cfs checkservers/ command.
+
+If <bf/cfs checkservers/ reports that servers are unreachable, it might be
+interesting to check with <bf/cmon/ if the server is responding at all, since
+we might be faced with a crashed server. When a server was considered
+unreachable, but is successfully contacted after `cfs checkservers',
+reintegration will automatically start (when a user has tokens, and there are
+no inconsistencies).
+</itemize>
+
+<bf/Volume is write-disconnected./<p>
+
+<em/Write-disconnected operation/ is used as often as
+<em/weakly connected mode/ to describe this volume state, and they are
+effectively the same. This is the special situation where a client observes a
+weak connectivity with a server, and therefore forces the associated volumes
+in weakly connected mode. Weakly connected volumes postpone writing to the
+server to significantly reduce waiting on a slow network connection. Read
+operations are still serviced by the local cache and the servers, as in fully
+connected mode. Which is why this mode of operation is also called
+write-disconnected operation.
+<p>
+
+The write operations are effectively a continuous reintegration
+(<em/trickle-reintegration/) in the background. This mode, therefore, requires
+users to be authenticated and gives more chance for possible file conflicts.
+The following points are several reasons for write-disconnected operation.
+
+<itemize>
+<item> Weak network connectivity.<p>
+Venus uses bandwidth estimates made by the rpc2 communication layer to decide
+on the quality of the network connection with the servers. As soon as the
+connectivity to one of the servers drops to below the weakly connected
+treshhold (currently 50 KB/s), it will force all volumes associated with that
+server into weakly-connected mode. The <bf/cfs wr/ command can be used to
+force the volumes back into fully connected mode, and immediately reintegrate
+all changes.
+
+When the user was not authenticated, or conflicts were created during the
+write-disconnected operation, the user must first obtain proper authentication
+tokens or repair any inconsistent objects before the volume becomes fully
+connected again. Here again <bf/codacon/ is an invaluable tool for obtaining
+insight into the client's behaviour.
+
+<item> User requested write-disconnect mode.<p>
+Users can ask venus to force volumes in write-disconnected mode, exchanging
+high consistency for significantly improved performance. By using the
+<tt/-age/ and <tt/-time/ flags on the <bf/cfs wd/ commandline, some control is
+given about the speed at which venus performs the trickle-reintegration.
+For instance, to perform the trickle-reintegrate more quickly than the
+default, where only mutations to the filesystem older than 15 minutes are
+reintegrated. You could use <bf/cfs wd -age 5/, which will reintegrate
+all mutations older than 5 seconds.
+
+<item> Pending reintegration.<p>
+When a volume is write-disconnected, it will stay write-disconnected until a
+user properly authenticates using <bf/clog/.
+
+</itemize>
+
+</sect2>
+
+<sect2>More problems.<p>
+
+<descrip>
+<tag>Trying to access a file returns <em/Connection timed out/ (ETIMEDOUT).</tag>
+
+The main reason for getting <em/Connection timed out/ errors is that the volume
+where the file is located is disconnected from the servers. However, it can
+also occur in some cases when the client is in write-disconnected mode, and
+there is an attempt to read a file which is open for writing. See
+<ref id="Disconnections" name="Volume is disconnected/Volume is write-disconnected">
+for more information. 
+
+<tag/Commands do not return, except by using ^C./
+- venus crashed
+
+<tag/Client crashes when creating a file./
+- (write-)disconnected mode.
+  
+<tag>Server crashed after updating files in <tt>/vice/db</tt>.</tag>
+- inconsistent/bad data
+  check updateclient/server
+  restart codaserver
+  
+<tag/Users cannot authenticate or created volumes are not mountable./
+- auth2/updateclient/server not running
+</descrip>
+</sect2>
+</sect1>
+
+<sect1>Advanced Troubleshooting<p>
+
+<sect2>with rpc2tcpdump
+
+</sect2>
+
+<sect2>with gdb<p>
+
+</sect2>
+
+
+
+
+<sect> Building Coda <p>
+
+As a file system, Coda has several major components that need to be built:
+
+<itemize>
+<item> Kernel code on the client
+<item> The cache manager Venus on the client
+<item> The fileserver
+<item> Utilities for client and server administration.
+</itemize>
+
+<sect1> Building on Linux <p>
+
+<sect2> Building the kernel module <p>
+
+We now have a reaonably flexible method to build kernel modules. You
+can build the module for a kernel which you are not running at the
+time of the build.
+
+First of all get the linux-coda-?.?.?.tgz archive from
+<tt>ftp://ftp.coda.cs.cmu.edu/pub/coda/src/</tt>.  You can unpack this
+anywhere on your target system.
+
+
+
+<bf/Prepare the kernel tree/
+
+You do need a kernel tree handy, to give the module header
+information.  To get ready: 
+<tscreen>
+<verb>
+make oldconfig
+make dep
+</verb>
+</tscreen>
+
+In the top directory of linux-coda build the coda.o module:
+<tscreen>
+<verb>
+make config  --- answer the questions
+make coda.o
+su
+make install
+depmod -a
+</verb>
+</tscreen>
+
+
+<bf/Notes/
+<itemize>
+<item>  If you build for a running kernel, you must still have a source 
+tree for that Linux release, otherwise the headers cannot be found.
+However, that source tree doesn't need modversions.h etc.
+
+<item>  We don't actively maintain 2.0 code anymore.  The 2.1 code is
+preferred, but not yet perfect.  
+</itemize>
+
+
+
+<sect2> Building the userlevel code <p>
+
+Coda builds most easily on <em/glibc/ systems.  We do not actively
+maintain the <tt/libc/ variant anymore.  You will need several
+libraries to link the Coda binaries, and include files from some of
+the lib???-devel packages.  Readline and termcap are probably the most
+important ones.
+
+To build:
+<itemize>
+<item>Unpack <tt>coda-?.?.?.tgz</tt>.  
+<item>./configure --prefix=/usr
+<item> make  (make coda for versions 4.6 and older)
+<item> make client-install
+<item> make server-install
+</itemize>
+
+
+<sect1>	Building on FreeBSD <p>
+
+<sect2> Building a Whole Kernel <p>
+
+The Coda kernel files are in the FreeBSD -current kernel sources.  All
+you need to do to get a Coda capable kernel is to build a
+configuration that includes Coda.  The lines to enable Coda are not
+in the GENERIC.  There are several Coda lines in the LINT file that
+you need to copy.
+In the i386/conf directory type:
+<tscreen>
+<verb>
+grep -i coda LINT
+</verb>
+</tscreen>
+It currently gives:
+<tscreen>
+<verb>
+# Coda stuff:
+options		CODA			#CODA filesystem.
+pseudo-device	vcoda	4		#coda minicache <-> venus comm.
+</verb>
+</tscreen>
+Add these lines (or whatever the <tt/grep/ yields) to the GENERIC kernel
+configuration or your standard personal configuration.  You might also
+want to turn on DDB and BPF.
+<p>
+I'll assume you call the new config file CODA.  You type:
+<tscreen>
+<verb>
+config CODA
+</verb>
+</tscreen>
+<p>
+Then <tt/cd/ to the build area and do a <tt/make/:
+<tscreen>
+<verb>
+cd ../../compile/CODA
+make
+</verb>
+</tscreen>
+<p>
+Finally, as root install the kernel with:
+<tscreen>
+<verb>
+make install 
+</verb>
+</tscreen>
+
+<sect2> Building an LKM <p>
+
+Alternatively, you could just build an lkm for Coda and insert it
+into the kernel.  To do that you:
+<tscreen>
+<verb>
+cd /usr/lkm/coda
+</verb>
+</tscreen>
+and type:
+<tscreen>
+<verb>
+make
+make install
+</verb>
+</tscreen>
+<p>
+This will build coda_mod.o and copy it to /lkm.  You load it
+by typing:
+<tscreen>
+<verb>
+modload -v -e coda_mod -o /var/run/lkm.coda /lkm/coda_mod.o
+</verb>
+</tscreen>
+<p>
+Remember, when using an lkm:
+<itemize>
+<item>	<em>You must boot /kernel not /kernel.old or /kernel.&lt;something&gt;</em>
+<item>	<em>There are no symbols available for debugging.</em>
+</itemize>
+
+<sect2> Building Coda: The Package Way <p>
+<tscreen>
+<verb>
+cd /usr/ports/net/coda_client
+make install
+cd /usr/ports/net/coda_server
+make install
+</verb>
+</tscreen>
+<p>
+<bf/NOTE:/ The client and server each need about 85Meg for the work area
+and another 15Meg to install.  They are compiled -g for debugging.
+
+<sect2> Building Coda: The Bleading Edge Way <p>
+
+First, you need several external packages to build coda: <tt/gnu make/,
+<tt/gdbm/, <tt/readline/, and <tt/perl/.
+<p>
+You can grab any of our (latest) sources from <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/src"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/src"
+>.
+For this example, I'll assume that you have obtained sources
+for Coda release 4.6.6.
+<bf/NOTE:/ On our ftp site there are also beta, alpha, and less stable
+source releases available for the daring.<p>
+Untar the source into your favorite build area.
+(I am assuming this is <tt>/usr/coda</tt>.)
+<tscreen>
+<verb>
+tar zxfv coda-4.6.6.tgz -C /usr/coda
+</verb>
+</tscreen>
+<p>
+<tt/Cd/ to <tt>/usr/coda</tt> 
+and
+<tscreen>
+<verb>
+mkdir obj
+</verb>
+</tscreen>
+This is where we will build the binaries.  Now <tt/cd/ into <tt/obj/ and type:
+<tscreen>
+<verb>
+../coda-4.6.6/configure
+</verb>
+</tscreen>
+This will use the gnu configure system to configure and to shadow the sources that were
+installed in /usr/coda/coda-4.6.6.
+<p>
+Finally, <em/assuming you named the gnu make, gmake/, type:
+<tscreen>
+<verb>
+gmake coda
+</verb>
+</tscreen>
+<p>
+To install the client suite type:
+<tscreen>
+<verb>
+gmake client-install
+</verb>
+</tscreen>
+<p>
+To install the server suite type:
+<tscreen>
+<verb>
+gmake server-install
+</verb>
+</tscreen>
+
+<sect1>	Building on NetBSD <p>
+
+<sect2> Building a Whole Kernel <p>
+
+The Coda kernel files are in the NetBSD -current kernel sources.  All
+you need to do to get a Coda capable kernel is to build a
+configuration that includes Coda.  The lines to enable Coda may not be
+in your configuration.  They should be in GENERIC, though they may be
+turned off.  Enable them and/or copy them to your configuration file.
+They should look like.
+<tscreen>
+<verb>
+file-system     CODA                     # Coda File System
+pseudo-device   vcoda            4       # coda minicache <-> venus comm.
+</verb>
+</tscreen>
+But whatever is in GENERIC will be more up to date.
+<p>
+I'll assume you call the new config file CODA.  You type:
+<tscreen>
+<verb>
+config CODA
+</verb>
+</tscreen>
+<p>
+Then <tt/cd/ to the build area and do a <tt/make/
+<tscreen>
+<verb>
+cd ../compile/CODA
+make
+</verb>
+</tscreen>
+<p>
+Then just copy <tt/netbsd/ to root.
+
+<sect2> Building an LKM <p>
+
+Alternatively, you could just build an lkm for Coda and insert it
+into the kernel.  To do that you:
+<tscreen>
+<verb>
+cd /usr/sys/lkm/vfs/coda
+</verb>
+</tscreen>
+and type:
+<tscreen>
+<verb>
+make
+make install
+</verb>
+</tscreen>
+<p>
+This will build coda.o and copy it to /usr/lkm.  You load it
+by typing:
+<tscreen>
+<verb>
+modload -v -e coda_lkmentry -o /var/run/lkm.coda /usr/lkm/coda.o
+</verb>
+</tscreen>
+<p>
+Remember, when using an lkm:
+<itemize>
+<item>	<em>You must boot /netbsd not /netbsd.old or /netbsd.&lt;something&gt;</em>
+<item>	<em>There are no symbols available for debugging.</em>
+</itemize>
+<sect2> Building Coda: The Package Way <p>
+<tscreen>
+<verb>
+cd /usr/pkgsrc/net/coda_client
+make install
+cd /usr/pkgsrc/net/coda_server
+make install
+</verb>
+</tscreen>
+<p>
+NOTE: The client and server each need about 85Meg for the work area and another 15Meg
+to install.  They are compiled -g for debugging.
+
+<sect2> Building Coda: The Bleading Edge Way<p>
+
+First, you need several external packages to build coda: <tt/gnu make/,
+<tt/gdbm/, <tt/readline/, and <tt/perl/.
+<p>
+You can grab any of our (latest) sources from <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/src"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/src"
+>.
+For this example, I'll assume that you have obtained sources
+for Coda release 4.6.6.
+<bf/NOTE:/ On our ftp site there are also beta, alpha, and less stable
+source releases available for the daring.<p>
+Untar the source into your favorite build area.
+(I am assuming this is <tt>/usr/coda</tt>.)
+<tscreen>
+<verb>
+tar zxfv coda-4.6.6.tgz -C /usr/coda
+</verb>
+</tscreen>
+<p>
+<tt/Cd/ to <tt>/usr/coda</tt>
+and
+<tscreen>
+<verb>
+mkdir obj
+</verb>
+</tscreen>
+This is where we will build the binaries.  Now <tt/cd/ into <tt/obj/ and type:
+<tscreen>
+<verb>
+../coda-4.6.6/configure
+</verb>
+</tscreen>
+This will use the gnu configure system to configure and to shadow the sources that were
+installed in /usr/coda/coda-4.6.6.
+<p>
+Finally, <em/assuming you named the gnu make, gmake/, type:
+<tscreen>
+<verb>
+gmake coda
+</verb>
+</tscreen>
+<p>
+To install the client suite type:
+<tscreen>
+<verb>
+gmake client-install
+</verb>
+</tscreen>
+<p>
+To install the server suite type:
+<tscreen>
+<verb>
+gmake server-install
+</verb>
+</tscreen>
+
+<sect1> Building a Client on Windows 95 <P>
+
+
+<bf>WARNING:</bf>
+The software provided to run Coda on Windows 95 is an early pre-alpha
+snapshot, made available to those interested.  Coda runs kernel level
+code and priviliged processes which can cause damage to your system.
+Backup all data before playing with Coda.
+
+Coda for Windows was made possible through a major effort by Michael
+Callahan <tt>mjc@stelias.com</tt>.  Michael extended the DOS protected
+mode environment with memory mapping and TCP/IP socket support (this
+involves both Windows kernel support as well as low level support in
+DJGPP start libraries). He also wrote a kernel module for Coda.
+Michael's work was further debugged, extended and packaged by the Coda
+team.
+
+<bf>Short rationale</bf>
+
+Why DOS applications??  It would seem more straightforward to
+implement the Coda client cache manager, a user level program named
+Venus, as a Win32 application.  Sadly on Windows 95 we ran into the
+following (fairly well known) problem.  When a user application calls
+a Win32 file system call, the application may acquire a mutex in a
+win16 system dll.  The request should reach the kernel, and make its
+way up to Venus.  Venus is then unable to service the request because
+it cannot grab the mutex. Deadlock results. (See Schulman's,
+Unauthorized Windows 95, IDG.) 
+
+Implementing all of Venus as a kernel level cache manager seemed an
+invitation for disaster.  Instead, by running the cache manager in a
+virtual DOS machine, as a DOS Protected Mode Interface application,
+one can bypass these problems, since such applications do not share
+the Windows dynamic libraries which gain the mutex.  The price of
+following this path is high.  There was no freely available socket
+support for such DPMI applications and no memory mapping support.
+These are provided by Michaels VXD's and standard library calls are
+now incorporated in the DJGPP toolchain.
+
+
+<sect2> Building the user level code <p>
+
+What do you need: 
+
+<enum>
+<item>
+a Linux machine with a few 100M of free space.
+<item>
+download the tool chains made available under: <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/tools/"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/tools/{95,win32}"> 
+<item>
+You need the rpms for:
+<itemize>
+<item> djgpp package.
+<item> djgpp-win95ext.
+<item> cygwin.
+<item> libgdbm-nt.
+<item> gdb-djgpp a remote debugging environment for DPMI applications. 
+</itemize>
+<item>It is highly recommended to set up Samba to share Linux
+generated binaries with the Windows box. 
+</enum>
+
+Get the latest tarball of Coda sources. Example: <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/coda-?.?.?.tgz."> 
+
+You can rebuild Venus under Linux with 
+<tscreen>
+<verb>
+./configure --host=windows95 
+make
+</verb>
+</tscreen>
+and the client utilities and server with 
+<tscreen>
+<verb>
+./configure --host=nt
+</verb>
+</tscreen>
+The Venus built here is for NT and is not usable on Win95. 
+
+<sect2> Building the kernel level code (VXDs) <p>
+
+What do you need:
+<itemize> 
+<item> Visual C++ 5.0 (with Internet Explorer).
+<item> MS assembler 6.11. 
+<item> The Win95 DDK (comes with professional MSDN). 
+<item> You also need to download a collection of header files vxdtdi.zip for networking from. 
+<URL
+URL="ftp://ftp.microsoft.com/developr/drg/WinSock/MS-Extensions/VXDTDI.ZIP"
+NAME="ftp://ftp.microsoft.com/developr/drg/WinSock/MS-Extensions/VXDTDI.ZIP."> 
+</itemize>
+
+<bf>Note:</bf>The 95DDK needs the VC2.0 linker, which is on the 95DDK in the directory MSVC20 (also get the files Link.err and DBI.DLL, that will be needed by the linker). You'll also need the latest MS assembler 6.11 which is on the 95DDK in the directory MASM611C.
+ 
+The sources for the VxD's you will build are in: <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/vc95.zip"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/vc95.zip."> 
+To build sock.vxd you'll need the header files provided by microsoft
+and can be found in VXDTDI.ZIP.  You'll have to learn how to build
+VxDs, which can be done from Developer Studio:
+
+<itemize>
+<item> Change the path of the Linker in all .mak files
+<item> In the MS-Studio environment (options) add:
+<itemize>
+<item> executable path of the assembler 6.11
+<item> include path of the 95DDK inc32 (Inc32)
+<item> include path of the 95DDK inc16 (Inc16)
+<item> lib path of the 95DDK (lib)
+<item> include path where VXDTDI Headers are
+<item> include path of the 95DDK (Block/Inc)
+</itemize>
+</itemize>
+
+Use the Developer Studio Project "95projects". Build the VXDs one by one.
+
+(If you fancy finishing off Michael's nice codastart project, make sure to let us
+ know! It is not essential for now.)
+
+<sect2> Installing Coda after build <p>
+<itemize>
+<item> Create the directories C:\usr\coda\{bin, etc, spool, venus.cache}. 
+<item> Put Venus.exe Relay.exe, Mount.exe, Unmount.exe, sock.vxd,
+mc.vxd, mcstub.vxd, mmap.vxd in the directory called C:\usr\coda\bin. 
+<item> Create the file C:\usr\coda\etc\vstab which includes a line like 
+<tscreen>
+<verb>/coda:/dev/cfs0:<ip adress of server 1>,..,<ip adress of server n>,<cachesize>:1
+</verb>
+</tscreen> 
+Use
+<tscreen>
+<verb>
+/coda:/dev/cfs0:128.2.209.213:100000:1
+</verb>
+</tscreen> 
+to work with the CMU-testserver. 
+<item> Create the file C:\usr\coda\venus.cache\myhost which includes your
+IP adress.
+<item> Add the two VXDs mcstub.vxd, mmap.vxd to the C:\Windows\System.ini file 
+in the section 386Enh by typing "device=C:\usr\coda\bin\mcstub.vxd". 
+<item> Add the path <tt>c:\usr\coda\bin</tt> to the PATH environment variable 
+in <tt>c:\autoexec.bat</tt>.
+<item> Restart the computer. 
+</itemize>
+
+You are now at the point where the installer would have left you. To
+start Coda read the XXXX Marc put in a REF. 
+
+
+<sect1> Building and installing a Coda Server for NT <p>
+
+<bf>Note:</bf> At present there is no client kernel source code
+available yet. We will release some very experimental binaries
+soon. When are a little further with it, we will release the sources,
+of course.
+
+You can however build a Venus (which you can with the supplied kernel
+Coda FSD for NT) and you can build a server.
+
+Coda has alpha support for Coda servers running on NT and Windows
+95. The Win32 binaries are constructed using the Cygnus Win32 kit,
+which effectively translates Unix system calls to Win32 calls.
+
+We build the Win32 binaries on Linux workstations using a cross
+compiler, just for our convenience.  At the moment this is not for the
+faint of heart, since quite a few things have to be done by hand. Of
+course we encourage playing and will try to help and fix bugs.
+
+<sect2> The build process<p>
+
+
+You will need:
+<enum>
+<item> Get the cross compiling kit: <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/cygwin-b19_glibc-2.i386.rpm"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/cygwin-b19_glibc-2.i386.rpm."> 
+
+<item> <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/libgdbm-nt-1.7.3-2.i386.rpm"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/libgdbm-nt-1.7.3-2.i386.rpm.">
+(These are rpms for RedHat 5.0. Sources are available of course.). 
+<item> Get the coda-?.?.? tar ball <URL
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/src"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/src."> 
+<item> Unpack & build
+<tscreen>
+<verb>
+./configure --host=nt
+make coda
+</verb>
+</tscreen>
+<item> drink coffee, ignore or, better even, fix the compiler
+warnings.
+</enum>
+
+Native building should be possible; you'll have to make a few changes
+to configs/coda.m4 and create a new configs/Makeconfig.ntnative file;
+then run autoconf and get cracking. But don't you dare send us patches
+with ^M characters made by Windoze machines!
+
+
+<sect2>Manual configuration after building<P>
+
+<enum>
+<item> Install into an area for NT binaries on your Linux box still
+(drink coffee, ignore or better even fix the compiler warnings)
+
+Put the binaries in a suitable place using:
+make BINDIR=TARGET/bin SBINDIR=TARGET/bin server-install
+
+<item> get samba running on that RH machine and export the build area for
+Coda.
+
+<item> get a patch to <em/select/ and replace 
+<tscreen>
+<verb>
+C:\Cygnus\B19\H-i386-cygwin32\bin\cygwinb19.dll
+</verb>
+</tscreen>
+
+with the one from:
+<URL URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/support/nt-patches"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/support/nt-patches">
+
+<item> get bash going (its in the Cygwin package, see the install section).
+
+<item> organise your mountpoints for Cywin.  Find a large directory say
+<tt>C:\coda</tt>
+that can serve as your "Coda root" on NT and type
+
+<tscreen>
+<verb>
+mount -b //C/coda /
+</verb>
+</tscreen>
+The -b, for binary mounting is vital. 
+
+<item> We need /bin/sh in several places.
+
+<tscreen>
+<verb>
+mkdir /bin /vice /rvm /vicepa /tmp
+cp //C/Cygnus/B19/H-i386-cygwin32/bin/bash /bin/sh
+export PATH=/bin:$PATH
+</verb>
+</tscreen>
+
+<item>  install your Coda stuff.  Suppose the coda-4.5.1 area is a mapped
+drive on the NT machine with drive letter H:
+
+In bash: 
+
+cd //H/
+<item>
+Copy all the .exe files you built above to /bin
+</enum>
+
+
+
+
+</article>

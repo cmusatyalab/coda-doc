@@ -1,0 +1,107 @@
+This is to summarize the security discussion yesterday.
+
+Terms:
+
+- local id: an id assigned by the OS
+
+- CodaCred: an id passed to Venus by the OS hopefully with platform 
+independent information containing the
+  - PAG
+  - fsuid or euid
+  - real uid
+of the calling process.
+
+Purpose: PAG - see earlier discussion, and below
+         euid, fsuid - the identity of the caller to be used in matching a
+                       Codacred against a token
+         ruid  - passed for special situations (do we have any?)
+
+For each OS the Coda kernel module will provide these three objects for
+stuffing into a Codacred.  Venus will not contain any platform dependent
+code for authentication, authorization and capabilities.
+
+- codaid: the identity of the user as determined by the auth2 server and
+as used by the fileserver.  There will be no codaid corresponding to
+root.  The priviliged codaid's are the members of the Coda group
+system:administrators.
+
+- clog will pass a session key and Local id using pioctl's to Venus.
+Associated with this collection will be:
+          - a Coda user id to be used in granting permission for
+            operations
+          - an indication on wether to honour the pag or euid/fsuid of the
+            caller.  We will call the token euid or PAG based depending on
+            wether Venus matches the PAG or euid of the caller to find the
+            token.
+
+
+conclusions
+-----------
+          
+a) Coda (server and client) will grant permissions based on a codaid
+associated with the caller, but in exceptional cases Venus will take into 
+account other information passed in the CodaCred. The fileserver will not
+ever know anything apart from the Codaid of the caller, and use this in
+conjunction with the authenticated conections. If no codaid is found
+System:AnyUser will be used. The localid or Codacred will not be used but 
+for identifying the codaid of the caller.
+
+b) Coda will not maintain a 0 id, to avoid any similarity to root.  Files
+will be created with the codaid of the caller.  
+
+c) A chown operation to any user should be allowed, like any other change
+of attributes, but should squash a setuid bit.
+
+d) Coda will never assign suid bits to files not owned by root. The 
+combination of holding localid root and having system:administrator tokens
+will allow the user to set the suid bit on a file owned by root. Coda will
+only enforce the possesion of a system:administrator token.
+
+e) Root will be allowed to gain Coda tokens but:
+  - it will be made possible for root, to conveniently start a new pag and
+    have tokens for the new pag only.
+
+  - a warning will be issued, reminding root that tokens may give
+    priviliges to other processes running with root localid.
+
+f) To allow for daemons like samba to gain correct permissions for users  
+who have clogged on the Coda client running the samba server, an euid in  
+the cred is used to find the token of the user.  Such users of Samba
+like machines must use the "euid - match" option in clog, that is a
+non-pag based clog.
+
+This means that someone who executes "su" with euid based tokens will lose
+his previous tokens.
+
+Depending on the behaviour of programs like "su" this may or may not be
+different for PAG based tokens depending on wether su executes a "newpag" 
+(formerly setpag) system call.
+
+g) A machine may use a Coda account with a password in a root owned read
+only file on the local disk to gain Coda tokens.
+
+h) New volumes will be created with ACL System:Administrator all,
+System:anyuser rl.  At present we will recommend a site policy of giving
+System:Administrators "all" rights for easy assistance with repair and
+resolution.
+
+i) Venus and Codasrv will have a "demo" flag which will grant all
+permissions to the user.  This will make it painless to try out
+disconnected operation.
+
+j) Venus will store sessions keys in RVM and not remove them until
+replaced with a new set.
+
+k) Venus will honour expired tokens when the client is disconnected.  
+
+l) Venus will use the codaid as the owner of the CML
+
+m) Update and volutil should use authenticated connections asap.
+
+n) Certain pioctl based operations such as hoard, cfs {flushcache,
+flushobject, mount etc} may seriously affect a coda installation.  In
+addition to having valid tokens in relation to filesystem objects
+affected, the user may be required to be
+ a) a system administrator (mount,unmount)
+ b) a system administrator _or_ root _or_ primary user: flush,
+    flushobject, hoard

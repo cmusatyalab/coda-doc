@@ -32,7 +32,7 @@ and soft core) to the <bf>system:coda</bf> group.  Add other Coda
 users to groups as appropriate.
 
 Execute 
-<tt>% pwd2pdb -p /vice/db/user.coda -g /vice/db/groups.coda &gt; /vice/db/vice.pdb</tt>
+<tt>% pwd2pdb -u /vice/db/user.coda -g /vice/db/group.coda &gt; /vice/db/vice.pdb</tt>
 
 to generate a Coda protection database.
 

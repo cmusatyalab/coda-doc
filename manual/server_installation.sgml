@@ -447,6 +447,7 @@ the auth server,  as well as the fileserver by typing:
 <tscreen><verb>
 /etc/rc.d/init.d/update.init start
 /etc/rc.d/init.d/auth2.init start
+/etc/rc.d/init.d/codasrv.init start
 </verb</tscreen>
 
 <tag/For FreeBSD:/
@@ -465,12 +466,14 @@ the auth server,  as well as the fileserver by typing:
 
 </descrip>
 
-The last thing that must be done if an SCM server was being
-setup so it will function is to create the root volume you specified in
-<tt>vice-setup</tt> to be mounted by the client software:
-<tscreen><verb>                
-createvol_rep coda:root E0000100 /vicepa
+One final step is needed to make the SCM server function. Use
+the root volume you specified in vice-setup in place of 
+your-root-volume. This step creates the volume, which will 
+be mountable by the client software.
+<verb><tscreen>
+       createvol_rep your-root-volume E0000100 /vicepa
 </verb></tscreen>
+
 Once you have done this, check that the server has started by viewing the
 log:
 <tscreen><verb>
@@ -743,7 +746,7 @@ found in the directory <tt>/vice/db</tt> as
 well as in Appendix <ref id="ExampleFiles" name="XXX">.  
 <item>
 
-<tt>/usr/sbin/pwd2pdb -u user.coda -g groups.coda > vice.pdb</tt>
+<tt>/usr/sbin/pwd2pdb -u user.coda -g group.coda > vice.pdb</tt>
 <item>
 <tt>/vice/bin/pcfgen vice.pdb</tt> which will create vice.pcf.
 <item>
