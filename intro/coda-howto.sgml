@@ -9,7 +9,7 @@ Robert Baron <tt/rvb@cs.cmu.edu/,
 Jan Harkes <tt/jaharkes@cs.cmu.edu/,
 Marc Schnieder <tt/smarc@cs.cmu.edu/.
 </author>
-<date>v0.50, Dec 12, 1998
+<date>v1.00, Jan 14, 1998
 
 <abstract>
 This HOWTO should give you help in running Coda.  We try to cover
@@ -2080,8 +2080,8 @@ NAME="ftp://ftp.microsoft.com/developr/drg/WinSock/MS-Extensions/VXDTDI.ZIP.">
 <bf>Note:</bf>The 95DDK needs the VC2.0 linker, which is on the 95DDK in the directory MSVC20 (also get the files Link.err and DBI.DLL, that will be needed by the linker). You'll also need the latest MS assembler 6.11 which is on the 95DDK in the directory MASM611C.
  
 The sources for the VxD's you will build are in: <URL
-URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/vc95.zip"
-NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/vc95.zip."> 
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/win95-coda-5.0.0.zip"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/win95-coda-5.0.0.zip."> 
 To build sock.vxd you'll need the header files provided by microsoft
 and can be found in VXDTDI.ZIP.  You'll have to learn how to build
 VxDs, which can be done from Developer Studio:
