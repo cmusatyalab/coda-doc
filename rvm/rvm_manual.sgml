@@ -43,10 +43,11 @@
 <!entity mrdsinit SYSTEM "man/man1/rdsinit.sgml">
 <!entity mrvmutl  SYSTEM "man/man1/rvmutl.sgml">
 
-<!entity % latex "INCLUDE">
-<!entity % html  "IGNORE">
-<![ %latex; [ <!entity newpage PI "\newpage"> ]]>
-<![ %html; [ <!entity newpage PI "<HR>"> ]]>
+<!ENTITY % fmttex "IGNORE">
+<!ENTITY % fmthtml "IGNORE">
+
+<![ %fmttex; [ <!entity newpage PI "\newpage"> ]]>
+<![ %fmthtml; [ <!entity newpage PI "<HR>"> ]]>
 <!entity newpage PI "">
 ]>
 

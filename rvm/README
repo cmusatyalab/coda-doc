@@ -79,31 +79,6 @@ twice to resolve all the references.
 doesn't quite work.  So, I recommended you do them seperately as
 above.)
 
-[3] To generate html documents
-
-There are different entities for the special processing instruction
-(PI) of explicit pagebreak for latex and html.  They are defined as
-conditional text.  But you still need to edit the rvm_manual.sgml file
-to activate it.  Luckily, you only need to edit one place (two lines)
-for this activation.  Essentially, you swap the word "INCLUDE" and
-"IGNORE".  Use your editor (e.g., vi or emacs) and change the
-following two lines from (they located at the very beginning of the
-file rvm_manual.sgml)
-
-<!entity % latex "INCLUDE">
-<!entity % html  "IGNORE">
-
-to
-
-<!entity % latex "IGNORE">
-<!entity % html  "INCLUEE">
-
-(The former two lines are good for generating latex document,
-while the latter two lines are good for generating html document.)
-
-After that, you can run sgml2html as usual.  That is,
-
-  $ sgml2html rvm_manual
 
 [4] To generate man pages
 

@@ -22,10 +22,12 @@ MultiRPC also provides the same correctness guarantees as  RPC2 except in the ca
 
 To illustrate the use of MultiRPC, we revisit Example <ref id="Example-rtime" name="XXX"> from Chapter <ref id="Intro" name="XXX"> and Example <ref id="Example-rcat" name="XXX"> from Chapter <ref id="SFTPChapter" name="XXX">. The interface specification files (<em>rtime.rpc</em> and <em>rcat.rpc</em>) and the files for the server code (<em>rtime&lowbar;srv.c</em> and <em>rcat&lowbar;srv.c</em>) remain unchanged.  Only the client files (<em>rtime&lowbar;clnt.c</em> and  <em>rcat_lowbar;clnt.c</em>) have to be modified.
 
-<sect1>MultiRPC Client for Example <ref id="Example-rtime" name="XXX"> (<em>in file multi&lowbar;rtime&lowbar;clnt.c</em>) <label id="MultiExample1"> </p>
+<sect1>MultiRPC Client for Example <ref id="Example-rtime" name="XXX"> (<em>in file multi&lowbar;rtime&lowbar;clnt.c</em>) <label id="MultiExample1"> <p>
 
-This example specifies no handler, and does not perform any side effects. The client will prompt for the number of servers to which the request is to be made, and for their connection ids.  Note that <em>RPC2_MultiRPC<em> is used  even when only
-one server is requested. 
+This example specifies no handler, and does not perform any side
+effects. The client will prompt for the number of servers to which the
+request is to be made, and for their connection ids.  Note that
+<em>RPC2_MultiRPC</em> is used even when only one server is requested.
 
 <tscreen>
 @include(multi&lowbar;rtime&lowbar;clnt.c.mss)
