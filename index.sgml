@@ -9,8 +9,6 @@
 
 <article>
 
-
-
 <title> Coda Documentation
 <author> old and new
 <date>March 1998
@@ -27,6 +25,9 @@ documents.
 The following will be your primary resource for getting up and running:
 <itemize>
 <item> <url url="coda-howto.html"  name="The Coda HOWTO">
+<item> <url url="pdbtool-mini-howto.html"  name="pdbtool mini-HOWTO">
+describes the new user administration tool introduced in coda-5.2, and how to
+upgrade existing servers to the new database format.
 <item> <url url="../../ljpaper/lj.html"  name="Introductory Paper about Coda">
 </itemize>
 

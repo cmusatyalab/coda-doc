@@ -678,6 +678,12 @@ This leaves us with a usable range of 1-126 and 128-245 for server identifiers.
 
 <tag/secret tokens/two secret tokens of _exactly_ 8 characters (eg
 elephant).
+
+<tag/Coda administrator/The uid and name for the user that will get
+administrative priviledges on the Coda Filesystem. This user should NOT be the
+root user (uid 0). The authentication password for this user will be set
+to `changeme', and can be changed later using either <tt/cpasswd -h &lt;scm
+hostname&gt;/ or <tt/au -h &lt;scm hostname&gt; cp/.
 </descrip>
 
 <bf/NOTE:/ you are now ready to run the setup script.  We
@@ -743,7 +749,7 @@ Determine with <tt/ps/ that <tt/codasrv/, <tt/auth2/, <tt/rpc2portmap/,
 
 During your configuration session, you commmunicated a name for the
 root volume to the program.  This root volume now needs to be
-craeted: the precise command to do this was printed out by the
+created: the precise command to do this was printed out by the
 vice-setup program, below we assume your file space is in
 <tt>/vicepa</tt>, and your root volume is <tt/coda:root/.
 

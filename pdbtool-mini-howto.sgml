@@ -1,0 +1,150 @@
+<!doctype linuxdoc system>
+
+<article>
+
+<title>User Administration in Coda 5.2.x</title>
+
+<author>
+Jan Harkes <tt/jaharkes@cs.cmu.edu/
+</author>
+<date>v0.02</date>
+
+<sect>User Administration in Coda 5.2.x <p>
+
+As of 5.2.x the user and group administration tools and databases have been
+replaced. Now, instead of editing `user.coda' and `group.coda', and
+then converting them with <em>pwdtopdb</em> and <em>pcfgen</em> has been replaced
+by the new <em>pdbtool</em> program. This text gives a quick and dirty
+introduction in working with the new tool, and ends with some notes on how to
+upgrade pre-5.2.x servers.
+
+<sect1>Short introduction to pdbtool <p>
+
+The pdbtool is an interactive command to manipulate and query user and
+group information. The most commonly used commands in the <em>pdbtool</em> are:
+
+<verb>
+    nui	&lt;username&gt; &lt;userid&gt;	     -- create a new user, with the specified id.
+    ng &lt;groupname&gt; &lt;ownerid&gt;     -- create a new group, with the specified owner.
+    ci &lt;user/groupname&gt; &lt;newid&gt;  -- change the id of an existing user or group.
+    ag &lt;group-id&gt; &lt;user/groupid&gt; -- add a user/group to a group.
+    n &lt;user/groupname&gt;           -- list all information about the user or group.
+</verb>
+
+<bf>Note:</bf> User-ids are supposed to be positive integers, group-ids are
+negative integers.
+<p>
+For more information read the manualpage (pdbtool.8), which is included in the
+coda-doc-5.2.0 rpms and tarball, read the coda-HOWTO, or simply play around
+with the pdbtool's `help' command.
+
+<sect1>Example: adding a new user<p>
+
+This is a step-by-step example of the administrative steps involved in adding
+a new user to Coda. Here we assume that the host named `scm' is one that has
+the read-write copy of the databases. The new user is going to be added to the
+groups Users and Developers.
+
+<verb>
+root@scm# pdbtool
+pdbtool&gt; nui jan 768
+pdbtool&gt; n jan
+USER jan
+  *  id: 768
+  *  belongs to no groups
+  *  cps: [ 768 ]
+  *  owns no groups
+pdbtool&gt; n Users
+GROUP Users OWNED BY System
+  *  id: -221
+  *  owner id: 777
+  *  belongs to no groups
+  *  cps: [ -221 ]
+  *  has members: [ 22 178 184 303 545 697 822 823 835 894 712 738
+  *  777 901 902 ]
+pdbtool&gt; n Developers
+GROUP Developers OWNED BY System
+  *  id: -225
+  *  owner id: 777
+  *  belongs to no groups
+  *  cps: [ -225 ]
+  *  has members: [ 122 835 ]
+pdbtool&gt; ag -221 768
+pdbtool&gt; ag -225 768
+pdbtool&gt; n jan
+USER jan
+  *  id: 768
+  *  belongs to groups: [ -221 -225 ]
+  *  cps: [ -221 -225 768 ]
+  *  owns no groups
+pdbtool&gt; q
+</verb>
+
+This sequence has created the new user account, and added the account to the
+appropriate groups. Now in order to activate the account, we need to set an
+initial password with the authentication server.
+
+<verb>
+admin@anymachine$ au -h scm nu
+Your Vice Name: codaadmin
+Your Vice Password: ********
+New User Name: jan
+New User Password: newpassword
+</verb>
+
+To finish up, we can create a home volume, mount it, set the ACLs, and the
+user is set up. So all the user needs to do is change his password.
+
+<verb>
+root@scm# createvol_rep users:jan E0000100 /vicepa
+admin@anymachine$ cfs mkm /coda/usr/jan users:jan
+admin@anymachine$ cfs sa /coda/usr/jan jan all
+
+jan@anymachine$ cpasswd -h scm
+</verb>
+
+<sect1>Upgrading existing user.coda and group.coda databases<p>
+
+To upgrade the user and group databases to the new 5.2.x format, a script
+called <em>pwdtopdbtool.py</em> has been added to the distribution. You might
+need to alter the pathnames of <em>/vice/db/user.coda</em> and
+<em>/vice/db/group.coda</em>. Simply run this script on the SCM and it will
+parse out all entries from the old user and group files, and uses the pdbtool
+to create the new <em>prot_users.db</em> and <em>prot_index.db</em> files in
+/vice/db.
+<p>
+To distribute these files to the other servers, you should add the following
+to <em>/vice/db/files</em>.
+
+<verb>
+prot_users.db
+prot_index.db
+</verb>
+
+As long as there are pre-5.2 servers in the group, it is advised to stick to
+the old way of adding users, and use the <em>pwdtopdbtool.py</em> script to keep
+the new files in sync.
+
+<sect1>Upgrading from the coda.pdb/name.pdb databases used in 5.2.0/5.2.2<p>
+
+The initial release using the pdbtools used gdbm as the underlying data store.
+However we were unable to reliably use the resulting databases across
+heterogeneous servers. So we decided to switch to libdb 1.85.
+<p>
+
+There is no script available to automatically upgrade your gdbm databases to
+libdb 1.85 format. If you still have existing users.coda/groups.coda, simply
+run <em>pwdtopdbtool.py</em>.
+<p>
+Otherwise, you must extract all information using the old pdbtool BEFORE
+upgrading your SCM.
+<p>
+
+<verb>
+# echo list | pdbtool > full_pdb_dump
+</verb>
+
+However, it is not possible to easily use this dump to recreate the database.
+Everything needs to be re-added to the new pdb database by hand.
+
+</article>
