@@ -44,8 +44,8 @@ make DOCDIR=/usr/doc/coda-doc-@VERSION@ install
 /usr/man/man3/histo.3
 /usr/man/man3/timing.3
 
-/usr/man/man5/passwd_coda.5
-/usr/man/man5/user_coda.5
+/usr/man/man5/passwd.coda.5
+/usr/man/man5/user.coda.5
 /usr/man/man5/vsgdb.5
 /usr/man/man5/maxgroupid.5
 /usr/man/man5/backuplogs.5
@@ -54,7 +54,7 @@ make DOCDIR=/usr/doc/coda-doc-@VERSION@ install
 /usr/man/man5/dumplist.5
 /usr/man/man5/servers.5
 /usr/man/man5/vrdb.5
-/usr/man/man5/groups_coda.5
+/usr/man/man5/group.coda.5
 /usr/man/man5/volumelist.5
 /usr/man/man5/dumpfile.5
 /usr/man/man5/multicastagents.5
