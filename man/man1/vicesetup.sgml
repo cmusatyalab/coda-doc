@@ -7,19 +7,18 @@
 <bf>vice-setup</bf><P>
 
 <mansect>DESCRIPTION<P>
-<bf>vice-setup</bf> is actually a family of scripts designed to setup
-a Coda server based on question-answer responses.  <bf>vice-setup</bf>
-is designed to be called by the users, while the others are meant
-to be called from with <bf>vice-setup</bf>.  The most critical
-question asked (needed for the vice-setup family of scripts to work 
-properly) is:
+<bf>vice-setup</bf> user front-end to a family of scripts designed to setup
+a Coda server based on question-answer responses.  This avoids an otherwise
+tedius and error prone manual method.  The most critical
+question asked for the vice-setup family of scripts to work 
+properly is:
 <p>
 <tscreen><verb>
 Is this the master server, aka the SCM machine? (y/n) 
 </verb></tscreen>
 <p>
 Answering ``yes'' to this question causes the following 
-sequence of scripts to be called:
+sequence of scripts to be called from within <bf>vice-setup</bf>:
 
 <itemize>
 <item><bf>vice-setup-scm</bf>
@@ -28,7 +27,8 @@ sequence of scripts to be called:
 <item><bf>vice-setup-srvdir</bf>
 </itemize>
 <p>
-where as answering ``no'' causes only the following scripts to run:
+where as answering ``no'' causes only the following scripts to run
+from <bf>vice-setup</bf>:
 
 <itemize>
 <item><bf>vice-setup-rvm</bf>
@@ -39,31 +39,40 @@ where as answering ``no'' causes only the following scripts to run:
 <mansect>OVERVIEW<p>
 <descrip>
 
-<tag><bf>vice-setup</bf></tag> is designed to be called first. It performs the
+<tag><bf>vice-setup</bf></tag> is designed to be called directly by
+the administrator to setup a server. It performs the
 following tasks common to both SCM and non-SCM servers:
+
 <itemize>
+
 <item>Creates the directories <em>/vice,/vice/{backup,db,srv,vol}</em>
 and <em>/vice/vol/remote</em> if they do not already exist.
-<item>Sets up the authentication files needed by Coda for an SCM.
-<item>Sets up <em>/vice/db/files</em> to be distributed by
-<bf>updateclnt</bf> and <bf>updatesrv</bf> from the SCM.
-<item>Creates initial locking files under <em>/vice/vol</em>
-<item>Adds Coda port numbers to <em>/etc/services</em>.
-<item>Sets up the Coda server to start at system startup is so indicated.
+<item>Creates and sets up the authentication files needed for interserver
+and interclient communication.
+<item>Creates and sets up <em>/vice/db/files</em> which is a set of common
+Coda files distributed from the SCM via <bf>updateclnt</bf> and 
+<bf>updatesrv</bf>.
+<item>Adds Coda port numbers to <em>/etc/services</em> if not already 
+present.
+<item>Sets up the Coda server to start at system startup if so indicated.
 <item>Records the hostname in <em>/vice/hostname</em>.
+
 </itemize>
 
 <tag><bf>vice-setup-scm</bf></tag>
-This is only run if ``yes'' is give as an answer to the SCM question.
+This script is only run if ``yes'' is give as an answer to the SCM question.
+
 <itemize>
-<item>Prompts for the Coda Server id and Creates up the
-file <em>/vice/db/servers</em> with this information.
+
+<item>Prompts for a Coda Server ID in the range of 0 - 255,
+and Creates the file <em>/vice/db/servers</em> with this information.
 <item>Creates <em>/vice/db/scm</em> with the hostname of the SCM machine
 being setup.
 <item>Creates <em>/vice/db/VSGDB</em> with the root volume number
 ``E0000100''.
 <item>Prompts for the name of the root volume and stores this information in 
 <em>/vice/db/ROOTVOLUME</em>.
+
 </itemize>
 
 <tag><bf>vice-setup-user</bf></tag>
@@ -145,11 +154,14 @@ from within the scripts do not jump out and bark out you.  Instead,
 errors are easily missed while running the scripts and these errors 
 tend to come back and bite you later.
 
-<item>NOT QUIT RIGHT: If a non-SCM server is being setup, you still must respond
-with tokens to <bf>vice-setup</bf> when asked.  However, <bf>auth2</bf>,
-<bf>updateclnt</bf> and <bf>updatesrv</bf> must be started manually
-on a non-SCM to suck down the real versions of these files from
-the actual SCM.  This error in logic can be misleading.
+<item>If a non-SCM server is being setup, you still must respond
+with tokens to <bf>vice-setup</bf> when asked.  However, the 
+response must be identical to the SCM or  the ticket  files must be copied 
+from the SCM manually for inter-server communication to work correctly.
+
+<item><bf>auth2</bf>, <bf>updateclnt</bf> and <bf>updatesrv</bf> must be 
+started manually on a non-SCM to suck down the real versions of these files 
+from the actual SCM.  This error in logic can be misleading.
 
 <item>On non-SCM Servers, the following files on the SCM must be
 edited or copied from the SCM manually before running 
