@@ -6,17 +6,17 @@
 
 
 <mansect>SYNOPSIS<P>
-<bf>pwd2pdb</bf> -p &lt;userfile&gt; &lsqb; -g &lt;groupfile&gt; &rsqb; 
+<bf>pwd2pdb</bf> -u &lt;userfile&gt; &lsqb; -g &lt;groupfile&gt; &rsqb; 
 
 
 <mansect>DESCRIPTION<P>
-<bf>pwd2pdb</bf> will take a Coda user file and Coda group file,
-translate it to a Coda protection database, and output the database on
+<bf>pwd2pdb</bf> will take a Coda user file and a Coda group file and
+translate it to a Coda protection database. It will output the database on
 <em>stdout</em>.
 
-<bf>pwd2pdb</bf> supports the following options:
+<bf>pwd2pdb</bf> must be given the following options:
 <descrip>
-<tag><bf>-p</bf> <em>userfile</em></tag>Name of user file to
+<tag><bf>-u</bf> <em>userfile</em></tag>Name of user file to
 include the the protection database.
 <P></descrip>
 
@@ -33,6 +33,7 @@ mvdb (1), user.coda (5), group.coda (5), pcfgen (8)
 <mansect>AUTHOR<P>
 Joshua Raiff, 1993, Created man page
 
+Lesa Gresh, Peter Braam, 1998, modified
 
 
 
