@@ -4,6 +4,7 @@ create_container = ../../scripts/create_container2
 MANPAGEFILES = backup.man \
  	       dumpfile.man \
  	       dumplist.man \
+	       passwd_coda.man \
  	       groups_coda.man \
  	       maxgroupid.man \
  	       multicastagents.man \
