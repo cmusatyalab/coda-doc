@@ -617,6 +617,11 @@ mount.exe N:
 This maps the Coda filesystem to the <tt>N:</tt> drive.
 </enum>
 
+<bf/NOTE:/ In some installations the DPMI DOS Extender window suspends when 
+it is not active. In this case untick the window property Properties->Misc->
+Background->Always Suspend. If it is unticked, ticking and unticking it again
+might help.
+
 You are now ready to browse through the Coda filesystem using the explorer!
 
 <enum> 
@@ -1537,6 +1542,11 @@ It is only possible to mount coda when <tt>relay.exe</tt> and <tt>venus.exe
 </tt> are running. Do not type <tt>mount.exe n:</tt> before venus printed the 
 message <tscreen> <verb>venus starting...</verb></tscreen>
 
+In some installations the DPMI DOS Extender window, in which Venus
+is running suspends when it is not active. Because Venus serves the 
+<tt>mount.exe n:</tt> call, check your DOS Window settings. Untick the window 
+property Properties->Misc->Background->Always Suspend. If it is unticked, 
+ticking and unticking it again might help.
 
 <tag/Unable to shutdown Windows95./
 
