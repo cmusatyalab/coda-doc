@@ -1,0 +1,959 @@
+<!doctype linuxdoc system>
+
+<article>
+
+<!-- Title information -->
+
+<title>RVM Internals
+<author>Yui Wah LEE (Clement), <tt/clement+@cs.cmu.edu/
+<date>v0.9, 15 June 1997
+<abstract>
+This article documents the internals of Recoverable Virtual Memory
+(RVM) systems developed by Carnegie Mellon University.  This is a draft.
+</abstract>
+
+<!-- Table of contents -->
+<toc>
+
+<!-- %%%%%%%%%%%%%%%%%%%% new section %%%%%%%%%%%%%%%%%%%%  -->
+<sect> Overview of RVM internal structure
+<p>
+RVM is designed to be a <em/run-time library/ to be linked with an
+<em/external application/.  It allows the application to be benefited
+from <em/transactional/ support.  In particular, it allows operations
+on virtual memory to be <em/atomic/ and/or
+<em/persistent/, provided that the application declares its intention
+through the RVM application programming interface. 
+
+Figure <ref id="fig-overview"> shows the overview of the data space of
+an RVM application.  There are three important spaces:
+<em/virtual memory/, <em/data segment/ and <em/log/.
+
+Virtual memory is where the application manipulates its data.  RVM
+allows the application to declare <em/regions/ of virtual memory to be
+associated with regions in external data segments.  The data segments
+are the persistent backing store of the virtual memory regions: latest
+committed image of the virtual memory region has a copy in the data
+segments.  Since data segment is on stable storage (disk), it is
+persistent across program crashes.  Should the application crashes, it
+can always find those memory regions from the data segment.  The
+association of virtual memory regions with segment regions is called
+<em/mapping/.
+
+For performance reason, RVM does not write <em/directly/ the committed
+image of virtual memory regions back to the data segment.  Doing so
+would generate excessive 'seek' operations on the magnetic head of the
+disk where the data segment is stored, since the access pattern can be
+random.  Disk head seeks are expensive operation and should be
+minimized.  In the case of RVM, this is achieved by writting <em/new
+value/ of memory ranges as <tt/records/ in an <em/append-only/,
+<em/sequential/ log.  This is called <em/flush/ operation.  Log is
+also on stable storage (disk or battery-backed ramdisk).  Once the new
+values are written on log (flushed), they become persistent across
+program crashes.  From time to time, records on the log are processed
+and applied onto the data segment.  After that, the log space used by the
+the records can be re-claimed for further use. This is called <em/log
+truncation/.  Log truncation is necessary, without it the log will be
+filled up eventually:  for a finite memory region, repeated updates on
+it can create unbounded number of log records.
+
+<figure>
+  <eps file="overview">
+  <caption><label id="fig-overview">Overview
+  
+</figure>
+
+<!-- %%%%%%%%%%%%%%%%%%%% new section %%%%%%%%%%%%%%%%%%%%  -->
+<sect> RVM application programming interface
+<p>
+To facilitate our discussion, let first review briefly the RVM API.
+Details of RVM API can be found in the RVM manuals.
+<code>
+rvm_options_t   options;
+char            *version;
+rvm_region_t    region;
+rvm_tid_t       *tid;
+char            *dest, *src;
+unsigned long   length;
+
+rvm_initialize(version, options) 
+
+rvm_map(region, options);
+
+rvm_begin_transaction(tid, restore);
+rvm_begin_transaction(tid, no_restore);
+
+rvm_set_range(tid, dest, length);
+rvm_modify_bytes(tid, dest, src, length);
+
+rvm_end_transaction(tid, flush);
+rvm_end_transaction(tid, no_flush);
+rvm_abort_transaction(tid); 
+
+rvm_flush();
+rvm_truncate();
+
+rvm_unmap(region);
+
+rvm_terminate();
+</code>
+Application declares regions of VM that it want to have persistent
+image by doing <tt/rvm_map()/.  There are two possible modes for
+<tt/rvm_map()/: <tt/copy/ and <tt/no_copy/.  The former is the default
+and will cause the corresponding region in the segment device to be
+read into virtual memory.  The latter is used when the application is
+sure the image in segment device is useless (e.g. the application is
+going to replace it immediately).
+
+Application declares the begining of a transaction by calling
+<tt/rvm_being_transaction()/.  The transaction can be committed by
+calling <tt/rvm_end_transaction()/, or the aborted by calling
+<tt/rvm_abourt_transaction()/.  In addition, the application must
+inform RVM the memory location that will be affected by the
+transactions.  These can be done by calling <tt/rvm_set_range()/ or
+<tt/rvm_modify_bytes()/.  RVM guarantees that if the transaction
+commits, then all the modifications make on ranges declared will be
+made effective automatically, conversely, if the transaction abort,
+then none of modifications will be made effective.
+
+Normally, when transactions are aborted, the old value in the affected
+memory ranges will be <em/restored/.  However, in some case, the
+application can be sure that it will never abort the transaction.  For
+example, if there are no concurrent transaction, the application can
+be sure it will never abort the transaction explicitly.  For these
+cases, the application can start the transaction with the
+<tt/no_restore/ mode.
+
+If the application want the committed transaction be also recorded in
+the log device (stable storage) <tt/immediately/, it should commit the
+transaction with <tt/flush/ mode.  In this mode, once the
+<tt/end_transaction()/ call returns only after the transaction records
+are written to disk.  The application can be sure the committed
+transaction is persistent across program crashes.  However, there are
+cases when the application can accept slight chance of lose of
+permanency.  In those case, it can end the transaction with a
+<tt/no_flush/ mode.  There will be a big payoff in performance, as the
+function <tt/rvm_end_transaction()/ will return immediately, without
+having to the wait for the slow disk I/O to complete.  RVM will put
+the committed transaction in a queue and write them out to the log
+device later.  This is called <em/lazy commit/ and it provides a
+<tt/bound persistence/.  The committed transactions may lost if the
+program crashed before the queued transaction get a chance to be
+written out to log.  Note that although the transaction is lost, it is
+lost atomically.  Upon the next restart of the application, RVM
+will restore an old consistent view of the virtual memory.
+
+Commit transaction lazily also give more opportunity to inter-
+transaction optimization.  
+
+To force all previously committed transaction records to be written
+out log device, the application can call <tt/rvm_flush()/.
+Alternative, the application can commit a new transaction with
+<tt/flush/ mode.   
+
+The log device is only a temporary stable storage for commited
+transactions: its primary purpose is to allow records be written on
+disk sequentially.  Eventually, these records need to be applied to
+the data segment.  The process of applying transaction log records to
+data segment is called <em/log truncation/.  RVM will carry out log
+truncation automatically when the log is too full.  Alternatively, the
+application can initiate a trunction by calling <tt/rvm_truncate()/.
+Also, note that RVM will do a log truncation upon start up and
+<tt/rvm_map()/ operations.  This is to ensure the data segment has the
+lastest updates before it get mapped into virtual memory.
+
+<!-- %%%%%%%%%%%%%%%%%%%% new section %%%%%%%%%%%%%%%%%%%%  -->
+
+<sect> Structure of log
+<sect1> Log pointers and limits
+
+<p>
+The log device can be a 
+<itemize>
+<item> regular Unix file
+<item> raw partition
+<item> raw partition in a dedicated disk.
+</itemize>
+It is recommended to use the third option, raw partition in a
+dedicated disk.  As we see in the discussion in section 1, the purpose
+of the log device is to make the disk I/Os as sequential as possible,
+having other simultaneous disk I/O will defeat this purpose.
+
+Meta data of the log are collectively recorded on the <em/log status
+block/ which is located at the beginning of the log.  It is offset by
+either <tt/FILE_STATUS_OFFSET/ or <tt/RAW_STATUS_OFFSET/, depending on
+the types of the log devices.  The two constants are currently 0 and
+8192 bytes (16 sectors) respectively.
+
+Log records are appended sequentially on log area after the log status
+block.  The area starts from <tt/log_start/ and is of size
+<tt/log_size/.  (Fig <ref id="fig-log_struct">)
+
+<figure>
+  <eps file="log_struct">
+  <caption><label id="fig-log_struct">Structure of the log
+</figure>
+
+As new records are appended, the log pointer <tt/log_tail/ will be
+advanced.  <tt/log_head/ point to the first record in the log that is
+not yet subjected to truncation (<em/current epoch/).  If truncation
+is not in progress, both of the pointers <tt/prev_log_head/ and
+<tt/prev_log_tail/ will have a zero value. (Fig 3b)
+
+Currently, the log are truncated in a way called <em/epoch
+truncation/.  In one atomic operation, the function <tt/new_epoch()/
+will bracket all the current log records by <tt/prev_log_head/ and
+<tt/prev_log_tail/, those records are said to be in <em/truncation
+epoch/ and are subject to truncation.  At the same time <tt/log_head/
+will be advanced to <tt/log_tail/, effectively resetting the
+<em/current epoch/ to be empty.  New log records may
+be appended by concurrent threads while truncation is in progress, and
+<tt/log_tail/ will advance to new position. (Fig 3a)
+
+It is important to use the log pointer to delimit the log into
+truncation epoch and current epoch as we don't want the log truncation
+process to interfere with the log flushing process.  
+
+<figure>
+  <eps file="log_trunc">
+  <caption>Truncation of the log
+</figure>
+
+If the truncation goes well and all the records are successfully
+applied to the data segment.  The log pointers <tt/prev_log_head/
+and <tt/prev_log_tail/ will be reset to zero.  The area that was
+once occupied by those truncated records are now reclaimed.  
+
+However, it is possible that the program crashes while truncation is
+in progress.  RVM will know this upon next restart, by finding the two
+log pointers <tt/prev_log_head/ and <tt/prev_log_tail/ are non-zero.
+It will then redo the truncation.  Truncations can always be redone as
+it is just writing the same value on the same location again.  
+
+<sect1> Log records
+<p>
+There are five different types of log records.  Each of them
+has a corresponding in-core structure defined.  They are listed in the
+table <ref id="record-type">
+<table>
+<tabular ca="l|l|c">
+Generic record     | <tt/rec_hdr_t/       | 20 bytes@
+Transaction header | <tt/trans_hdr_t/     | 48 bytes@
+New value record   | <tt/nv_range_t/      | 56 + length + pad bytes@
+Record end marker  | <tt/rec_end_t/       | 28 bytes@
+Wrap marker        | <tt/log_wrap_t/      | 24 bytes@
+Special log record | <tt/log_special_t/   | 24 + special + pad bytes@
+</tabular>
+<caption><label id="record-type">
+    Six record types and their in-core structure
+</caption>
+</table>
+
+Generic record (<tt/rec_hdr_t/) does not actually exist in the log.
+It contains the common first four fields as the other five 'real'
+records.  When RVM scans the log and find a record, it may not know
+the type of the record.  It can always cast the record as a generic
+record, and then interpret the first four fields to determine the
+appropiate action.  For example, it can know the types of the records
+by looking at the first field.  (The common four fields are
+<tt/struct_id/, <tt/rec_length/, <tt/timestamp/ and <tt/rec_num/)
+
+In the five 'real' records, type specific fields will follow the
+common four fields.  For example, in the following we show the
+declaration of <tt/rec_hdr_t/ and <tt/trans_hdr_t/.
+
+<code>
+typedef struct
+    {
+    struct_id_t     struct_id;          /* type of entry */
+    rvm_length_t    rec_length;         /* record length */
+    struct timeval  timestamp;          /* timestamp of record entry */
+    long            rec_num;            /* record number of entry */
+    }
+rec_hdr_t;
+
+typedef struct
+    {
+    struct_id_t     struct_id;          /* self-identifier */
+    rvm_length_t    rec_length;         /* log record length, displacement to
+                                           end mark */
+    struct timeval  timestamp;          /* timestamp of log entry */
+    rvm_length_t    rec_num;            /* record number of log entry */
+    rvm_length_t    num_ranges;         /* number of ranges in record */
+    struct timeval  uname;              /* uname of transaction */
+    struct timeval  commit_stamp;       /* timestamp of commit */
+    rvm_length_t    n_coalesced;        /* count of coalesced transactions */
+    rvm_length_t    flags;              /* mode and optimization flags */
+    }
+trans_hdr_t;
+</code>
+
+<tt/trans_hdr_t/, <tt/nv_range_t/ and <tt/rec_end_t/ represent the
+<em/transaction header/, <em/new value range header/ and <em/record
+end marker/.  They are the majority of records on the log.  Each
+transaction will be written in a sequence of records: it begins with a
+transaction header, follows by one or more sub-record (the new value
+range record) and ends with a record end marker (Fig 4). This is for
+the simple case when the transaction are not split by a wrap marker in
+between.  If the transaction is split by a wrap marker, it will have
+two sequences of records, each begins and ends with a transaction
+header and end marker.  Details of log wrapping will be discussed in
+section <ref id="log-wrap">.
+
+<figure>
+  <eps file="log_records">
+  <caption>Transaction records
+</figure>
+
+New value records have variable lengths, each of them begins with a
+new value range header and follows by the actual data.  The actual
+data is the image of the virtual memory range that the transaction has
+committed.  The header is of type <tt/nv_range_t/ and is 56 bytes
+long, the actual data length varies.  Note that RVM may pad some bytes
+after the actual data so that the next sub-record will be word-aligned.
+
+To allow RVM to scan the log in both forward and backward direction,
+different forward and backward links are provided.  Generally
+speaking, <tt/rec_length/ is a forward link.  For transaction header,
+it is the forward link to the end marker; for new value record, it is
+the forward link to the next new value record (or record end marker).
+However, for end record marker, this value means the <tt/backward/
+link to the transaction header.  (RVM is somewhat inconsistent in
+naming here). On the other hand, <tt/sub_rec_len/ is a <tt/backward/
+link to the previous sub-record.  In new value range header, there is
+the third lenght field: <tt/length/, it is the length of the actual
+data.  <tt/length/ may not be equal to <tt/rec_length/ because of the
+padding.  See Fig 5 for the details of those links.
+
+<figure>
+  <eps file="record_links">
+  <caption>Forward and backward links of records
+</figure>
+
+The fourth possible record type that could be find on log is the wrap
+marker.  Note that wrapping may not happen exactly at the end of the
+log, it may happen a little bit earlier.  In the latter case, the
+bytes follow the wrap marker will all be written with value 0xff.
+
+The fifth possible record type is special log record.  Currently, the
+only special log record is segment mapping descriptor (of type
+<tt/log_seg_t/).  RVM allows more than one data segment for one log.
+To support this, every new value range will be tagged with a
+<tt/seg_code/ which indicates to which segment that range should be
+applied to.  <tt/seg_code/ is only a short hand of the
+segment. Details of the segment (<tt/num_bytes/ and <tt/name/) will be
+recorded in the segment mapping descriptor.  Segment mapping
+descriptors are inserted into the log whenever a new data segment is
+mapped the first time.  At the time of log truncation, RVM will use
+those segment mapping descriptors to reconstruct the necessary
+information to open the segment device.
+
+<sect1> Log wrapping<label id="log-wrap">
+<p>
+When <tt/log_tail/ approaches the end of the log, RVM will choose an
+appropiate point to do a <em/wrapping/.  This is done by writting out
+a wrap marker.  After that, RVM will starting appending new records
+from <tt/log_start/.  There will be no risk of overwriting onto useful
+records because the old records should have been truncated long
+before.  Even if they are not truncated yet, RVM will call a internal
+function <tt/wait_for_space()/ to force a truncation.
+
+Log wrapping can happens <em/between/ transaction.  In this case, it
+simply leave a wrap marker (of type <em/log_wrap_t/ and start a brand
+new transaction at the beginning of log <em/log_start/  (Fig 6a). 
+
+<figure>
+  <eps file="wrapping">
+  <caption>Three different possible wrapping
+</figure>
+
+It can also happens <em/within/ a transaction.  There are two
+possibilities: between different new value records or <em/splitting/ a
+new value records.  Since a range can be very long, spliting new
+value records prevents leaving too much space not used by inserting
+the wrap marker too early.
+
+In the first case, after the current new value records are written, a
+record-end marker is inserted into the log, and then followed by a
+log-wrap marker.  Another transaction header will be inserted at
+<tt/log_start/ before the remaining new value records are written.
+Effectively, the same transaction will have two transaction headers:
+the first is written before log wrapping, the second is written after
+log wrapping.  The <tt/flag/ field of the transaction headers helps to
+indicates this situation.  The first transaction header will only have
+<tt/FIRST_ENTRY_FLAG/ set, while the second transaction header will
+only have the <tt/LAST_ENTRY_FLAG/ set.  (If the whole sequence of
+records for the transaction is not interrupted by a log wrapping, both
+<tt/FIRST_ENTRY_FLAG/ and <tt/LAST_ENTRY_FLAG/ of the transaction
+header will be set.) (Fig 6b)
+
+For the latter case where a new value range is split, each of the two
+portion of the data will has its own new value range header.  The first
+portion of the splitted range is written followed by a record-end
+marker and a wrap marker.  The second transaction header are then
+written at <tt/log_start/, followed by the second portion of the
+splitted range.  The remaining new value records then follows.  There
+is a flag <tt/is_split/ in the new value record header indicates that
+this happens. (Fig 6c)  The <tt/flag/ FIRST_ENTRY_FLAG and
+LAST_ENTRY_FLAG will also be set as in the previous case.
+
+
+<!-- %%%%%%%%%%%%%%%%%%%% new section %%%%%%%%%%%%%%%%%%%%  -->
+<sect> Internal Data Structure
+<p>
+Before we describe the important data structure used by RVM, we will
+first discuss some of the building block of these data structure.  In
+next section we will discuss the generic list and generic tree data
+structure.  In the following section we will discuss the
+synchronization primitive used by RVM that enable multi-threading for
+RVM.
+
+<sect1> Generic data structure
+<p>
+A lot of the RVM data structure are organized as lists or trees.  To
+support that, RVM internally defined a generic list type as well as
+a generic tree type.
+
+Generic list is declared as <tt/list_entry_t/, while generic tree node
+is declared as <tt/tree_node_t/.  Supporting routine for them are
+<tt/move_list_entry()/ and <tt/tree_insert()/ etc.
+
+Each of these generic list/tree will contain enough topological
+information for it to be manuipulated as a list-node or tree node.
+Generic list and tree are typically not allocated as themselves,
+rather, they are the first member of other specific data structures
+that need to be organized.  For example, the region descriptor
+<tt/region_t/ is declared with <tt/list_entry_t/ as the first member
+of the structure.  That way, the region descriptor can be manuipulated
+as a list element.  We can do the following:
+<verb>
+seg_t     seg;
+region_t  region;
+
+move_list_entry(NULL, &ero;seg->map_list, &ero;region->links);
+</verb>
+to move a region descriptor <tt/region/ to the mapped region list
+(<tt/map_list/) in the segment descriptor <tt/seg/.
+
+<sect1> Support for multi-threading
+<p>
+RVM is designed to be thread-safe: application is responsible for
+protecting access to its data structures by concurrent threads, but
+can otherwise use RVM function freely.  RVM will synchronizing its
+internal operations.  This is done by using the following three
+primitives:
+
+<sect2> Mutex
+<p>
+Internal data which may be accessed concurrently are protected by
+mutex of type <tt/RVM_MUTEX/.  Routines accessing those data are
+required to do a <tt/mutex_lock()/ before, and do a
+<tt/mutex_unlock()/ after.  Alternatively, they can use the macro
+<tt/CRITICAL()/ to bracket their access to critical data.
+
+<code>
+RVM_MUTEX    lck;
+
+mutex_init(&ero;lck);   /* initialization */
+...
+
+mutex_lock(&ero;lck);   /* begin    lck crit. sec */
+  /* body */;           /* codes in lck crit. sec */
+mutex_unlock(&ero;lck); /* end      lck crit. sec */
+
+                    /* alternatively use macro */
+CRITICAL(lck,       /* begin    lck crit. sec */
+  /* body */;       /* codes in lck crit. sec */
+);                  /* end      lck crit. sec */
+</code>
+
+<sect2> Read/Write Lock
+<p>
+Sometimes a data can be read by many threads simultaneously, provided
+none of them attempts to update on the data.  This kind of concurrency
+is supported by read/write lock of type <tt/rw_lock_t/.   Readers
+access those data with <tt/rw_lock(...,r)/, they will be allowed to
+proceed immediately if there are no other writer, otherwise, they will
+be blocked until the writer releases the lock.  Writers access those
+data with <tt/rw_lock(...,w)/, they will be allowed to proceed
+immediately if there are no other readers or writers, otherwise, they
+will be blocked until all of them release the lock.  Both readers and
+writers have to do a <tt/rw_un_lock()/ when they are done accessing the
+protected data.   There is also a macro <tt/RW_CRITICAL()/ for
+bracketing accesses to critical data protected by read/write lock.
+
+<code>
+rw_lock_t     rwl;
+
+init_rw_lock(&ero;rwl); /* initialization */
+...
+
+/* reader */
+rw_lock(&ero;rwl,r);    /* begin rwl crit. sec. */
+  /* body */;           /* read immediately if no other
+  /* body */;           /*  writer, otherwise, block until
+  /* body */;           /*  it releases lock */
+rw_unlock(&ero;rwl,r);  /* end   rwl crit. sec. */
+
+...
+/* writer */
+rw_lock(&ero;rwl,w);    /* begin rwl crit. sec. */
+  /* body */;           /* write immediately if no other */
+  /* body */;           /*  writer/readers otherwise block */
+  /* body */;           /*  until they release lock */
+rw_unlock(&ero;rwl,w);  /* end   rwl crit. sec. */
+
+...
+RW_CRITICAL(rwl, mode, /* begin rwl crit. sec., mode=r|w */
+  /* body */;
+);                     /* end   rwl crit. sec. */
+</code>
+<sect2> Condition variable
+<p>
+Two concurrent threads can synchronize their actions by using the
+condition variable of type <tt/RVM_CONDITION/.  Thread A can sleep by
+calling <tt/condition_wait()/, waiting to be waked up by thread B when
+it calls <tt/condition_signal()/.
+
+This techniques is used for the asynchronous log truncation.  A
+seperate thread will execute the code of log_daemon() if there are
+multi-thread support (either mach's cthread, or unix's lwp or
+pthread).  Normally this thread is block waiting, other thread(s) will
+run.  From time to time, when transactions are committed, the other
+thread(s) will check and see if the log is too full, if it is, it will
+wake up the log_daemon() which will then truncate the log
+asynchronusly.
+
+<code>
+RVM_CONDITION     code;
+
+/* thread of log_daemon() */
+  CRITICAL(lock,
+    {
+    while (state == rvm_idle)
+      condition_wait(&ero;code, &ero;lock);
+    });
+  /* async. log truncation, or terminate
+   * log daemon here */
+
+/* thread of log_tid() */
+  CRITICAL(lock,
+    {
+      if (need_truncation) {
+        if (state == rvm_idle) {
+          state = truncating;
+          condition_signal(&ero;code);
+        }
+      }
+    });
+</code>
+<sect1> Important Data Structure
+<p>
+The following structure are all declared in the file
+<tt/rvm_private.h/, which is an overwhelmingly long file (1800 lines).
+However, the important data structures are the following.
+
+<sect2> Segment Descriptor (<tt/seg_t/)
+
+<p>
+There can be more than one segment per process.  Each of the segment
+has a segment descriptor.  These segment descriptor are linked
+together as a list, and the list header is the global variable
+<tt/seg_root/.
+
+The segment descriptor contains the header <tt/map_list/ for an
+important list: list of mapped region, which will be discussed in more
+details in section <ref id="sect2-region">
+
+There can be more than one segment per log.  In fact, each individual
+new value record can be applied to different segment.  This is
+achieved by tagging a short-name of segment <tt/seg_code/ with each new
+value record.  The short name of each segment is also stored in its
+own descriptor.
+
+<sect2> Log descriptor (<tt/log_t/)
+<p>
+Like the segment descriptors, log descriptors are also connected as a
+list (header is a global variable <tt/log_root/.  However, currently
+RVM only support one log in a process, which is pointed to by the
+global pointer <tt/default_log/.
+
+<tt/log_status/ is the in-core copy of the log status block, it will
+be explained in more detail in the next section.  Similarily,
+<tt/trans_hdr/, <tt/rec_end/, <tt/log_wrap/ are the area for preparing
+the corresponing records on log (c.f. section <ref id="sect2-log-record">).
+
+<tt/log_buf/ is the log recovery buffer descriptor and it will
+explained in the section <ref id="log-buf">.
+
+Log descriptor contains headers for three important list:
+<tt/tid_list/, <tt/flush_list/ and <tt/special_list/.  The first link
+up transaction that have beginned but not yet ended.  The second link
+up transaction that have been committed but not yet flushed.
+
+<sect2> Log status area (<tt/log_status/)
+<p>
+Log status has a in-core copy as well as in-disk copy.  The in-core
+copy is declared as type <tt/log_status_t/.  The in-core copy is
+stored as a sub-structure of the log descriptor, and the in-disk copy
+is written on the log status block.  Ideally, we would want the
+in-core copy to written to disk everytime the log status change,
+however, doing so will require a lot of disk head seeks between the
+log status block and the log tail, which defeat the purpose of the
+log, so RVM updates the on-disk log status block only every
+UPDATE_STATUS (currently the value is 100) of status change.  This is
+keep tracked by the count <tt/update_cnt/.  Because of that, RVM will
+not complete trust on the value in the log status block.  For example,
+when doing log truncation, RVM trusted the value <tt/prev_log_head/
+but not the value <tt/log_tail/, so it will do a <tt/locate_tail()/ to
+make sure it can find the last records written on the log.
+
+Log status area records important log pointers: <tt/log_head/,
+<tt/log_tail/, <tt/prev_log_head/, <tt/prev_log_tail/ and log limit:
+<tt/log_start/ and <tt/log_size/.  Besides, it also records a huge
+numbers of consistency check fields, transaction statistics and log
+statistics. 
+
+<sect2> Area for preparing log records<label id="sect2-log-record">
+<p>
+Each of the log record types has a corresponding in-core data
+structure.  They are used to prepare the records before they are
+written out to log.  There are only one copy for <tt/trans_hdr_t/,
+<tt/rec_ent_t/ and <tt/log_wrap_t/ per-log and they are part of the
+log descriptor.  For new value records, areas are required for the
+headers and the actual data and they are per-range.  Headers are of
+type <tt/nv_range_t/ and are store in the range descriptors (described
+in the following section).  Actual data are stored in a sperately
+allocated buffer pointed to by the field <tt/data/ in range
+descriptor.  Log special records are associated with the log, and they
+dynamically allocated and are organized as a list (header: 
+<tt/log_special_list/) in the log descriptor.
+
+<sect2> Log recovery buffer (<tt/log_buf->buf/) and its descriptor
+(<tt/log_buf/) <label id="log-buf">
+<p>
+Log recovery buffer (also called log buffer) is used in log
+truncation.  It is used to keep an image of log records for
+processing.  The descriptor of the buffer is called log recovery
+buffer descriptor (type <tt/log_buf_t/).  It is a sub-structure of log
+descriptor.  The actually buffer is pointed to by the field <tt/buf/,
+the length of the buffer is stored by the field <tt/buf_len/.
+
+Two routines can be used to fill and refill the log recovery buffer:
+<itemize>
+  <item><tt/init_buffer(log, offset, direction, ...)/
+  <item><tt/refill_buffer(log, direction, ...)/
+</itemize>
+The log can be scanned in two direction.  This is indicated by the
+argument <tt/direction/ of the two routines.  They will try to read as
+much as possible of data from the log device, subject to the length
+of the log buffer and other
+constraints:
+
+Upon returns of these two routines, 
+<tt/log_buf->ptr/ will be the index into log buffer that
+corresponds the current log position, and <tt/log_buf->offset/ will 
+correspond to the log offset of byte 0 in log buffer.
+<tt/log_buf->offset/ will be sector aligned. (Figure 7)
+
+<figure>
+  <eps file="log_buf">
+  <caption>log buffer and init_buffer()
+</figure>
+
+The following is a typical sequence code in log truncation:
+
+<code>
+...
+r_length      = init_buffer(log, off, REVERSE, ...);
+log_buf->ptr -= sizeof(rec_end_t);
+rec_end       = (rec_end_t *) &ero;log_buf->buf[log_buf->ptr];
+if (rec_end->struct_id == rec_end_id) {
+  ...
+</code>
+
+In the code, <tt/off/ is the current log position.  Routine
+<tt/init_buffer()/ is instructed to initialize the buffer by scanning
+the log in the reverse direction.  When it returns, <tt/r_length/
+number of bytes are read into the log recovery buffer (pointed to by
+<tt/log_buf->buf/), <tt/log_buf->ptr/ is index of the byte in log
+buffer that corresponds to <tt/off/.  Assume the routine here is
+expecting a end record in log, it decrements <tt/log_buf->ptr/ by the
+known size of <tt/rec_end_t/ so as to point to the end record.  After
+the decrement, the address of <tt/log_buf->buf[log_buf->ptr]/ should
+be the beginning of the in core image of the end record.  It type-cast
+it as <tt/(rec_end_t *)/ and stores it in <tt/rec_end/.  After that it
+can manipulate the record as it likes.  In the example, it examines
+and see if <tt/struct_id/ of the end record is really a
+<tt/rec_end_id/ ...
+
+<sect2> Region descriptors (<tt/region_t/)<label id="sect2-region">
+<p>
+Each segment will have a list of regions that are mapped.  So in each
+segment descriptor (type  <tt/seg_t/) there is a member
+<tt/map_list/ which is the head of this list.  Each node in
+the list is a region descriptr of type <tt/region_t/. 
+
+It records the <tt/offset/ and <tt/end_offset/ of the region in the
+data segment, as well as the <tt/vmaddr/ and <tt/length/ of region
+that is mapped to.
+
+The member <tt/n_uncommit/ records the number of uncommitted range in
+this region, it is incremented everytime application does a
+<tt/rvm_set_range()/, it will be decrement when a transaction is
+committed or aborted.  When application tries to do <tt/rvm_unmap()/,
+this value must be zero otherwise it will return RVM_EUNCOMMIT.
+
+<tt/region_t/ may be confused with <tt/rvm_region_t/ and
+<tt/mem_region_t/.  We will explain the former in the following and
+the latter in the next section.  <tt/rvm_region_t/ is part of the API,
+it is the structure used by the application to indicate the mapping
+parameters: <tt/data_dev/, <tt/offset/, <tt/length/, <tt/vmaddr/ and
+<tt/no_copy/ etc.  RVM does not use this structure internally, once it
+has got all the parameters from the application and has transferred
+them to <tt/region_t/.
+
+<sect2> Memory region descriptors (<tt/mem_region_t/)
+
+<p>
+In addition to the per segment region list described above, there is
+also a per process memory region tree.  It is used to record the
+regions in the virtual memory space that are mapped, and it is
+arranged in the order of vm address.
+
+When application does a <tt/rvm_map()/, this tree is consulted to make
+sure the requested virtual memory region is not already mapped.  If it
+is already mapped, RVM_EVM_OVERLAP will be returned.  Also, when
+application does a <tt/rvm_set_range()/, this tree is consulted to
+make sure the requested range is totally contained within a single
+virtual memory region.  If it isn't, RVM_ENOT_MAPPED will be returned.
+
+The root of the tree is <tt/region_tree/.  Each node of the
+tree is of type <tt/mem_region_t/.  
+
+<sect2> Transaction descriptor (<tt/int_tid_t/)
+
+<p>
+Whenever the application does a <tt/rvm_begin_transaction()/, rvm will
+allocate a transaction descriptor of type <tt/int_tid_t/.  These
+descriptors are linked up into list.  Before the transaction commits,
+the descriptor is in the list headed by <tt/log->tid_list/.  If the
+transaction is committed, it will be moved to another list headed by
+<tt/log->flush_list/.  If the transaction record is flushed, it will
+be removed from the flush list.
+
+Typically, the application may inform RVM one or more memory range
+which will be affected by the transaction.  This is done by issuing
+one or more <tt/rvm_set_range()/ or <tt/rvm_modify_bytes()/ after
+<tt/rvm_begin_transaction()/.  Internally, these memory ranges are
+organized as a tree rooted at <tt/range_tree/ (of type
+<tt/tree_root_t/).  The tree root is a field of the transaction
+descriptor.
+
+<tt/int_tid_t/ may be confused with <tt/rvm_tid_t/.  The latter is the
+transaction identifier used by applications while the former is used
+internally by RVM.  Althought <tt/rvm_tid_t/ contains a pointer to
+<tt/int_tid_t/, applications are not expected to use or touch the
+pointer.
+
+<sect2> modification range descriptor (<tt/range_t/)
+
+<p>
+When application specifies modification range by <tt/rvm_set_range()/
+or <tt/rvm_modify_bytes()/, the vm address (<tt/range->nv.vmaddr/) and
+the length (<tt/data_len/) of the range is stored internally in the
+range descriptor (<tt/range_t/).  When the transaction commits, the
+content of virtual memory pointed to by (<tt/range->nv.vmaddr/) will
+be copied to the buffer pointed to by <tt/range->data/.  The same
+buffer has another purpose: if the transaction is in <tt/restore/ mode,
+the buffer is used also for saving the old image of VM.  In case the
+transaction is aborted, the old image can be restored.
+
+Range descriptors are connected together as a tree, with the tree root
+in the corresponding transaction descriptor.  If the optimization flag
+<tt/RVM_COALESCE_RANGES/ is specified, the tree is sorted according to
+the vm address, and ranges are coalesced before they are inserted into
+the tree.  If <tt/RVM_COALESCE_RANGES/ is not specified, the tree is
+simply sorted by the range number.
+
+There is also an area of type <tt/nv_range_t/ called <tt/nv/ which is
+used as the in-memory image of the nv range record on log.
+
+<sect2> storage device region node (<tt/dev_region_t/)
+
+<p>
+This is not to be confused with <tt/region_t/ and <tt/mem_region_t/.
+<tt/dev_region_t/ is used only in log truncation.  During log
+trunctation, all sub-records of all transactions in the truncation epoch
+are processed.  A tree called <tt/mod_tree/ is built.  Each node
+of the tree is of type <tt/dev_region_t/.  The tree is sorted according
+to the segment offset.  The purpose of the tree is to make the disk
+write operation on the segment device sequential.
+
+<sect2> Device descriptor (<tt/device_t/)
+<p>
+Device descriptor (of type <tt/device_t/) contains the details of the
+phyical devices: name, handle, size.  Also, it contains the pointers
+to the gather-write I/O vectors.
+
+<sect> RVM in action
+<p>
+<sect1> <tt/rvm_initialize()/
+
+<p>
+Global lists and trees are initialized (<tt/seg_root/, <tt/log_root/,
+<tt/region_tree/).  A log truncation (<tt/log_recover()/) is
+performed.
+
+<sect1> <tt/rvm_map()/
+
+<p>
+There is always a log truncation at the begin of mapping.  This is
+necessary to ensure the mapping will get the latest committed image
+from the data segment.  It also checks if application has 
+specified a new segment device, if so, it will create a special record
+of type <tt/log_seg_t/ and queue it on <tt/log->special_list/.  This
+record will be flushed to the log before any next transaction.  
+
+Application may or may not specified the mapped-to address for the
+region.  If it is not specified, <tt/rvm_map()/ will do a
+<tt/page_alloc()/ to find a VM address for the request region.  Either
+case, the mapped-to address will be stored in <tt/region->vmaddr/ as
+well as <tt/mem_region->vmaddr/.  
+
+Before carry out the mapping, <tt/rvm_map()/ also need to check that
+the requested mapping is not overlapped with existing mapping in both
+the VM address space as well as the segment offset space.  The former
+is detected with the aid of <tt/region_tree/ while the latter is
+detected with the aid of <tt/seg->map_list/.  If there are
+overlapping, RVM_EVM_OVERLAP will be returned in the former case
+and RVM_EOVERLAP will be returned in the latter case.
+
+Finally, the content of the data segment at the specified offset is
+copied into the VM space (unless <tt/no_copy/ mode is specified).
+
+<sect1> <tt/rvm_begin_transaction()/
+
+<p>
+A transaction descriptor (of type <tt/int_tid_t/) will be allocated
+and inserted in <tt/log->tid_list/.  The address of that descriptor
+is also noted in <tt/rvm_tid->tid/.
+
+<sect1> <tt/rvm_set_range()/ and <tt/rvm_modify_bytes()/
+<p>
+The range declared must be totally included inside a mapped region,
+other RVM_ENOT_MAPPED will be returned.  This is done by consulting
+<tt/region_tree/.
+
+A new range descriptor (of type <tt/range_t/ will be allocated and
+inserted into <tt/tid->range_tree/.  Depending on the optimization
+flag of the transaction, the range tree may be sorted by vm address or
+sorted by range numbers.
+
+If transaction is in <tt/restore/ mode, the current image of VM in the
+range will be first saved to a buffer pointed to by <tt/range->data/.
+
+VM address of the range declared is stored in <tt/range->nv.vmaddr/.
+
+<sect1> <tt/rvm_end_transaction()/
+<p>
+When application calls <tt/rvm_end_transaction()/, for each of the
+ranges in <tt/tid_range_tree/, the vm area pointed to by
+<tt/range->nv.vmaddr/ is copied to <tt/range->data/.  This is to
+ensure the atomicity of transaction: when <tt/rvm_end_transaction()/
+returns, all declared ranges have been copied to a seperate location.
+If the program crashes before <tt/rvm_end_transaction()/ returns, then
+the data segment will contain the old value of the of the declared
+ranged.  Applications are free to write new data on the ranges after
+<tt/rvm_end_transaction()/ returns.
+
+The transaction descriptor <tt/tid/ is dequeued from
+<tt/log->tid_list/ and is queued to <tt/log->flush_list/.
+
+If RVM_COALESCE_TRANS flag is set for the transaction, an
+inter-transaction coalescing will be carried out.
+
+If the transaction is committed in <tt/flush/ mode, <tt/flush_log()/
+is called.
+
+<sect1><tt/flush_log()/
+<p>
+Every transaction descriptors in <tt/log->flush_list/ are written out
+to the log, this is done by the routine <tt/log_tid()/.  First, the
+transaction header of type <tt/trans_hdr/ is built and added to the
+gather write vector <tt/dev->iov/.  Then, for every ranges in
+<tt/tid->range_tree/, the new value range header of type
+<tt/nv_range_t/ is built and added to the gather write vector,
+followed by the actual new value data.  After all the new value
+records are written, a record end marker (of type <tt/rec_end_t/ is
+built and added to the gather write vector.
+
+If log wrapping is need, there will be intervening record end
+marker, log wrap marker and transaction header record inserted, as
+described in section <ref id="log-wrap">.
+
+<sect1><tt/rvm_truncate()/
+
+<p>
+Log truncation is carried out by <tt/log_recover()/.  For each
+segment, a modification tree <tt/mod_tree/ is built.  Each node is of
+type <tt/dev_region_t/, it is arranged in order of segment offset.
+For each new value records of each transactions on the log, a node of
+type <tt/dev_region_t/ is built and inserted into the modification
+tree.  If there are overlaps in segment offset , the overlapped
+portion is not repeatedly inserted into the modification tree.  In
+this case, it is not an error to have overlapped segment, for example,
+the same memory range can be updated by different transaction.  Also
+note that since the log is truncated in last-in-first-out order,
+i.e. new value records that was flushed last is inserted into tree
+first, we always have the most up-to-date range inserted into the
+tree.
+
+When all the log records bracket by the log pointers <tt/prev_log_head/
+and <tt/prev_log_tail/ are scanned and inserted into the modification
+tree. The whole tree is written to data device (<tt/apply_mods()/).
+
+<sect> RVMUTL
+<p>
+The program <tt/rvmutl/ is a utility program that allows:
+<itemize>
+<item> initialization of a log
+<item> debug via the log
+</itemize>
+The following is an incomplete list of commands available in
+<tt/rvmutl/:
+<itemize>
+<item> <tt/init_log/: initialize a log
+<item> <tt/open_log/: open an exising log
+<item> <tt/status/  : display information on log status block
+<item> <tt/head/    : locate and display the first record of current epoch
+<item> <tt/tail/    : locate the display the last record  of current epoch
+<item> <tt/prev (n)/: locate and display previous (n) record(s)
+<item> <tt/next (n)/: locate and display next (n) reocrds(s)
+</itemize>
+
+In the rvm source codes, you can often see the global variable
+<tt/rvm_utlsw/.  RVM is designed in mind that there are two possible
+types of users for rvm's routines: ordinary applications or the
+program <tt/rvmutl/.  This variable allows a differential treatment on
+exception condition.  For example, in the routine <tt/scan_forward()/,
+if the record type is found not to be one that the routine is
+expecting (possibly means a corrupted log) the program will:
+<itemize>
+  <item> abort, if it is called by an general application
+  <item> continue with error return, if it is called by <tt/rvmutl/
+</itemize>
+The latter treatment allow manual handling of log corruption via <tt/rvmutl/.
+
+<sect> Further Information
+<p>
+<itemize>
+<item> Satyanarayanan, M., Mashburn, H.H., Kumar, P., Steere,
+  D.C. and Kistler, J.J., Lightweight Recoverable Virtual Memory, ACM
+  Transactions on Computer Systems, Vol. 12, No. 1, Feb. 1994, pp 33-57.
+<item> Mashburn, H.H., Satyanarayanan, M., RVM Recoverable Virtual
+  Memory, Carnegie Mellon University.
+</itemize>
+
+</article>
+
