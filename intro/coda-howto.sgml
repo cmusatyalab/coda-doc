@@ -1222,13 +1222,13 @@ source tarball in the correct place.
 <tag/Unable to mount Coda./
 
 It is only possible to mount coda when <tt>relay.exe</tt> and <tt>venus.exe
-</tt> is running. Do not type <tt>mount.exe n:</tt> before venus printed the 
+</tt> are running. Do not type <tt>mount.exe n:</tt> before venus printed the 
 message <tscreen> <verb>venus starting...</verb></tscreen>
 
 
 <tag/Unable to shutdown Windows95./
 
-This occures when the device <tt>codadev.vxd</tt> couldn't be unloaded on the 
+This occurs when the device <tt>codadev.vxd</tt> couldn't be unloaded on the 
 request issued by typing <tt>unmount.exe</tt>. <tt>relay.exe</tt> printed the 
 message
 
@@ -1287,12 +1287,9 @@ file. Check the requestnumbers to match with those in <tt>relay.log</tt>.
 <sect2>Restrictions<p>
 <itemize>
 <item>
-The cache does not recover after killing <tt>venus.exe</tt>. Venus allways has
-to be startet with the INIT flag.
-<item>
 <tt>hoard</tt>.exe does not work so far.
 <item>
-Handling large file (in particular executables) does not work well in a low
+Handling large files (in particular executables) does not work well in a low
 bandwidth scenario.
 <item>
 <tt>cfs.exe</tt> uses absolute pathnames so far.
