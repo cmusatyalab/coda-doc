@@ -1,0 +1,72 @@
+diff -uNr sgml-tools.orig/dist/fmt_txt.pl sgml-tools/dist/fmt_txt.pl
+--- sgml-tools.orig/dist/fmt_txt.pl	Thu Jul  2 02:32:43 1998
++++ sgml-tools/dist/fmt_txt.pl	Tue Aug 25 02:35:19 1998
+@@ -81,11 +81,11 @@
+ {
+   my ($infile, $outfile) = @_;
+   my (@toc, @lines);
+-  if ($txt->{manpage})
+-    {
+-      copy ($infile, $outfile);
+-      return;
+-    }
++#  if ($txt->{manpage})
++#    {
++#      copy ($infile, $outfile);
++#      return;
++#    }
+ 
+   # note the conversion of `sdata_dirs' list to an anonymous array to
+   # make a single argument
+diff -uNr sgml-tools.orig/dist/sgmltool/latex2e/mapping sgml-tools/dist/sgmltool/latex2e/mapping
+--- sgml-tools.orig/dist/sgmltool/latex2e/mapping	Thu Jul  2 02:32:43 1998
++++ sgml-tools/dist/sgmltool/latex2e/mapping	Tue Aug 25 02:57:44 1998
+@@ -157,6 +157,10 @@
+ <sect1>		+	"\n\\subsection"
+ </sect1>
+ 
++ 
++<mansect>              +       "\n\\subsection*"
++</mansect>
++
+ <sect2>		+	"\n\\subsubsection"
+ </sect2>
+ 
+diff -uNr sgml-tools.orig/dist/sgmltool/man/mapping sgml-tools/dist/sgmltool/man/mapping
+--- sgml-tools.orig/dist/sgmltool/man/mapping	Thu Jul  2 02:32:43 1998
++++ sgml-tools/dist/sgmltool/man/mapping	Tue Aug 25 02:56:50 1998
+@@ -63,6 +63,9 @@
+ 
+ <sect1>		+	".SH "
+ </sect1>
++ 
++<mansect>      +       ".SH "
++</mansect>
+ 
+ <heading>	
+ </heading>		"\n\n"
+diff -uNr sgml-tools.orig/dtd/linuxdoc96.dtd sgml-tools/dtd/linuxdoc96.dtd
+--- sgml-tools.orig/dtd/linuxdoc96.dtd	Thu Jul  2 02:32:43 1998
++++ sgml-tools/dtd/linuxdoc96.dtd	Tue Aug 25 02:59:21 1998
+@@ -523,7 +523,7 @@
+ <!element rhead - o (%inline)>
+ <!entity % sect "heading, header?, p* " >
+ <!element heading o o (%inline)>
+-<!element chapt - o (%sect, sect*) +(footnote)> 
++<!element chapt - o (%sect, (sect | manpage)*) +(footnote)> 
+ <!element sect  - o (%sect, sect1*) +(footnote)>
+ <!element sect1 - o (%sect, sect2*)>
+ <!element sect2 - o (%sect, sect3*)>
+@@ -603,9 +603,11 @@
+ <!element notes - - (title?, p+) >
+ <!attlist notes
+ 	opts cdata "null" >
+-<!element manpage - - (sect1*) 
++ 
++<!element manpage - - ( (mansect | sect1)*,sect2*) 
+ 	-(sect2 | f | %mathpar | figure | tabular | 
+           table | %xref | %thrm )>
++<!element mansect - o (%sect)>
+ 
+ 
+ <!attlist manpage

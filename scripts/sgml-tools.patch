@@ -53,3 +53,27 @@
  <!entity sect sdata "{\S}" >
  <!entity semi sdata ";" >
  <!entity setmn sdata "\setminus" >
+--- dtd/linuxdoc.dtd.ori	Thu Jul 16 16:46:16 1998
++++ dtd/linuxdoc.dtd	Thu May 21 21:55:37 1998
+@@ -439,7 +439,7 @@
+ <!element rhead - o (%inline)>
+ <!entity % sect "heading, header?, p* " >
+ <!element heading o o (%inline)>
+-<!element chapt - o (%sect, sect*) +(footnote)> 
++<!element chapt - o (%sect, (sect | manpage)*) +(footnote)> 
+ <!element sect  - o (%sect, sect1*) +(footnote)>
+ <!element sect1 - o (%sect, sect2*)>
+ <!element sect2 - o (%sect, sect3*)>
+@@ -516,10 +516,11 @@
+ <!element notes - - (title?, p+) >
+ <!attlist notes
+ 	opts cdata "null" >
+-<!element manpage - - (sect1*) 
++<!element manpage - - ((mansect | sect1)*) 
+ 	-(sect2 | f | %mathpar | figure | tabular | 
+           table | %xref | %thrm )>
+ 
++<!element mansect - o (%sect)>
+ 
+ <!attlist manpage
+ 	opts cdata "null"

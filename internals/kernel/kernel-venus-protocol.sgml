@@ -87,7 +87,7 @@ the Coda FS layer, so the Coda FS driver must expose the VFS interface
 as applicable in the operating system. These differ very significantly
 among operating systems, but share features such as facilities to
 read/write and create and remove objects.  The Coda FS layer services
-such VFS requests in by invoking on or more well defined services
+such VFS requests by invoking on or more well defined services
 offered by the cache manager Venus.  When the replies from Venus have
 come back to the FS driver, servicing of the VFS call continues and
 finishes with a reply to the kernels VFS. Finally the VFS layer
