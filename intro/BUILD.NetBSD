@@ -57,13 +57,13 @@ You can grab any of our (latest) sources from
 	ftp://ftp.coda.cs.cmu.edu/pub/coda/src
 
 untar into your favorite build area (say)
-	tar zxfv coda-4.6.5.tgz -C /usr/coda
+	tar zxfv coda-4.6.6.tgz -C /usr/coda
 
 Cd to /usr/coda (I am assuming this is your build area.) and mkdir obj
 This is where we will build the binaries.  Now cd into obj and type:
-	../coda-4.6.5/configure
+	../coda-4.6.6/configure
 This will use the gnu configure system to shadow the sources that were
-installed in /usr/coda/coda-4.6.5.
+installed in /usr/coda/coda-4.6.6.
 
 Finally, type:
 	gmake coda

@@ -1,5 +1,5 @@
 		 	==================
-			Coda Release 4.6.5
+			Coda Release 4.6.6
 			==================
 
 
@@ -20,10 +20,10 @@ the software check out:
 I. Coda is:
 
 	packages:
-		coda-client-4.6.5.1.tgz
+		coda-client-4.6.6.1.tgz
 		coda-doc-4.6.5.3.tgz
-		coda-intro-4.6.5.2.tgz
-		coda-server-4.6.5.1.tgz
+		coda-intro-4.6.6.1.tgz
+		coda-server-4.6.6.1.tgz
 
 	ports:
 		/usr/ports/net/coda_client
@@ -32,9 +32,9 @@ I. Coda is:
 		/usr/ports/net/coda_server
 
 	source/distfiles:
-		coda-4.6.5.tgz
+		coda-4.6.6.tgz
 		coda-doc-4.6.5-3.tgz
-		coda-intro-4.6.5-1.tgz
+		coda-intro-4.6.6.tgz
 
 II. Obtaining Packages
 
@@ -43,16 +43,16 @@ heavily as the aout packages.  You may obtain the newest compiled
 packages from the Coda site or other mirrors:
 
 Coda-intro is a quick get started guide to using Coda.
-	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-elf/i386/coda-intro-4.6.5.2.tgz
+	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-elf/i386/coda-intro-4.6.6.1.tgz
 
 The Coda client is needed by a machine to use the Coda filesystem.
 Aprox Size =  3,608,207 bytes
-	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-elf/i386/coda-client-4.6.5.1.tgz
+	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-elf/i386/coda-client-4.6.6.1.tgz
 
 The Coda server is needed by a machine to create and serve the filesystem to
 client machines.
 Aprox Size = 5,532,519 bytes
-	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-elf/i386/coda-server-4.6.5.1.tgz
+	pkg_add ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/3.0-elf/i386/coda-server-4.6.6.1.tgz
 
 Finally, we have a wealth of documentation about Coda and need to generate still more.
 Aprox Size = 1,543,686 bytes
