@@ -7,7 +7,8 @@
 
 
 <mansect>SYNOPSIS<P>
-volutil &lsqb;-h &lt;server&gt;&rsqb; &lsqb; -t timeout&rsqb; &lt;command&gt; 
+volutil &lsqb;-h &lt;server&gt;&rsqb; &lsqb; -t timeout&rsqb; 
+&lsqb; -d debuglevel&rsqb; &lt;command&gt; 
 &lt;parameters ... &gt;<P>
 
 
