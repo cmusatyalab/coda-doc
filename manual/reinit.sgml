@@ -102,12 +102,12 @@ of the volumes that were created earlier into this directory. </para>
 <para>Run the script
 <citerefentry><refentrytitle>restorevolumes</><manvolnum>8</></citerefentry>
 to restore all of the volumes that were backed up in <xref
-linkend="ReinitDump">.  </para>
+linkend="ReinitDump">. </para>
 </listitem>
 
 <listitem> <para>Unmount the Volumes</para>
 <para>Use <command>cfs</> <option>rmmount</> to unmount all of the backup
-volumes in <filename>/coda/tmp/restored</filename> and the new replicated
+volumes in <filename>/coda/tmp/restore</filename> and the new replicated
 volumes in <filename>/coda/tmp/inited</filename>.  Then remove these
 directories.  See the man page
 <citerefentry><refentrytitle>cfs</><manvolnum>8</></citerefentry> for more

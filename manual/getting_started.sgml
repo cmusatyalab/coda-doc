@@ -52,7 +52,7 @@ from <acronym>NFS</> and Windows/Samba shares.  Coda does have many similarities
 
 <formalpara>
 <title>Volume Mountpoints</title>
-<para>One volume is special, it is the root volume, the volume which Coda mounts on <filename>/coda</filename>.  Other volumes are grafted into the <filename>/coda</filename> tree using <command>cfs mkmount</>.  This command installs a volume mountpoint in the Coda directory tree, and in effect its result is similar to <command>mkdir mountpoint; mount device mountpoint</> under Unix.  When invoking the <command>cfs makemount</> the two arguments given are the name of the mountpoint and the name of the volume to be mounted.  Coda mountpoints are persistent objects, unlike Unix mountpoints which needs reinstating after a reboot.  </para>
+<para>One volume is special, it is the root volume, the volume which Coda mounts on <filename>/coda</filename>.  Other volumes are grafted into the <filename>/coda</filename> tree using <command>cfs mkmount</>.  This command installs a volume mountpoint in the Coda directory tree, and in effect its result is similar to <command>mkdir mountpoint; mount device mountpoint</> under Unix.  When invoking the <command>cfs mkmount</> the two arguments given are the name of the mountpoint and the name of the volume to be mounted.  Coda mountpoints are persistent objects, unlike Unix mountpoints which needs reinstating after a reboot.  </para>
 </formalpara>
 
 <formalpara>

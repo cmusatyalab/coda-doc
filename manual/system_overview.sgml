@@ -78,7 +78,7 @@
 <para><filename>/vice/auth2</filename> This directory contains information related to the authentication process, including its log file.</para>
 </listitem>
 <listitem>
-<para><filename>/vice/bin</filename> contains the Coda file system binaries for servers and the SCM.</para>
+<para><filename>/usr/sbin</filename> contains the Coda file system binaries for servers and the SCM.</para>
 </listitem>
 <listitem>
 <para><filename>/vice/db</filename> contains the log file for the update processes as well as a number of databases important to servers.</para>

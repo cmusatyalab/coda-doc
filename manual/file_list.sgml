@@ -80,7 +80,15 @@
 <entry><filename>/vice/db</></entry>
 <entry><application>vice-setup</></entry>
 <entry>hand</entry>
-<entry>By <application>createvol_rep</> to map a VSG to a set of servers </>
+<entry>By <application>createvol_rep</> to map a VSG to a set of servers. </>
+</row>
+<row>
+<entry><filename>ROOTVOLUME</></entry>
+<entry><filename>/vice/db</></entry>
+<entry><application>vice-setup</></entry>
+<entry>hand</entry>
+<entry>By <application>codasrv</> to tell clients what volume should be
+mounted at the root of our Coda tree. </>
 </row>
 <row>
 <entry><filename>AllVolumes</></entry>

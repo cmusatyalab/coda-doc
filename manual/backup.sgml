@@ -16,7 +16,7 @@
 
 <formalpara>
 <title>Dumping to disk files on a backup spool machine.</>
-<para>The dumping phase consists of converting the read-only volume clones to disk images stored as regular disk files, on a spool machine.  A dump can either be full (level 0), in which all files are dumped; or incremental (level 1 through 9), in which only those files or directories which have changed since the last successful backup of the lower level are included in the dump. So a level 1 dump will include changes from last full dump, a level 2 - from last level 1 dump, and so on.  This allows for a system in which only a subset of volumes need a full backup at anyone time (with incremental backups done between full backups), thus reducing the amount of off-line storage and network bandwidth needed at any one time.  However, it allows the re-creation of data a granularity of 24 hours when combined with incremental dumps.  Incremental dumps, however, are only supported for replicated volumes.  Since there is little need for non-replicated volumes, only full dumps are supported for non-replicated volumes.  </para>
+<para>The dumping phase consists of converting the read-only volume clones to disk images stored as regular disk files, on a spool machine.  A dump can either be full (level 0), in which all files are dumped; or incremental (level 1 through 9), in which only those files or directories which have changed since the last successful backup of the lower level are included in the dump. So a level 1 dump will include changes from last full dump, a level 2 - from last level 1 dump, and so on.  This allows for a system in which only a subset of volumes need a full backup at anyone time (with incremental backups done between full backups), thus reducing the amount of off-line storage and network bandwidth needed at any one time.  However, it allows the re-creation of data a granularity of 24 hours when combined with incremental dumps. </para>
 </formalpara>
 
 <formalpara>
@@ -107,6 +107,7 @@ tallis          /vicepa         ftree  width=8,depth=5
 dvorak          /backup1        backup
 dvorak          /backup2        backup
 dvorak          /backup3        backup
+dvorak          /backup4        backup
 </screen>
 </para>
 
@@ -125,13 +126,12 @@ dvorak          /backup3        backup
 /vice/db
 /vice/vol    
 /vice/lib
-/vice/bin
 /vice/spool
 /vice/srv
 </literallayout>
 </para>
 
-<para>The primary binaries that should be installed under /vice/bin to get started are:
+<para>The primary binaries that should be installed under /usr/sbin to get started are:
 
 <literallayout>
 backup
@@ -161,7 +161,7 @@ tape.pl
 <sect1>
 <title>Incremental Dumps</>
 
-<para>In every dump (full or incremental) produces a file containing the version vectors and <firstterm>StoreIds</> of every vnode in the volume.  These files have names of the form <filename>/vice/backup/<replaceable>groupid</>.<replaceable>volid</>.newlist</filename> for replicated volumes and <filename>/vice/backup/<replaceable>volid</>.newlist</filename> for non-replicated volumes.  When the backup coordinator is convinced that the backup of a volume has completed, the <filename>*.newlist</> file is renamed to be <filename>*.ancient</> via the <command>volutil</> <option>ancient</> call. These files are stored in a human-readable format for convenience.  </para>
+<para>In every dump (full or incremental) produces a file containing the version vectors and <firstterm>StoreIds</> of every vnode in the volume.  These files have names of the form <filename>/vice/backup/<replaceable>groupid</>.<replaceable>volid</>.newlist</filename>.  When the backup coordinator is convinced that the backup of a volume has completed, the <filename>*.newlist</> file is renamed to be <filename>*.ancient</> via the <command>volutil</> <option>ancient</> call. These files are stored in a human-readable format for convenience.  </para>
 
 <para>When creating an incremental dump, the server looks for the .ancient
 file corresponding to the volume.  If it doesnt exist, a full dump is created.
@@ -170,9 +170,7 @@ last successful backup.  The server iterates through the vnode lists for the
 volume and the version vector lists from the <filename>*.ancient</> file
 comparing the version vectors and storeIds.  A discrepancy between the two
 implies that the file has changed and should be included in the incremental
-dump. Since version vectors are not maintained for non-replicated volumes,
-incremental dumps are not supported for non-replicated volumes by the coda
-backup facility. By comparing the sequence numbers in the vnodes lists, it can
+dump. By comparing the sequence numbers in the vnodes lists, it can
 also be determined if a file or directory had been deleted (since the vnode is
 no longer in use).  Vnodes that are freed and then reallocated between dumps
 look like vnodes which have been modified, and so are safely included in the
@@ -217,11 +215,20 @@ for eternity.  </para>
 <sect1>
 <title>Restoring a backup clone</>
 
-<para>A basic assumption of performing backups is that eventually someone will need to restore old state of a volume.  To do this they should contact the system administrator, specifying the volume (groupid and repid for replicated volumes or just the volid for non-replicated volumes) and the date of the state they wish to restore.  </para>  
+<para>A basic assumption of performing backups is that eventually someone will need to restore old state of a volume.  To do this they should contact the system administrator, specifying the volume and the date of the state they wish to restore.  </para>  
 
 <para>The system administrator must then determine which dump files contain the state.  There could be more than one involved since the state may have been captured by a full and some incremental dumps.  Once the administrator knows the dates of the backups involved, she must get the appropriate tapes and extract the dump files (via the <application>extract.sh</> script).  </para>
 
-<para>The administrator then creates the full state to be restored by iteratively applying the incremental backups to the full state via the <application>merge</> program.  Once the state for the date in question has been restored, a read-only clone is created by choosing a server to hold the clone, and invoking the <command>volutil</> <option>restore</> operation, directing the call to the chosen server.  Once the clone has been restored, the administrator should build a new VLDB, and mount the volume in the Coda name space so the user can access it.  When the user has finished with it, she should notify the administrator in order for the clone to be purged.  </para>
+<para>The administrator then creates the full state to be restored by
+iteratively applying the incremental backups to the full state via the
+<application>merge</> program.  Once the state for the date in question has
+been restored, a read-only clone is created by choosing a server to hold the
+clone, and invoking the <command>volutil</> <option>restore</> operation,
+directing the call to the chosen server.  Once the clone has been restored,
+the administrator should build a new VLDB, and mount the volume in the Coda
+name space so the user can access it.  When the user has finished with it, she
+should notify the administrator in order for the clone to be purged.
+<xref linkend="RestoringBackups"> </para>
 </sect1>
 
 <sect1>

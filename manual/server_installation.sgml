@@ -597,16 +597,23 @@ server, as well as the fileserver by typing:
 
 To facilitate automatic setup procedure and easy changes of configuration we provide a script called <application>startserver</application>, which reads these command-line arguments from the file <filename>/vice/srv.conf</filename> and provides them for <application>codasrv</application>.  </para>
 
-<para>The <application>vice-setup-rvm</application> creates <filename>/vice/srv.conf</> with values derived from information you have entered during setup process.  Should you deviate from one of these canned default values, you will need to either create or modify the <filename>/vice/srv.conf</filename> file to indicate the correct data size of the data partition.  For example, one of CMU's Coda servers contains:
+<para>The <application>vice-setup-rvm</application> creates the
+<filename>/etc/coda/server.conf</> file with values derived from information
+you have entered during setup process.  Should you deviate from one of these
+canned default values, you will need to modify the file to indicate the
+correct data size of the data partition.  For example, one of CMU's Coda
+servers contains:
 
 <informalexample>
 <screen>
--rvm /dev/hdc1 /dev/sda1 119070700
+rvm_log=/dev/hdc1
+rvm_data=/dev/sda1
+rvm_data_length=119070700
 </screen>
 </informalexample>
 </para>
 
-<para>You should be careful to specify the correct partitions for the RVM log, data segment, and size of the data segment.
+<para>You should be careful to specify the correct partitions or files for the RVM log, data segment, and size of the data segment.
 </para>
 </note>
 
@@ -632,7 +639,8 @@ To facilitate automatic setup procedure and easy changes of configuration we pro
 <para>The processes append new log entries to the end of the log file.  To control the growth of the log files over extended periods of operation, the files should be removed periodically. <filename>SrvLog</> may be removed by the <option>swaplog</> option of the <command>volutil</>; this will move the current <filename>SrvLog</> to <filename>SrvLog-1</> and begin a new log.  Swaplog also keep the last 6 log files, by removing, <filename>SrvLog-7</> and renaming the remaining log files.  a swaplog is also performed during file-server startup.  The log files of the other processes should be removed only when their respective processes are not running.  </para>
 </sidebar>
 
-<para>For a non-SCM server this startup sequence will cause the new server to first obtain the current server files such as <filename>/vice/db/ROOTVOLUME</filename> and <filename>/vice/db/VRList</filename> as well as others needed for this server to participate in the Coda cell.
+<para>For a non-SCM server this startup sequence will cause the new server to
+first obtain the current server files such as <filename>/vice/db/ROOTVOLUME</filename> and <filename>/vice/db/VRDB</filename> as well as others needed for this server to participate in the Coda cell.
 </para>
 
 <para>If the <application>codasrv</application> process started correctly, you should see <computeroutput>File Server started</computeroutput> in the SrvLog, othervise you will need to look at the error messages in <filename>SrvLog</filename> and <filename>SrvErr</filename> to determine what went wrong.  If the messages are not helpful, you should restart the server with higher debugging level.  Consult <xref linkend="Troubleshooting"> about problem solving.  </para>
@@ -741,7 +749,12 @@ with <command>volutil shutdown</command> or disconnect its network.  You can als
 <para>The size of the log device is based on available space and issues involving truncation.  Larger logs provide a longer accessible history of operations, are truncated less frequently, but each truncation will take a longer period of time.  Shorter logs truncate more often, but each truncation takes less time.  Log size is also strongly related to server startup time as well.  We use a 90M log size, on a storage size roughly 3.2GB spread between two UNIX partitions.  (We suggest leaving a little space at the end of the RVM log partition for safety, as RVM automatically adds about one extra page to the amount you specify).  Our <application>vice-setup</application> script provides for several default values, the largest of which is 130MB.  If you decide to follow the recommendation and use a dedicated partition, creating a 130MB partition will leave plenty of room to expand even if your initial use only suggests a size of 22M, for example.
 </para>
 
-<para>The log is initialized with <application>rvmutl</>.  At <application>rvmutl</>s prompt, use the command <command>i</>, and then specify the size of the log segment.  In specifying the size, you can use <literal>M</> for megabyte and <literal>K</> for kilobyte.  For example, to initialize a log on partition 0g to eight megabytes:
+<para>The log is initialized with <application>rvmutl</>.  At
+<application>rvmutl</>s prompt, use the command <command>i</>, and then
+specify the size of the log segment.  In specifying the size, you can use
+<literal>M</> for megabyte and <literal>K</> for kilobyte.  For example, to
+initialize a log on partition 1 on the 3rd SCSI drive on a Linux machine to
+eight megabytes:
 <informalexample>
 <screen>
 <prompt>#</><userinput>rvmutl</>

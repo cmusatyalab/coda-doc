@@ -257,7 +257,7 @@ Unless you do "huge" things 16k will be plenty.
 </answer>
 </qandaentry>
 
-<qandaentry><question><para>How to restore a backup from tape </para></question>
+<qandaentry id="RestoringBackups"><question><para>How to restore a backup from tape </para></question>
 <answer>
 <!-- Change into less fairy-tale fashioned -->
 <para>Tuesday I have lost my email folder - the whole volume <filename>moose:braam.life</> was corrupted on server <systemitem class="systemname">moose</> ant it wouldn't salvage.  Here is how I got it back.  </para>
@@ -269,7 +269,8 @@ corrupted too.</para>
 </step>
 
 <step>
-<para>On the SCM in <filename>/vice/vol/VRList</filename> I found the replicated volume number <literal>f0000427</> and the volume number <literal>ce000011</> (fictious) for the volume.  </para>
+<para>On the SCM in <filename>/vice/vol/VRList</filename> I found the
+replicated volume number <literal>7f000427</> and the volume number <literal>ce000011</> (fictious) for the volume.  </para>
 </step>
 
 <step>

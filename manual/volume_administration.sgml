@@ -9,12 +9,10 @@ and files, system administrators view the Coda file system as a hierarchy of vol
 
 <para>All system administration tasks are performed relative to a volume or a set of volumes.  So, adding new users requires creating new volumes for their files and directories;  quotas are enforced on volumes; and backups are performed on a per-volume basis.  The volume abstraction greatly simplifies the administration of large systems.  </para>
 
-<para>The Coda file system provides four different types of volumes.  The simplest of these is the <firstterm>non-replicated volume</>.  Non-replicated volumes reside on a single server and are in the custody of the Coda file server they reside on.  The Coda servers work with the <application>venus</> processes on client workstations to provide a single, seamless view of the file system.  However, if a custodian crashes or is otherwise inaccessible, its non-replicated volumes are inaccessible as well.  </para>
-
-<para>Thus, the main volume type that is used in typical Coda environments are
+<para>The main volume type that is used in typical Coda environments are
 the <firstterm>read-write, replicated volumes</>.  Read-write, replicated
-volumes are logical volumes which group together multiple read-write,
-non-replicated volumes.  Coda provides protocols which allow read-write,
+volumes are logical volumes which group together multiple read-write
+volumes.  Coda provides protocols which allow read-write,
 replicated volumes to reside on a number of servers and to be accessed even
 when some servers are inaccessible. </para>
 
@@ -30,12 +28,6 @@ when some servers are inaccessible. </para>
 </row>
 </thead>
 <tbody>
-<row>
-<entry>Non-replicated</entry>
-<entry>Only Custodian</entry>
-<entry>Only Custodian</entry>
-<entry>No</entry>
-</row>
 <row>
 <entry>Read-Write Replicated</entry>
 <entry>Any VSG Member</entry>
@@ -109,7 +101,9 @@ number between <literal>0</> and <literal>|VSG| - 1</literal>.  </para>
 
 <para>In order to use a volume which you have created and added to the appropriate databases, you must mount the volume.  Although Unix file systems must be mounted upon reboot in Unix, Coda volumes are mounted only once.  To mount a Coda volume, you must be using a Coda client and be authenticated as a user (use the <command>clog</>) who has write access to the directory in which the mount point will be created.  </para>
 
-<para>Mount the volumes using the command <command>cfs</> <option>mkmount</> <replaceable>filename</> <replaceable>volname</>. Note that <application>cfs</> creates <replaceable>filename</> automatically.  For example, <command>cfs</> <option>mkmount</> <option>/coda/usr/hbovik</> <option>u.hbovik</> will create <filename>/coda/usr/hbovik</> and then mount the <literal>u.hbovik</> volume created in the example in <xref linkend="CreateVol">.  The volume is now visible to all users of the Coda file system.  More information about the <application>cfs</> command can be found in <xref linkend="GettingStarted"> and in man page.  </para>
+<para>Mount the volumes using the command <command>cfs</> <option>mkmount</>
+<replaceable>filename</> <replaceable>volname</>. Note that
+<application>cfs</> creates <replaceable>directory name</> automatically.  For example, <command>cfs</> <option>mkmount</> <option>/coda/usr/hbovik</> <option>u.hbovik</> will create <filename>/coda/usr/hbovik</> and then mount the <literal>u.hbovik</> volume created in the example in <xref linkend="CreateVol">.  The volume is now visible to all users of the Coda file system.  More information about the <application>cfs</> command can be found in <xref linkend="GettingStarted"> and in man page.  </para>
 
 <Warning><para>When mounting a volume, avoid creating multiple mount points for it.  Coda cannot check for this.</para></warning>  
 </sect1>
@@ -185,12 +179,17 @@ be updated before client can see the restored volume. This is explained in
 
 <formalpara>
 <title>VLDB</>
-<para>The <firstterm>Volume Location Data Base</>, <acronym>VLDB</>, is used to provide volume addressing information to workstations.  Copies of the VLDB reside on the servers and are updated periodically.  The VLDB lists the latest known location or locations of all on-line volumes in the system. A human readable version of the VRDB is maintained on the SCM in the file <filename>/vice/vol/VRList</filename>.  </para>
+<para>The <firstterm>Volume Location Data Base</>, <acronym>VLDB</>, is used
+to provide volume addressing information to workstations.  Copies of the VLDB
+reside on the servers and are updated periodically.  The VLDB lists the latest
+known location or locations of all on-line volumes in the system. A human
+readable version of the VLDB is maintained on the SCM in the file
+<filename>/vice/vol/AllVolumes</filename>.  </para>
 </formalpara>
 
 <para>The VLDB is maintained on the SCM. When you wish to update it, run the
 <citerefentry><refentrytitle>bldvldb.sh</><manvolnum>8</></citerefentry> from
-<filename>/vice/bin/</> on the SCM.  The script gathers a copy of the
+<filename>/usr/sbin/</> on the SCM.  The script gathers a copy of the
 <filename>/vice/vol/VolumeList</filename> file from all the servers, merges it
 into a single list, and builds a new VLDB. The <application>updateclnt</> and
 <application>updatesrv</> daemons will then propagate the new VLDB to all the

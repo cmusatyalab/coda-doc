@@ -85,9 +85,9 @@ into the following directories: </para>
 <formalpara><title>NetBSD</title>
 <para>
 <itemizedlist mark="dash">
-<listitem><para> user applications - <filename>/usr/local/bin</filename>;</para></listitem>
-<listitem><para> system binaries  - <filename>/usr/local/sbin</filename>;</para></listitem>
-<listitem><para> other files - <filename>/usr/local/etc</filename>.</para></listitem>
+<listitem><para> user applications - <filename>/usr/pkg/bin</filename>;</para></listitem>
+<listitem><para> system binaries  - <filename>/usr/pkg/sbin</filename>;</para></listitem>
+<listitem><para> other files - <filename>/usr/pkg/etc</filename>.</para></listitem>
 </itemizedlist>
 </para>
 </formalpara>
