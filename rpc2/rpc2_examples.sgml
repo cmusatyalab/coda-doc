@@ -66,7 +66,7 @@ should periodically invoke @IOMGR(Poll) followed by @LWP(DispatchProcess).
 
 For similar reasons, Unix system calls such as <tt>read (2)</tt>, <tt>sleep (3)</tt>,
 and <tt>select (2)</tt> that may block for a long time should be avoided.
-Instead, use @IOMGR(Select).
+Instead, use IOMGR&lowbar;Select.
 
 
 <sect>Side Effects<p>
@@ -159,7 +159,7 @@ A connection id is returned to the client.
 The client is now ready to make RPC calls on this connection.
 
 The server indicates its willingness to accept calls for the <tt>rtime</tt>
-subsytem by calling @RPC2(Export).
+subsytem by calling RPC2&lowbar;Export.
 A filter for the <tt>rtime</tt> subsytem is specified
 and used in awaiting an RPC request by calling @RPC2(GetRequest).
 On receiving a request,  the server decodes and executes it
@@ -172,16 +172,14 @@ The server then goes back to waiting for more requests.
 
 
 
-<sect2>Interface Specification (<em>in file: rtime_rpc.sgml</em>)<P>
+<sect2>Interface Specification (<em>rtime_rpc</em>)<P>
 &rtimerpc;
 
-<sect2>Client Code (<em>in file: rtime_clnt.c.sgml</em>)<P>
-&rtimeclntc;
+<sect2>Client Code (<em>rtime_clnt.c.sgml</em>)<P>
+&rtimecl;
 
-<sect2>Server Code (<em>in file: rtime_srv.c.sgml</em>)<P>
-&rtimesrvc;
-
-
+<sect2>Server Code (<em>rtime_srv.c</em>)<P>
+&rtimesr;
 
 <sect1>Example 2: Authentication and Computation Subsystems<p>
 <label id="Example-authcomp">
@@ -195,22 +193,20 @@ An alternative would have been for a single LWP to service calls
 for both subsystems or for a collection of LWPs to service calls
 for any subsystems.
 
-
-
-<sect2>Interface Specifications for Auth Subsystem (<em>in file: auth_rpc.c.sgml)</em><P>
+<sect2>Interface Specifications for Auth Subsystem (<em>auth_rpc.c)</em><P>
 &authrpc;
 
-<sect2>Interface Specifications for Comp Subsystem(<em>in file: comp_rpc.c.sgml)</em><P>
+<sect2>Interface Specifications for Comp Subsystem(<em>comp_rpc.c)</em><P>
 &comprpc;
 
-<sect2>Client Code(<em>in file: authcomp_clnt.c.sgml</em><P>
-&authcompclntc;
+<sect2>Client Code(<em>authcomp_clnt.c</em><P>
+&a-clntc;
 
-<sect2>Server Code(<em>in file: authcomp_srv.c.sgml)</em><P>
-&authcompsrvc;
+<sect2>Server Code<em>authcomp_srv.c</em><P>
+&a-srvc;
 
-<sect2>Makefile for All Examples(<em>in file: Makefile_exam.sgml)</em><P>
-&Makefileexample;
+<sect2>Makefile for All Examples<em>Makefile</em><P>
+&Makeex;
 
 
 In chapter 2, "The RP2Gen Stub Generator," we will see how the stub generator can create such files.

@@ -47,7 +47,7 @@ To install the binary and documentation packages, do:
 <p>
 <item><tt>rpm -Uvh coda-doc-&lt;coda_release&gt;.i386.rpm</tt>
 </itemize>
-<tag/FreeBSD & NetBSD/
+<tag/FreeBSD and NetBSD/
 For FreeBSD, obtain:
 <htmlurl url="ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/" 
 name="ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd/"><tt>/&lt;OS-RELEASE&gt;/i386/</tt>

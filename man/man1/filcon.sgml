@@ -7,9 +7,9 @@
 <mansect>SYNOPSIS<P>
 
 <bf>filcon</bf><P>
-<bf>filcon isolate -s </bf>srv1 [srv2 ... ] <bf/-c/ clnt1 [clnt2 ....] <P>
-<bf>filcon join -s </bf>srv1 [srv2 ... ] <bf/-c/ clnt1 [clnt2 ....] <P>
-<bf>filcon clear -s </bf>srv1 [srv2 ... ] <bf/-c/ clnt1 [clnt2 ....] <P>
+<bf>filcon isolate -s </bf>srv1 &lsqb;srv2 ... ] <bf/-c/ clnt1 &lsqb;clnt2 ....] <P>
+<bf>filcon join -s </bf>srv1 &lsqb;srv2 ... ] <bf/-c/ clnt1 &lsqb;clnt2 ....] <P>
+<bf>filcon clear -s </bf>srv1 &lsqb;srv2 ... ] <bf/-c/ clnt1 &lsqb;clnt2 ....] <P>
 <bf>filcon partition -s </bf>srv1 <bf>-c clnt1 </bf> <P>
 <bf>filcon heal -h</bf> hostname1 port1 <bf>-h</bf> hostname2 port2<P>
 <bf>filcon oldpartition -h </bf> hostname1 port1 <bf>-h</bf> hostname2 port2<P>

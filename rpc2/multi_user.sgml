@@ -121,37 +121,25 @@ except for <bf>@SE&lsqb;Descriptors&rsqb;</bf>, only the first element of the ar
 filled in. For <bf>@SE&lsqb;Descriptors&rsqb;</bf>, all elements must be filled in.
 The following table should be consulted for specific formats.
 
-@begin(Table)
-@StandardTable(Name MCDecls, Columns 4, FirstColumn Flushleft, Othercolumns FlushRight, ColumnLined, HeadingBoxed)
-@begin(MCDecls)
-@tableid(MCDecls)
-@TableHeading(Immediate, RowFormat MCDeclsTopHeading, Line &lt;RP2Gen representation of MultiRPC parameters&gt;)
-@TableHeading(Immediate, RowFormat MCDeclsColumnHeadings, Line &lt;RPC2 Type@\<bf>in</bf>@\<bf>out</bf>@\<bf>in out</bf>&gt;)
-
-@RPC2(Integer)@\long@\long *&lsqb; &rsqb;@\long *&lsqb; &rsqb;
-
-@RPC2(Unsigned)@\unsigned long@\unsigned long *&lsqb; &rsqb;@\unsigned long *&lsqb; &rsqb;
-
-@RPC2(Byte)@\unsigned char@\unsigned char *&lsqb; &rsqb;@\unsigned char *&lsqb; &rsqb;
-
-@RPC2(String)@\unsigned char *@\unsigned char **&lsqb; &rsqb;@\unsigned char **&lsqb; &rsqb;
-
-@RPC2(CountedBS)@\@RPC2(CountedBS) *@\@RPC2(CountedBS) *&lsqb; &rsqb;@\@RPC2(CountedBS) *&lsqb; &rsqb;
-
-@RPC2(BoundedBS)@\@RPC2(BoundedBS) *@\@RPC2(BoundedBS) *&lsqb; &rsqb;@\@RPC2(BoundedBS) *&lsqb; &rsqb;
-
-@RPC2(EncryptionKey)@\@RPC2(EncryptionKey) *@\@RPC2(EncryptionKey) *&lsqb; &rsqb;@\@RPC2(EncryptionKey) *&lsqb; &rsqb;
-
-@SE(Descriptor)@\<em>illegal</em>@\<em>illegal</em>@\@SE(Descriptor) *&lsqb; &rsqb;
-
-@RPC2(Enum) <em>name</em>@\<em>name</em>@\<em>name</em> *&lsqb; &rsqb;@\<em>name</em> *&lsqb; &rsqb;
-
-@RPC2(Struct) <em>name</em>@\<em>name</em> *@\<em>name</em> *&lsqb; &rsqb;@\<em>name</em> *&lsqb; &rsqb;
-
-@RPC2(Byte) <em>name&lsqb;...&rsqb;</em>@\<em>name</em>@\<em>name</em> *&lsqb; &rsqb;@\<em>name</em> *&lsqb; &rsqb;
-
-@end(MCDecls)
-@end(Table)
+<table>
+<tabular ca="l|r|r|r">
+RPC2 Type | <bf>in</bf> | <bf>out</bf> | <bf>in out</bf>&gt;)
+RPC2&lowbar;Integer | long | long *&lsqb; &rsqb; | long *&lsqb; &rsqb;@
+RPC2&lowbar;Unsigned | unsigned long | unsigned long *&lsqb; &rsqb; | unsigned long *&lsqb; &rsqb;@
+RPC2&lowbar;Byte | unsigned char | unsigned char *&lsqb; &rsqb; | unsigned char *&lsqb; &rsqb;@
+RPC2&lowbar;String | unsigned char * | unsigned char **&lsqb; &rsqb; | unsigned char **&lsqb; &rsqb;@
+RPC2&lowbar;CountedBS | RPC2&lowbar;CountedBS) * | RPC2&lowbar;CountedBS) *&lsqb; &rsqb; | RPC2&lowbar;CountedBS) *&lsqb; &rsqb;@
+RPC2&lowbar;BoundedBS | RPC2&lowbar;BoundedBS) * | RPC2&lowbar;BoundedBS) *&lsqb; &rsqb; | RPC2&lowbar;BoundedBS) *&lsqb; &rsqb;@
+RPC2&lowbar;EncryptionKey | RPC2&lowbar;EncryptionKey * | RPC2&lowbar;EncryptionKey *&lsqb; &rsqb; | RPC2&lowbar;EncryptionKey *&lsqb; &rsqb;@
+SE&lowbar;Descriptor | <em>illegal</em> | <em>illegal</em> | SE&lowbar;Descriptor *&lsqb; &rsqb;@
+RPC2&lowbar;Enum <em>name</em> | <em>name</em> | <em>name</em> *&lsqb; &rsqb; | <em>name</em> *&lsqb; &rsqb;@
+RPC2&lowbar;Struct <em>name</em> | <em>name</em> * | <em>name</em> *&lsqb; &rsqb; | <em>name</em> *&lsqb; &rsqb;@
+RPC2&lowbar;Byte <em>name&lsqb;...&rsqb;</em> | <em>name</em> | <em>name</em> *&lsqb; &rsqb; | <em>name</em> *&lsqb; &rsqb;@
+</tabular>
+<caption><label id="MCDecls">
+RP2Gen representation of MultiRPC parameters
+</caption>
+</table>
 
 The client is only responsible for understanding the parameter type interface to the MakeMulti and HandleResult
 routines, and for allocating all necessary storage.

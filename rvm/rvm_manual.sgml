@@ -1,4 +1,4 @@
-<!doctype linuxdoc SYSTEM "../dtd/linuxdoc.dtd" [
+<!doctype linuxdoc SYSTEM  [
 <!entity rvmseg   SYSTEM "rvm_chap_rvmseg.sgml">
 <!entity rvmrds   SYSTEM "rvm_chap_rds.sgml">
 <!entity rvmutl   SYSTEM "rvm_chap_rvmutl.sgml">
@@ -49,41 +49,40 @@
 <![ %html; [ <!entity newpage PI "<HR>"> ]]>
 <!entity newpage PI "">
 ]>
+
 <report>
 
-<title>RVM <newline> Recoverable Virtual Memory
-<subtitle> RVM Release 1.3
-<author>
-<name>
-Henry M. Mashburn, Mahadev Satyanarayanan, David Steere, Yui W. Lee
-<thanks>
-"This research was supported by the Defense Advanced
-	Research Projects Agency (Avionics Lab,
-	Wright Research and Development Center,
-	Aeronautical Systems Division (AFSC), U.S. Air Force,
-	Wright-Patterson AFB, Ohio, 45433-6543 under Contract F33615-90-C-1465,
-	ARPA Order No. 7597).
-	The views and conclusions in this document are those of the authors
-	and do not represent the official policies of the funding agency
-	or Carnegie Mellon University."
+<title>RVM: Recoverable Virtual Memory, Release 1.3
 
-<inst> School of Computer Science <newline> Carnegie Mellon University
+<author>
+Henry M. Mashburn, Mahadev Satyanarayanan, David Steere, Yui W. Lee,
+<newline> School of Computer Science, Carnegie Mellon University
+<thanks>
+"This research was supported by the Defense Advanced Research Projects
+Agency (Avionics Lab, Wright Research and Development Center,
+Aeronautical Systems Division (AFSC), U.S. Air Force, Wright-Patterson
+AFB, Ohio, 45433-6543 under Contract F33615-90-C-1465, ARPA Order
+No. 7597).  The views and conclusions in this document are those of
+the authors and do not represent the official policies of the funding
+agency or Carnegie Mellon University."
+</thanks>
+
 <date>17 September 1997
 
-<abstract>"RVM provides an unstructured recoverable virtual memory.
-	The recoverable storage is represented by Unix files or disk partitions
-	that applications can map at page granularity
-	into the address space of a process.
-	Simple, non-nested atomic transactions guarantee permanence of
-	changes to recoverable storage across system crashes.
-	Applications can schedule transaction logging actions to enhance
-	performance.
-	The design stresses simplicity, ease of use, and high performance.
-	Unix compatibility is standard, while optional Mach-specific extensions
-	are supported for additional flexibility and performance.
-	RVM has been extensively used in the clients and servers of
-	the Coda File System, and in the Venari system.",
+<abstract>
+"RVM provides an unstructured recoverable virtual memory.  The
+recoverable storage is represented by Unix files or disk partitions
+that applications can map at page granularity into the address space
+of a process.  Simple, non-nested atomic transactions guarantee
+permanence of changes to recoverable storage across system crashes.
+Applications can schedule transaction logging actions to enhance
+performance.  The design stresses simplicity, ease of use, and high
+performance.  Unix compatibility is standard, while optional
+Mach-specific extensions are supported for additional flexibility and
+performance.  RVM has been extensively used in the clients and servers
+of the Coda File System, and in the Venari system.",
 </abstract>
+
 
 <toc>
 

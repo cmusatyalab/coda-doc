@@ -4,7 +4,7 @@
  <P> <bf>venus-setup</bf> setup <bf>venus</bf> on a client
 
 <mansect>SYNOPSIS<P>
-<bf>venus-setup</bf> [comma,separated,list,of,servers] [cachesize in kb]<P>
+<bf>venus-setup</bf> &lsqb;comma,separated,list,of,servers] &lsqb;cachesize in kb]<P>
 
 <mansect>DESCRIPTION<P>
 The <bf>venus-setup</bf> command takes a list of servers separated
@@ -33,7 +33,7 @@ contact either Mickey, Minnie or Goofy and configures venus with a 10MB
 cache.
 
 <mansect>BUGS<P>
-The [cachesize in kb] option to venus-setup is not very smart.  In
+The &lsqb;cachesize in kb] option to venus-setup is not very smart.  In
 fact, it is quite dumb.  No abbreviations are allowed after the
 number and the number is taken literally to be kilobytes.
 <p>

@@ -1,4 +1,4 @@
-<!doctype linuxdoc SYSTEM "../../dtd/linuxdoc.dtd" [
+<!doctype linuxdoc SYSTEM  [
 
 <!entity % latex "INCLUDE">
 <!entity % html  "IGNORE">
@@ -41,7 +41,7 @@ allocated so far.
 </itemize>
 
 Createvol_rep works as follows:
-Parameters are: &lt;volname&gt; &lt;vsgaddr&gt; &lt;partitionname&gt; [ &lt;groupid&gt; ]
+Parameters are: &lt;volname&gt; &lt;vsgaddr&gt; &lt;partitionname&gt; &lsqb; &lt;groupid&gt; ]
 <itemize>
 <item> check we are the SCM
 <item> Check that the volname doesn't appear in AllVolumes or VRList
@@ -58,10 +58,10 @@ assigns a volume id for this newly created volume.  It dumps
 bldvldb.sh <P>
 <itemize>
 <item> get <tt> /vice/vol/VolumeList </tt> from each server in <tt>
-/vice/db/hosts</tt>. Names is $server.list.new. First try this using
+/vice/db/hosts</tt>. Names is server-name.list.new. First try this using
 ftp, then rfs, then krcp. 
 <item> if the file was acquired move it to <tt>
-/vice/vol/remote/$server.list</tt>
+/vice/vol/remote/server-name.list</tt>
 <item> dump them all in <tt>/vice/vol/BigVolumeList</tt>
 <item> volutil rebuilds the VLDB with <tt> volutil makevldb
 /vice/vol/BigVolumeList</tt> 

@@ -101,7 +101,7 @@ operating system, the steps are as follows:
 
 On the Coda File Server designated as the SCM, create a file called 
 <tt>/vice/db/dumplist</tt>.  The dumplist contains three fields:
-volume id# specified as its hex value, the full/incremental backup schedule,
+volume id specified as its hex value, the full/incremental backup schedule,
 and a comment which is generally the human readable volume name.  
 For example:
 <P>
@@ -110,13 +110,13 @@ For example:
 7f000002        IIIIIFI         u:satya
 </verb>
 <P>
-The first column specifies the volume id # to be backup, the second
+The first column specifies the volume id to be backed up, the second
 column specifies the backup schedule by the day of the week begining
 Sunday, and the third column is a comment, ussually the volume name
-in human readable form.  So, the volume id #7f000001 is scheduled for a 
+in human readable form.  So, the volume id 7f000001 is scheduled for a 
 Full backup every Monday, and incrementals Tuesday through Sunday and
 from the comment, we know this is a system volume called "coda".  Likewise,
-the second volume #7f000002 is scheduled for a Full backup on Friday with
+the second volume 7f000002 is scheduled for a Full backup on Friday with
 incrementals being done Saturday through Thursday and is a user volume
 called "satya".
 <P>

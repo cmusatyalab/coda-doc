@@ -1,4 +1,4 @@
-<!doctype linuxdoc SYSTEM "dtd/linuxdoc.dtd" [
+<!doctype linuxdoc SYSTEM  [
 
 <!entity % latex "INCLUDE">
 <!entity % html  "IGNORE">
@@ -26,8 +26,8 @@ documents.
 <itemize>
 <item> <url url="index.html"  name="This document">
 <item> <url url="manual.html"  name="The Coda Administration and User Manual">
-<item> <url url="rvm_manual.html"  name="The RVM Manual">
-<item> <url url="rpc2_manual.html"  name="The RPC2 Manual (preliminary)">
+<item> <url url="rvm&lowbar;manual.html"  name="The RVM Manual">
+<item> <url url="rpc2&lowbar;manual.html"  name="The RPC2 Manual (preliminary)">
 <item> <url url="admin.html"  name="Some short scribbles about the volume databases">
 <item> <url url="sec.html"  name="Notes and explanations about Coda securtiy.">
 <item> <url url="kernel-venus-protocol.html"  name="A detailed document about hthe kernel Venus interaction.">
@@ -41,7 +41,7 @@ documents.
 <itemize>
 <item> <url url="../ps/index.ps"  name="This document">
 <item> <url url="../ps/manual.ps"  name="The Coda Administration and User Manual">
-<item> <url url="../ps/rvm_manual.ps"  name="The RVM Manual">
+<item> <url url="../ps/rvm&lowbar;manual.ps"  name="The RVM Manual">
 <item> <url url="../ps/admin.ps"  name="Some short scribbles about the volume databases">
 <item> <url url="../ps/kernel-venus-protocol.ps"  name="A detailed document about hthe kernel Venus interaction.">
 <item> <url url="../ps/sec.ps"  name="Notes and explanations about Coda securtiy.">

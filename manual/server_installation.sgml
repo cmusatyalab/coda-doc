@@ -118,7 +118,7 @@ setup of binaries for your Red Hat system.
 
 <descrip>
 
-<tag/FreeBSD & NetBSD/<tscreen><verb>
+<tag/FreeBSD and NetBSD/<tscreen><verb>
 coda-server-<release>.tgz 
 coda-doc-<release>.tgz
 </verb></tscreen>
@@ -408,7 +408,7 @@ you are ready to start the update server, client and the auth server,
 as well as the fileserver by typing:
 <tscreen><verb>
 For Linux:            /etc/rc.d/init.d/vice.init start
-For FreeBSD & NetBSD: /etc/rc.vice start           
+For FreeBSD and NetBSD: /etc/rc.vice start           
 </verb></tscreen>
 The last thing that must be done if an SCM server was being
 setup so it will function is to create the root volume you specified in
@@ -419,15 +419,15 @@ createvol_rep coda:root E0000100 /vicepa
 Once you have done this, check that the server has started by viewing the
 log:
 <tscreen><verb>
- xterm -e tail -f  /vice/srv/SrvLog & 
+ xterm -e tail -f  /vice/srv/SrvLog &amp;
 </verb></tscreen> 
 <tag/If this is a non-SCM server/
 You should start, authmon and the updateserver and updateclient 
 first by typing:
 <tscreen><verb>
 # authmon -ck &
-# updatemon -h `cat /vice/db/scm`  -q coda_udpsrv &
-# updatemon -s -p /vice/db &
+# updatemon -h `cat /vice/db/scm`  -q coda_udpsrv &amp;
+# updatemon -s -p /vice/db &amp;
 </verb></tscreen>
 This will cause the new server to first obtain the current server
 files such as <tt>/vice/db/ROOTVOLUME</tt> and <tt>/vice/db/VRList</tt>
@@ -442,7 +442,7 @@ server manually for the first type by typing:
 Once you have done this, check that the server has started by viewing the
 log:
 <tscreen><verb>
- xterm -e tail -f  /vice/srv/SrvLog & 
+ xterm -e tail -f  /vice/srv/SrvLog &amp; 
 </verb></tscreen>
 </descrip>
 <em>NOTE:</em> the above distinction between SCM and non-SCM server

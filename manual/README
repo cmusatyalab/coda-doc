@@ -13,9 +13,9 @@
 The Manual sources are now in SGML format, from which you can generate at
 least three different outputs:
 
-      a) latex (hence dvi, postscript, and hardcopy)
-      b) html (still in process, 10/17/97) 
-      c) man pages (still in process, 10/17/97) 
+      a) latex 
+      b) html 
+      c) man pages 
 
 
 [1] Translating SGML

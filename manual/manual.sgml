@@ -1,4 +1,4 @@
-<!doctype linuxdoc SYSTEM "/usr/lib/sgml-tools/dtd/linuxdoc.dtd" [
+<!doctype linuxdoc SYSTEM  [
 
 <!entity abstract SYSTEM "abstract.sgml">
 <!entity preface SYSTEM "preface.sgml">
@@ -34,14 +34,14 @@
 <!entity repair		SYSTEM "../man/man1/repair.sgml">
 <!entity spy		SYSTEM "../man/man1/spy.sgml">
 <!entity ttyfcon	SYSTEM "../man/man1/ttyfcon.sgml">
-<!entity venussetup     SYSTEM "../man/man1/venussetup.sgml">
-<!entity vicesetup      SYSTEM "../man/man1/vicesetup.sgml">
-<!entity volmunge       SYSTEM "./man/man1/volmunge.sgml">
+<!entity venussu     SYSTEM "../man/man1/venussetup.sgml">
+<!entity vicesu      SYSTEM "../man/man1/vicesetup.sgml">
+<!entity volmung       SYSTEM "../man/man1/volmunge.sgml">
 
 <!entity histo		SYSTEM "../man/man3/histo.sgml">
 <!entity timing		SYSTEM "../man/man3/timing.sgml">
 
-<!entity backuplogs	SYSTEM "../man/man5/backuplogs.sgml">
+<!entity backupl	SYSTEM "../man/man5/backuplogs.sgml">
 <!entity dumpfile	SYSTEM "../man/man5/dumpfile.sgml">
 <!entity dumplist	SYSTEM "../man/man5/dumplist.sgml">
 <!entity grpscoda	SYSTEM "../man/man5/groups_coda.sgml">
@@ -51,12 +51,8 @@
 <!entity servers	SYSTEM "../man/man5/servers.sgml">
 <!entity serconf	SYSTEM "../man/man5/srvconf.sgml">
 <!entity usrcoda	SYSTEM "../man/man5/user_coda.sgml">
-<<<<<<< manual.sgml
 <!entity pwdcoda	SYSTEM "../man/man5/passwd_coda.sgml">
-=======
-<!entity pwdcoda        SYSTEM "../man/man5/passwd_coda.sgml">
 <!entity vicetab        SYSTEM "../man/man5/vicetab.sgml">
->>>>>>> 1.7
 <!entity volulist	SYSTEM "../man/man5/volumelist.sgml">
 <!entity vrdb		SYSTEM "../man/man5/vrdb.sgml">
 <!entity vrlist		SYSTEM "../man/man5/vrlist.sgml">
@@ -71,7 +67,7 @@
 <!entity crvol		SYSTEM "../man/man8/createvol.sgml">
 <!entity crvolrep	SYSTEM "../man/man8/createvol_rep.sgml">
 <!entity initpw		SYSTEM "../man/man8/initpw.sgml">
-<!entity makeftree      SYSTEM "../man/man8/makeftree.sgml">
+<!entity makeftr        SYSTEM "../man/man8/makeftree.sgml">
 <!entity merge		SYSTEM "../man/man8/merge.sgml">
 <!entity norton		SYSTEM "../man/man8/norton.sgml">
 <!entity pcfgen		SYSTEM "../man/man8/pcfgen.sgml">
