@@ -881,9 +881,9 @@ server:25/, 25 depicts the width of the column used by the server.
 
 <sect1> Using Coda disconnected and reintegrating.<p>
 
-First get a new volume to try this with.  We <bf/strongly/ recommend
-not using the root volume to explore disconnected operation.  See
-below how to add a volume.
+First create a new volume, not equal to your root volume, to explore
+this.  Should you get conflicts in your root volume then they will be
+hard to repair.  See below how to add a volume.
 
 <enum>
 <item> change directory into this volume.  Do "ls -l" on the directory 
@@ -902,6 +902,8 @@ Monitoring codacon, you will see that your changes are being
 re-integrated.
 </enum>
 
+To start Coda while disconnected, you need the ip addresses and
+hostnames of your servers in <tt>/etc/hosts</tt>.
 
 
 
@@ -1018,7 +1020,7 @@ output, and only the combination of lack of file-service and error messages
 in logfiles indicate that something is really wrong.
 <p>
 
-<sect2>Client logging<p>
+<sect2>Client debugging output<p>
 
 <itemize>
 <item> <bf/codacon/ is a program which connects to venus and provides the user
@@ -1065,8 +1067,7 @@ for monitoring server availability.
 
 <sect1>Client Problems<p>
 
-<descrip>
-<tag>Client does not connect to <tt/testserver.coda.cs.cmu.edu/.</tag>
+<sect2>Client does not connect to <tt/testserver.coda.cs.cmu.edu/.<P>
 
 When you have set up your client for the first time, and it can not connect to
 the testserver at CMU, there are a couple of possible reasons. You might be
@@ -1079,13 +1080,40 @@ firewall, or set up your own server.
 
 The third reason is that the testserver might be down, for maintenance or
 upgrades. That does not happen often, but you can check whether it is up, and
-how long it has been running using cmon
+how long it has been running using cmon.
 
 <verb>
 cmon testserver.cs.cmu.edu:100
 </verb>
 
-<tag>Trying to access a file returns <em/Connection timed out/ (ETIMEDOUT).</tag>
+
+<sect2> Venus comes up but prints cannot find RootVolume<p>
+
+All of the reasons in the previous item could be the cause.  It is
+also possible that your <tt>/etc/services</tt> file is not allright.
+It needs the entries:
+
+<tscreen>
+<verb>
+# Iana allocated Coda filesystem port numbers
+rpc2portmap     369/tcp    
+rpc2portmap     369/udp    # Coda portmapper
+codaauth2       370/tcp    
+codaauth2       370/udp    # Coda authentication server
+
+venus           2430/tcp   # codacon port
+venus           2430/udp   # Venus callback/wbc interface 
+venus-se        2431/tcp   # tcp side effects
+venus-se        2431/udp   # udp sftp side effect
+codasrv         2432/tcp   # not used
+codasrv         2432/udp   # server port
+codasrv-se      2433/tcp   # tcp side effects
+codasrv-se      2433/udp   # udp sftp side effect
+</verb>
+</tscreen>
+
+
+<sect2>Trying to access a file returns <em/Connection timed out/ (ETIMEDOUT).<P>
 
 The main reason for getting <em/Connection timed out/ errors is that the volume
 where the file is located is disconnected from the servers. However, it can
@@ -1094,12 +1122,12 @@ there is an attempt to read a file which is open for writing. See
 <ref id="Disconnections" name="Volume is disconnected/Volume is write-disconnected">
 for more information. 
 
-<tag/Commands do not return, except by using ^C./
+<sect2>Commands do not return, except by using ^C./<P>
 
 When command are hanging it is likely that venus has crashed. Check
 <tt>/usr/coda/etc/console</tt> and <tt>/usr/coda/venus.cache/venus.log</tt>.
 
-<tag/Venus fails when restarted./
+<sect2>Venus fails when restarted.<p>
 
 If venus complains (in <tt>venus.log</tt> about not being able to open
 <tt>/dev/cfs0</tt>, it is because <tt>/coda</tt> is still mounted.
@@ -1112,7 +1140,7 @@ Another reason for not restarting is that another copy of venus is still
 around, and venus is unable to open it's network socket. In this case there
 will be a message in <tt/venus.log/ stating that RPC2_CommInit has failed.
 
-<tag/Venus doesn't start./
+<sect2>Venus doesn't start.<p>
 A reason is that you do not have the correct kernel module. This can be
 tested by inserting the module by hand, and then listing the available
 modules. `coda' should show up in that listing. Otherwise reinstall (or
@@ -1129,31 +1157,48 @@ coda                   50488   2
 If the kernel-module can be loaded without errors, check <tt/venus.log/. A
 message stating `Cannot get rootvolume name' indicated either a misconfigured
 server or the codasrv/codasrv-se ports are not defined in
-<tt>/etc/services</tt>, which should contain the following entries.
+<tt>/etc/services</tt>, which should contain the following entries. See above for the entries needed.
 
-<verb>
-rpc2portmap     369/tcp    
-rpc2portmap     369/udp
-codaauth2       370/tcp    
-codaauth2       370/udp
-venus           2430/tcp
-venus           2430/udp
-venus-se        2431/tcp
-venus-se        2431/udp
-codasrv         2432/tcp
-codasrv         2432/udp
-codasrv-se      2433/tcp
-codasrv-se      2433/udp
-</verb>
+<sect2> I'm disconnected and Venus doesn't start<P>
 
-</descrip>
+Put the hostnames of your servers in <tt> /etc/hosts</tt>. 
 
-</sect1>
+<sect2> I cannot get tokens while disconnected. <P>
+
+Take vacation until we release version 5.2 of Coda. We will add this
+feature.
+
+
+<sect2> Hoard doesn't work <p>
+
+Make sure you have version 5.0 of Coda or later.  Before you can hoard you must make sure that:
+
+<itemize>
+<item> You started Venus with the flag <tt/-primaryuser "youruid"/
+<item> You have tokens
+</itemize>
 
 <sect1>Server Problems<p>
 
-<descrip>
-<tag>server doesn't start due to salvaging problems<p> 
+
+<sect2>The server crashed and prints messages about "AllocViaWrapAround" <P>
+
+This happens when you have a resolution log that is full.  In the
+<tt/SrvLog/ file you will usually be able to see which volume is
+affected, take down it's volume id (you may need to consult
+<tt>/vice/vol/VRList</tt> on the SCM to do this.  Kill the dead
+(zombied) server, and restart it.  The moment it is up you do:
+
+<verb>
+filcon isolate -s "this server" # to prevent clients from again 
+                                # overwriting the log
+volutil setlogparms "volid" reson 4 logsize 16384
+filcon clear -s "this server"
+</verb>
+
+Unless you do "huge" things 16k will be plenty. 
+
+<sect2>server doesn't start due to salvaging problems<p> 
 
 If this happens you have several options.  If the server has crashed
 during salvaging it will not come up by trying again, you must either
@@ -1202,7 +1247,7 @@ volume and copy of the data from the healthy replicas (keep the server
 with the bad replica down).
 </enum>
 
-<tag> How to restore a backup from tape <p>
+<sect2> How to restore a backup from tape <p>
 
 Tuesday I lost my email folder - the whole volume
 <em/moose:braam.life/ was corrupted on server <em/moose/, it wouldn't
@@ -1276,7 +1321,7 @@ Now I could mount the restored volume:
 
 and copy it into a read write volume using cpio or tar. 
 
-<tag>createvol_rep reports RPC2_NOBINDING.</tag>
+<sect2>createvol_rep reports RPC2_NOBINDING.<p>
 When trying to create volumes, and createvol_rep reports RPC2_NOBINDING, it is
 an indication that the server is not (yet) accepting connections.
 
@@ -1288,22 +1333,21 @@ connections.
 Another reason is that an old server is still around, blocking the new server
 from accessing the network ports.
 
-<tag>RPC2_DUPLICATESERVER in the rpc2portmap/auth2 logs</tag>
+<sect2>RPC2_DUPLICATESERVER in the rpc2portmap/auth2 logs<p>
 Some process has the UDP port open which rpc2portmap or auth2 is trying to
 obtain. In most cases this is an already running copy of rpc2portmap or auth2.
 Kill all running copies of the program in question and restart them.
 
-<tag>Server crashed shortly after updating files in <tt>/vice/db</tt>.</tag>
+<sect2>Server crashed shortly after updating files in <tt>/vice/db</tt>.<p>
 Servers can crash when they are given inconsistent or bad data-files. You
 should check whether <tt/updateclnt/ and <tt/updatesrv/ are both running on
 the SCM and the machine that has crashed. You can kill and restart them. Then
 restart <tt/codasrv/ and it should come up.
   
-<tag/Users cannot authenticate or created volumes are not mountable./
+<sect2>Users cannot authenticate or created volumes are not mountable.<p>
 Check whether auth2, updateclnt, and updatesrv are running on all fileservers.
 Also check their logfiles for possible errors.
 
-</descrip>
 
 </sect1>
 
@@ -1564,6 +1608,7 @@ bandwidth scenario.
 <item>
 Long filenames are not supported under DOS environment yet. You can access
 files, but you need to use the long filenames. 
+<item> Reintegration after disconnection does not work at present.
 </itemize> 
 
 </sect2>
