@@ -1,10 +1,10 @@
-<sect> Common Scenarios<p>
+<chapt> Common Scenarios<p>
 
 There are several common scenarios that you may encounter.  This
 chapter attempts to list as many of them as possible and suggest how to
 handle each scenario.
 
-<sect1>Constructing a hoardfile<p>
+<sect>Constructing a hoardfile<p>
 <label id="ConstructHoard">
 Coda allows you to give files priorities that affect the cache
 manager.  The higher the priority, 
@@ -96,7 +96,7 @@ hoard.
 Other valid command to <em>hoard</em> are clear, delete, list, and modify.
 See the <em>hoard</em>(1) man page for more details on these commands.
 
-<sect1>Hoarding for a Weekend<p>
+<sect>Hoarding for a Weekend<p>
 <label id="HoardDB">
 One of the most common uses of a Coda laptop is to take it home
 overnight or for the weekend.  Naturally, you want to be sure that all
@@ -127,7 +127,7 @@ of the commands you intend on using after you disconnect.  If you are
 missing some files, it will be easy to reconnect and hoard them.
 
 
-<sect1>Reintegrating After a Disconnected Session<p>
+<sect>Reintegrating After a Disconnected Session<p>
 <label id="reintegration">
 When you reconnect to the network after a disconnected session, Coda
 will automatically try to reintegrate your changes with the Coda
@@ -170,7 +170,7 @@ show which files were not reintegrated and force a reintegration
 respectively. 
 
 
-<sect1>Dealing With a Flaky Network<p>
+<sect>Dealing With a Flaky Network<p>
 When the network is acting up, you can use Coda to help isolate
 yourself from the networking problems.  Set up your hoard database so
 that Venus will hoard the files you are working on.  Then,
@@ -185,7 +185,7 @@ you are done working on the set of files that you hoarded.
 <em>Note: AFS will not be affected by cfs, so access to AFS files will
 still be affected by the network problems.</em>
 
-<sect1>Reintegrating Over the Phone Line<p>
+<sect>Reintegrating Over the Phone Line<p>
 If you are planning on taking a Coda laptop on an extended trip, you
 should consider using SLIP to reinitgrate with the Coda servers
 periodically.  Using SLIP will allow updates to be visible to
@@ -250,7 +250,7 @@ If you want to stop running SLIP before you shut down your computer,
 simply turning off your modem or killing <em>slattach</em> will terminate
 your SLIP connection.
 
-<sect1>Repairing an Inconsistent Directory<p>
+<sect>Repairing an Inconsistent Directory<p>
 <label id="Inconsistent">
 Occasionally, a directory entry will become inconsistent.  This
 happens when there is a conflict between file server replicas that Coda cannot
@@ -271,7 +271,7 @@ Most applications will return the error File not found when they
 try to open a file that is inconsistent.  You need to resolve this
 conflict by using the <em>repair</em>(1) tool. 
 
-<sect2>Server/Server Conflicts<p>
+<sect1>Server/Server Conflicts<p>
 Once you run repair, you need to do a "beginRepair" on the object that
 is inconsistent.  After "beginRepair" is issued, the inconsistent directory
 will have an entry for each of the replicated volumes.  You can look at
@@ -346,7 +346,7 @@ example
 </code>
 
 
-<sect2>Local/Global Conflicts<p>
+<sect1>Local/Global Conflicts<p>
 Local/global conflicts are caused by reintegration failures, which
 means that the mutations performed while the client was disconnected
 are in conflict with the mutations performed on the servers from other

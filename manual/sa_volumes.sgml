@@ -1,6 +1,6 @@
-<sect> System Administration: Volumes <p>
+<chapt> System Administration: Volumes <p>
 
-<sect1>Description<p>
+<sect>Description<p>
 
 Although users view the Coda file system as a hierarchy of directories
 and files, system administrators view the Coda file system as a hierarchy
@@ -68,7 +68,7 @@ Coda Volume Types</caption>
 </table>
 
 
-<sect1>Creating a Volume
+<sect>Creating a Volume
 <label id="CreateVolume"> <p>
 
 Typically, volumes consist of a single users data objects or other 
@@ -141,7 +141,7 @@ identifications. The names of the replicas will be "user.hbovik.n",
 where n is a number between 0 and |VSG| - 1. 
 
 
-<sect1>Mounting a Volume<p>
+<sect>Mounting a Volume<p>
 <label id="MountVolume">
 
 In order to use a volume which you have created and added to the
@@ -169,7 +169,7 @@ More information about the <bf>cfs</bf> command can
 be found in Chapter <ref id="GettingStarted" name="XXX"> as well as in Appendix
 <ref id="ManualPages" name="XXX">.
 
-<sect1>Deleting a Volume<p>
+<sect>Deleting a Volume<p>
 <label id="DeleteVolume">
 
 When a volume is no longer needed, it may be purged by running the 
@@ -185,7 +185,7 @@ Backup and ReadOnly volumes should be purged with the <bf>purgevol</bf>
 script.
 
 
-<sect1>Restoring a Volume<p>
+<sect>Restoring a Volume<p>
 
 For complete details on the backup/restore process, see Chapter
 <ref id="BackupChapter" name="XXX">. In short, one first needs to get the correct
@@ -201,7 +201,7 @@ volume. This is useful when creating read-only replicated volumes.
 Note that currently dump files are not independent of byte ordering -- so
 volumes cannot be dumped across architectures that differ in this respect.
 
-<sect1>Read-only Replication of a Volume<p>
+<sect>Read-only Replication of a Volume<p>
 <label id="RORep">
 
 Read-only replication of a volume requires more effort on the part of the system
@@ -271,7 +271,7 @@ that the file <tt>/vice/ROOTVOLUME</tt> contains the name or volume id of the
 root volume (coda.root.readonly).  (Also, it may be necessary to restart the venus
 on the clients.)
 
-<sect1>Building the VLDB<p>
+<sect>Building the VLDB<p>
 <label id="VLDB">
 
 The volume location data base, VLDB, is used to provide volume 
@@ -289,7 +289,7 @@ UpdateMon program then propagates the new VLDB to all the servers.
 Note that the <bf>createvol</bf> and <bf>purgevol</bf> scripts
 automatically invoke <bf>bldvldb.sh</bf>.
 
-<sect1>Building the VRDB<p>
+<sect>Building the VRDB<p>
 
 The volume replication data base, the VRDB, is used to provide information
 about replicated volumes to client workstations.  Copies of the VRDB reside 
@@ -302,14 +302,14 @@ The <bf>makevrdb</bf> option to the <bf>volutil(8)</bf> command
 will create a new VRDB which will automatically be distributed to the other
 servers.
 
-<sect1>Building the VSGDB<p>
+<sect>Building the VSGDB<p>
 
 The Volume Storage Group Data Base, VSGDB, is currently maintained
 by hand.  Each valid volume storage group has an entry in this data base
 containing an identification number and the names of the servers in the
 group.
 
-<sect1>Ensuring Volume Consistency after Server Crashes<p>
+<sect>Ensuring Volume Consistency after Server Crashes<p>
 
 Coda servers ensure file system consistency after a crash by running
 <bf>fsck (8)</bf>, recovering RVM, and running the Coda salvager.
@@ -321,7 +321,7 @@ After the server machine is booted, the <bf>srv</bf> process starts and RVM
 recovers the servers committed state.  The Coda salvager then
 reconciles the results from <bf>fsck</bf> and the salvager.
 
-<sect1>Getting Volume Information<p>
+<sect>Getting Volume Information<p>
 
 The <bf>cfs</bf> provides information on volumes.
 <bf>cfs</bf> can only be used on a machine which has

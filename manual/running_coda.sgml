@@ -1,6 +1,6 @@
-<sect> Running Coda <p>
+<chapt> Running Coda <p>
 
-<sect1>Server<p>
+<sect>Server<p>
 <label id="ServerMonitor">
 Each process running on a server maintains a log file of its
 activities.  This file may be monitored by running 
@@ -31,7 +31,7 @@ fileserver startup.  The
 log files of the other processes should be removed only when their
 respective processes are not running.
 
-<sect2>Startup<p>
+<sect1>Startup<p>
 <label id="ServerStartup">
 
 Starting the servers srv process is relatively straightforward.  You
@@ -72,7 +72,7 @@ included remove this file unless the server completely crashed.  If
 <bf>startserver</bf> or <bf>restartserver</bf> complain that
 a server is already running, <tt>pid</tt> might need to be removed.
 
-<sect2>Shutdown<p>
+<sect1>Shutdown<p>
 <label id="ServerShutdown">
 To shutdown the file server gracefully, use the volume utility client
 procedure, <bf>volutil</bf>.  Issue the command 
@@ -91,7 +91,7 @@ VShutdown: Taking volume trace.backup(0xcc00057f) offline...... Done
 VShutdown:  complete.
 </verb>
 
-<sect2>Monitoring and Debugging<p>
+<sect1>Monitoring and Debugging<p>
 <label id="SrvDebug">
 
 The <bf>volutil</bf> program talks to the volume utility
@@ -121,9 +121,9 @@ context to the point of the error.  To return to the current context,
 use the <bf>restore</bf> command.  (Note that before quitting from gdb, you
 MUST return to the current context.)).
 
-<sect1>Client<p>
+<sect>Client<p>
 
-<sect2>Startup<p>
+<sect1>Startup<p>
 <label id="ClientStartup">
 
 To begin running the Coda file system on a client machine, become root
@@ -138,7 +138,7 @@ directory <tt>/coda</tt> and placed the file
 top of this directory), Venus has either not finished initialization
 or has exited.
 
-<sect2>Shutdown<p>
+<sect1>Shutdown<p>
 
 To shutdown a Coda file system client, execute the command 
 <bf>/usr/coda/etc/vutil -shutdown</bf> as <bf>root</bf> on the client 
@@ -148,7 +148,7 @@ Venus tries to unmount <tt>/coda</tt>.  This will fail if any
 process is cded into <tt>/coda</tt> or any binaries are running
 from <tt>/coda</tt>.
 
-<sect2>Debugging and Monitoring<p>
+<sect1>Debugging and Monitoring<p>
 
 The Venus log file is found in <tt>/usr/coda/venus.cache/venus.log</tt>.  
 All monitoring and debugging information is written to this file.
@@ -168,7 +168,7 @@ options other than the debugging option described above.  For more
 information, please refer to <bf>vutil</bf>s manual page
 in Appendix <ref id="ManualPages" name="XXX">.
 
-<sect2>Redirecting STDERR from Venus<p>
+<sect1>Redirecting STDERR from Venus<p>
 
 If you give <bf>venus</bf> the parameter 
 <em>-console filename</em>, stderr will print to the file <tt>filename</tt>

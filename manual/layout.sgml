@@ -1,4 +1,4 @@
-<sect> Coda Source Layout <p>
+<chapt> Coda Source Layout <p>
 
 This chapter is a guide to using and modifying Coda source code at CMU-SCS.
 It is mainly intended to help new members of the project come up to speed.
@@ -6,7 +6,7 @@ But it may also help sites outside CMU that receive a Coda distribution to devis
 procedures appropriate to their environments.
 
 
-<sect1>The Big Picture<p>
+<sect>The Big Picture<p>
 
 All files relating to Coda, with the sole exception of RCS files (see Section <ref id="RCS)" name="XXX">,
 are stored in <tt>/coda/project/coda.</tt>  Lets call this <tt>&dollar;CODA.</tt>
@@ -28,7 +28,7 @@ use.  Most users Venii, as well as the servers on production machines,
 are from this release.  Hence the value of <tt>/usr/coda/SYMLINK</tt> on those users workstations
 is <tt>&dollar;CODA/omega</tt>.
 
-<sect2>How versions evolve<p>
+<sect1>How versions evolve<p>
 
 The <tt>alpha</tt> release of software corresponds to a lightly tested version of the system.
 Individual developers have done a significant amount of testing of <tt>alpha</tt> software, but
@@ -66,7 +66,7 @@ Normally no development or changes are done along this branch.
 However, it provides a way to introduce an emergency fix 
 in a <tt>beta</tt> or <tt>omega</tt> release if the need ever arises.
 
-<sect2>How code is developed<p>
+<sect1>How code is developed<p>
 <label id="CodeDevelopment">
 
 Lets illustrate this with a specific example. Suppose I want to upgrade the module
@@ -95,8 +95,8 @@ will make it into a <tt>beta</tt> release.  Section <ref id="PromotingReleases" 
 this is done.  After some use as <tt>beta</tt>, it will be promoted to <tt>omega</tt>.
 
 
-<sect1>Layout of Source Code<p>
-<sect2>Layout of a Release<p>
+<sect>Layout of Source Code<p>
+<sect1>Layout of a Release<p>
 Each release has the structure shown in Figure <ref id="ReleaseLayout" name="XXX">.  Note that this layout
 is identical for all releases.
 
@@ -122,7 +122,7 @@ the source code in <tt>src</tt>.  The only exception to this are the files in <t
 that have to be copied in by hand.   The sources for these files are not in <tt>src</tt>.
 
 
-<sect2>Layout of the source directory<p>
+<sect1>Layout of the source directory<p>
 The <tt>src</tt> directory in each release is organized as in Figure <ref id="SrcLayout" name="XXX">.  The <tt>MAKECODA</tt>
 script simplifies the compilation of the entire release.  The <tt>Makeconf</tt> file defines in
 a single spot many key variables and paths used by the makefiles in individual modules.  Those
@@ -145,7 +145,7 @@ without changing lots of individual symlinks.  Such relocation might happen, for
 when Coda sources are used outside CMU.
 </tscreen>
 
-<sect2>Layout of a typical module<p>
+<sect1>Layout of a typical module<p>
 The structure of a typical module is shown in Figure <ref id="ModuleLayout" name="XXX">.
 <figure>
 <eps file="coda-module-fig">
@@ -172,7 +172,7 @@ the use of these modules outside Coda.   If you are compiling by hand, you have 
 "<tt>make -f Makefile.coda &lt;target&gt;</tt>", rather than just "<tt>make &lt;target&gt;</tt>".
 
 
-<sect1>Module Dependencies<p>
+<sect>Module Dependencies<p>
 <label id="Dependencies">
 
 Most Coda modules rely on files installed by other Coda modules.  It is
@@ -299,9 +299,9 @@ parallel.  But I havent actually tried that yet.
 
 
 
-<sect1>Building a Release<p>
+<sect>Building a Release<p>
 
-<sect2>Prerequisites<p>
+<sect1>Prerequisites<p>
 <label id="Prerequisites">
 To compile Coda "out of the box" you need the following compilation tools:
 <itemize>
@@ -324,7 +324,7 @@ It should be possible to modify the code to use other versions of C++
 (such as <tt>g++</tt>), or to use standard Unix make.  But we havent
 tried this, and dont plan to.
 
-<sect2>Special directories<p>
+<sect1>Special directories<p>
 <label id="SpecialDirectories">
 
 Before you can compile Coda, you need to populate the <tt>&lcub;include,lib,bin,src&rcub;-special</tt> directories.
@@ -372,7 +372,7 @@ include-special/&lcub;assert.h,cthreads.h,setjmp.h,sys/inode.h,
 </verb></tscreen>
 </descrip>
 
-<sect2>Using the MAKECODA script<p>
+<sect1>Using the MAKECODA script<p>
 <label id="MAKECODA">
 
 Once you have taken care of the prerequisites and special files, you can compile a release.
@@ -421,7 +421,7 @@ MAKECODA OBJECTDIR=/tmp/@@sys  ROOT=/coda/project/coda/alpha
 </verb>
 </tscreen>
 
-<sect1>Making Incremental Changes<p>
+<sect>Making Incremental Changes<p>
 <label id="Changes">
 
 Once the <tt>alpha</tt> release has been built, you can start code development.
@@ -481,7 +481,7 @@ but you dont have to check them out.  This is because the CMU-SCS
 make knows to check out any needed files automatically into the compilation
 target area.
 
-<sect2>The alphaci script<p>
+<sect1>The alphaci script<p>
 <label id="alphaci">
 
 The automatic checkin is done by a script called <tt>alphaci</tt> that is invoked
@@ -520,7 +520,7 @@ files to be checked in.  This is because the installation for the first machine
 type, PMAX, did the checkin.
 
 
-<sect1>Promoting Releases<p>
+<sect>Promoting Releases<p>
 <label id="PromotingReleases">
 
 As we have seen earlier, there are 3 important releases of software:
@@ -540,7 +540,7 @@ The <tt>alpha</tt> servers are used by project members for testing.
 Obviously, only one person can test their software on a server at a time, so you
 should coordinate use of the servers with the other members.
 
-<sect2>Promoting alpha to beta<p>
+<sect1>Promoting alpha to beta<p>
 <label id="alphatobeta">
 
 When the <tt>alpha</tt> release has diverged substantially from <tt>beta</tt>,
@@ -607,7 +607,7 @@ guarantees that the binaries in <tt>&dollar;BETA</tt> were indeed compiled from 
 In the final step, the release coordinator makes the symlink <tt>beta</tt> point to <tt>&dollar;BETA</tt>.
 This is the "commit" step that blesses the newly-cloned release as the <tt>beta</tt> release.
 
-<sect2>Promoting beta to omega<p>
+<sect1>Promoting beta to omega<p>
 
 After the <tt>beta</tt> release has been stressed for some time, 
 it will be promoted to <tt>omega</tt>.  This is a much simpler procedure than the 
@@ -616,7 +616,7 @@ symlink <tt>omega</tt> point to the <tt>beta-xxxx</tt> where <tt>xxxx</tt> is th
 identity of the release being promoted.  This "commit" step blesses what was
 hitherto <tt>beta</tt> as <tt>omega</tt>
 
-<sect1>Copyright Notices<p>
+<sect>Copyright Notices<p>
 
 Since Coda is distributed outside CMU, it is important that
 every source file  contain a copyright notice.  The <tt>blurb</tt> program
@@ -662,7 +662,7 @@ In general, do your best to keep the number of tainted files to a minimum.
 Note that this discipline regarding copyrights is not intended to be
 onerous or constraining --- just common sense and a little self-discipline.
 
-<sect1>Using RCS for Revision Control<p>
+<sect>Using RCS for Revision Control<p>
 <label id="RCS">
 
 
@@ -742,5 +742,5 @@ with these files are running on Brahms and faust, safely (I think so).
 
 </verb></tscreen>
 
-<sect1>Coding Tips<p>
+<sect>Coding Tips<p>
 &lsqb;<em>to be written</em>&rsqb;

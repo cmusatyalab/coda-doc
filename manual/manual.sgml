@@ -1,5 +1,6 @@
 <!doctype linuxdoc system[
 <!entity abstract SYSTEM "abstract.sgml">
+<!entity preface SYSTEM "preface.sgml">
 <!entity starting SYSTEM "getting_started.sgml">
 <!entity scenar SYSTEM "scenarios.sgml">
 <!entity trouble SYSTEM "trouble.sgml">
@@ -20,15 +21,16 @@
 
 ]>
 
-<article>
+<report>
 
-<title>Coda File System, User and System Administrators Manual
+<title>Coda File System &nl; User and System Administrators Manual
      <author>M. Satyanarayanan, Maria R. Ebling, Joshua Raiff, Peter J. Braam
      <date>v1.1, 20 August 1997
 
 
 &abstract;
 <toc>
+&preface;
 &starting;
 &scenar;
 &trouble;
@@ -46,5 +48,5 @@
 &files;
 &problems;
 &expl;
-</article>
+</report>
 

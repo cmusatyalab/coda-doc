@@ -1,6 +1,6 @@
-<sect> Example Configuration files<p>
+<chapt> Example Configuration files<p>
 
-<sect1>/vice/db/user.coda<p>
+<sect>/vice/db/user.coda<p>
 <tscreen<verb>
 rootl:8eyUkE/DLFLOA:0:1:Local System Manager:/:/bin/csh
 admin:A4SCSN80lqBao:2127:21:AccountsAdministrator:/usr0/admi
@@ -11,14 +11,14 @@ satya:.Z.COf9BKQBPM:122:32767:M Satya:/cmu/itc/satya:/bin/cs
 h
 </verb></tscreen>
 
-<sect1>/vice/db/groups.coda<p>
+<sect>/vice/db/groups.coda<p>
 <tscreen<verb>
 System:Administrators	-204	dcs jjk mre pkumar satya
 System:coda		-221	dcs jjk mre pkumar satya
 System:codastudents		-222	dcs jjk mre pkumar
 </verb></tscreen>
 
-<sect1>/vice/db/servers<p>
+<sect>/vice/db/servers<p>
 <tscreen<verb>
 These server ids must not be reassigned.
 Server id's must not be greater than 255.
@@ -30,7 +30,7 @@ VIVALDI.CODA.CS.CMU.EDU		202
 RAVEL.CODA.CS.CMU.EDU		203
 </verb></tscreen>
 
-<sect1>/.rhosts<p>
+<sect>/.rhosts<p>
 <tscreen<verb>
 bach
 bach.coda.cs.cmu.edu

@@ -1,6 +1,6 @@
-<sect> The Backup System <p>
+<chapt> The Backup System <p>
 
-<sect1>Design of the Backup Subsystem<p>
+<sect>Design of the Backup Subsystem<p>
 
 As use of the Coda file system increased, the need for larger storage capacity
 grew and the need for reliable data storage also became apparent.
@@ -67,7 +67,7 @@ then be used to extract the desired old data.
 The obvious exception is that mutating
 options will fail on files in a readonly volume.
 
-<sect1>Incremental Dumps<p>
+<sect>Incremental Dumps<p>
 
 In every dump (full or incremental) produces a file
 containing the version vectors and <em>StoreIds</em> of every vnode in the volume.  These files
@@ -102,7 +102,7 @@ During merge, the full dumps uniquifier is compared with the uniquifier
 of the dump used to create the incremental.  If they do not match, the
 incremental should not be applied to the full dump.  
 
-<sect1>Tape files<p>
+<sect>Tape files<p>
 Once the dump files have been created, they must be written to tape.
 This is due to the fact that disk space is usually a limited
 commodity.  The basic mechanism for the writing is the unix <bf>tar (1)</bf> 
@@ -166,7 +166,7 @@ Since its unreasonable to keep
 all the tapes around, we only save tapes containing full dumps.  Weekly tapes are
 saved for a month, and monthly tapes are saved for eternity.
 
-<sect1>Restoring a backup clone<p>
+<sect>Restoring a backup clone<p>
 A basic assumption of performing backups is that eventually someone will need
 to restore old state of a volume.  To do this they should contact the system
 administrator, specifying the volume (groupid and repid for replicated volumes
@@ -189,7 +189,7 @@ in the Coda name space so the
 user can access it.  When the user has finished with it, she should notify the
 administrator in order for the clone to be purged.
 
-<sect1>Backup Scripts<p>
+<sect>Backup Scripts<p>
 Although the <bf>backup</bf> program handles all the tricky details involved in Coda 
 backup, there still remains some issues to be handled, most notably the saving
 of the dump files to tape.  This is done by a series of scripts, <bf>backup.sh</bf>, 
@@ -235,7 +235,7 @@ tape label, fast-forward the tape to the correct tape file, and extract the dump
 file for the volume.
 
 
-<sect1>Installing a Coda Backup Coordinator Machine<p>
+<sect>Installing a Coda Backup Coordinator Machine<p>
 The Coda Backup coordinator should be a trusted machine.  It should get all the
 files that exist in the <tt>/vice</tt> subtree on the servers, although
 it is not necessary to run a fileserver on the backup coordinator.

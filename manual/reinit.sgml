@@ -1,4 +1,4 @@
-<sect> Reinitializing Coda Servers after a Disaster<p>
+<chapt> Reinitializing Coda Servers after a Disaster<p>
 
 As Coda is still an experimental system, the state of a Coda
 File System may sometimes get to the point where 
@@ -33,7 +33,7 @@ Flush client caches.
 Test the system.
 </enum>
 
-<sect1>Obtaining Backup Dump Files<p>
+<sect>Obtaining Backup Dump Files<p>
 <label id="ReinitDump">
 If the system is in a state that backups can be successfully run, we
 suggest running the <bf>backup.sh</bf> script to capture the most recent
@@ -59,18 +59,18 @@ Divide the volumes into groups that will fit onto a single backup tape (at CMU t
 Run <bf>backup</bf> on the dumplist files.
 </enum>
 
-<sect1>Reinitializing RVM on the Servers<p>
+<sect>Reinitializing RVM on the Servers<p>
 Use <bf>rvmutl</bf> and <bf>rdsinit</bf> to initialize RVM.  Unless you are
 reinitializing in order to change the size of the RVM heap, be sure to
 use the same sizes that you used previously.  See section
 <ref id="RVMInitialization" name="XXX"> for the details of initializing RVM. 
 
-<sect1>Recreate the Backed Up Volumes<p>
+<sect>Recreate the Backed Up Volumes<p>
 <label id="ReinitCreateVols">
 Use <bf>createvol (8)</bf> and <bf>createvol&lowbar;rep (8)</bf> to create all of the
 volumes that you backed up in section <ref id="ReinitDump" name="XXX">.
 
-<sect1>Restore the Backup Clones<p>
+<sect>Restore the Backup Clones<p>
 First, restore the read only coda of the <em>coda&lowbar;root</em> volume.  This
 should have been backup up in section <ref id="ReinitDump" name="XXX">.  In section
 <ref id="ReinitCreateVols" name="XXX">, you should have created your <em>coda&lowbar;root.tmp</em>
@@ -80,27 +80,27 @@ restored.  Next create a directory  <em>/coda/tmp/restore</em> and use the
 <em>/coda/tmp/restore</em>.  See the <bf>volutil (8)</bf> man page for more details
 on restoring the volumes.
 
-<sect1>Mount the Recreated Volumes<p>
+<sect>Mount the Recreated Volumes<p>
 Create a directory <em>/coda/tmp/inited</em> and mount all of the volumes
 created in <ref id="ReinitCreateVols" name="XXX"> in this directory.
 
-<sect1>Populate the New Volumes<p>
+<sect>Populate the New Volumes<p>
 Run the script <bf>restorevolumes (8)</bf> to restore all of the volumes
 that were backed up in section <ref id="ReinitDump" name="XXX">.  
 
-<sect1>Unmount the Volumes<p>
+<sect>Unmount the Volumes<p>
 Use <bf>cfs rmmount</bf> to unmount all of the volumes in
 <em>/coda/tmp/restored</em> and <em>/coda/tmp/inited</em>.  Then remove these
 directories.  See the man page <bf>cfs (8)</bf> for more details on
 unmounting volumes.
 
-<sect1>Flush Client Caches<p>
+<sect>Flush Client Caches<p>
 You need to flush the client caches as they will not have the correct
 volume information anymore.  Use the
 <bf>cfs flushcache</bf>
 command to do this.
 
-<sect1>Test the system<p>
+<sect>Test the system<p>
 After youve flushed the client caches the system is ready to run.  Do
 some testing to make sure Coda is functioning correctly and allow the
 users back into the system.

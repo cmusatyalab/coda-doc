@@ -1,6 +1,6 @@
-<sect> System Administration: Users<p>
+<chapt> System Administration: Users<p>
 
-<sect1>Adding users<p>
+<sect>Adding users<p>
 <label id="AddUsers">
 
 There are several steps in adding a new user to the Coda file system. First,
@@ -9,7 +9,7 @@ Second, add the user to the Coda authentication database and the
 protection database (described below). Third, create a volume for
 the user and mount it at the appropriate place in the Coda name space  (See section <ref id="CreateVolume)" name="XXX">.
 
-<sect2>Constructing new protection database files<p>
+<sect1>Constructing new protection database files<p>
 
 Add a line for each new user to the <tt>user.coda</tt> file
 using the userId from the new users Unix account.
@@ -37,7 +37,7 @@ Finally, execute
 <tt>% /usr/coda/bin/pcfgen vice</tt>
 to generate thefile <tt>vice.pcf</tt>.
 
-<sect2>Installing the protection database files<p>
+<sect1>Installing the protection database files<p>
 
 Now that you have generated the new protection database files, you must install
 these files.  Follow these steps:
@@ -52,7 +52,7 @@ Login into the SCM.
 is the name of the directory containing the new vice.pdb and vice.pcf.
 </enum>
 
-<sect2>Modifying the authentication database<p>
+<sect1>Modifying the authentication database<p>
 
 User accounts are added to the authentication database by the
 <bf>/usr/coda/bin/au</bf> program. The <bf>/usr/coda/bin/au</bf>
@@ -88,7 +88,7 @@ Now, the <bf>auth</bf>
 server knows about the new users.  New users may change their temporary 
 passwords using the <bf>cpasswd</bf> command.
 
-<sect1>Monitoring Auth Server Activity<p>
+<sect>Monitoring Auth Server Activity<p>
 
 The file <tt>/vice/auth2/AuthLog</tt> has a log of the
 auth server activity and can be used to monitor failed login attempts.

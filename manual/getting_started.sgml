@@ -1,4 +1,4 @@
-<sect> Getting Started <p>
+<chapt> Getting Started <p>
 
 The Coda file system expands the local file system hierarchy
 to include shared files much like the <em>Sun Network File System</em> and 
@@ -24,7 +24,7 @@ is helpful when learning about Coda.
 This chapter introduces essential Coda commands.  For more details on these
 commands, refer to their man pages.
 
-<sect1>Authentication<p>
+<sect>Authentication<p>
 Once you are logged in to your workstation, you need to get a Coda
 authentication token by running the <bf>clog</bf> program.
 <bf>clog</bf> will prompt you for your Coda password and use it
@@ -76,7 +76,7 @@ tell <em>venus</em> to forget your tokens.  Once you run
 <bf>unlog</bf>, you will have the same privileges as an anonymous
 Coda user until you acquire a new authentication token.
 
-<sect1>Coda File Protection<p>
+<sect>Coda File Protection<p>
 Coda provides a close approximation to UNIX protection semantics. 
 An <em>access control list</em> (ACL) controls access to directories by granting and
 restricting the rights of users or groups of users.  An entry in an access
@@ -157,7 +157,7 @@ If you omit the <em>-negative</em> switch, then "baduser" will still be
 denied read and lookup access.
 
 
-<sect1>Disconnected Operation<p>
+<sect>Disconnected Operation<p>
 If all of the servers that an object resides on become
 inaccessable, then the client will use the cached copy of the object (if present) as a valid replica.  When the client does this, it is operating in
 <em>disconnected mode</em>.  
@@ -197,7 +197,7 @@ you modified a file in disconnected mode and someone else also
 modified that file on the servers.  Section <ref id="reintegration" name="XXX"> has
 more on reintegration. 
 
-<sect1>Hoarding<p>
+<sect>Hoarding<p>
 Coda allows you to advise the cache manager, <em>venus</em>, of critical
 files that it should  try to keep in
 the cache.  You indicate the relative importance of the files by
@@ -212,7 +212,7 @@ hoard database is by creating a file with commands for the <bf>hoard</bf>
 program.  This file is known as a <em>hoard file</em>.
 
 
-<sect1>Repairing Conflicts<p>
+<sect>Repairing Conflicts<p>
 <label id="Conflicts">
 As a result of Codas optimistic replica management, object replicas 
 can conflict on different servers.  A conflict arises when the same object

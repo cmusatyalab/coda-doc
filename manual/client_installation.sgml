@@ -1,10 +1,10 @@
-<sect> Installing a Coda Client<p>
+<chapt> Installing a Coda Client<p>
 
 A Coda client can be run on any workstation that supports the Sun VFS
 interface.  Our experience has been limited to Mach kernels, but it
 would take minimal effort to port Coda to another kernel.
 
-<sect1>Binaries and Devices<p>
+<sect>Binaries and Devices<p>
 
 The <tt>&dollar;INSTALLATION&lowbar;DIR</tt> contains a shell script,
 <tt>installclient.sh</tt>, to install the binaries.  This script has
@@ -31,21 +31,21 @@ are <bf>clean</bf> and
 <tt>/usr/coda</tt> directory.  The <bf>update</bf> command updates
 the Coda client binaries from the installation directory.  
 
-<sect1>Configuration Changes<p>
+<sect>Configuration Changes<p>
 
 This section describes the changes that must be made to various 
 configuration files.  Examples of the files are contained in Appendix 
 <ref id="ExampleFiles" name="XXX"> as well as in the appropriate  place in the 
 <tt>&dollar;INSTALLATION&lowbar;DIR</tt>.
 
-<sect2>/usr/coda/etc/vstab<p>
+<sect1>/usr/coda/etc/vstab<p>
 Create a <tt>vstab</tt> file in <tt>/usr/coda/etc</tt> to contain
 the Coda file system table information.  A default version of this file
 is copied over in the <bf>installclient.sh</bf> script suitable
 for use with the Coda servers at Carnegie Mellon.  The contents of this
 file are explained in <bf/vstab/.
 
-<sect2>/etc/rc.local<p>
+<sect1>/etc/rc.local<p>
 Changes to <tt>/etc/rc.local</tt> are necessary to automatically
 start Venus at boot time.  Append the following lines to
 <tt>/etc/rc.local</tt> if you want Venus to run automatically.
@@ -57,7 +57,7 @@ if [ -f /usr/coda/etc/venus ]; then
 fi
 </verb>
 
-<sect1>Where Data is Stored<p>
+<sect>Where Data is Stored<p>
 <itemize>
 <item>
 <tt>/usr/coda/bin</tt> Symlink to Coda binaries not critical for

@@ -1,4 +1,4 @@
-<sect> Kernels for use with Coda <p>
+<chapt> Kernels for use with Coda <p>
 
 Currently, Coda clients and servers, can only be run on Mach kernels. The servers
 can be run on vanilla Mach kernels, but the clients require some Coda-specific
@@ -7,7 +7,7 @@ kernel changes under the EXP configuration flag.  Thus running a facilities
 kernel named X126.STD+WS+EXP (or something similar with the +EXP suffix) should
 allow you to run a Coda Venus.
 
-<sect1>Vnode Interface<p>
+<sect>Vnode Interface<p>
 In Unix systems, the piece of code which translates user-generated system calls
 into file system requests is called the Vnode Interface. To integrate with this
 interface, a file system must provide a driver for the routines in the interface.
@@ -24,8 +24,8 @@ Communication between Venus and the MiniCache is obtained through a Unix
 special device. On Coda machines, this device is called /dev/cfs0. This file
 must be created as part of the client installation.
 
-<sect1>Device Driver for Hardware Clock<p>
+<sect>Device Driver for Hardware Clock<p>
 
-<sect1>Installing the Coda kernel<p>
+<sect>Installing the Coda kernel<p>
 The Mach kernel with Coda changes only needs to be installed on client machines.
 See the section on client installation for this procedure.

@@ -1,9 +1,9 @@
-<sect> Troubleshooting <p>
+<chapt> Troubleshooting <p>
 
 This chapter is meant to help solve some of the problems you may run
 into when using Coda.  
 
-<sect1>File System Full<p>
+<sect>File System Full<p>
 You may get a message of the form, <em>/usr: file system
 full</em> when you have not put any extra data on that disk.  If the
 venus.cache directory is on that disk, that is probably your problem.
