@@ -1,0 +1,460 @@
+<!doctype linuxdoc system [
+
+]>
+
+
+<article>
+
+<title> The Coda Dir Package
+<author> Peter J. Braam
+<date> Jan 24, 1998
+
+<abstract>  This document describes the driectory package used in Coda. Our aim is to describe the interface offered by the dir library, as well as typical usage in Venus and Vice. Areas of improvement are also pointed out.
+</abstract>
+
+<toc> 
+
+<sect> Introduction<p>
+
+<sect1><bf>Directory Entires</bf><p>
+
+Unix directories are files containing lists of filenames and file identifiers. In Coda the directory entries consist of a name and a DirFed, a pair of a vnode number and uniqifier. The volume to which a directory belongs can be found back through its vnode.
+
+Directories are transported over the net, hence the storage format of all data is in network order. Therefore two variants of the Dir Fid structure exist, DirFid's for use on the host,and Dir NFid's which hold the identifiers innetwork order.
+
+The size of a directory entry is always a multiple of 32 bytes. The first entry contains the fid, the blob number of the next entry on the hash chain and a tag indicating it is the first entry. Subsequent entries contain the remainder of a potentially long name.
+
+<sect1><bf>Directory Format</bf><p>
+
+The Coda directory format is inherited from AFS 2 and is somewhat elaborate. Directories have sizes equal to an integral multiple of the directory page size (2048 bytes). They are always continguously allocated (this was changed in 1998). Pages are then subdivided in 64 blobs. Each page in the directory has a PageHeader and a directory has a DirHeader.
+
+The first blob contains the PageHeader, the next 12 blobs in the first page contain the directory header and the remaining blobs are for directory entries. The pageheader contains a bitmap to manage the allocation of blobs, and a free count to indicate how many blobs are still free. The DirHeader contains an allocation map (allomap), which also indicates for each possible page in the direcotry how many blobs are available. It also contains a hastable. Has values are coputed for names and indicate the first blob used by entries of that name.
+
+<sect1><bf>Storage Location of Directories</bf><p>
+
+Ultimately, clients and servers hold directory data in RVM. 
+
+Venus will store directory data as a contiguous blob of memory and
+expand such a region when a directory needs to grow. A Venus fso
+object contains a field of type VenusData, which is a union of file,
+directory and symlink data.  
+
+<verb>
+union VenusData {
+    int	havedata;	/* generic test for null pointer (pretty gross, eh) */
+    CacheFile *file;	/* VnodeType == File */
+    VenusDirData *dir;	/* VnodeType == Directory */
+    char *symlink;	/* VnodeType == SymbolicLink */
+};
+</verb>
+
+
+For a directory Venus has:
+
+<verb>
+struct VenusDirData {
+	/* Vice format directory in VM/RVM. */
+	struct DirHandle dh;
+	/* Unix format directory in UFS. */
+	/*T*/unsigned udcfvalid : 1;
+	/*T*/CacheFile *udcf;
+	/*T*/int padding;
+};
+</verb>
+
+The server makes a copy of the direcotry data in VM, operates on that
+and copies the entire directory back to RVM when finished. The server
+stores the directory in pages in RVM, but never does directory
+operations on the pages.  A directory inode contains the page map for
+the directory.
+
+Since directory contents on the server are copy on write, a directory
+handle is needed to count the references to the directory while it is
+in use.  These handles are held in a hash table in the server.
+
+The <bf/VnodeDiskObjectStruct/ in RVM contains a pointer <bf/Inode/ to a
+directory inode structure:
+
+<verb>
+struct DirInode {
+	void *di_pages[DIR_MAXPAGES];
+	int  di_refcount;             /* for copy on write */
+};
+</verb>
+
+These arrange for RVM storage of directories.  
+
+While the server is running vnodes are hashed in VM and the <bf/Vnode/
+structure contains a pointer <bf/dh/ to a directory handle.  The
+directory handles themselves sit in a hashtable:
+
+<verb>
+struct dllist_head dcache[DCSIZE];
+struct dllist_head dfreelist; 
+
+struct DCHashEntry {
+	struct dllist_head    dc_listhead;
+	int                   dc_count;  /*how many vnodes are referencing us */
+	struct DirHandle      dc_dh;
+	PDirInode             dc_pdi;
+};
+</verb> 
+
+
+<sect1><bf>C Structures Describing the Directory Format</bf><p>
+
+The following structures describe the directory format:
+
+<verb>
+struct PageHeader {
+    log tag;
+    char freecount;   /* duplicated info: also in allomap */
+    char freebitmap [EPP/81];
+    char padding[PH_PADSIZE];
+};
+
+struct DirHeader {
+    struct PageHeader dirh_ph;
+    char dirth_allomap[MAXPAGES];  /* one byte per 2K page */  
+    short dirh_hashTable[NHASH];
+};
+
+/* A file identifier in host order */
+struct DirFid {
+    long dnf_vnode;   /* file vnode */
+    long dnf_unique;  /* file uniguifier */
+};
+
+/* File identifier in network order */
+struct DirNFid {
+    long dng_vnode; /* file vnode */
+    long dnf_unique;  /* file uniguifier */
+};
+
+struct DirEntry {
+    char flag;
+    char length;  /* currently unused */
+    short next;
+    struct DirNFid fid;
+    char name[16];
+};
+
+struct DirXEntry {
+    char name[32];
+};
+
+</verb>
+
+
+
+<sect1><bf>Example of the Directory Layout:</bf><p>
+
+The dirtest program shows a simple directorylayout below:
+
+<verb>
+DIR: 0x501121c, LENGTH: 2048
+
+HASH TABLE:
+(1 19) (46 13) (68 14) (104 20)
+
+ALLOMAP:
+(0 41)
+
+PAGEHEADERS;
+page 0, tag 1234, freecount 41, st 23, bitmap:
+1111111101111111111111100000000100000000000000000000000000000000
+
+CHAINS:
+Chain: 1
+thisblob: 19 next: 18, flag 1 fid: (8.8) 27
+thisblob: 18 next: 17, flag 1 fid: (8.8) 50
+thisblob: 17 next: 0, flag 1 fid: (8.8) 225
+Chain: 46
+thisblob: 13 next: 0, flag 1 fid: (9.9) .
+Chain: 68
+thisblob: 14 next: 0, flag 1 fid: (9.9) ..
+Chain: 104
+thisblob: 20 next: 0, flag 1 fid: (4.5) this is a veryveryveryverylongname
+</verb>
+
+Careful investigation will show that more than a single blob is ocupied by the very long entry.
+
+
+
+<sect>Interfaces<p>
+
+Venus and Vice will access directories through the directory handle api. A directory handle facilitates:
+- locking of directories
+- managing rvm and non rvm copies of the data
+
+<sect1><bf>DirHandle API</bf><p>
+
+Directory handles are opaque but have a simple internal structure:
+
+
+<verb>
+struct DirHandle {
+    lock           dh_lock;
+    PDirHeader     dh_vmdata;
+    PDirHeader     dh_rvmdata;
+    int            dh_refcount;
+};
+</verb>
+
+<sect2>void DH_LockW(PDirHandle);<P>
+Lock the direcotry for writing
+
+<sect2>void DH_LockR(PDirHandle);<P>
+
+<sect2>void DH_UnLockW(PDirHandle);<P>
+release a write lock
+
+<sect2>void DH_UnLockR(PDirHandle);<P>
+release a read lock
+
+<sect2>void DH_Init(PDirHandle dh);<P>
+initializes the lock in a directory handle.
+
+<sect2>PDirHandle DH_New(int in_rvm, PDirHeader vmdata, PDirHeader rvmdata);<P>
+
+
+Instantiate a new directory handle in in VM or RVM and attach directory header pointers to the fields. This routine is probably not useful to Venus and Vice since DirHandle structures are embedded in other structures.
+
+<sect2>int DH_Length(PDirHandle);<P>
+
+return the length of the directory in bytes. This will always be a multiple of the DIR_PAGESIZE (2048 bytes)
+
+<sect2>int DH_Create (PDirHandle dh, char *entry, struct DirFid *fid);<P>
+
+Lookup an entry in the directory dh and fill in the fid. This call returns 0 upon success.
+
+<sect2>int DH_Delete(PDirHandle dh, char *entry);<P>
+
+Remove entry from dh. Return 0 upon success.
+
+<sect2>void DH_Free(PDirhandle dh, int in_rvm);<P>
+
+Free the data pointed toby (r)vm data field in the handle.
+
+<sect2>void DH_Alloc(PdirHandle dh, int size, int in_rvm);<P>
+
+Allocate (recoverable) memory of size size in the DirHeader pointers in the dh.
+
+<sect2>PDirHeader DH_Data(PDirHandle dh);<P>
+
+Return a pointer tothe dirheader in the dirhandle.
+
+<sect2>void DH_Print(PDirHandle dh);<P>
+
+Print the complete structure of the directory
+
+<sect2>int DH_MakeDir(PDirHandle dh, PDirFid me, PDirFid parent);<P>
+
+Create a new directory. This call will allocate memory in (r)vm based on the return vlaue of dir_rvm()
+
+<sect2>int DH_EnumerateDir(PDirHandle dh, int (*hookproc) (struct DirEntry *de, void *hook) , void *hook);<P>
+
+This call williterate through the directory entries and apply hookproc to each, with parameter the dir entry in question and the hook pointer. It will quit when all entries have been processed or when hookproc returns a nonzero value.
+
+The final return value is returned by DH_EnumerateDir.
+
+
+
+<sect1>DIR api<p>
+
+The DIR api handles the actions on the directory data blobs. These routines are probably only used by the DH api and not elsewhere in the code. This important since it will make switching to a new directory type easy.
+
+The internalhandling of the directory buffers is important. New entries can be created and the routine dir_FindBlobs will locate a sufficient number of blobs. If none are available anymore in the directory the routine dir_AddPage is called.  AddPage reallocates a directory buffer which is one pagesize (2048 bytes) larger and then copies the old data into the new one (dir_Extend). Of course this requires a rvm_set_range call when the data is in RVM. After this is done, it adjusts the bitmaps and free counts.
+
+<sect2>extern int DIR_init(int data_location);<P>
+
+Tells Venus/Vice if directory data is manipulated in RVM or VM. Venus will directly doits transactions on the RVM data (following the pointer in DH). The server manipulates a VM handle and commits the entire blob at commit time.
+
+<sect2>extern void DIR_Free(struct DirHeader *, int);<P>
+
+<sect2>extern int DirHash (char *);<P>
+
+Hash value of the name -- could probably be static.
+
+<sect2>extern int DirToNetBuf(long *, char *, int, int *);<P>
+
+This routine is probably going to be obsolete.
+
+<sect2>int DIR_MakeDir(struct DirHeader **dir, struct DirFid *me, struct DirFid *parent<P>
+
+Make a new directory with "." and ".." entries as indicated by me and papa.
+
+<sect2>int DIR_LookupByFid (PDirHeader dhp, char *name, struct DirFid *fid);<P>
+
+The normal important lookup of a name in a directory.
+
+<sect2>int DIR_EnumberateDir(struct DirHeader *dhp,<P>
+
+<sect2>int (*hookproc) (struct DirEntry *de, void *hook), void *hook);<P>
+
+Enumerate untilhookproc returns non-null. Return final return value of hookproc.
+<sect2>int DIR_Create(struct DirHeader **dh, char *entry, struct DirFid *fid);<P>
+
+Create a directory entry
+
+<sect2>int DIR_Length(struct DirHeader *dir);<P>
+
+Length of the directory
+
+<sect2>int DIR_Delete(struct DirHeader *dir, char *entry);<P>
+
+delete an entry
+
+<sect2>void DIR_PrintChain(PDirHeader dir, int chain);<P>
+ print out a hash chain in a directory
+
+<sect2>int DIR_Convert (PDirHeader dir, char *file);<P>
+
+Convert a directory to Venus BSD format for parsing by the kernel.
+
+sect2>static int dir_NameBlobs (char *name)<P>
+
+How many blobs are needed for this name?
+
+<sect2>static int dir_FindBlobs (struct DirHeader **dh, int nblobs<P>
+
+Find a bunch of contiguous entries; at least nblobs in a row.
+
+<sect2>static int dir_AddPage (struct DirHeader **dh)<P>
+
+Add a page to a directory. This routine has two components. It calls dir_Extend and when the new buffer is made available adjusts the bitmaps, freecounts, etc.
+
+<sect2>static struct DirHeader *dir_Extend(struct DirHeader *olddir, int in_rvm)<P>
+
+This is the routine which allocates a new buffer (exactly one page larger than the former size of the directory) and frees the previous buffer. Of ocurse it uses a transaction in RVM if this is where data is held.
+
+<sect2>static struct PageHeader *dir_Page(struct DirHeader *dirh, int page)<P>
+
+Return the PageHeader for the page <tt>page</tt> in the directory.
+
+<sect2>static void dir_Freeblobs(struct DirHeader *dhp, register int firstblob, int nblobs)<P>
+
+This is called delete. It makes a group of blobs available again for re-allocation to new entries.
+
+<sect1>FID api<P>
+
+There are a variety of fid supporting routines needed in the dir package. The primary
+
+1. ViceFids in use by Venus and Vice are structures containing more information (such as cell and volume information) than fids stored in Coda directories which only contain a vnode and uniquifier.
+
+2. Directories are stored on disk in network order.  This means that conversion to host order is appropriate and needs a few supporting routines.
+
+<sect2>void FID_VFid2DFid(struct ViceFid *vf, struct DirFid *df);<P>
+
+Copy a ViceFid's vnode and unique fields into a directory fid.
+
+<sect2>void FID_DFiD2VFid(struct DirFid *df, struct ViceFid *vf); <P>
+
+Copy a directory Fid's vnode and unique field into a ViceFid.
+
+<sect2>void FID_CpyVol (struct ViceFid *taget, struct ViceFid *source);<P>
+
+<sect2>void FID_Int2DFid (struct DirFid *fid, int vnode, int unique);<P>
+
+Load integers into a fid
+
+<sect2>void FID_NFid2Int (struct DirNFid *fid, long *vnode, long *unique);<P>
+
+Take vnode and unique out of a directory network fid.
+
+<sect2>void FID_PrintFid(struct DirFid *fid);<P>
+
+Print a fid
+
+<sect2>char *FID_s(struct ViceFid *fid);<P>
+
+<sect2>char *FID_s2(struct ViceFid *fid);<P>
+
+Give a printed version of the fid in a string (statically allocated).  Allows for ....
+
+<sect2>static void fid_Fid2NFid (struct DirFid *fid, struct DirNFid *nfid)<P>
+
+Convert fid to network order
+
+<sect2>static void fid_NFid2Fid (struct DirNFid *nfid, struct DirFid *fid)<P>
+
+Convert fid to host order
+
+<sect2>static int fid_FidEqNFid(struct DirFid *fid, struct DirFid *nfid)<P>
+
+Is a network fid equal to a fid?
+
+
+<sect1> Directory Inode API <p>
+
+<sect2> PDirHeader DI_DiToDh(PDirInode pdi) <p>
+
+Copy the pages in a directory inode to a contiguous area in VM for
+which memory is malloced.  The directory header (i.e. the first page
+of this data in VM) is returned.
+
+<sect2> DI_DhToDi(PDirHandle pdh, PDirInode pdi) <p>
+
+Store the pages found in a VM area in RVM.  This involves setting
+ranges and potentially allocating new pages in persistent storage for
+the object.
+
+<sect2> DI_Inc(PDirInode) <p>
+
+Increase the reference count to the directory (after a clone for
+example) in persistent storage.
+
+
+<sect2> DI_Dec(PDirInode) <p>
+
+Decrease the RVM refcount on the directory. Remove the directory when
+this falls to 0.
+
+<sect2> DI_Count(PDirInode )  <p>
+
+Returns the reference count on a directory. 
+
+<sect2> DIPages(PDirInode ) <p>
+
+Return the number of pages in the directory. 
+
+<sect2> void *DI_Page(PDirInode pdi, int page) <p>
+
+Return a pointer to a page.
+
+<sect2> void DI_Copy(PDirInode oldinode, PDirInode *newinode) <p> 
+
+Make a copy of a directory inode and the pages. Needed by copy on write. 
+
+<sect1> Directory Handle Cache API <p>
+
+<sect2> void DC_HashInit() <P>
+
+Set up the DH hashtable.
+
+<sect2> void DC_Put(PDirHandle dh) <P>
+
+Decrease the refcount on a hashed directory handle. Remove it when it
+falls to 0.
+
+<sect2> struct DirHandle *DC_Get(PDirInode pdi) <P> 
+
+Increase the reference count on a cached directory handle or fetch the
+handle and the data from RVM if not hashed yet.
+
+<sect><bf>Lookup handling</bf><P>
+
+Intimately related to directories is the handling of lookups. In Coda this is somewhat involved due to volume mountpoints, and objects in conflict. During regular use, Venus performs the lookups.
+
+For every ViceFid an inode number can be computed. The routine coda_f2i does this translation. A lookup of a name will return this inode number <em> except </em> when:
+
+<enum><item> The name looked up is ".."  and it is contained in the root directory of a volume. Instead the lookup is returns the value returned by looking up "." in the directory containing the mount point. Note that this may be recursive.
+
+<item> The name looke dup is "." and it is contained in the root directory of a volume. In this case the value returned is the value obtained by looking up the mountpoint in the parent directory of ".".</item></enum>
+
+
+
+
+
+
+</article>

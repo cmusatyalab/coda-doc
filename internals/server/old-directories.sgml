@@ -405,12 +405,5 @@ Still to analyze:
 </itemize>
 
 
-Worst written call in Coda: fsobj::Fetch ... sit down with Lily to
-clean it up.  It's INCOMPREHENSIBLE.
 
-<enum>
-<item> What is a local object?
-<item> What are replica control rights (RCRights)
-<item> What is a dirty fsobj
-</enum>
 </article>
