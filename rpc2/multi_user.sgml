@@ -48,7 +48,7 @@ In this example, a minimal handler routine is supplied for each server operation
 The following table shows the C type interface between the client routine and <em>MRPC_MakeMulti</em> for all the possible combinations of legal parameter declarations and types. In all cases it is the clients responsibility to allocate storage for all parameters, just as in the RPC2 case. For all types except RPC2_EncryptionKey, IN parameters are handled the same as in the single MakeRPC case; RPC2_EncryptionKeys must be passed as pointers in the MultiRPC case. For OUT and INOUT parameters, arrays of pointers to parameters must be supplied in order to hold the multiple server responses. The array for each parameter must contain the same number of items as the number of servers contacted, and they must be filled sequentially starting from element zero. For all INOUT parameters except for <bf>SE_Descriptors</bf>, only the first element of the array need be filled in. For <bf>SE_Descriptors</bf>, all elements must be filled in. <p>
 
 The following table should be consulted for specific formats. <p>
-
+<!--   Fix This TABLE 
 <table>
 <tabular ca="l|r|r|r">
 RPC2 Type | <bf>in</bf> | <bf>out</bf> | <bf>in out</bf>&gt;)
@@ -68,16 +68,18 @@ RPC2&lowbar;Byte <em>name&lsqb;...&rsqb;</em> | <em>name</em> | <em>name</em> *&
 RP2Gen representation of MultiRPC parameters
 </caption>
 </table>
+-->
 
 The client is only responsible for understanding the parameter type interface to the <em>MakeMulti</em> and <em>HandleResult</em> routines, and for allocating all necessary storage. <em>MRPC_MakeMulti</em> and <em>MRPC_UnpackMulti</em> are included in the RPC2 libraries.
 
 @newpage
 <sect>Runtime Calls<p>
+
 <sect1>MRPC_MakeMulti -- <em>Pack arguments and initialize state for RPC2_MultiRPC</em><p>
   <sect2>Call:<p> 
 	ParmList = `@w&lt;<bf>in</bf> long ServerOp&gt;, @w&lt;<bf>in</bf> ARG ArgTypes&lsqb;&rsqb;&gt;, @w&lt;<bf>in</bf> long HowMany&gt;, @w&lt;<bf>in</bf> @RPC2(Handle) CIDList&lsqb;&rsqb;&gt;, @w&lt;<bf>out</bf> @RPC2(Integer) RCList&lsqb;&rsqb;&gt;, @w&lt;<bf>in out</bf> @RPC2(Multicast) *MCast&gt;, @w&lt;<bf>in</bf> long (*HandleResult) ()&gt;, @w&lt;<bf>in</bf> struct timeval *Timeout&gt;, @w&lsqb;&lt;Variable Length Argument List&gt;&rsqb;,
-	P1=`ServerOp, PD1=`For server routine foo, "foo@ux&lsqb;@#&rsqb;OP". RP2GEN generated opcode, defined in include file. Note that subsystems with overlapping routine names may cause problems in a MakeMulti call.,
-	P2=`ArgTypes, PD2=`For server routine foo, "foo@ux&lsqb;@#&rsqb;PTR". RP2GEN generated array of argument type specifiers. A pointer to this array is located in the generated include file <em>foo.h</em>.,
+	P1=`ServerOp, PD1=`For server routine foo, "foo". RP2GEN generated opcode, defined in include file. Note that subsystems with overlapping routine names may cause problems in a MakeMulti call.,
+	P2=`ArgTypes, PD2=`For server routine foo, "foo;PTR". RP2GEN generated array of argument type specifiers. A pointer to this array is located in the generated include file <em>foo.h</em>.,
 	P3=`HowMany, PD3=`How many servers are being called,
 	P4=`CIDList, PD4=`Array of HowMany connection handles, one for each of the servers,
 	P5=`RCList, PD5=`Array of length HowMany, into which RPC2 will place return codes for each of the connections specified in ConnHanleList.  May be specified as NULL if return codes will not be examined.,
@@ -166,7 +168,7 @@ the process of the MultiRPC call.)
 	ParmList=`@w&lt;<bf>in</bf> long HowMany&gt;, @w&lt;<bf>in</bf> @RPC2(Handle) ConnArray&lsqb; &rsqb;&gt;, @w&lt;<bf>in</bf> long WhichHost&gt;, @w&lt;<bf>in</bf> long rpcval&gt;, @w&lsqb;&lt;Variable Length Argument List&gt;&rsqb;,
 	P1=`HowMany, PD1=`number of servers from @MRPC(MakeMulti) call,
 	P2=`ConnArray, PD2=`array of connection ids as supplied to @MRPC(MakeMulti),
-	P3=`WhichHost, PD3=`this is an offset into ConnArray and into any OUT or IN@ux&lsqb;@#&rsqb;OUT parameters. Using this to index the arrays will yield the responding server and its corresponding argument values.,
+	P3=`WhichHost, PD3=`this is an offset into ConnArray and into any OUT or IN;OUT parameters. Using this to index the arrays will yield the responding server and its corresponding argument values.,
 	P4=`rpcval, PD4=`this is the RPC2 return code from the specified server,
 	p5=`&lt;Variable Length Argument List&gt;, PD5=`These should be specified as described above for @MRPC(MakeMulti),
 	CC1=`0, CCD1=`Continue processing server responses,

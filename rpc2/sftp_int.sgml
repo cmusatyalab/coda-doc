@@ -432,6 +432,7 @@ three different networks: Ethernet, a WaveLan wireless network, and a
 modem over a phone line.  In almost all cases, SFTPs performance
 equals or exceeds that of TCP.
 
+<!--
 @begin(figure)
 @define(small=text, break off, size -2)
 @StandardTable(Name TRANSPORT, Columns=5, HeadingBoxed, ColumnLined, FirstColumnWidth 0.75 inch, OtherColumnWidth 0.8inch, FirstColumn Center, OtherColumns Center)
@@ -464,6 +465,6 @@ Each result is the mean of five trials.  Numbers in parenthesis are standard dev
 @caption&lt;Transport Protocol Performance&gt;
 @tag(RPC2Table)
 @end(figure)
-
+-->
 
 

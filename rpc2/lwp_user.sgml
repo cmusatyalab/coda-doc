@@ -185,7 +185,7 @@ main (argc, argv)
 @PasCall(Tag=&lt;LWPInit&gt;,
 	Type = `int,
 	CallName=`LWP&lowbar;Init,
-	Abstract=`Initialize LWP support & start initial process,
+	Abstract=`Initialize LWP support and start initial process,
 	ParmList=`@w&lt;<bf>in</bf> char *VersionId&gt;, @w&lt;<bf>in</bf> int priority&gt;, @w&lt;<bf>out</bf> PROCESS *pid&gt;,
 	P1=`VersionId, PD1=`Set this to the constant @LWP(VERSION).  The current value of this string  constant must be identical to the value at the time the client runtime system was compiled.,
 	P2=`priority, PD2=`Priority at which initial process is to run.,

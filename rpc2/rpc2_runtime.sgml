@@ -195,23 +195,21 @@ connection specific information such as unique file names in the
 
 
 <sect>Server-related RPC Calls<p>
-  <sect1>RPC2_Export -- <em/Indicate willingness to accept calls for a subsystem/<p>
-    <bf/Call:/
-    <descrip>
-      <em/int RPC2_Export/(<bf>in</bf> <em/RPC2_SubsysIdent *Subsys/)
-    </descrip>
-    <bf/Parameters:/ 
+<sect1>RPC2_Export -- <em/Indicate willingness to accept calls for a subsystem/<p>
+  <sect2>Call:<p>
+    <em/int RPC2_Export/(<bf>in</bf> <em/RPC2_SubsysIdent *Subsys/)
+  <sect2>Parameters:<p>
     <descrip>
       <tag/Subsys/ Specifies a subsystem that will be henceforth recognized by this server.  This is either an integer or a symbolic name that can be translated to the unique integer identifying this subsystem.
-</descrip>
-    <bf/Completion Codes:/
+    </descrip>
+  <sect2>Completion Codes:<p>
     <descrip>
         <tag/RPC2_SUCCESS/ All went well.
         <tag/RPC2_DUPLICATESERVER/ Your have already exported Subsys.
 	<tag/RPC2_BADSERVER/ Subsys is invalid.
 	<tag/RPC2_FAIL/ Something else went wrong.
     </descrip>
-    <bf/Description:/
+  <sect2>Description:<p>
 	 Sets up internal tables so that when a remote client performs an RPC2_Bind( operation specifying this host-portal-subsystem triple, the RPC runtime system will accept it. A server may declare itself to be serving more than one subsystem by making more than one RPC2_Export calls.
 	
 	
@@ -503,8 +501,8 @@ The callback procedure will typically record this in a log file somewhere.
     </descrip>
   <sect2>Completion Codes:<p>
     <descrip>
-	<em/RPC2_SUCCESS/ Private pointer set for this connection.
-	<em/RPC2_FAIL/, Bogus connection specified.
+	<tag/RPC2_SUCCESS/ Private pointer set for this connection.
+	<tag/RPC2_FAIL/, Bogus connection specified.
     </descrip>
   <sect2>Description:<p>
 	Sets the private data pointer associated with a connection.  No attempt is made to validate this pointer.

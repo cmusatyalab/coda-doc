@@ -75,9 +75,9 @@
 <book>
 
 &cover;
-
+<!--
 <toc>
-
+-->
 &preface;
 
 <bf>RPC2 User Reference</bf><P>
@@ -97,7 +97,7 @@
  
  &seint; 
 
- &multint;
+<&multint;
 
  appendix
 

@@ -176,16 +176,16 @@ specific information and a pointer to the client handler routine. It then
 makes the MultiRPC call, and passes the final return code back to the client
 when the call terminates. 
 
-OUT and IN@ux&lsqb;@#&rsqb;OUT parameters must be supplied in the form of arrays of pointers
+OUT and INOUT parameters must be supplied in the form of arrays of pointers
 to  the appropriate argument types. The parameter interface specifications
 are discussed in sectin <ref id="interface" name="XXX">. The size of the array is dependent on
-the number of servers designated by the client. For IN@ux&lsqb;@#&rsqb;OUT parameters it is
+the number of servers designated by the client. For INOUT parameters it is
 only necessary to actually fill in a value for the first element of the
 array, although storage must be properly allocated for  all of the elements.
 
 <sect1>@MRPC&lsqb;UnpackMulti&rsqb;<p>
 <label id="UnpackMultiInfo">
-
+<!--
 @MRPC(UnpackMulti) is a RPC2 library routine which functions as the other half of @MRPC(MakeMulti). 
 It unpacks the contents of the response buffer into their appropriate places
 in the clients arguments, and calls the client handler routine. It returns
@@ -264,6 +264,6 @@ received. However, the explicit NAK by the
 server at least gives the client the opportunity to learn that something has gone wrong with
 the connection and act accordingly.
 
-
+-->
 
 

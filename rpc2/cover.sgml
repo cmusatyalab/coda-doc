@@ -1,11 +1,9 @@
 <title> RPC2 User Guide and Reference Manual
 <author> 
-<name> 
   M. Satyanarayanan (Editor)
   Richard Draves, James Kistler, Anders Klemets, Qi Lu, Lily Mummert, 
   David Nichols, Larry Raper, Gowthami Rajendran, Jonathan Rosenberg, 
   Ellen Siegel
-</name>
 
 <thanks>
   This work has been supported by the Defense Advanced Research Projects
@@ -19,12 +17,13 @@
   not be interpreted as those of DARPA, NSF, IBM, DEC or Carnegie Mellon
   University.  
 </thanks>
-
+<!--
 <inst>
   School of Computer Science
   Carnegie Mellon University
   Pittsburgh, PA 15213
 </inst>
+-->
 </author>
 
 <abstract>
@@ -40,3 +39,4 @@
   architectures (such as IBM-RT, MIPS, Sun2, Sun3, Sparc, and i386) and to
   variants of the Unix operating system (such as Mach, SunOS and AIX).
 </abstract>
+
