@@ -161,8 +161,8 @@ variety of small utilities is provided. The most important one is the
 <bf>cfs </bf> command.
 
 There is also a <bf>clog</bf> program to authenticate to the Coda
-authentication server.  The <bf/codacon/ programm allows one to
-monitor the operatoin of the cache manager, and <bf/cmon/ program
+authentication server.  The <bf/codacon/ program allows one to
+monitor the operation of the cache manager, and <bf/cmon/ program
 gives summary information about a list of servers.
 
 
