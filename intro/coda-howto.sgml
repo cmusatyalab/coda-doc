@@ -2199,12 +2199,12 @@ course we encourage playing and will try to help and fix bugs.
 You will need:
 <enum>
 <item> Get the cross compiling kit: <URL
-URL="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/cygwin-b19_glibc-2.i386.rpm"
-NAME="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/cygwin-b19_glibc-2.i386.rpm."> 
+URL="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/cygwin-b20_glibc-3.i386.rpm"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/cygwin-b20_glibc-3.i386.rpm."> 
 
 <item> <URL
-URL="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/libgdbm-nt-1.7.3-2.i386.rpm"
-NAME="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/libgdbm-nt-1.7.3-2.i386.rpm.">
+URL="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/libgdbm-nt-1.7.3-3.i386.rpm"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/tools/win32/libgdbm-nt-1.7.3-3.i386.rpm.">
 (These are rpms for RedHat 5.0. Sources are available of course.). 
 <item> Get the coda-?.?.? tar ball <URL
 URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/src"
@@ -2238,16 +2238,19 @@ make BINDIR=TARGET/bin SBINDIR=TARGET/bin server-install
 <item> get samba running on that RH machine and export the build area for
 Coda.
 
-<item> get a patch to <em/select/ and replace 
+<item> replace  
 <tscreen>
 <verb>
-C:\Cygnus\B19\H-i386-cygwin32\bin\cygwinb19.dll
+C:\cygwin\cygwin-b20\H-i586-cygwin32\bin\cygwin1.dll
 </verb>
 </tscreen>
 
 with the one from:
 <URL URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/support/nt-patches"
 NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/support/nt-patches">
+
+or directly from cygnus. The version of cygwin1.dll must be from 01/15/99 or
+newer.
 
 <item> get bash going. It can be started from the "Start" menu.
 
@@ -2281,7 +2284,7 @@ typing:
 mkdir /bin /vice /rvm /vicepa /tmp
 touch /rvm/LOG
 touch /rvm/DATA
-cp //C/Cygnus/B19/H-i386-cygwin32/bin/bash /bin/sh
+cp //c/cygwin/cygwin-b20/H-i586-cygwin32/bin/bash /bin/sh
 export PATH=/bin:$PATH
 </verb>
 </tscreen>
