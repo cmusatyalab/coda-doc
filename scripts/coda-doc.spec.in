@@ -5,7 +5,7 @@ Release: @RELEASE@
 Copyright: CMU 
 Group: Base
 Source: doc.tgz
-# BuildArchitectures: noarch
+BuildArchitectures: noarch
 
 %description
 This package contains coda man pages and manuals.
