@@ -1,0 +1,41 @@
+<manpage TITLE="srv.conf" SECTNUM=5>
+<mansect>NAME 
+<P><em>/vice/srv.conf</em>
+
+<mansect>DESCRIPTION<P>
+
+<em>srv.conf</em> is used by <bf>startserver</bf> to provide the 
+RVM Log, RVM Data and RVM Data Size information to <bf>srv</bf>.
+The format of the file is a single line containing space separated
+parameters needed by <bf>srv</bf>:
+
+<tscreen><verb>
+-rvm RVM_LOG_DEVICE RVM_DATA_DEVICE RVM_DATA_DEVICE_SIZE
+</verb></tscreen>
+
+For example:
+
+<tscreen><verb>
+-rvm /dev/hdc1 /usr/RVMDATA 20400000
+</verb></tscreen>
+
+provides the RVM LOG as device <em>/dev/hdc1</em> and RVM data 
+as a file <em>/usr/RVMDATA</em> of roughly 20MB in size to <bf>srv</bf>.
+
+<mansect>BUGS<P>
+While not a bug with <em>srv.conf</em>, if multiple lines exist
+containing multiple valid RVM&lowbar;LOG and RVM&lowbar;DATA 
+information (which can be caused by running <bf>vice-setup-rvm</bf>
+multiple times and not removing <em>/vice/srv.conf</em> each time),
+all the lines are parsed by <bf>srv</bf> as a single set of arguments.  
+his results in <bf>srv</bf> crashing and recording the message 
+``Multiple instance error'' in <em>/vice/srv/SrvLog</em>.
+
+<mansect>SEE ALSO<P>
+startserver (8), srv (8), vicesetup (1)
+<p>
+The RVM Manual
+<mansect>AUTHOR<P>
+Henry M. Pierce, 1998, created
+
+</manpage>
