@@ -1,0 +1,501 @@
+<!doctype linuxdoc system "/usr/lib/linuxdoc-sgml/dtd/linuxdoc.dtd">
+
+<article>
+
+<title> Minicache Internals
+<author> Peter Braam
+<date> v1.0 6/20/97
+<abstract> This document gives an overview of the Coda minicache implementation. 
+</abstract>
+
+<sect>Introduction<P>
+The minicache has the following components:
+<itemize>
+<item> A communication mechanism between Venus and the kernel.
+<item> Filesystem operations to handle filesystem, inode and file requests.
+<item> A minicache of attributes and names for performance improvements.
+</itemize>
+
+<sect>Venus Kernel Communication<P> 
+
+<sect1>The pseudo device<P> On
+Unix platforms this communication goes through a character device,
+typically <tt> /dev/cfs0 </tt>.  Venus opens this early in its life
+and writes to it using the mux-fd.
+
+Data structures:
+
+The data structure holding queues of request, replies etc is named
+<bf> vcomm </bf>: 
+<itemize> 
+<item>  seqno
+<item>  vc_selproc  - pointer to a wait queue structure
+<item>  vc_requests
+<item>  vc_replies
+</itemize>
+
+The queue structures are doubly linked lists:
+<code>
+struct queue {
+    struct queue *forw, *back;
+}
+</code>
+The head of the queue is found using a named queue element, such as the reply or request queue.
+
+The superblock information for a Coda filesystem has a private area
+for file system specific data. This area is called the <bf>
+coda_super_info </bf>.  The coda_super_info holds a vcomm structure
+named <bf> mi_vcomm</bf>:
+
+<code>
+struct coda_sb_info
+{
+  struct inode *      s_psdev;	/* /dev/cfs0 Venus/kernel device */
+  struct inode *      s_ctlcp;	/* control magic file */
+  int                 mi_refct;
+  struct vcomm        mi_vcomm;
+  struct inode *      mi_rootvp;
+};
+</code>
+
+In the vcomm queus are vmsg structures:
+
+<code>
+struct vmsg {
+    struct queue vm_chain;
+    caddr_t	 vm_data;
+    u_short	 vm_flags;
+    u_short      vm_inSize;	/* Size is at most 5000 bytes */
+    u_short	 vm_outSize;
+    u_short	 vm_opcode; 	/* copied from data to save ptr lookup */
+    int		 vm_unique;
+    CONDITION	 vm_sleep;	/* Not used by Mach. */
+};
+</code> 
+
+The vcomm structure holds queues for replies and requests, and all
+messages are on a chain <tt> vm_chain</tt>.
+
+A read call on the pseudo device takes the next element off the queue
+of requests in vcomm, and removes it from the chain.  After this it
+moves the data into user space.  If the message is a signal, free up
+the space the vmsg takes return.  In other cases the message is placed
+on the queue of of replies in vcomm.
+
+Writing to the pseudo device is done for two purposes.  A peek at the
+buffer coming down reveals wether we are dealing with a downcall or a
+reply.  If it is a downcall it is handled by and an error or the count
+is returned from the write call.  
+
+<item>	links to FSOs:
+	<itemize>
+                <item>FSO hash table
+		<item>priority queue (btree)
+		<item>delete queue
+		<item>open for write queue
+         </itemize>
+<item>	statistics
+<item>	block, file counts
+<item>	priority weights
+</itemize>
+</itemize>
+
+<sect1>FSOBJ -- a slot in the cache	
+(persisent, some transient fields)
+<P>
+The fso class contains most of the information about a file system
+object. It has pointers to the volume information, part of which is
+copied to avoid lookups. There are pointers to the data, which can be
+a symlink, file or directory object.  Data structures of type binding
+are used to store hoard and cml information.
+
+Fso objects keep track of readers and writers of the object.
+<itemize>
+<item>	fid
+<item>	component name
+<item>	state (normal, runt, dying)
+<item>	status block (Venus stat, a condensed version of ViceStatus, see vcrcommon) 
+		vnode type in here, and size, mtime, etc.
+<item>	access control information
+<item>	flags (class FsoFlags)
+	<itemize>
+	<item>fake, fetching, replaceable, etc.
+	<item>	for volume types (copied) e.g. backup, replicated, etc.
+        </itemize>
+<item>	mount state (normal, mount point, mount root)
+		links to root, mount point in latter cases
+<item>	data
+	<itemize>
+        <item>	symlinks stored directly in RVM
+	<item>	files stored as container files (CacheFile)
+	<item>	directories stored in RVM
+			written to container files upon open
+</itemize>
+<item>	counts (readers, writers, openers, etc.)
+<item>	links to 
+	<itemize>
+	<item>  hash table (fsdb)
+	<item>	volume
+	<item>	priority queue
+	<item>	delete queue
+	<item>	open-for-write queue
+	<item>	parent fso
+	<item>	list of child fsos
+	<item>	HDB bindings	
+	<item>	MLE bindings
+        </itemize>
+<item>	statistics
+</itemize>
+<sect1> CacheFile -- cache container file <P> 
+
+The fso objects are related one-one to cache files.  Methods exported
+by cache files are simple on these are things like validate, move,
+copy, remove, truncate, reset.  It appears that historically
+cachefiles could be accessed through inode calls.  Currently cache
+files and fsobjs are statically linked by embedding.
+<itemize>
+<item>	statically bound to fsobj
+<item>	container files used in several ways
+        <itemize>
+	<item>	to store a plain file
+	<item>	to store a UNIX format directory as a plain file	
+		   (NB: this format is system independent now!)
+        </itemize>
+</itemize>
+
+
+<sect>Useful data structures<P>
+
+<bf>binding</bf> -- used for grid-like data structures (e.g. fso x cmlent)
+	pointers to binder, bindee, next/prev in both lists.
+
+The <tt>util</tt> library is full of other useful structures.
+
+<sect>Volumes<P>
+Volumes are recorded using an umbrella data structure called the volume database (VDB), defined in venusvol.h.
+
+<itemize>
+<item> volume database.  (persistent)
+<item>	contains volents (linked), 
+<item> contains mle
+<item>	resource limits on MLEs
+</itemize>
+
+Contained in the volume database are above all entries for individual volumes: volents. Volents are stored in persistent storage. Volents are described in venusvol.h as well and contain the following important fields:
+<itemize>
+<item>	volume ID (of course)
+<item>	state (hoarding, emulating, logging (write disconnected),etc.) 
+<item>	flags (state transition pending, reintegrating, repairing, weakly connected, etc.)
+	counts (readers, writers, etc. for synchronization)
+<item>	range pre-allocated fids	
+<item>	version vector, callback status
+<item>	list of read/write volume ids (if replicated)
+<item>		replicated volume id (if read-write)
+<item>	CML
+<item>	link to VSG entry (vsgent)
+<item>	list of FSOs
+<item>	list of COP2 pending (cop2ent)
+<item>	list of entries requiring resolution (resent)
+<item>	statistics (vmon, etc.)
+</itemize>
+XXX What are observers? What are pre-allocated fids?
+
+A volume carries a client modification log.  The umbrella data
+structure is the ClientModifyLog, which contains entries of type
+cmlent. These are all persistent. A structure of type ClientModifyLog
+has an owner, who is responsible for writing all the entries of the
+log.  XXX What is an mle versus a cmle
+
+<itemize>
+<item>	list of cmlents
+<item>	ownership (only one user may own)
+<item>	statistics
+</itemize>
+
+An entry in the CML is a higly technical structure reflecting the filesystem updates. It contains opcodes and a union (u) of data containing the fid and update details. All cmlents are held in RVM.
+
+<itemize>
+<item>	opcode, operands
+<item>	flags (frozen, local repair, etc.)
+<item>	links to 
+ <itemize>
+	<item>	CML
+	<item>	fsobjs
+	<item>	predecessor, successor
+ </itemize>
+</itemize>
+
+A very small structure holds the data associated to a cop2 event. This data is transient.
+cop2ent -- entry for pending COP2 events	(transient)
+<itemize>
+<item>	link to volume
+<item>	store ID
+<item>	update set
+</itemize>
+
+Another small structure holds data associated with fids needing resolution. 
+
+<itemize>
+resent -- entry for fids needing resolution	(transient)
+<item>	fid, result
+</itemize>
+
+<sect>Comms<P>
+
+The file comm.h contains definitions for the datastructures for
+communication.  Key structures map the id's of replicated volumes to
+servers, and volume storage groups to hosts. Currently this is hacked
+into venusvol.cc; it would be better to make an rpc for this
+information.
+
+First there is an umbrella structure:
+<itemize>
+VSGDB -- VSG database	(persistent)
+<item>	contains vsgents
+</itemize>
+
+Entries are:
+<itemize>
+vsgent -- VSG entry	(persistent)
+<item>	maps VSG address to list of hosts
+</itemize>
+
+The transient structures holding connection information are stored in
+connent structures. These document single connections between clients
+and servers.
+
+<itemize>
+connent -- connection entry	(transient)
+<item>	host
+<item>	uid
+<item>	RPC2 conn id
+<item>	flags (authenticated connection? inuse? etc.)
+</itemize>
+
+Servers are held in srvent's.
+
+<itemize>
+srvent -- server entry	(transient)
+<item>	name
+<item>	host
+<item>	RPC2 conn id (for callback connection)
+		tests for up/down rolled on this field
+<item>	bandwidth estimate
+<item>	flags (binding? need to probe?, etc.)
+</itemize>
+
+The data describing multirpc connections is held in mgrpent's:
+
+<itemize>
+mgrpent -- multirpc connection entry	(transient)
+<item>	vsgaddr (should be link to vsgent?)
+<item>	uid
+<item>	hosts
+<item>	flags (authenticated? in use? etc.)
+<item>	RepOpCommCtxt
+ <itemize> 
+RepOpCommCtxt -- replicated operation communication context	(transient)
+<item>	number of servers
+<item>	list of conn ids
+<item>	list of hosts (actually participating in RPC)
+<item>	list of return codes
+<item>	primary host
+<item>	flags (per host)
+</itemize>
+</itemize>
+
+The primary host should be used for load balancing. Currently the
+algorithm is not satisfactory. The primary host is also (?) held in
+the fso status block.
+
+<sect>Hoard Database<P>
+
+The main umbrella structure is the hdb.
+
+<itemize>
+hdb	(persistent)
+<item>	HDB entries
+<item>	priority queue
+<item>	resource limits
+</itemize>
+
+The entries in the hdb are hdbent:
+
+<itemize>
+hdbent - a single entry	(persistent)
+<item>	object represented as vid, path
+<item>	uid
+<item>	priorty
+<item>	flags (c+, d+?)
+<item>	link to name context
+</itemize>
+
+Name contexts are used for renames:
+
+<itemize>
+name context -- for directory expansion	(persistent)
+<item>	uid
+<item>	priority
+<item>	flags (inuse? expanded? etc.)
+<item>	links to
+  <itemize>
+	<item>	expanded children
+	<item>	parent (back pointer to expander)
+	<item>	HDB priority queue
+  </itemize>
+</itemize>
+	
+<sect>Users<P>
+
+<itemize>
+userent -- user specific information	(transient)
+<item>	uid
+<item>	tokens
+<item>	advice monitor methods go through here
+</itemize>
+
+<sect> Threads <P>
+
+Threads in Venus come in about a dozen of different types.  Basic
+threads handlnig vfs requests are object of type vproc; see vproc.h.
+These classes export a very important interface encapsulating the type
+of messages and operation dispatched to threads during operation.
+Among the exported operations are the vfs operations, which are
+spelled out in vproc_vfscalls.cc. 
+
+Pioctl calls are handled by routines defined in vproc_pioctl.cc. This
+file is effectively one large case statement to distinguish among
+opcodes.
+
+vproc_pathname.cc handles the lookup of names in directories and fills
+in a vnode as output. It also contains a routine translating fids to
+full pathnames.
+
+Typically the routines in these files call methods of the FSDB to find
+the appropiate objects and manipulate their data.
+
+Operations such
+as resolution and re-integration are handled by special daemon threads.
+
+<itemize>
+vproc -- basic thread type. handles requests in VFS interface	(transient)
+<item>	type (worker, mariner, callback, resolver, reintegrator, daemons)
+<item>	LWP id
+<item>	LWP priority
+<item>	message ID (sequence number)
+<item>	flags (idle, prefetch, etc.)
+<item>	name
+<item>	function
+<item>	vpid (venus thread id)
+<item>	uarea -- things the thread needs to carry with it
+ <itemize>
+	<item>	return code
+	<item>	user identifiers
+	<item>	priority
+	<item>	link to volume
+	<item>	vfs operation
+	<item>	process/group id of calling process
+	<item>	counts to guard against infinite retry loops
+ </itemize>
+<item>	data collection
+</itemize>
+
+A derived class from the vprocs are the worker threads
+(worker.h). These threads handle the messages delivered to Venus.
+Their interface is defined in worker.cc which describes the methods
+for handling messages.  This file also contains the operations for
+mounting /coda.  A message queue is maintained. Messages are
+dispatched to a pool of threads.
+
+<itemize>
+worker -- generic worker thread, derived from vproc
+<item>	opcode, 
+<item>message
+</itemize>
+
+daemon threads for each subsystem (volume, comm, rvm, etc.)
+
+
+<sect> Messages <P>
+
+Messages are the data sent to Venus by the kernel. The structures are transient.  Definitions can be found in worker.h.
+
+<itemize>
+msgent -- requests from kernel (worker.h) 
+<item>	message buffer
+</itemize>
+	
+<sect>Local repair<P>
+
+
+On the whole the feeling is that local repair stuff needs to be redone.  At the moment the following code is present:
+
+<itemize>
+LRDB 	(persistent)
+<item>	list of local-global fid mappings
+<item>	list of local subtree roots
+<item>	list of fsobjs, volumes, cmls involved in local repair
+</itemize>
+
+<itemize>
+lgment -- local-global map entry (persistent)
+<item>	local fid
+<item>	global fid
+</itemize>
+
+<itemize>
+rfment -- root fid map entry (persistent)
+<item>	name
+<item>	fake, global, local root fids
+<item>	parent, child fids
+</itemize>
+
+Numerous other structures are present, probably most can be
+simplified. Much of this is transient.
+
+<sect>Recoverable data<P>
+
+The main structure containing pointers to RVM tables and other data is
+held in the structure RecovVenusGlobals. The data structure is
+straightforward and defined in venusrecov.h.  In the venusrecov.cc the
+methods are defined.  These contains numerous calls to rvm
+initialization and recovery stuff.
+
+<itemize>structure RecovVenusGlobals 
+<item>	magic numbers, last init time, etc.
+<item>	root volume name
+<item>	pointers to 
+ <itemize>
+	<item>	FSDB
+	<item>	VDB
+	<item>	VSGDB
+	<item>	HDB
+	<item>	LRDB
+	<item>	VMSE (vmon session data)
+	<item>	VCBDB
+	<item>	heap address (base of recoverable heap)
+	<item>	heap length
+</itemize>
+</itemize>
+
+Transient fields in recoverable structures are marked with /*T*/.
+
+<sect>Data Collection<P>
+
+<itemize>
+VCBDB, vcbdent -- data collection for volume callbacks,
+<item>	uses mond
+</itemize>
+
+<itemize>
+vsr -- volume session record.  cache statistics, etc.
+<item>	uses mond
+</itemize>
+
+<itemize>
+rwsent -- read-write sharing statistics
+<item>	uses mond
+</itemize>
+
+</article>
+</linuxdoc>

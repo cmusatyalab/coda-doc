@@ -1,0 +1,60 @@
+<sect>
+
+
+VInitVolumePackage
+    InitLRU
+    InitVolTable
+    VInitVnodes
+    VInitVnodes
+    InitLogStorage
+    VCheckVLDB: checks header of disk VLDB, reports size
+    check partitions & call: VInitPartition: puts partition in olist
+    S_VolSalvage:
+    FSYNC_fsInit: what are volume relocations????
+    attaches all volumes:
+      GetVolPartition: check consistency of index and volid in RVM, return partitions info.
+      VAttachVolumeById
+          Lookup in hash table
+	  if found take out of hash table
+	  sanity checks followed by 
+	  attach2
+	      callocs a volume structure
+	      GetVolumeHeader: take lru slot;  the vp header appears to maybe reside in hash table 
+	      VoldDiskInfoById: link the vp with the RVM information (looks up the header in hashtable)
+                    if this fails the volume is freed up again. 
+	      Tests if volume needs to be salvaged: ec set to VSALVAGE
+	      more of sanity and destroy
+	      AddVolumeToHashTable
+	      Set up uniquefier
+	      null VM bitmaps, then fill them in.
+	  If vp == NULL and other things: FSYNC_askfs else
+	  VUpdateVolume
+	      WriteVolumeHeader
+	      if error VForceOffline
+	  if error: VPutVolume
+	  VAddToVolumeUpdateList: update time stamps, calls VUpdateVolume (again??)
+	  VAppenVolume is called to add to VolumeList if system is up and not listed yet.
+      InitVolLog
+      V_VolLog
+    VListVolumes: dump partitions and volumehash table to VolumeList
+
+
+Finding volumes by name:
+
+ViceGetVolumeInfo
+	VRDB.find by name
+	if not found try to find by id (VRDB.find nasty casts)
+	if found: call
+             vrent::GetVolumeInfo for the entry 
+	             fills in VSGADD stuff
+		     special case for canonicalize
+		     fills in the replica volid's in INFO           
+	else 
+	     VGetVolumeInfo
+                     gets it out of the VLDB_fd
+             if successful & ROVOL: calculate GetVSGAddress
+	     elseif RWVOL lookup the volumeinfo for a replicated volume
+	return information
+
+
+VgetVolume and VPutVolume are probably like iget iput.

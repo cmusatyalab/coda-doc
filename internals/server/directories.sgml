@@ -1,0 +1,416 @@
+<!doctype linuxdoc system>
+
+<article>
+
+<!-- Title information -->
+
+<title>Coda Directory Handling
+<author>Peter J. Braam, <tt/braam@cs.cmu.edu/
+<date>v0.9, 15 June 1997
+
+<!-- Table of contents -->
+<toc>
+
+<sect> Introduction <P>
+
+Code for directory handling is scattered over many different
+locations:
+<itemize>
+<item> The dir package contains code for a buffer cache. This code
+manages pages and buffers in a hash table and allows to get and evict
+pages from the hash table. The file dir.cc has code for 
+management of directory contents in pages in the coda directory format.
+<item> fso_dir.cc in Venus has code for:
+ <itemize>
+ <item> getting to pages (in rvm). This code overrides some of the
+functions defined in the dir package. 
+ <item> converting coda directories to bsd style directories in
+container files. 
+ <item> handling of kernel upcalls related to directories
+ </itemize>
+<item> the server has a variety of areas related to directory handling.
+</itemize>
+
+<sect> The dir package<p>
+Data structures (dir.private.h):
+<enum>
+<item>     PageHeader - tag, freecount, freebitmap, padding
+<item>     DirHeader  - contains a PageHeader (header) and alloMap and hashTable
+<item>     DirEntry - flag, length, next, fid (MKFidE), name[16]
+<item>     MKFid - mkvnode, mkvunique (long)
+</enum>
+
+
+Data structures (coda_dir.h):
+<enum>
+<item>     buffer - fid (long [5]), page (long), accesstime (long), hashNext (buffer *), data (char *), lockers (char), dirty (char), hashIndex (char)
+</enum>
+
+A buffer structure is marked with a fid (to identify the directory)
+and a page number to identify where the directory blobs lie in the
+buffer pages of this directory.
+<code>
+struct buffer
+    {
+    long fid[5];	/* Unique cache key + i/o addressing */
+    long page;          /* refers to the blobno */ 
+    long accesstime;
+    struct buffer *hashNext;
+    char *data;
+    char lockers;
+    char dirty;
+    char hashIndex;
+    };
+</code>
+
+We have a hash table for pages:
+<code>
+#define PHSIZE 32
+static struct buffer *phTable[PHSIZE];
+</code>
+
+<sect1>Initialization (DInit)<p>
+This code initializes the buffer cache. It is only running on the
+servers. Venus has integrated the buffer cache with RVM pages by
+overloading DRead. 
+
+Two regions are malloced in VM:
+<itemize>
+<item>	Buffers - malloced array of buffers
+<item>	BufferData - malloced array of pages
+</itemize>
+No buffers are put in the hash table at initialization time. 
+
+Some pointers are maintained to get back to the last used buffer:
+ <tt>       LastBuffer </tt>.
+
+To get a pointer to the data in the page we use DRead. DRead is
+included in buffer.cc but Venus overloads this function in
+fso_dir.cc. 
+
+DRead(fid, page): read the page "page" of the fid's directory:
+<itemize>
+<item>  first try the LastBuffer
+<item> go through the hash table
+<item> allocate a new slot
+<item>   call ReallyRead to get the page from elsewhere.
+<item>When located, increase the lockers variable in the pageheader, and set
+the accesstime to the timecounter++.
+</itemize>
+
+On the whole a buffer will be locked and released by a thread when it
+accesses directory data stored in the buffer. The "locking" consists
+of increasing the lockers variable. No waiting is done to acquire
+locks. 
+
+The newslot routine goes through the pages and finds the least
+recently used dirty and clean page and evicts the clean one if
+not locked.  If no unlocked clean page can be evicted it does
+ReallyWrite on a locked page. 
+
+<sect> The Coda directory format <P>
+
+The key issue is first to understand the layout of a page. A page is
+subdivided into <em>blobs</em>, each of 32 bytes long, making for 64
+blobs in a 2048 byte page. The first blobs of a page always contain a
+<em>PageHeader</em> structure which has a tag, a freecount, and a freebitmap.
+The freebitmap shows which blobs in the page are free. The PageHeader
+fits in the first blob and has 13 bytes of padding to fill this blob.
+
+If a page is the first page in a directory, the PageHeader structure
+is "extented" to a DirHeader structure.  This additionally records in
+an <code>char alloMap[MAXPAGES]</code> which records the number of
+free blobs in each of the pages for the directory. The DirHeader also
+has a short <code>hashTable[NHASH]</code> for fast lookup of names.
+
+The hashTable contains values which are blob numbers. The blobs contain
+DirEntries and fill up a bucket in the directory name hash table. 
+
+The allocation of blobs is done in FindBlobs which finds a set of
+nblobs consequtive blobs in a page. This routine first gets the
+DirHeader and then iterates through the pages (from first to last) to
+see if nblobs entries are available (by checking if alloMap[i] >=
+nblobs. ) It then fiddles with the freemap in the page to see if the
+entries are consequtive and if so assigns them. 
+
+FreeBlobs is supposed to release blobs.  However, it does not
+deallocate pages from a directory. 
+
+ReallyRead (physio.cc)does the following:
+<itemize>
+<item> make the page in the buffer cache a temporary ShadowDirPage.
+<item>   Create a dhashtab_iterator for DirHtb and search for the page.
+<item>   If found bcopy it into the temporary page.
+<item> else: Get it out of RVM. 
+</itemize>
+
+Directory entries are stored in units 32 byte blobs inside pages.
+
+Typical handling of directory stuff in Server:
+<code>
+    SetDirHandle(&amp;dh, dirvptr);
+        copy the relevant information from vnode (and its volume) into
+	the DirHandle structure.  This routine is more or less sane
+	sane, defined in volutil/physio.cc (and repeated in norton in
+	a slightly different form).
+    assert(Create((long *)&amp;dh, (char *)Name, (long *)&amp;Fid) == 0);
+        Create (from dir.cc). This is a complicated routine. It starts
+	by trying to locate Name in the dh handle in the buffer cache.
+    DFlush();
+</code>
+
+Locating directory entries is done as follows:
+<code>
+struct DirEntry *FindItem(dh, name)
+</code>
+which performs:
+<itemize>
+<item>       Do DRead to find the buffer holding the directory
+<item>       The beginning of the buffer data contains a DirHeader: look in
+              its hashtable to find the blobno of the name.
+</itemize>
+
+The server frequently uses a DirHandle structure:
+<code>
+typedef struct DirHandle {
+    /* device+inode+vid are low level disk addressing + validity check */
+    /* vid+vnode+unique+cacheCheck are to guarantee validity of cached copy */
+    /* ***NOTE*** size of this stucture must not exceed size in buffer
+       package (dir/buffer.cc) */
+    bit16	device;
+    bit16 	cacheCheck;
+    Inode	inode;
+    VolumeId 	volume;
+    Unique_t 	unique;
+    VnodeId	vnode;	/* Not really needed; conservative AND
+			   protects us against non-unique uniquifiers
+			   that were generated in days of old */
+} DirHandle;
+</code>
+
+<sect> Shadow pages and rvm <P>
+
+The files rvmdir.h and rvmdir.cc contain the interface for this
+subsystem. The key data structures are:
+
+<itemize>
+<item> struct VFid: volume, vnode, vunique
+<item> class ShadowDirPage: inherits from dlink
+ <itemize>
+ <item>   struct VFid Fid,
+ <item>  int PageNum
+ <item>  char Data[PAGESIZE];
+ </itemize>
+<item>typedef struct DirInode: long *Page[MAXPAGES], int refcount
+</itemize>
+
+A VM hash table with doubly linked buckets is maintained:
+<tt>DirHtb</tt>. The routine GetDirShadowPages goes through the DirHtb
+and builds a doubly linked list of pages for the directory. DCommit
+uses this routine to extract those pages from the DirHtb which it
+needs to "commit" in RVM.
+
+The DirInode contains an array of RVM addresses of the pages of the
+directory. New pages will have the address 0. 
+
+The routines acting on these datastructures are quite sensible.  DDec
+and DInc increase reference counts in RVM, others copy VM data in and
+out of the RVM structures. However, there is no routine to easily free
+up pages.
+
+Coda Vnode's are defined in vol/cvnode.h.  A Vnode is stored in a VM
+hash table and contains the VnodeDiskInfo in a field "disk" in
+Vnode. The disk has a field Inode inodeNumber (Inode=bit32). If the
+vnode represents a directory this contains a pointer to a data
+structure in RVM of type DirInode. Evidence of this is the call
+DDec((DirInode *)vnode-&gt;disk.inodeNumber)
+
+
+
+<sect> Client Side <P>
+
+Directories are used by the kernel code and by Venus, to implement the
+filesystem operations for the Coda filesystem.  Most of these
+operations initiate in the user program making a system call such as
+"create", "mkdir", "rmdir" or "readdir".
+
+These calls trap to the kernel and lead through the kernel VFS layer
+into the Coda specific filesystem code. Inside the filesystem code
+routines like coda_mkdir handle the request, which on the whole are
+not more than sanity checks followed by an upcall to Venus, which will
+perform the request.  However, there is one important exception which
+is the readdir operation, which never reaches Venus (although Venus
+does a great deal of preparatory work for it.).
+
+Readdir is the system call which allows a user process to read
+directory entries out into a user buffer. In Coda this is accomplished
+in many steps.  Let us go through the mock C program
+
+<code>
+main ()
+{
+ dir = opendir("/coda");
+ while ( next = readdir(dir) ) {
+   print(next);
+ }
+ closedir(dir);
+}
+</code>
+
+Summarizing the following happens:
+<enum>
+<item> The kernel passes the open request to Venus.
+<item> When the opendir call reaches Venus, it Fetches the directory in
+RVM in the same format as the server holds it in RVM.
+<item> The RVM directory is written out in a directory container file in
+the lcoal file system in a platform independent format.  
+<item> The readdir system call does parses this container file (without
+notifying Venus) and returns the results to the user.
+</enum>
+
+In more detail the following is going on:
+
+<enum>
+<item> The request from the kernel is dispatched by venus/worker.cc to
+vproc_vfscalls.cc: vproc::open. This invokes the fsdb::Get method to
+fetch.
+<item> Get creates an fso object for the directory:
+ <enum>
+   <item> the attributes of the directory are acquired.
+   <item> the fields in the directory structure are zeroed out
+   (fso_cfscalls0.cc:191)  
+   <item> the data in the directory fso has size of VenusDirData +
+   length.  The VenusDirData structure is described in fso.h and
+   contains the following information:
+  <enum>
+     <item> A mallocbitmap of length MAXPAGES
+     <item> An array VenusDirPage *pages[MAXPAGES]
+     <item> a flag to say if the UFS directory container file is valid:
+     udcfvalid.
+     <item> a pointer CacheFile *udcf
+     <item> padding.
+  </enum>
+</enum>
+ <item> the SFTP side effect parameters are set up to
+   prepare for the ViceFetch to deliver the data in situ. The pageptr
+   points to the block of size Length.  
+ <item> the rpc is made and the dominant host is asked to send the file
+   data.  This is handled in srvproc:
+  <enum>
+      <item> ViceFetch does a FetchBulkTransfer in case the host handling
+      the rpc is the primary host.
+      <item> The directory inode is found at inArr which is 
+      <tt>vptr - disk.inodeNumber</tt>
+      <item> It's data pages are at: <tt>inArr -- Pages[]</tt>
+      <item> These pages are copied to a temporary buffer, buf
+      <item> The size of the bulk transfer is computed by adding a page
+      size for every non NULL <tt>inArr -- Pages[i]</tt> buffer. This array has
+      MAXPAGES entries and they are checked until a NULL entry is
+      found.
+      <item> The copying of the pages into buf proceeds similarly. 
+      <item> The SFTP transfers the buffer to the client.
+   </enum>
+<item> vproc::open does sanity and access control checks: it proceeds to
+call fso_cfscalls2.cc: fsobj::Open.  
+
+<item> The object is locked (until Close arrives).  If we are dealing with
+a directory it is checked if the udcf is NULL.  If so the fso's
+container file is used. Now we will copy the RVM contents into the
+container file in a suitable BSD format using the fsobj::dir_Rebuild
+routine fso_dir.cc:
+  <itemize>
+     <item>  a RebuildDirHook hook is used to copy some arguments into.
+     <item>  The CVOpen method is called with the name and address of the
+     hook.cvd. 
+        <enum>
+        <item> CVOpen opens the container file, and sets cvd-&gt;dirFD,
+	 cvd-&gt;dirBytes, cvd-&gt;dirPos. 
+	<item> Something obscure is done: if minFreeSize == -1 that
+	 variable is reset to equal DIRSIZ of a dirent with a
+	 d_namlen of 1. Why???? 
+        </enum>
+     <item>  fsobj::Lookup is called to get the "." and ".." entries.
+     These are written into the container file with CVWriteEntry (see
+     below).  The inode number is computed explicitly
+     here. Dangerous!! 
+     <item> Before closing (CVClose) fsobj::Enum dir is called to
+     iterate through the directory in RVM and call RebuildDir.  This
+     just recomputes the inode number once more and calls CVWrite
+     skipping the "." and ".." entries.
+     <item> CVWrite is the heart of the routine that writes out container
+     files with directories. It will be worth comparing this carefully
+     to the BSD44 code which writes directory files, since it seems
+     quite strange.
+        <enum>
+		<item> XXX calls strlen instead of strnlen
+		<item> XXX I don't think that the blocksizes should matter at
+		all.  A file is a file is a file. 
+		<item> XXX It doesn't refer to venus_dirent relying on
+		the include files to provide the right format.
+		<item> XXX RebuildDir seems to do the same as
+		fsobj::dir_Rebuild. We can't have both.
+		<item> XXX We comput fileid's in at least 5 places. Asking
+		for accidents!!!
+         </enum>
+      The only place where the directory cache file is modified is in
+      CVWrite and this routine is highly suspicious.
+</itemize>
+</enum>
+Dir gropes into the core of the rvm directory
+structures. These are hash tables/LRU tables of blocks holding
+directory entries.  We proceed to describe this system.  This
+subsystem is used on both servers and clients.
+
+Still to analyze:
+<itemize>
+ <item> where are the attributes of the directories compared (which
+ generates inconsistencies if they are not identical on all servers):
+
+   The Fetch routine acquires attributes (status variables) and
+   compares the version vectors of these. It appears as though the
+   client doesn't judge the contents of these, but merely checks the
+   last modification stamp and version vectors.  If this is true a
+   client cannot detect different directory sizes.  Different
+   directory sizes can only occur through operation happening
+   on servers in the VSG over time.  Perhaps the different sizes
+   are detected upon resolution? (which then marks the object "in"
+   conflict?) 
+
+   In stage 2 a decision is made to see if the incore copies of the
+   directory need to be resolved.  Here CompareDirStatus does an evil
+   comparison of the size of the directories. Then CompareDirContents
+   is called which could again only too easily create conflicts.
+
+   I suspect that the last part of phase 4 is also at fault:
+   rvmrescoord.cc: CoordPhase4 calls rescoord: CompareDirContents
+   which goes way overboard in making a bit by bit comparison of
+   directories. This will fail in so many cases that it is amazing it
+   isn't always failing.  Should be easy to detect this.  By putting
+   the debuglevel to 10, the directories are written out onthe
+   coordinator in /tmp and can be compared manually.  This is very
+   valuable, since it might show the format of a directory entry in
+   RVM (Norton can do this too I suppose?).
+
+
+<item> what exactly is wrong when fake directory entries appear? Like on
+ the testserver where we have banana somewhere in a directory file.
+ Here norton can maybe show us the contents of the bad directory in
+ RVM. This would allow a one-shot solution to the problem. Ask Josh.
+
+
+<item> are Unix semantics for directories OK in Coda? I doubt it very
+ much.  Venus can block on a write in CVWrite and in the mean time a
+ user process can access an incompletely filled directory and get very
+ confused.
+</itemize>
+
+
+Worst written call in Coda: fsobj::Fetch ... sit down with Lily to
+clean it up.  It's INCOMPREHENSIBLE.
+
+<enum>
+<item> What is a local object?
+<item> What are replica control rights (RCRights)
+<item> What is a dirty fsobj
+</enum>
+</article>
