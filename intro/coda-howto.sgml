@@ -4,12 +4,12 @@
 
 <title>The Coda HOWTO
 <author>
-Peter Braam, <tt/braam@cs.cmu.edu/,
+Peter Braam <tt/braam@cs.cmu.edu/,
 Robert Baron <tt/rvb@cs.cmu.edu/,
 Jan Harkes <tt/jaharkes@cs.cmu.edu/,
 Marc Schnieder <tt/smarc@cs.cmu.edu/.
 </author>
-<date>v1.00, 28 May, 1999
+<date>v1.01, 16 Jan, 2000
 
 <abstract>
 This HOWTO should give you help in running Coda.  We try to cover
@@ -75,8 +75,8 @@ of the volume.
 
 <tag/Volume Mountpoints/ One volume is special, it is the root volume,
 the volume which Coda mounts on <tt>/coda</tt>.  Other
-volumes are grafted into the <tt>/coda</tt> tree using the
-<bf> cfs makemount</bf>.  This command installs a volume
+volumes are grafted into the <tt>/coda</tt> tree using
+<bf> cfs mkmount</bf>.  This command installs a volume
 mountpoint in the Coda directory tree, and in effect its result is
 similar to <bf> mkdir mountpoint ; mount device mountpoint
 </bf> under Unix.  When invoking the <bf> cfs
@@ -132,8 +132,8 @@ To grant permissions the cache manager and servers use the token with
 its associated identity and match this against priviliges granted to
 this identity in access control lists (ACL).  If a token is not
 present, anonymous access is assumed, for which permissions are again
-granted through the access control lists.
-
+granted through the access control lists using the <tt/System:AnyUser/
+identity.
 
 
 </descrip>
@@ -141,12 +141,12 @@ granted through the access control lists.
 <sect1> Organization of the client <p>
 
 <sect2> The kernel module and the cache manager <P>
-Like every filesystem a computer enabled to use the Coda
-filesystem needs kernel support to access Coda files.  Coda's kernel
-support is minimal and works in conjunction with the cache manager
-<bf>Venus</bf>.   User requests enter the kernel, which will
-either reply directly or ask the cache manager <bf>venus</bf> to
-assist in service.
+Like every filesystem a computer enabled to use the Coda filesystem
+needs kernel support to access Coda files.  Coda's kernel support is
+minimal and works in conjunction with the userspace cache manager
+<bf>Venus</bf>.   User requests enter the kernel, which will either
+reply directly or ask the cache manager <bf>venus</bf> to assist in
+service.
 
 Typically the kernel code is in a kernel module, which is
 either loaded at boot time or dynamically loaded when Venus is
@@ -199,9 +199,10 @@ All code can be obtained from:
 NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda">.  For any platform you need:
 <itemize> 
 <item>documentation and manual pages <em/coda-doc/
+<item>lwp threading library: <em/lwp/ or <em/liblwp/
 <item>user level client code for coda: <em/coda-client/
-<item>a server: <em/coda-debug-server/ rpms
-<item> kernel code for the client: <em/coda-kernel-module/ rpms code
+<item>possibly a server: <em/coda-server/ rpms
+<item>kernel code for the client: <em/coda-kernel-module/ rpms code
 </itemize>
 
 <bf/NOTE:/ Coda is <em/platform independent/.  You can mix and match
@@ -216,9 +217,12 @@ URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux/"
 NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux/">.  You should get:
 <itemize> 
 <item>documentation and manual pages <em/coda-doc/ rpms
+<item>the lwp library: <em/lwp/ rpm
 <item>a client: <em/coda-debug-client/ rpms
 <item>a server: <em/coda-debug-server/ rpms
-<item> kernel code for the client: <em/coda-kernel-module/ rpms code
+<item>kernel code for the client: <em/coda-kernel-module/ rpms code.
+Kernel support for Coda is normally already available in RedHat releases
+5.2 and higher.
 </itemize>
 Install these as ususal. 
 
@@ -332,7 +336,7 @@ pkg_add coda-doc-4.6.5.3.tgz
 <p>
 <bf/Note:/
 pkg_add may fail silently.  Please make sure you have at least 25MB of
-free space available in /var/tmp to install the each package.
+free space available in /var/tmp to install each package.
 
 
 <sect1> Windows 95 <p>
@@ -497,19 +501,19 @@ populated cache.
 
 <tscreen>
 <verb>
-venus-setup <comma_separated_host_list> <cache_size_in_kb>
+venus-setup &lt;comma_separated_host_list> &lt;cache_size_in_kb>
 </verb>
 </tscreen>
 
 
 <tt/venus-setup/ and <tt/venus/ (below) are in <tt>/usr/sbin</tt>.
 Make sure that <tt>/usr/sbin</tt> is in your path or that you use
-fully qualified pathnames.  We strongly recommend that you try
+fully qualified pathnames.  We strongly recommend that you initially try
 testserver.coda.cs.cmu.edu as the <tt/comma_separated_host_list/
 first, and keep the cache size to 20000.
 
-<bf/NOTE:/ <tt/venus-setup/ will edit <tt>/etc/services</tt> to add some additional
-services. 
+<bf/NOTE:/ <tt/venus-setup/ will edit <tt>/etc/services</tt> to make
+sure some additional services are registered. 
 
 The following assumes you are running X-Windows.  However, you could
 run these commands from virtual consoles as well, by omitting the
@@ -567,9 +571,10 @@ Or you can kill -9 venus, if you must.
 <itemize>
 <item> Before restarting Venus <tt>/coda</tt> must
 be unmounted.  If umounting <tt>/coda</tt> gives trouble, make sure to
-exit all process that hang on to Coda, e.g. by having files open or
-being cd'd into /coda.  A utility like <tt/lsof/ and <tt/fuser/ can
-help with this.
+exit all process that hang on to the Coda filesystem, e.g. by having
+files open or being cd'd into /coda.  A utility like <tt/lsof/ and
+<tt/fuser/ can help with this.
+
 <item> <tt>/proc/fs/coda</tt> has interesting Coda statistics. 
 <item> You can enable kernel debugging  with <tt>vutil
 -kdebug 4095</tt> and call tracing with <tt>vutil ktrace 1</tt>. The
@@ -720,7 +725,8 @@ server, as well as the fileserver by typing:
 <tag/BSDs/
 <tscreen>
 <verb>
-/etc/rc.vice start
+/etc/rc.vice start, or
+/usr/local/etc/rc.vice start
 </verb>
 </tscreen>
 
@@ -750,7 +756,7 @@ Determine with <tt/ps/ that <tt/codasrv/, <tt/auth2/, <tt/rpc2portmap/,
 During your configuration session, you commmunicated a name for the
 root volume to the program.  This root volume now needs to be
 created: the precise command to do this was printed out by the
-vice-setup program, below we assume your file space is in
+vice-setup program, below we <em/assume/ your file space is in
 <tt>/vicepa</tt>, and your root volume is <tt/coda:root/.
 
 <tscreen>
@@ -846,7 +852,7 @@ improvement over the old tools.
 without arguments to get more help. There is also a manpage for
 pdbtool which you may want consult.
 <item> Add the user and her user id with the nui command.
-<item> Add the user to any groups you.
+<item> Add the user to any groups you want.
 <item> Give the new user a password by using the <tt/au nu/ program
 (from either a client or a server).    
 </enum> 
@@ -878,7 +884,7 @@ server:25/, 25 depicts the width of the column used by the server.
 
 First create a new volume, not equal to your root volume, to explore
 this.  Should you get conflicts in your root volume then they will be
-hard to repair.  See below how to add a volume.
+hard to repair. See below how to add a volume.
 
 <enum>
 <item> change directory into this volume.  Do "ls -l" on the directory 
@@ -988,8 +994,8 @@ This section will point out several logs to look at for identifying the cause
 of problems. Even if the source of the problem cannot be found, the
 information gathered from Coda's logging mechanisms will make it easier for
 people on the coda mailinglist
-<htmlurl url="mailto:coda-discuss@coda.cs.cmu.edu"
-         name="&lt;coda-discuss@coda.cs.cmu.edu&gt;">
+<htmlurl url="mailto:codalist@coda.cs.cmu.edu"
+         name="&lt;codalist@coda.cs.cmu.edu&gt;">
 to assist in solving the problem(s).
 <p>
 
@@ -1013,6 +1019,11 @@ It must also be noted that, when coda clients and servers crash they do not
 As a result, a crashed client or server still shows up in the <bf/ps auxwww/
 output, and only the combination of lack of file-service and error messages
 in logfiles indicate that something is really wrong.
+<p>
+
+Since release 5.3.4 servers now actually exit when they crash, create a
+file <tt>/vice/srv/ZOMBIFY</tt> to force a server to go into an endless
+sleep again.
 <p>
 
 <sect2>Client debugging output<p>
@@ -1045,11 +1056,14 @@ and display statistics from a group of servers. When a server goes down it
 will not respond to the statistics requests, which makes this a simple method
 for monitoring server availability.
 <tscreen>
-    client$ xterm -e cmon server1:100 server2:100 server3:100 ...
+    client$ xterm -e cmon server1 server2 server3 ...
 </tscreen>
 
 <item> <tt>/vice/srv/SrvLog and /vice/srv/SrvErr</tt> are the server logfiles.
+</itemize>
 
+Other logfiles that could be helpful in discovering problems are:
+<itemize>
 <item> <tt>/vice/auth2/AuthLog</tt>
 <item> <tt>/vice/srv/portmaplog</tt>
 <item> <tt>/vice/srv/UpdateClntLog</tt>
@@ -1066,11 +1080,11 @@ for monitoring server availability.
 
 When you have set up your client for the first time, and it can not connect to
 the testserver at CMU, there are a couple of possible reasons. You might be
-running an old release of coda, check the coda web-site to see what the latest
+running an old release of Coda, check the Coda web-site to see what the latest
 release is.
 
 Another common reason is that your site is behind a firewall, which blocks, or
-allows only outgoing, udp traffic. Either try coda on a machine outside of the
+allows only outgoing, udp traffic. Either try Coda on a machine outside of the
 firewall, or set up your own server.
 
 The third reason is that the testserver might be down, for maintenance or
@@ -1078,7 +1092,7 @@ upgrades. That does not happen often, but you can check whether it is up, and
 how long it has been running using cmon.
 
 <verb>
-cmon testserver.cs.cmu.edu:100
+cmon testserver.coda.cs.cmu.edu
 </verb>
 
 
@@ -1156,13 +1170,13 @@ server or the codasrv/codasrv-se ports are not defined in
 
 <sect2> I'm disconnected and Venus doesn't start<P>
 
-Put the hostnames of your servers in <tt> /etc/hosts</tt>. 
+Put the hostnames of your servers in <tt>/etc/hosts</tt>. 
 
 <sect2> I cannot get tokens while disconnected. <P>
 
-Take vacation until we release version 5.2 of Coda. We will add this
+Take a vacation until we release a version of Coda which uses it's
+telepathic abilities to contact the auth2 server. We will add this
 feature.
-
 
 <sect2> Hoard doesn't work <p>
 
@@ -1430,6 +1444,12 @@ treshhold (currently 50 KB/s), it will force all volumes associated with that
 server into weakly-connected mode. The <bf/cfs wr/ command can be used to
 force the volumes back into fully connected mode, and immediately reintegrate
 all changes.
+<p>
+
+To avoid switching to weakly connected mode, use <bf/cfs strong/. This
+way venus ignores bandwidth estimates. <bf/cfs adaptive/ will make venus
+revert to interpreting bandwidth estimates.
+<p>
 
 When the user was not authenticated, or conflicts were created during the
 write-disconnected operation, the user must first obtain proper authentication
@@ -1444,8 +1464,8 @@ high consistency for significantly improved performance. By using the
 given about the speed at which venus performs the trickle-reintegration.
 For instance, to perform the trickle-reintegrate more quickly than the
 default, where only mutations to the filesystem older than 15 minutes are
-reintegrated. You could use <bf/cfs wd -age 5/, which will reintegrate
-all mutations older than 5 seconds.
+reintegrated. You could use <bf/cfs wd -age 5/, which will attempt to
+reintegrate all mutations older than 5 seconds.
 
 <item> Pending reintegration.<p>
 When a volume is write-disconnected, it will stay write-disconnected until a
@@ -1573,7 +1593,7 @@ HKLM/System/CurrentControlSet/Services/VxD/Codadev/Debuglevel
 </tscreen>
 Set the debug level higher than 0 to receive messages in the debug file.
 
-<tag/I hook my running machine off the network and the explorer blocks.</tag>
+<tag>I hook my running machine off the network and the explorer blocks.</tag>
 
 Venus switches to disconnected mode after a short timeout. After that it
 should work fine. If it doesn't, check if you have 'network connections' set
@@ -1609,6 +1629,7 @@ As a file system, Coda has several major components that need to be built:
 
 <itemize>
 <item> Kernel code on the client
+<item> LWP threading library
 <item> The cache manager Venus on the client
 <item> The fileserver
 <item> Utilities for client and server administration.
@@ -1662,6 +1683,10 @@ preferred, but not yet perfect.
 </itemize>
 
 
+<sect2> Building the LWP threading library<p>
+
+Get the <tt/lwp-x.x.tar.gz/ sources and untar them. Then run
+<bf> ./configure --prefix=/usr ; make ; make install </bf>
 
 <sect2> Building the userlevel code <p>
 
@@ -1773,6 +1798,11 @@ make install
 <p>
 <bf/NOTE:/ The client and server each need about 85Meg for the work area
 and another 15Meg to install.  They are compiled -g for debugging.
+
+<sect2> Building the LWP threading library<p>
+
+Get the <tt/lwp-x.x.tar.gz/ sources and untar them. Then run
+<bf> ./configure --prefix=/usr/local ; make ; make install </bf>
 
 <sect2> Building Coda: The Bleading Edge Way <p>
 
@@ -1910,6 +1940,11 @@ make install
 NOTE: The client and server each need about 85Meg for the work area and another 15Meg
 to install.  They are compiled -g for debugging.
 
+<sect2> Building the LWP threading library<p>
+
+Get the <tt/lwp-x.x.tar.gz/ sources and untar them. Then run
+<bf> ./configure --prefix=/usr/local ; make ; make install </bf>
+
 <sect2> Building Coda: The Bleading Edge Way<p>
 
 First, you need several external packages to build coda: <tt/gnu make/,
@@ -2027,6 +2062,8 @@ You need the rpms for:
 <item> cygwin.
 <item> libgdbm-nt.
 <item> gdb-djgpp a remote debugging environment for DPMI applications. 
+<item> lwp-djgpp
+<item> lwp-nt, or build lwp for both dos and win32 from source.
 </itemize>
 <item>It is highly recommended to set up Samba to share Linux
 generated binaries with the Windows box. 
@@ -2039,14 +2076,14 @@ NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/coda-?.?.?.tgz.">
 You can rebuild Venus under Linux with 
 <tscreen>
 <verb>
-./configure --host=windows95 
+./configure --target=windows95 
 make
 </verb>
 </tscreen>
 and the client utilities and server with 
 <tscreen>
 <verb>
-./configure --host=nt
+./configure --target=nt
 </verb>
 </tscreen>
 The Venus built here is for NT and is not usable on Win95. 
@@ -2157,7 +2194,7 @@ NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/src.">
 <item> Unpack & build
 <tscreen>
 <verb>
-./configure --host=nt
+./configure --target=nt
 make coda
 </verb>
 </tscreen>
