@@ -789,7 +789,6 @@ vutil shutdown
 kill -9 venus works equally well.  Then restart as stated above.
 
 
-
 <sect>Troubleshooting<p>
 
 The Coda filesystem is still under development, and there certainly are
@@ -811,18 +810,23 @@ Some of the more common problems are illustrated in detail. At the end of this
 section some of the more involved debugging techniques will be addressed. This
 will be helpful to developers to isolate problems more easily.
 
+At the end there is a whole section describing how to solve some problems with
+Windows95, <bf/only the Coda related stuff!/.
+
 
 <sect1>Basic Troubleshooting<p>
 
 Most problems can be solved, or at least recognized by using the information
 logged by the clients and servers. The first step in finding out where the
 problems stems from is doing a <bf/tail -f/ on the logfiles.
+<p>
 
 It must also be noted that, when coda clients and servers crash they do not
 `dump core', but start sleeping so that we developers can attach debuggers.
 As a result, a crashed client or server still shows up in the <bf/ps auxwww/
 output, and only the combination of lack of file-service and error messages
 in logfiles indicate that something is really wrong.
+<p>
 
 <sect2>Client logging<p>
 
@@ -869,18 +873,129 @@ for monitoring server availability.
 
 </sect1>
 
-<sect1>Common Problems<p>
-
-<sect2>Initial setup or configuration problems<p>
+<sect1>Client Problems<p>
 
 <descrip>
 <tag>Client does not connect to <tt/testserver.coda.cs.cmu.edu/.</tag>
-Reasons: old coda release, firewall, server down.
+
+When you have set up your client for the first time, and it can not connect to
+the testserver at CMU, there are a couple of possible reasons. You might be
+running an old release of coda, check the coda web-site to see what the latest
+release is.
+
+Another common reason is that your site is behind a firewall, which blocks, or
+allows only outgoing, udp traffic. Either try coda on a machine outside of the
+firewall, or set up your own server.
+
+The third reason is that the testserver might be down, for maintenance or
+upgrades. That does not happen often, but you can check whether it is up, and
+how long it has been running using cmon
+
+<verb>
+cmon testserver.cs.cmu.edu:100
+</verb>
+
+<tag>Trying to access a file returns <em/Connection timed out/ (ETIMEDOUT).</tag>
+
+The main reason for getting <em/Connection timed out/ errors is that the volume
+where the file is located is disconnected from the servers. However, it can
+also occur in some cases when the client is in write-disconnected mode, and
+there is an attempt to read a file which is open for writing. See
+<ref id="Disconnections" name="Volume is disconnected/Volume is write-disconnected">
+for more information. 
+
+<tag/Commands do not return, except by using ^C./
+
+When command are hanging it is likely that venus has crashed. Check
+<tt>/usr/coda/etc/console</tt> and <tt>/usr/coda/venus.cache/venus.log</tt>.
+
+<tag/Venus fails when restarted./
+
+If venus complains (in <tt>venus.log</tt> about not being able to open
+<tt>/dev/cfs0</tt>, it is because <tt>/coda</tt> is still mounted.
+
+<verb>
+# umount /coda
+</verb>
+
+Another reason for not restarting is that another copy of venus is still
+around, and venus is unable to open it's network socket. In this case there
+will be a message in <tt/venus.log/ stating that RPC2_CommInit has failed.
+
+<tag/Venus doesn't start./
+A reason is that you do not have the correct kernel module. This can be
+tested by inserting the module by hand, and then listing the available
+modules. `coda' should show up in that listing. Otherwise reinstall (or
+recompile) a new module.
+
+<verb>
+# depmod -a
+# insmod coda.o
+# lsmod
+Module                  Size  Used by
+coda                   50488   2
+</verb>
+
+If the kernel-module can be loaded without errors, check <tt/venus.log/. A
+message stating `Cannot get rootvolume name' indicated either a misconfigured
+server or the codasrv/codasrv-se ports are not defined in
+<tt>/etc/services</tt>, which should contain the following entries.
+
+<verb>
+rpc2portmap     369/tcp    
+rpc2portmap     369/udp
+codaauth2       370/tcp    
+codaauth2       370/udp
+venus           2430/tcp
+venus           2430/udp
+venus-se        2431/tcp
+venus-se        2431/udp
+codasrv         2432/tcp
+codasrv         2432/udp
+codasrv-se      2433/tcp
+codasrv-se      2433/udp
+</verb>
 
 </descrip>
-</sect2>
 
-<sect2>Disconnections.<p>
+</sect1>
+
+<sect1>Server Problems<p>
+
+<descrip>
+
+<tag>createvol_rep reports RPC2_NOBINDING.</tag>
+When trying to create volumes, and createvol_rep reports RPC2_NOBINDING, it is
+an indication that the server is not (yet) accepting connections.
+
+It is useful to look at <tt>/vice/srv/SrvLog</tt>, the server performs the
+equivalent of <tt>fsck</tt> on startup, which might take some time. Only when
+the server logs `Fileserver Started' in SrvLog, it starts accepting incoming
+connections.
+
+Another reason is that an old server is still around, blocking the new server
+from accessing the network ports.
+
+<tag>RPC2_DUPLICATESERVER in the rpc2portmap/auth2 logs</tag>
+Some process has the UDP port open which rpc2portmap or auth2 is trying to
+obtain. In most cases this is an already running copy of rpc2portmap or auth2.
+Kill all running copies of the program in question and restart them.
+
+<tag>Server crashed shortly after updating files in <tt>/vice/db</tt>.</tag>
+Servers can crash when they are given inconsistent or bad data-files. You
+should check whether <tt/updateclnt/ and <tt/updatesrv/ are both running on
+the SCM and the machine that has crashed. You can kill and restart them. Then
+restart <tt/codasrv/ and it should come up.
+  
+<tag/Users cannot authenticate or created volumes are not mountable./
+Check whether auth2, updateclnt, and updatesrv are running on all fileservers.
+Also check their logfiles for possible errors.
+
+</descrip>
+
+</sect1>
+
+<sect1>Disconnections.<p>
 <label id="Disconnections">
 
 As most common problems are related to the semantical differences arising
@@ -987,48 +1102,164 @@ user properly authenticates using <bf/clog/.
 
 </itemize>
 
-</sect2>
-
-<sect2>More problems.<p>
-
-<descrip>
-<tag>Trying to access a file returns <em/Connection timed out/ (ETIMEDOUT).</tag>
-
-The main reason for getting <em/Connection timed out/ errors is that the volume
-where the file is located is disconnected from the servers. However, it can
-also occur in some cases when the client is in write-disconnected mode, and
-there is an attempt to read a file which is open for writing. See
-<ref id="Disconnections" name="Volume is disconnected/Volume is write-disconnected">
-for more information. 
-
-<tag/Commands do not return, except by using ^C./
-- venus crashed
-
-<tag/Client crashes when creating a file./
-- (write-)disconnected mode.
-  
-<tag>Server crashed after updating files in <tt>/vice/db</tt>.</tag>
-- inconsistent/bad data
-  check updateclient/server
-  restart codaserver
-  
-<tag/Users cannot authenticate or created volumes are not mountable./
-- auth2/updateclient/server not running
-</descrip>
-</sect2>
 </sect1>
 
 <sect1>Advanced Troubleshooting<p>
 
-<sect2>with rpc2tcpdump
+<sect2>with rpc2tcpdump<p>
+
+<tt/rpc2tcpdump/ is the regular tcpdump, which is modified to decode rpc2
+protocol headers. This makes it a very useful tool for analyzing why programs
+fail to work.
+
+All traffic between <tt/venus/ and the coda servers can be viewed using the
+following command.
+
+<verb>
+# tcpdump -s120 -Trpc2 port venus or port venus-se
+</verb>
+
+To identify problems with <tt/clog/, for instance which server it is trying to
+get tokens from.
+
+<verb>
+# tcpdump -s120 -Trpc2 port codaauth
+</verb>
 
 </sect2>
 
 <sect2>with gdb<p>
 
+To be able to debug programs that use RVM, most coda related application will
+go into an endless sleep when something goes really wrong. They print their
+process-id in the log (f.i. <tt/venus.log/ or <tt/SrvLog/), and a user can
+attach a debugger to the crashed, but still running, program.
+
+<verb>
+# gdb /usr/sbin/venus `pidof venus`
+</verb>
+
+This makes it possible to get a stack backtrace (<tt/where/), go to a specific
+stack frame (<tt/frame &lt;x&gt;/), or view the contents of variables,
+(<tt/print &lt;varname&gt;/). By installing the coda sources in same place as
+where the binaries were initially built from, it is possible to view the
+surrounding code fragment from within the debugger using the <tt/list/
+command.
+
+When using RedHat Linux rpms, you can install the sources in the right place
+by installing the coda source rpm file.
+
+<verb>
+# rpm -i coda-x.x.x.src.rpm
+# rpm -bp /usr/src/redhat/SPECS/coda.spec
+</verb>
+
+On other platforms look at the paths reported in the backtrace and unpack the
+source tarball in the correct place.
+
+<verb>
+(gdb) where
+#0  CommInit () at /usr/local/src/coda-4.6.5/coda-src/venus/comm.cc:175
+#1  0x80fa8c3 in main (argc=1, argv=0xbffffda4)
+    at /usr/local/src/coda-4.6.5/coda-src/venus/venus.cc:168
+(gdb) quit
+# cd /usr/local/src
+# tar -xvzf coda-4.6.5.tgz
+</verb>
+
 </sect2>
 
+</sect1>
 
+<sect1>Troubleshooting on Windows 95<p>
+
+<sect2>Common problems<p>
+<descrip>
+<tag/Unable to mount Coda./
+
+It is only possible to mount coda when <tt>relay.exe</tt> and <tt>venus.exe
+</tt> is running. Do not type <tt>mount.exe n:</tt> before venus printed the 
+message <tscreen> <verb>venus starting...</verb></tscreen>
+
+
+<tag/Unable to shutdown Windows95./
+
+This occures when the device <tt>codadev.vxd</tt> couldn't be unloaded on the 
+request issued by typing <tt>unmount.exe</tt>. <tt>relay.exe</tt> printed the 
+message
+
+<tscreen><verb>
+UNLOAD RESULT 0
+UNLOAD RESULT 8
+</verb></tscreen> 
+
+when the request was successful. There is no way out of this. Just 
+reboot your machine.
+
+<tag>I cannot reboot Windows95 and I think it is due to the VXDs loaded for
+Coda.</tag>
+Boot your System in DOS mode by pressing F8 on boot time. Cd to the windows 
+directory and type <tt>edit system.ini</tt>. In the section <tt>[enh386]</tt> 
+you will find the entries 
+
+<tscreen>
+<verb>
+device=c:\usr\coda\bin\mmap.vxd 
+device=c:\usr\coda\bin\mcstub.vxd
+</verb>
+</tscreen>
+
+Comment them out by using a <tt>;</tt> in front of the lines. Try to restart
+Windows again.
+
+<tag/How can I find out why <tt>relay.exe</tt> crashed./
+
+<tt>relay.exe</tt> is a very tiny program which hands requests from the file
+system driver up to <tt>venus.exe</tt> and the other way around. Crashes in
+<tt>relay.exe</tt> are most likely due to buffer overflows or null pointer
+referencing. <tt>relay.exe</tt> prints debug information in a file called
+<tt>relay.log</tt> which can be found in the directory where relay was started
+from.<p>
+
+When <tt>relay.exe</tt> crashed, the file system driver is still loaded. Just
+restart <tt>relay.exe</tt>. It might pretty well not be possible to unmount
+the system by calling <tt>unmount.exe</tt>.
+
+<tag>How can I find out why <tt>venus.exe</tt> crashed.</tag>
+
+See troubleshooting venus.
+When this happens it is possible to restart venus. The file system doesn't
+need to be unmounted before.
+
+<tag/How can I find out more about what has happend/
+
+Look in the file <tt>c:\vxd.log</tt>. The file system driver
+<tt>codadev.vxd</tt> prints information about all requests and answers in this
+file. Check the requestnumbers to match with those in <tt>relay.log</tt>.
+
+</descrip>
+</sect2>
+
+<sect2>Restrictions<p>
+<itemize>
+<item>
+The cache does not recover after killing <tt>venus.exe</tt>. Venus allways has
+to be startet with the INIT flag.
+<item>
+<tt>hoard</tt>.exe does not work so far.
+<item>
+Handling large file (in particular executables) does not work well in a low
+bandwidth scenario.
+<item>
+<tt>cfs.exe</tt> uses absolute pathnames so far.
+<item>
+Long filenames are not supported under DOS environment yet. You can access
+files, but you need to use the long filenames. 
+</itemize> 
+
+</sect2>
+</sect1>
+</sect>
 
 
 <sect> Building Coda <p>
