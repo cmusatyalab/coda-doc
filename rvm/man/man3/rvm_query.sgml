@@ -1,0 +1,112 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - query RVM options
+
+")
+@ToC(Contents="rvm&lowbar;query")
+@IndexEntry(Key="rvm&lowbar;query",Entry="rvm&lowbar;query, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;query",Text2="rvm&lowbar;query")
+
+<sect1>synopsis
+<tt>#include "rvm.h"</tt>
+
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;query (options,region)</tt>
+
+@Opt3(Name="<tt>rvm&lowbar;options&lowbar;t</tt>",Desc="<tt>*options</tt>",
+	Expl="pointer to an options descriptor")
+@Opt3(Name="<tt>rvm&lowbar;region&lowbar;t</tt>",Desc="<tt>*region</tt>",
+	Expl="optional pointer to a region descriptor")
+
+
+<sect1>description<P>
+rvm&lowbar;query allows inspection of the RVM options currently set.
+An options record, specified by options, is filled in with the
+values currently in effect.
+If this record is not valid, RVM&lowbar;EOPTIONS will be returned.
+All of the options are described on p. @PageRef(OptDef).
+
+If the name of the log file is to be returned, the caller must
+allocate a buffer of <tt>MAXPATHLEN+1</tt> characters and place a pointer
+to it in the <tt>log&lowbar;dev</tt> field.
+The file name will be copied into the buffer.
+The buffer will not be deallocated by RVM.
+
+If region is null, the options returned are those global to RVM,
+otherwise the options will be for the specified region.
+If the region does not point to a valid region descriptor,
+RVM&lowbar;EREGION will be returned.
+
+If only the segment file is specified in the region descriptor,
+the options are those applicable to all mappings of the segment.
+If the offset, length, and vmaddr
+fields of the region descriptor are not zero, the options
+returned will reflect those of that region.
+If the region isnt mapped, RVM&lowbar;ENOT&lowbar;MAPPED is returned.
+Certain options reflect the the global state of
+RVM regardless of the region specified.
+
+The number of uncommitted transactions, if any, is returned in the
+n&lowbar;uncommit field of the options descriptor.
+If uncommitted transactions exist, tid&lowbar;array will contain a
+pointer to a vector of length n&lowbar;uncommit of identifiers for the
+transactions.
+If a valid region descriptor has been specified, the uncommitted
+transaction descriptors returned will be only those modifying the
+specified region.
+Otherwise, all uncommitted transactions are returned.
+
+If a tid&lowbar;array vector exists in the options record when
+rvm&lowbar;query is called, it will be replaced to reflect the current
+status.
+
+For option records allocated with rvm&lowbar;malloc&lowbar;options, the array
+should not be deallocated by the application since this will be done by
+rvm&lowbar;free&lowbar;options.
+However, if the options record is allocated on the stack, the array
+must be explicitly deallocated by the application, or space will be
+lost.
+Deallocation of the array in statically allocated options records is
+optional: repeated use of the record will cause the array to be
+reallocated as necessary by rvm&lowbar;query with no explicit action by
+the application.  If you do deallocate the array, you <em>must</em> null the
+pointer to avoid a possible internal error due the dangling pointer.
+
+
+<sect1>Diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+@Begin(Text,Justification Off)
+<tt>rvm&lowbar;map (3)</tt>, <tt>rvm&lowbar;unmap (3)</tt>, <tt>rvm&lowbar;set&lowbar;options (3)</tt>, <tt>rvm&lowbar;abort&lowbar;transaction (3)</tt>,
+<tt>rvm&lowbar;end&lowbar;transaction (3)</tt>, and <tt>rvm&lowbar;terminate (3)</tt>
+@End(Text)
+
+
+<sect1>author<P>
+Hank Mashburn
+
+
+</manpage>

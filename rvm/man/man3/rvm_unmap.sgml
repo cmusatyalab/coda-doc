@@ -1,0 +1,97 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - unmap segment region
+
+")
+@ToC(Contents="rvm&lowbar;unmap")
+@IndexEntry(Key="rvm&lowbar;unmap",Entry="rvm&lowbar;unmap, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;unmap",Text2="rvm&lowbar;unmap")
+
+<sect1>synopsis
+<tt>#include "rvm.h"</tt>
+
+<tt>typedef struct
+    &lcub;
+    char            *data&lowbar;dev;
+    rvm&lowbar;offset&lowbar;t    dev&lowbar;length;
+    rvm&lowbar;offset&lowbar;t    offset;
+    char            *vmaddr;
+    rvm&lowbar;length&lowbar;t    length;
+    bool            no&lowbar;copy;
+    &rcub;
+rvm&lowbar;region&lowbar;t;</tt>
+
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;unmap (region)</tt>
+
+@Opt3(Name="<tt>rvm&lowbar;region&lowbar;t</tt>",Desc="<tt>*region</tt>",
+	Expl="pointer to region descriptor")
+
+
+<sect1>description<P>
+rvm&lowbar;unmap releases mapped buffers.
+The virtual memory space is freed for other uses, but not returned to Unix.
+This is true even if the space was allocated by rvm&lowbar;map, in which
+case attempts to deallocate it with free will result in error.
+If the space was originally allocated from the heap by the
+application, using free is permissible.
+
+If vmaddr is invalid, length is zero, or the
+range is not within
+valid virtual memory limits, RVM&lowbar;ERANGE is returned.
+The address range must represent a mapped region of a segment,
+otherwise RVM&lowbar;ENOT&lowbar;MAPPED is returned.
+The region unmapped must be the same as that mapped, or RVM&lowbar;ERANGE
+or RVM&lowbar;ENOT&lowbar;MAPPED, as appropriate, will be returned.
+A region cannot be split by unmapping part of it.
+Use of the region descriptor as returned by rvm&lowbar;map for the region
+is recommended.
+
+Before a region of a segment can be unmapped, there must be no uncommitted
+transactions affecting that region.
+RVM checks this and will return the code RVM&lowbar;EUNCOMMIT if any exist.
+The function rvm&lowbar;query can be used to discover the uncommitted
+transaction (s).
+Discovery of an uncommitted transaction in a region to be unmapped is a
+likely indicator of program logic errors.
+
+Invoking log truncation after unmapping modified regions will avoid
+delay in mapping if those regions are expected to be remapped.
+If several regions are unmapped, truncation after the last unmapped
+will insure no mapping delay if any are remapped.
+
+
+<sect1>diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rvm&lowbar;map (3)</tt>, <tt>rvm&lowbar;set&lowbar;options (3)</tt>, and <tt>rvm&lowbar;query (3)</tt>
+
+
+<sect1>author<P>
+Hank Mashburn
+
+
+</manpage>

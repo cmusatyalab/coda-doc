@@ -1,0 +1,95 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - set RVM options
+
+")
+@ToC(Contents="rvm&lowbar;set&lowbar;options")
+@IndexEntry(Key="rvm&lowbar;set&lowbar;options",Entry="rvm&lowbar;set&lowbar;options, function"
+,Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;set&lowbar;options",Text2="rvm&lowbar;set&lowbar;options")
+
+<sect1>synopsis
+<tt>#include "rvm.h"</tt>
+
+<tt>typedef struct
+    &lcub;
+    char            *log&lowbar;dev;
+    long            truncate;
+    rvm&lowbar;length&lowbar;t    recovery&lowbar;buf&lowbar;len;
+    rvm&lowbar;length&lowbar;t    flush&lowbar;buf&lowbar;len;
+    rvm&lowbar;length&lowbar;t    max&lowbar;read&lowbar;len;
+    rvm&lowbar;length&lowbar;t    flags;
+    &rcub;
+rvm&lowbar;options&lowbar;t;</tt>
+
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;set&lowbar;options (options)</tt>
+
+@Opt3(Name="<tt>rvm&lowbar;options&lowbar;t</tt>",Desc="<tt>*options</tt>",
+	Expl="pointer to a options record")
+
+
+<sect1>description<P>
+rvm&lowbar;set&lowbar;options allows RVM options to be changed after
+initialization
+Only the options permitted to be selected after initialization will be considered.
+Others can be present, but will be ignored.
+All of the options are described on p. @PageRef(OptDef).
+
+If the options parameter does not point to a valid descriptor,
+RVM&lowbar;EOPTIONS will be returned.
+
+At present, the only options that can be changed are the following:
+truncation threshold and transaction optimization levels.
+If the truncation threshold is lowered and the log filled beyond the
+new threshold, a truncation is initiated if one is not in progress.
+If a truncation must be initiated, it will run synchronously with the
+calling thread.
+@Begin(Comment)
+If the recovery or flush buffer sizes are increased, it is possible
+that the new buffers cannot be allocated.
+In this case, RVM&lowbar;ENO&lowbar;MEMORY is returned, and the original buffer
+is retained.
+If the recovery buffer size is changed and a epoch truncation is in
+progress, the new buffer size will not become 
+effective until after the truncation completes.
+Similarly, reallocating the flush buffer must wait for an ongoing
+flush to complete.
+@End(Comment)
+
+Transaction optimization levels can be changed at any time, but the
+level in effect at the beginning of a transaction remains in effect
+for that transaction until it is ended.
+
+
+<sect1>Diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rvm&lowbar;map (3)</tt>, <tt>rvm&lowbar;unmap (3)</tt>, and <tt>rvm&lowbar;query (3)</tt>
+
+
+<sect1>author<P>
+Hank Mashburn
+
+
+</manpage>

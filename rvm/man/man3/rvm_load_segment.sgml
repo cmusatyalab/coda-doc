@@ -1,0 +1,128 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - automatically map regions of segment
+
+")
+@ToC(Contents="rvm&lowbar;load&lowbar;segment")
+@IndexEntry(Key="rvm&lowbar;load&lowbar;segment",Entry="rvm&lowbar;load&lowbar;segment, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;load&lowbar;segment",Text2="rvm&lowbar;load&lowbar;segment")
+
+<sect1>Synopsis
+<tt>#include "rvm&lowbar;segment.h</tt>
+
+<tt>typedef struct
+    &lcub;
+    rvm&lowbar;offset&lowbar;t        offset;
+    rvm&lowbar;length&lowbar;t        length;
+    char                *vmaddr;
+    &rcub;
+rvm&lowbar;region&lowbar;def&lowbar;t;</tt>
+
+@Begin(Transparent)
+@TabClear
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;load&lowbar;segment (@^DevName, DevLength, options,
+@\nregions, regions)</tt>
+@End(Transparent)
+
+@Opt3(Name="<tt>char</tt>",Desc="<tt>*DevName</tt>",
+	Expl="name of heap segment")
+@Opt3(Name="<tt>rvm&lowbar;length&lowbar;t</tt>",Desc="<tt>DevLength</tt>",
+	Expl="length of heap raw partition")
+@Opt3(Name="<tt>rvm&lowbar;options&lowbar;t</tt>",Desc="<tt>*options</tt>",
+	Expl="optional pointer to an options record")
+@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>*nregions</tt>",
+	Expl="pointer to number of region descriptors &lsqb;out&rsqb;")
+@Opt3(Name="<tt>rvm&lowbar;region&lowbar;def&lowbar;t</tt>",Desc="*regions&lsqb;&rsqb;",
+	Expl="pointer to array of region descriptors &lsqb;out&rsqb;")
+
+
+<sect1>Description<P>
+<tt>rvm&lowbar;load&lowbar;segment</tt> is used to automatically map the regions of a
+segment prepared with <tt>rvm&lowbar;create&lowbar;segment</tt>.  The name of the file or
+partition for the segment is specified by <tt>DevName</tt>, and the
+length of the partition is specified in <tt>DevLength</tt>.  If the heap 
+is in a file, <tt>DevLength</tt> should be zero.
+
+<tt>rvm&lowbar;load&lowbar;segment</tt> will first to load the
+array of <tt>rvm&lowbar;region&lowbar;def&lowbar;t</tt> descriptors contained in the segment
+header.  If the segment header is not recognizable, the error
+<tt>RVM&lowbar;ESEGMENT&lowbar;HDR</tt> will be returned.  A version identifier will also
+be checked, and if the version of the segment library that created the
+header does not match the version of the library linked with the
+application, the error <tt>RVM&lowbar;EVERSION&lowbar;SKEW</tt> will be returned.
+Otherwise, the address and length of the region descriptors array will
+be returned in regions and <tt>nregions</tt>, respectively.
+The header array must be deallocated by the application.
+
+After the header is verified, each of the regions will be mapped via
+<tt>rvm&lowbar;map</tt>.  Allocation of virtual memory is done by
+<tt>rvm&lowbar;load&lowbar;segment</tt>, so the application must not attempt allocation, or
+the error <tt>RVM&lowbar;ERANGE</tt> will result.
+Regions whose virtual memory address is non-zero will be
+automatically mapped to that address.  Regions with zero virtual
+memory addresses 
+will have space allocated by RVM, and the allocated address will be
+returned in the <tt>vmaddr</tt> field of the descriptor.  
+After successful completion of
+<tt>rvm&lowbar;load&lowbar;segment</tt>, all data specified by the header is addressable
+to the application.
+
+Regions are not allowed to overlap in either the segment or virtual
+memory.  If this condition is not met, the error codes
+<tt>RVM&lowbar;EOVERLAP</tt> or <tt>RVM&lowbar;EVM&lowbar;OVERLAP</tt> will be returned, as
+appropriate.
+
+Since it is an initialization function, <tt>rvm&lowbar;load&lowbar;segment</tt>
+performs no internal synchronization, so if there 
+is a possibility of concurrent access to the segment,
+the application must do appropriate serialization.
+
+An optional RVM options descriptor can be passed to
+<tt>rvm&lowbar;load&lowbar;segment</tt> if no log has been previously declared.
+RVM must be initialized before <tt>rvm&lowbar;load&lowbar;segment</tt> is called.
+
+
+<sect1>Diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rvm&lowbar;create&lowbar;segment (3)</tt>, <tt>rvm&lowbar;map (3)</tt>, <tt>rds&lowbar;load&lowbar;heap (3)</tt>
+
+
+<sect1>Author<P>
+David C. Steere
+
+
+</manpage>

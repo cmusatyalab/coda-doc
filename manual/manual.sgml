@@ -1,4 +1,4 @@
-<!doctype linuxdoc system[
+<!doctype linuxdoc SYSTEM "../dtd/linuxdoc.dtd" [
 <!entity abstract SYSTEM "abstract.sgml">
 <!entity preface SYSTEM "preface.sgml">
 <!entity starting SYSTEM "getting_started.sgml">

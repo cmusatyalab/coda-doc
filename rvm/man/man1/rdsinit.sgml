@@ -1,0 +1,105 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=1-RDSINIT>
+<sect1>NAME 
+ <P> - RDS heap initialization utility
+
+")
+@ToC(Contents="rdsinit")
+@IndexEntry(Key="rdsinit",Entry="rdsinit, command",Number)
+@Index2ndary(Key1="Commands",Text1="Commands",
+    	Key2="rdsinit",Text2="rdsinit")
+
+<sect1>Synopsis
+<tt>#include "rds.h"</tt>
+
+<tt>rdsinit log&lowbar;file data&lowbar;file</tt>
+
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>Description<P>
+<tt>rdsinit</tt> is a utility that constructs an initialized RDS heap in an
+RVM segment.  It is intended to create a structure that can be loaded
+by <tt>rds&lowbar;load&lowbar;heap</tt>.
+
+Two command line parameters are required: the name of the RVM log
+file, which must have previously been initialized by <tt>rvmutl</tt>, and
+the name of the data segment file that will be initialized with an RDS
+heap.  If either is missing, a command line error is printed.  If the
+log file has not been initialized, an RVM error will result.
+A short message indicating RVM initialization succeeded is then
+printed.
+
+If the data file doesnt exist, or is a raw partition, <tt>rdsinit</tt>
+will prompt for the maximum length of the file, which, like all
+<tt>rdsinit</tt> numeric parameters,  can be entered
+in octal, decimal, or hexadecimal. If octal notation is used, the
+number must be preceded by <tt>0</tt>.  Hexadecimal notation is preceded by
+<tt>0x</tt>.  Decimal notation requires no prefix.
+RDS will initialize the segment to all zeroes, and print a completion
+message:
+
+<code>
+<tt>Enter the length of the file/device data&lowbar;file: nnnnnnn</tt>
+<tt>Going to initialize data file to zero, could take awhile.</tt>
+<tt>done.</tt>
+</code>
+
+<tt>rdsinit</tt> will then ask for the starting address of recoverable
+memory in virtual memory, which must be on a page
+boundary, the length of the heap, and the length of
+the statically allocated region, must be integrals of the system page
+size:
+
+<code>
+<tt>starting address of rvm: nnnnnnn</tt>
+<tt>heap len: nnnnnnn</tt>
+<tt>static len: nnnnnnn</tt>
+</code>
+
+If any parameter is entered incorrectly, <tt>rdsinit</tt> will print an
+error message and request reentry of the parameter.  The length of the
+segment will be checked to be sure the regions and segment header can
+be allocated.  If not, the segment length will be requested again.
+
+The heap region is allocated at starting address, which becomes the
+permanent address of the heap.  The static region will start at the
+starting address plus the heap length and is also permanent.  These
+addresses and lengths can only be changed by re-initialization of the
+segment. 
+
+Next, the two parameters for the free lists are requested:
+
+<code>
+</code>
+<tt>nlists: nnn</tt>
+<tt>chunksize: nnn</tt>
+
+Note that the chunk size must be an integral multiple of
+<tt>sizeof (char *)</tt>, and be at least <tt>RDS&lowbar;MIN&lowbar;CHUNK&lowbar;SIZE</tt>.
+The number of free lists, <tt>nlists</tt>, must be at least
+<tt>RDS&lowbar;MIN&lowbar;FREE&lowbar;LISTS</tt> (1).
+
+Once all parameters are entered correctly, the segment load map and
+the heap will be created.
+If all goes well, the load map for the segment is printed and
+<tt>rdsinit</tt> terminates.  The heap is then ready for use.
+
+
+<sect1>See also<P>
+<tt>rds&lowbar;init&lowbar;heap (3)</tt>, <tt>rds&lowbar;load&lowbar;heap (3)</tt>, <tt>rds&lowbar;zap&lowbar;heap (3)</tt>,
+<tt>rvm&lowbar;create&lowbar;segment (3)</tt>, <tt>rvm&lowbar;load&lowbar;segment (3)</tt>, <tt>rvmutl (1)</tt>
+
+
+<sect1>Author<P>
+David C. Steere
+
+
+</manpage>

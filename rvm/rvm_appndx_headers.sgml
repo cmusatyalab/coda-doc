@@ -1,0 +1,79 @@
+
+@NewPage()
+@PageHeading(Left="RVM: @Value(SectionTitle)",Right="RVM: @Value(SectionTitle)")
+@DraftPageFooting(Odd="T",Immediate="T",Left="@Value(SystemRelease)",
+	Center="@Value(Date)",Right="@Value(Page)")
+@DraftPageFooting(Even="T",Immediate="T",Left="@Value(Page)",
+	Center="@Value(Date)",Right="@Value(SystemRelease)")
+@Appendix(C Declarations for RVM)
+@Process(PageHeadings)
+<label id="RVMheaders">
+<!--1 line-->
+This appendix contains listings of the C header files used to
+construct programs with RVM.
+The following files are included:
+@Begin(Description,LeftMargin +35,Indent -25,Spread .3)
+<tt>rvm.h</tt>@\main RVM library declarations.
+
+<tt>rvm&lowbar;statistics.h</tt>@\RVM statistics declarations.
+
+<tt>rds.h</tt>@\recoverable heap allocator declarations.
+
+<tt>rvm&lowbar;segment.h</tt>@\segment loader declarations.
+@End(Description)
+
+The header <tt>rvm.h</tt> is required for all uses of RVM.  The other
+should be included as needed.  The order of inclusion is not
+important, but Unix system files are often included first.  Should the
+files be included more than once, only the first is processed.
+
+@SpecialFont(F9=TimesItalic)
+@SpecialFont(F8=HelveticaOblique)
+@SpecialFont(F7=CourierBold)
+@SpecialFont(F6=Courier)
+@NewPage()
+@Begin(Verbatim,Columns=2,Boxed,ColumnMargin=.25inch,LineWidth=4.5inches,
+       ColumnWidth=4.75inches,Rotate=Left,Size=7)
+@PageHeading(Left="RVM: @Value(SectionTitle)",Right="rvm.h")
+@Process(PageHeadings)
+<label id="rvmh">
+@IndexEntry(Key="rvm.h",
+    	Text="rvm.h, C header file for RVM,<P>see Appendix <ref id="Appendix" name="XXX">",
+    	Numbered)
+@Include(rvm.h.mss)
+@End(Verbatim)
+@NewPage()
+@Begin(Verbatim,Columns=2,Boxed,ColumnMargin=.25inch,LineWidth=4.5inches,
+       ColumnWidth=4.75inches,Rotate=Left,Size=7)
+@PageHeading(Left="RVM: @Value(SectionTitle)",Right="rvm&lowbar;statistics.h")
+@Process(PageHeadings)
+<label id="rvmstatsh">
+@IndexEntry(Key="rvm&lowbar;statistics.h",
+    	Text="rvm&lowbar;statistics.h, C header file for RVM statistics,<P>see Appendix <ref id="Appendix" name="XXX">",
+    	Numbered)
+@Include(rvm&lowbar;statistics.h.mss)
+@End(Verbatim)
+@NewPage()
+@Begin(Verbatim,Columns=2,Boxed,ColumnMargin=.25inch,LineWidth=4.5inches,
+       ColumnWidth=4.75inches,Rotate=Left,Size=7)
+@PageHeading(Left="RVM: @Value(SectionTitle)",Right="rds.h")
+@Process(PageHeadings)
+@IndexEntry(Key="rds.h",
+    	Text="rds.h, C header file for RDS,<P>see Appendix <ref id="Appendix" name="XXX">",
+    	Numbered)
+<label id="rdsh">
+@Include(rds.h.mss)
+@End(Verbatim)
+@NewPage()
+@Begin(Verbatim,Columns=2,Boxed,ColumnMargin=.25inch,LineWidth=4.5inches,
+       ColumnWidth=4.75inches,Rotate=Left,Size=7)
+@PageHeading(Left="RVM: @Value(SectionTitle)",Right="rvm&lowbar;segment.h")
+@Process(PageHeadings)
+@IndexEntry(Key="rvm&lowbar;segment.h",
+    	Text="rvm&lowbar;segment.h, C header file for RVM segment loader,<P>see Appendix <ref id="Appendix" name="XXX">",
+    	Numbered)
+<label id="rvmsegh">
+@Include(rvm&lowbar;segment.h.mss)
+@End(Verbatim)
+
+</manpage>

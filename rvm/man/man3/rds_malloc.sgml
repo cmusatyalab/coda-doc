@@ -1,0 +1,88 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - allocate from recoverable heap
+
+")
+@ToC(Contents="rds&lowbar;malloc")
+@IndexEntry(Key="rds&lowbar;malloc",Entry="rds&lowbar;malloc, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rds&lowbar;malloc",Text2="rds&lowbar;malloc")
+
+<sect1>Synopsis
+<tt>#include "rds.h"</tt>
+
+<tt>int rds&lowbar;malloc (size, tid, err)</tt>
+
+@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>size</tt>",
+	Expl="length of allocation request")
+@Opt3(Name="<tt>rvm&lowbar;tid&lowbar;t</tt>",Desc="<tt>*tid</tt>",
+	Expl="optional pointer to transaction identifier")
+@Opt3(Name="<tt>int</tt>",Desc="*err",
+	Expl="pointer to error return location")
+
+
+<sect1>Description<P>
+<tt>rds&lowbar;malloc</tt> allocates from the recoverable heap a block large
+enough to hold the request, specified in bytes by the <tt>size</tt> parameter.
+The address of the allocated block is returned as type
+<tt>int</tt> and must be cast to the desired type.
+If the request cannot be satisfied, zero is returned, and the <tt>err</tt>
+parameter is set to the appropriate error code.
+
+Because allocation actions in the recoverable heap must be done
+via transactions, <tt>rds&lowbar;malloc</tt> offers two choices for the transaction.
+In the first case, <tt>rds&lowbar;malloc</tt> can be instructed to use an existing
+transaction begun in <tt>restore</tt> mode, by passing the address of a
+valid <tt>rvm&lowbar;tid&lowbar;t</tt> record in the <tt>tid</tt> parameter.
+This avoids extra transaction start and commit
+overhead and provides automatic deallocation if the transaction must
+later abort.
+However, no context swap can be permitted between allocation and
+transaction commit or abort since the 
+modified, but uncommitted, free lists are visible to other RDS actions.
+
+If context swaps cannot be prohibited, or the available transaction was
+started in <tt>no&lowbar;restore</tt> mode, the <tt>tid</tt> parameter should be
+set to null, instructing <tt>rds&lowbar;malloc</tt> to start an internal
+transaction.
+This transaction will be committed in <tt>no&lowbar;flush</tt> mode if the
+allocation is made, and aborted otherwise.
+In this case, an explicit <tt>rds&lowbar;free</tt> must be done if the allocating
+transaction later aborts.
+
+
+<sect1>Diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag>positive values,Desc</tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rds&lowbar;free (3)</tt>
+
+
+<sect1>Author<P>
+David C. Steere
+
+
+<sect1>Bugs<P>
+The internal synchronization is not valid with pre-emptive threads.
+
+
+</manpage>

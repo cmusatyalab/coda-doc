@@ -1,0 +1,54 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="rvm&lowbar;flush" SECTNUM=3>
+<sect1>NAME 
+ <P>rvm&lowbar;flush - flush log records to log file
+
+")
+@ToC(Contents="rvm&lowbar;flush")
+@IndexEntry(Key="rvm&lowbar;flush",Entry="rvm&lowbar;flush, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;flush",Text2="rvm&lowbar;flush")
+
+<sect1>synopsis
+<tt>#include "rvm.h"</tt>
+
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;flush ()</tt>
+
+
+<sect1>description<P>
+rvm&lowbar;flush makes visible the log flush operation, which
+moves transaction records
+to the log file and insures the permanence of the changes
+represented by those records.
+It is normally done with a transaction commit,
+but is available
+to the application if it wishes to schedule the flush after a sequence of
+no&lowbar;flush transactions.
+
+rvm&lowbar;flush is synchronous with the calling thread.
+
+
+<sect1>DIAGNOSTICS<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rvm&lowbar;end&lowbar;transaction (3)</tt>
+
+
+<sect1>author<P>
+Hank Mashburn
+
+
+</manpage>

@@ -1,0 +1,96 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - RVM log file creation
+
+")
+@ToC(Contents="rvm&lowbar;create&lowbar;log")
+@IndexEntry(Key="rvm&lowbar;create&lowbar;log",Entry="rvm&lowbar;create&lowbar;log, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;create&lowbar;log",Text2="rvm&lowbar;create&lowbar;log")
+
+<sect1>synopsis
+<tt>#include "rvm.h"</tt>
+
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;create&lowbar;log (options, length, mode)</tt>
+
+@Opt3(Name="<tt>rvm&lowbar;options&lowbar;t</tt>",Desc="<tt>*options</tt>",
+	Expl="pointer to a RVM options record")
+@Opt3(Name="<tt>rvm&lowbar;offset&lowbar;t</tt>",Desc="<tt>*length</tt>",
+	Expl="length of log record area in file to be created")
+@Opt3(Name="<tt>long</tt>",Desc="<tt>mode</tt>",
+	Expl="protection mode of file to be created")
+
+
+<sect1>Description<P>
+rvm&lowbar;create&lowbar;log provides a mechanism for creating a log file from
+within an application.
+It is intended to allow an application to be self-installing by
+silently creating the log and other RVM structures it needs.
+To provide some protection against an applications automatically
+over-writing a log containing valid records, rvm&lowbar;create&lowbar;log can
+be used to create logs in Unix files only, and only if the file does
+not already exist.
+Creating logs in raw partitions must be done with the utility
+rvmutl, discussed in Appendix <ref id="rvmutl" name="XXX">, p. @PageRef(rvmutl).
+
+The name of the log file to be created must be specified in the options record.
+An options record created with typedef rvm&lowbar;options&lowbar;t must be used.
+RVM&lowbar;EOPTIONS will be returned if options does not point to a valid
+record.
+If either the name is not provided, or the file cannot be created and
+initialized, RVM&lowbar;ELOG will be returned.
+Also, the total length of the file to be created must be permitted by the
+file system.
+This includes the length specified for log records plus the overhead
+necessary for the log status area, presently one sector.
+Options other than the log file name are ignored.
+
+The mode parameter is the Unix file system protection mode and
+must allow writing by the owner.  An i/o error will be returned if
+the file cannot be created or written.
+
+rvm&lowbar;create&lowbar;log does not declare the created log file as the
+operational log.  This must be done by specifying an options
+descriptor to <tt>rvm&lowbar;set&lowbar;options</tt>, <tt>rvm&lowbar;initialize</tt>, or <tt>rvm&lowbar;map</tt>.
+
+
+<sect1>diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rvm&lowbar;set&lowbar;options (3)</tt>, <tt>rvm&lowbar;initialize (3)</tt>, <tt>rvm&lowbar;map (3)</tt>
+
+
+<sect1>author<P>
+Hank Mashburn
+
+
+</manpage>

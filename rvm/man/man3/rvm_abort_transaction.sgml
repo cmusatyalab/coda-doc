@@ -1,0 +1,56 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - abort specified transaction
+
+")
+@ToC(Contents="rvm&lowbar;abort&lowbar;transaction")
+@IndexEntry(Key="rvm&lowbar;abort&lowbar;transaction",Entry="rvm&lowbar;abort&lowbar;transaction,
+function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;abort&lowbar;transaction",Text2="rvm&lowbar;abort&lowbar;transaction")
+
+<sect1>synopsis
+<tt>#include "rvm.h"</tt>
+
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;abort&lowbar;transaction (tid)</tt>
+
+@Opt3(Name="<tt>rvm&lowbar;tid&lowbar;t</tt>",Desc="<tt>*tid</tt>",
+	Expl="pointer to transaction identifier")
+
+
+<sect1>description<P>
+rvm&lowbar;abort&lowbar;transaction aborts the specified transaction.
+Transactions begun with any mode can be aborted with this function.
+All modifications to segments made in the course of the transaction are
+restored to their original values (unless the transaction was begun
+with the no&lowbar;restore) mode.
+
+The transaction identifier must refer to a previously initiated transaction
+or RVM&lowbar;ETID is returned.
+
+
+<sect1>Diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rvm&lowbar;begin&lowbar;transaction (3)</tt>, <tt>rvm&lowbar;end&lowbar;transaction (3)</tt>
+
+
+<sect1>author<P>
+Hank Mashburn
+
+
+</manpage>

@@ -1,0 +1,37 @@
+
+@NewPage()
+@PageHeading(Left="RVM: @Value(SectionTitle)",Right="RVM: @Value(SectionTitle)")
+@DraftPageFooting(Odd="T",Immediate="T",Left="@Value(SystemRelease)",
+	Center="@Value(Date)",Right="@Value(Page)")
+@DraftPageFooting(Even="T",Immediate="T",Left="@Value(Page)",
+	Center="@Value(Date)",Right="@Value(SystemRelease)")
+@Chapter(RDS, An Allocator for RVM Segments)
+@Process(PageHeadings)
+<label id="rds">
+
+<!--1 line-->
+@Begin(Center)
+<em>Designed and programmed by
+David C. Steere</em>
+@End(Center)
+<!--1 line-->
+
+The Recoverable Dynamic Storage (RDS) package provides an allocator
+for RVM segments.  The allocator provides a heap similar to that of
+the C library, although with persistence.
+Additional provisions for initialization and reloading of the heap
+after shutdown or crash are included.
+The header file is
+included in <ref id="RVMheaders" name="XXX"> on p. @PageRef(rdsh).
+
+
+@Include(rds&lowbar;malloc.mss)
+@Include(rds&lowbar;free.mss)
+@Include(rds&lowbar;fake&lowbar;free.mss)
+@Include(rds&lowbar;load&lowbar;heap.mss)
+@Include(rds&lowbar;zap&lowbar;heap.mss)
+@Include(rds&lowbar;init&lowbar;heap.mss)
+@Include(rds&lowbar;prealloc.mss)
+@Include(rds&lowbar;statistics.mss)
+
+</manpage>

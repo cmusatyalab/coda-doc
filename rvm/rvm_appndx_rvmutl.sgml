@@ -1,0 +1,264 @@
+
+@NewPage()
+@PageHeading(Left="RVM: @Value(SectionTitle)",Right="RVM: @Value(SectionTitle)")
+@DraftPageFooting(Odd="T",Immediate="T",Left="@Value(SystemRelease)",
+	Center="@Value(Date)",Right="@Value(Page)")
+@DraftPageFooting(Even="T",Immediate="T",Left="@Value(Page)",
+	Center="@Value(Date)",Right="@Value(SystemRelease)")
+@Appendix(rvmutl, the RVM Maintenance Utility)
+@Process(PageHeadings)
+<label id="rvmutl">
+<!--2 lines-->
+
+rvmutl is the maintenance utility for RVM.  Its principle
+features are log creation and maintenance, but there are also status
+and statistic display commands as well as printing commands for log
+records.
+A search facility for modifications to segments gains additional
+functionality from the log by allowing its use as a debugging history.
+
+rvmutl is included in the <tt>/bin</tt> directory of the RVM
+distribution directory.  It can be invoked with a single, optional
+parameter, which is interpreted as the name of a log file to be opened.
+If the file doesnt exist, rvmutl will ask if you wish to create
+and initialize a log with the specified name.
+
+rvmutl prompts for commands with a * prompt, after which commands
+can be typed.  Most commands have one or more parameters, which are
+separated by one or more spaces.
+In general, command names can be abbreviated, provided that sufficient
+characters are typed to uniquely specify a command.
+To allow typing short-cuts, some non-unique abbreviations have defined
+interpretations.
+These are specified with the command documentation
+
+@Begin(Comment)
+Both the input and output streams can be redirected in a manner
+similar to the redirection facilities of the C shell.
+Redirection of output permits the output of commands to be captured in
+files for printing or further processing.  This is often useful with the
+statistics and log printing commands.
+
+Redirection of input permits commands to be placed in files 
+At present, this is of limited utility since the only initialization
+performed by rvmutl is for log files.
+However, as the initializations for the segment loader and allocator
+are integrated into rvmutl, putting initialization sequences in
+files will be valuable for automating application system builds.
+@End(Comment)
+As an example, the following sequence will initialize the file
+log&lowbar;file to have one megabyte of log record space:
+
+<tscreen><verb>
+% rvmutl
+* init&lowbar;log log&lowbar;file 1M
+* quit
+</verb></tscreen>
+
+After this simple sequence, the log file is ready for use.
+
+The following pages describe the commands available in rvmutl.
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=1-rvmutl>
+<sect1>NAME 
+ <P> - initialize a log
+
+")
+
+<sect1>Synopsis
+<tt>init&lowbar;log file&lowbar;name length</tt>
+
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>Description<P>
+The file is created if it does not exist, and is set to the
+length specified plus the size of the log status area.
+The log area is filled with -1s to clear any pre-existing
+log records and to enhance the probability of contiguous
+allocation.  Raw partitions have a 16 sector reserved
+space at the start of the partition to skip any disk label
+that may be present.
+
+The length parameter is specified as an integer, optionally
+followed by a single character size code.  
+The following size codes are defined; upper or lower case may be used:
+<!--1 line-->
+@Begin(Text,NoFill,LeftMargin +0.5 inch)
+@TabClear
+@TabSet(+1.0 inch)
+K@\kilobytes
+M@\megabytes
+S@\sectors (512 bytes)
+P@\pages - size system dependent
+B@\bytes (default)
+@End(Text)
+<!--1 line-->
+
+If either parameter is not specified, init&lowbar;log will prompt
+for the missing information.  Log initialization requires both.
+If the size is specified in pages, the system page size can be
+displayed with the command sizeof page.
+
+RVM maintains the log continuously after creation.
+If the log is re-initialized, perhaps to change its size,
+it should be first opened and checked with
+the status command to be sure that the log is empty.
+Re-initialization destroys existing records, so if the log is not
+empty the recover command should be used to apply the
+remaining log records to the data segments before proceeding.
+
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=1-rvmutl>
+<sect1>NAME 
+ <P> - open a log file for inspection
+
+")
+
+<sect1>Synopsis
+<tt>init&lowbar;log file&lowbar;name</tt>
+
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>Description<P>
+open&lowbar;log opens a previously initialized log file for
+inspection, search, and recovery operations.  This command is
+necessary before any other log command can be used.
+
+If the file name is not specified, open&lowbar;log will prompt for it.
+If the file cannot be found, open&lowbar;log will ask if the file should
+be created.
+
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=1-rvmutl>
+<sect1>NAME 
+ <P> - close the current log
+
+")
+
+<sect1>Synopsis
+<tt>close&lowbar;log</tt>
+
+
+<sect1>Description<P>
+close&lowbar;log closes the presently open log file, if there is one.
+There are no parameters.
+
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=1-rvmutl>
+<sect1>NAME 
+ <P> - display current log status
+
+")
+
+<sect1>Synopsis
+<tt>status</tt>
+
+
+<sect1>Description<P>
+status displays the log status area, showing
+the current log head and tail positions, the current log
+record numbers, and truncation times.  If a crash caught
+RVM during a truncation, the previous head and tail
+positions will also be shown.  Other information displayed
+includes the log creation time and the last time the log
+was written.
+
+There are no parameters, but a log must have previously been opened with
+open&lowbar;log.
+
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=1-rvmutl>
+<sect1>NAME 
+ <P> - display current log statistics
+
+")
+
+<sect1>Synopsis
+<tt>statistics</tt>
+
+
+<sect1>Description<P>
+statistics displays various statistics about the current and
+cumulative transaction activity recorded in the log.
+The current information is that contained in the log records that have
+not yet been processed by a truncation.  The cumulative information
+summarizes the entire history of the applications operation since the
+log was initialized.
+
+The statistics available are counts of transaction activities: the
+number of transactions started, aborted, and committed.  Additional
+data is kept on the number of flushes and truncations.
+
+There are no parameters, but a log must have previously been opened with
+open&lowbar;log.
+
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=1-rvmutl>
+<sect1>NAME 
+ <P> - initiate recovery from current log records
+
+")
+
+<sect1>Synopsis
+<tt>statistics</tt>
+
+
+<sect1>Description<P>
+recover allows the recovery procedure to be invoked from
+rvmutl.
+Any records not already applied to the segments named in the log are
+applied to those segments.  After the command finishes, the segments
+have been updated to their last committed state, and the log records
+have been marked as having been applied.  The status command will
+indicate that the log is empty.
+
+Recovery initiated from rvmutl is exactly equivalent to that done
+when a log is declared to the RVM library.  The only advantage of
+invoking recovery from rvmutl is that the application does not
+need to be started.
+
+There are no parameters, but a log must have previously been opened with
+open&lowbar;log.
+
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=1-rvmutl>
+<sect1>NAME 
+ <P> - exit from rvmutl
+
+")
+
+<sect1>Synopsis
+<tt>quit</tt>
+
+
+<sect1>Description<P>
+Terminate execution of rvmutl.  Any open files are closed.
+
+There are no parameters.
+open&lowbar;log.
+
+
+</manpage>

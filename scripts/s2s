@@ -4,6 +4,7 @@ _,,&lowbar;,,&cons
 @\*,,<P>,,&cons
 # @@,,ATSIGN,,&cons
 \',,,,&cons
+@\\,,|,,
 
 @[iI]\(,\),<em>,</em>,&cons
 @[iI]\[,\],<em>,</em>,&cons
@@ -31,6 +32,8 @@ _,,&lowbar;,,&cons
 @Section\(,\),<sect1>,<p>,&cons
 @Subsection\(,\),<sect2>,<p>,&cons
 @FileName\(,\),<tt>,</tt>,&cons
+@[bB]egin\(Description,\),<descrip>,,
+@End\(Description,\),</descrip>,,
 @Begin\(Example\),@End\(Example\),<code>,</code>,&cons
 @Begin\(DISPLAY,\),,<code>,,
 @End\(DISPLAY\),,,</code>,,

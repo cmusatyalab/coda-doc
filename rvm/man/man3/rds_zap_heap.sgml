@@ -1,0 +1,116 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - initialize an RVM segment as an RDS heap
+
+")
+@ToC(Contents="rds&lowbar;zap&lowbar;heap")
+@IndexEntry(Key="rds&lowbar;zap&lowbar;heap",Entry="rds&lowbar;zap&lowbar;heap, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rds&lowbar;zap&lowbar;heap",Text2="rds&lowbar;zap&lowbar;heap")
+
+<sect1>Synopsis
+<tt>#include "rds.h"</tt>
+
+@Begin(Transparent)
+@TabClear
+<tt>int rds&lowbar;zap&lowbar;heap (@^DevName, DevLength, startAddr, staticLength,
+@\heapLength, nlists, chunkSize, err)</tt>
+@End(Transparent)
+
+@Opt3(Name="<tt>char</tt>",Desc="<tt>*DevName</tt>",
+	Expl="name of heap segment")
+@Opt3(Name="<tt>rvm&lowbar;length&lowbar;t</tt>",Desc="<tt>DevLength</tt>",
+	Expl="length of heap raw partition")
+@Opt3(Name="<tt>char</tt>",Desc="<tt>*startAddr</tt>",
+	Expl="base address of heap")
+@Opt3(Name="<tt>rvm&lowbar;length&lowbar;t</tt>",Desc="<tt>staticLength</tt>",
+	Expl="length of static region")
+@Opt3(Name="<tt>rvm&lowbar;length&lowbar;t</tt>",Desc="<tt>heapLength</tt>",
+	Expl="length of heap region")
+@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>nlists</tt>",
+	Expl="number of allocation lists")
+@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>chunkSize</tt>",
+	Expl="size of allocation unit")
+@Opt3(Name="<tt>int</tt>",Desc="*err",
+	Expl="pointer to error return location")
+
+
+<sect1>Description<P>
+<tt>rds&lowbar;zap&lowbar;heap</tt> prepares a recoverable heap for loading by
+<tt>rds&lowbar;load&lowbar;heap</tt>.  Two regions are created in the heap segment named
+by <tt>DevName</tt>, one for the applications statically allocated region
+and one for the recoverable heap.
+The lengths of the regions, specified by <tt>staticLength</tt> and
+<tt>heapLength</tt>, must be integrals of the system page size.  The heap
+region is allocated at <tt>*startAddr</tt> in virtual memory, which must be
+on a page 
+boundary.  This address is the permanent address of the heap.  The
+static region starts at <tt>*startAddr</tt> + <tt>heapLength</tt> and is also
+permanent.  One additional region is created at the beginning of the
+segment for the segment header, and is one page long.  This region is
+only temporarily mapped by <tt>rds&lowbar;load&lowbar;heap</tt>.  The heap region follows
+the header in the segment, and the static region follows the heap.
+
+If the segment is represented by a raw partition, the maximum usable
+length of the partition  must be specified in <tt>DevLength</tt>.  For
+files, this length should be zero.
+
+The region of virtual memory for the heap and static regions should
+not be allocated by the application.  <tt>rds&lowbar;zap&lowbar;heap</tt> uses the RVM
+segment utilities to build the segment header and map the regions.
+When <tt>rds&lowbar;zap&lowbar;heap</tt> is complete, the memory will be mapped.
+
+<tt>rds&lowbar;zap&lowbar;heap</tt> uses <tt>rvm&lowbar;create&lowbar;segment</tt> to build the segment, and
+then calls <tt>rds&lowbar;init&lowbar;heap</tt> to initialize the free
+lists as specified by the <tt>nlists</tt> and <tt>chunkSize</tt> parameters.
+<tt>chunkSize</tt> is specified in bytes, and must
+be an integral multiple of <tt>sizeof (char *)</tt>, and be at least 
+<tt>RDS&lowbar;MIN&lowbar;CHUNK&lowbar;SIZE</tt>.  The number of free lists must be at least
+<tt>RDS&lowbar;MIN&lowbar;FREE&lowbar;LISTS</tt>.
+The transaction required by <tt>rds&lowbar;init&lowbar;heap</tt> is created and
+terminated internally.
+
+If a number of blocks of specific sizes are required by the
+application, the function <tt>rds&lowbar;prealloc</tt> is provided for efficient
+pre-allocation.  It should be called immediately after initializing
+the heap.
+
+The utility <tt>rdsinit</tt> is usually used to create recoverable heap
+segments.  It prompts for the parameters and calls <tt>rds&lowbar;zap&lowbar;heap</tt>.
+
+Since this function is called only to initialize the heap, RDS assumes
+there is no concurrent access and does no internal locking.
+
+
+<sect1>Diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag>positive values,Desc</tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rds&lowbar;init&lowbar;heap (3)</tt>, <tt>rds&lowbar;load&lowbar;heap (3)</tt>, <tt>rvm&lowbar;create&lowbar;segment (3)</tt>, 
+<tt>rvm&lowbar;load&lowbar;segment (3)</tt>, <tt>rdsinit (1)</tt>, <tt>rds&lowbar;prealloc (3)</tt>
+
+
+<sect1>Author<P>
+David C. Steere
+
+
+</manpage>

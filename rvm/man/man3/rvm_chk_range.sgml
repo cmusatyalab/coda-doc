@@ -1,0 +1,120 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - check a modification range
+
+")
+@ToC(Contents="rvm&lowbar;chk&lowbar;range")
+@IndexEntry(Key="rvm&lowbar;chk&lowbar;range",Entry="rvm&lowbar;chk&lowbar;range, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;chk&lowbar;range",Text2="rvm&lowbar;chk&lowbar;range")
+
+<sect1>synopsis
+<tt>#include "rvm.h"</tt>
+
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;chk&lowbar;range (tid,dest,length)</tt>
+
+@Opt3(Name="<tt>rvm&lowbar;tid&lowbar;t</tt>",Desc="<tt>*tid</tt>",
+	Expl="pointer to transaction identifier")
+@Opt3(Name="<tt>char</tt>",Desc="<tt>*dest</tt>",
+	Expl="base address of modification range")
+@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>length</tt>",
+	Expl="length of range, in bytes")
+
+
+<sect1>Description<P>
+rvm&lowbar;chk&lowbar;range checks if a modification range has been declared
+with <tt>rvm&lowbar;set&lowbar;range</tt> or <tt>rvm&lowbar;modify&lowbar;bytes</tt> in an active
+transaction.  Its use is to help
+detect the difficult to find  programming error of making
+modifications without declaring the modifications to RVM.
+If no declared range is found, the error code <tt>RVM&lowbar;ENO&lowbar;RANGE</tt> is
+returned.
+
+A specific transaction can be checked by specifying <tt>tid</tt>.
+Otherwise, all active transactions can be checked by specifying the
+<tt>tid</tt> parameter as null.
+If specified, the transaction must have been begun with
+rvm&lowbar;begin&lowbar;transaction, or the RVM&lowbar;ETID exception code is returned.
+
+The range is specified with the dest and length parameters, and 
+must be in valid virtual memory or RVM&lowbar;ERANGE is returned.
+The range must also be within a single mapped region
+or RVM&lowbar;ENOT&lowbar;MAPPED is returned.
+A range of zero length is ignored provided at least one of the target
+transactions has had at least one range declared.
+
+Typical use of <tt>rvm&lowbar;chk&lowbar;range</tt> is in an assertion:
+<code>
+<tt>assert (rvm&lowbar;chk&lowbar;range(tid,dest,length) == RVM&lowbar;SUCCESS)</tt>
+</code>
+One use is not recommended: doing an <tt>rvm&lowbar;chk&lowbar;range</tt> to see if an
+<tt>rvm&lowbar;set&lowbar;range</tt> should be done:
+<code>
+@TabClear()
+@TabSet(+.5 inches)
+if (rvm&lowbar;chk&lowbar;range LEFTPAREN tid,dest,length) == RVM&lowbar;ENO&lowbar;RANGE RIGHTPAREN
+@\&lcub;
+@\rvm&lowbar;retval = rvm&lowbar;set&lowbar;range (tid,dest,length);
+@\assert (retval == RVM&lowbar;SUCCESS);
+@\&rcub;
+</code>
+This usage is unnecessarily costly since <tt>rvm&lowbar;chk&lowbar;range</tt> takes about
+as much time as <tt>rvm&lowbar;set&lowbar;range</tt>.  If there is a situation where a
+routine is called from one location with the appropriate ranges
+declared, and from other places that may not have done the declarations,
+always do what the routine requires in the routine to be safe.
+
+Since range checking exacts a performance penalty, it can be
+controlled with the <tt>RVM&lowbar;CHK&lowbar;RANGE</tt> flag in the options descriptor field
+<tt>flags</tt>.  When this flag is cleared, <tt>rvm&lowbar;chk&lowbar;range</tt> returns
+<tt>RVM&lowbar;SUCCESS</tt> immediately, without doing any checking.
+<tt>rvm&lowbar;set&lowbar;options</tt> can be used to dynamically enable or disable range
+checking, and <tt>rvm&lowbar;query</tt> can be used to dynamically determine the
+state of checking.
+
+
+<sect1>Diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+@Begin(Transparent, Break, Group)
+<sect1>See also<P>
+<tt>rvm&lowbar;set&lowbar;range (3)</tt>, <tt>rvm&lowbar;modify&lowbar;bytes (3)</tt>, <tt>rvm&lowbar;set&lowbar;options (3)</tt>,
+<tt>rvm&lowbar;query (3)</tt>
+
+@End(Transparent)
+
+<sect1>Author<P>
+Hank Mashburn
+
+
+<sect1>Bugs<P>
+A range cannot extend across a region boundary even if 
+virtual memory is contiguously mapped.
+
+
+</manpage>

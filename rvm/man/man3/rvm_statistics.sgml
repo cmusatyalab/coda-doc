@@ -1,0 +1,95 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - query collected statistics
+
+")
+@ToC(Contents="rvm&lowbar;statistics")
+@IndexEntry(Key="rvm&lowbar;statistics",Entry="rvm&lowbar;statistics, function",
+    	    Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;statistics",Text2="rvm&lowbar;statistics")
+
+<sect1>Synopsis
+<tt>#include "rvm&lowbar;statistics.h"</tt>
+
+<tt>typedef struct
+    &lcub;
+    <em>see @T&lsqb;rvm&lowbar;statistics.h</tt> for current fields</em>
+    &rcub;
+rvm&lowbar;statistics&lowbar;t;&rsqb;
+
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;statistics (version, statistics)</tt>
+@Opt3(Name="<tt>char</tt>",Desc="<tt>*version</tt>",
+	Expl="Statistics version string")
+@Opt3(Name="<tt>rvm&lowbar;statistics&lowbar;t</tt>",Desc="<tt>*statistics</tt>",
+	Expl="pointer to a statistics record")
+
+<tt>rvm&lowbar;return&lowbar;t RVM&lowbar;STATISTICS (statistics)</tt>
+@Opt3(Name="<tt>rvm&lowbar;statistics&lowbar;t</tt>",Desc="<tt>*statistics</tt>",
+	Expl="pointer to a statistics record")
+
+
+<sect1>Description<P>
+<tt>rvm&lowbar;statistics</tt> copies the statistics collected by RVM to a record
+provided by the application.  The contents of the record can then be
+analyzed by the application, or formated by <tt>rvm&lowbar;print&lowbar;statistics</tt>.
+
+Note that the header <tt>rvm&lowbar;statistics.h</tt> must be included to use the
+statistics facility.  These declarations are not included in the
+standard RVM library header since they are expected to change as RVM
+is further developed.  Because of the expectation of change,
+a version parameter is used to detect version skews between the
+statistics record format of the application and the RVM library.
+The string constant RVM&lowbar;STATISTICS&lowbar;VERSION from
+rvm&lowbar;statistics.h is passed to rvm&lowbar;statistics, and compared with 
+the value the library was compiled with.
+If they are different, RVM&lowbar;ESTAT&lowbar;VERSION&lowbar;SKEW is returned and no
+data is copied to the statistics record.
+
+The macro <tt>RVM&lowbar;STATISTICS</tt> will automatically pass the version
+string to the function.
+
+The <tt>statistics</tt> parameter specifies the record to which the
+statistics will be copied.
+This record must be of type <tt>rvm&lowbar;statistics&lowbar;t</tt> and must
+have been created by <tt>rvm&lowbar;malloc&lowbar;statistics</tt> or initialized with
+<tt>rvm&lowbar;init&lowbar;statistics</tt>.
+If the record is not properly formated by either of the above
+functions, the error <tt>RVM&lowbar;ESTATISTICS</tt> is returned.
+
+For detailed specification of the statistics currently collected,
+consult the header file <tt>rvm&lowbar;statistics.h</tt>, which printed in
+Appendix <ref id="RVMheaders" name="XXX">, p. @PageRef(rvmstatsh).
+
+
+<sect1>Diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rvm&lowbar;print&lowbar;statistics (3)</tt>
+
+
+<sect1>Author<P>
+Hank Mashburn
+
+
+</manpage>

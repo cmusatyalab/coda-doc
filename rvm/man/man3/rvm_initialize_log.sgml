@@ -1,0 +1,85 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - RVM log file creation
+
+
+@ToC(Contents="rvm&lowbar;create&lowbar;log")
+@IndexEntry(Key="rvm&lowbar;create&lowbar;log",Entry="rvm&lowbar;create&lowbar;log, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;create&lowbar;log",Text2="rvm&lowbar;create&lowbar;log")
+
+<sect1>synopsis
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;create&lowbar;log (options, length, mode)</tt>
+
+@Opt3(Name="<tt>rvm&lowbar;options&lowbar;t</tt>",Desc="<tt>*options</tt>",
+	Expl="pointer to a RVM options record")
+@Opt3(Name="<tt>rvm&lowbar;offset&lowbar;t</tt>",Desc="<tt>*length</tt>",
+	Expl="length of file created")
+@Opt3(Name="<tt>long</tt>",Desc="<tt>mode</tt>",
+	Expl="protection mode of file created")
+
+
+<sect1>Description<P>
+rvm&lowbar;initialize must be called once to initialize the RVM library, and
+must be called before any other RVM function.
+Without successful initialization, any call to RVM functions except
+rvm&lowbar;initialize
+will result in the error return RVM&lowbar;EINIT.
+Multiple calls to rvm&lowbar;initialize are ignored.
+However, rvm&lowbar;initialize cannot be used to restart RVM after
+rvm&lowbar;terminate has been called.
+
+The version parameter is used to detect version skews.
+The string constant RVM&lowbar;VERSION from rvm.h is passed to
+rvm&lowbar;initialize, and compared with 
+the value from the header file the library was compiled with.
+If they are different, RVM&lowbar;EVERSION&lowbar;SKEW is returned and RVM will
+not initialize. 
+
+RVM operation option choices are specified with the options parameter.
+A options record created with typedef rvm&lowbar;options&lowbar;t must be used.
+RVM&lowbar;EOPTIONS will be returned if options does not point to a valid
+record.
+
+The name of the log device must be specified in the options record.
+If either the name is not provided, or the device cannot be opened and
+initialized, RVM&lowbar;ELOG will be returned.
+If options other than the log device are not specified, defaults will
+be assumed.
+These can be changed later with rvm&lowbar;set&lowbar;options.
+
+
+<sect1>diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rvm&lowbar;set&lowbar;options (3)</tt>, <tt>rvm&lowbar;initialize (3)</tt>, <tt>rvm&lowbar;map (3)</tt>
+
+
+<sect1>author<P>
+Hank Mashburn
+
+
+</manpage>

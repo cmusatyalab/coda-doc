@@ -1,0 +1,96 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - initialize allocation pools
+
+")
+@ToC(Contents="rds&lowbar;prealloc")
+@IndexEntry(Key="rds&lowbar;prealloc",Entry="rds&lowbar;prealloc, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rds&lowbar;prealloc",Text2="rds&lowbar;prealloc")
+
+<sect1>Synopsis
+<tt>#include "rds.h"</tt>
+
+<tt>int rds&lowbar;prealloc (size, nblocks, tid, err)</tt>
+
+@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>size</tt>",
+	Expl="size of allocation request")
+@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>nblocks</tt>",
+	Expl="length of allocation request")
+@Opt3(Name="<tt>rvm&lowbar;tid&lowbar;t</tt>",Desc="<tt>*tid</tt>",
+	Expl="pointer to transaction identifier")
+@Opt3(Name="<tt>int</tt>",Desc="*err",
+	Expl="pointer to error return location")
+
+
+<sect1>Description<P>
+<tt>rds&lowbar;prealloc</tt> assists applications in minimizing heap fragmentation
+by pre-allocating pools of blocks in sizes that the application is
+known to use in relatively large numbers.
+<tt>rds&lowbar;prealloc</tt> is best called immediately after the heap is
+initialized, although it can be called anytime.
+When pools of several block sizes are pre-allocated, they should be
+allocated in increasing block size order so that the larger blocks are
+not split to make the smaller.
+
+The <tt>size</tt> parameter specifies the size, in bytes, of the blocks to
+be pre-allocated, and <tt>nblocks</tt> controls the number of blocks
+pre-allocated.
+
+Because allocation actions in the recoverable heap must be done via
+transactions, <tt>rds&lowbar;prealloc</tt> offers two choices for the transaction.
+In the first case, <tt>rds&lowbar;prealloc</tt> can be instructed to use an existing
+transaction begun in <tt>restore</tt> mode, by passing the address of a
+valid <tt>rvm&lowbar;tid&lowbar;t</tt> record in the <tt>tid</tt> parameter.
+This avoids extra transaction start and commit
+overhead and provides automatic deallocation if the transaction must
+later abort.
+However, no context swap can be permitted between allocation and
+transaction commit or abort since the uncommitted state is visible to
+other allocations.
+
+If context swaps cannot be prohibited, or the available transaction was
+started in <tt>no&lowbar;restore</tt> mode, the <tt>tid</tt> parameter should be
+set to null, instructing <tt>rds&lowbar;prealloc</tt> to start an internal
+transaction.
+This transaction will be committed in <tt>no&lowbar;flush</tt> mode if the
+allocation is made, and aborted otherwise.
+In this case, if the allocating
+transaction later aborts, the pre-allocated blocks remain allocated.
+
+
+<sect1>Diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag>positive values,Desc</tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rds&lowbar;malloc (3)</tt>, <tt>rds&lowbar;init&lowbar;heap</tt>, <tt>rds&lowbar;zap&lowbar;heap</tt>
+
+
+<sect1>Author<P>
+David C. Steere
+
+
+<sect1>Bugs<P>
+The internal synchronization is not valid with pre-emptive threads.
+
+
+</manpage>

@@ -1,0 +1,108 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - deferred return of blocks to the recoverable heap
+
+")
+@ToC(Contents="rds&lowbar;fake&lowbar;free")
+@ToC(Contents="rds&lowbar;do&lowbar;free")
+@IndexEntry(Key="rds&lowbar;fake&lowbar;free",Entry="rds&lowbar;fake&lowbar;free, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rds&lowbar;fake&lowbar;free",Text2="rds&lowbar;fake&lowbar;free")
+
+<sect1>Synopsis
+<tt>#include "rds.h"</tt>
+
+<tt>typedef struct intlist &lcub;
+    unsigned long           size;
+    unsigned long           count;
+    char                    **table;
+&rcub; intentionList&lowbar;t;</tt>
+
+<tt>int rds&lowbar;fake&lowbar;free (addr, list)</tt>
+@Opt3(Name="<tt>char</tt>",Desc="<tt>*addr</tt>",
+	Expl="address of block to be freed")
+@Opt3(Name="<tt>intentionList&lowbar;t</tt>",Desc="<tt>*list</tt>",
+	Expl="pointer to intention list")
+
+<tt>int rds&lowbar;do&lowbar;free (list, mode)</tt>
+@Opt3(Name="<tt>intentionList&lowbar;t</tt>",Desc="<tt>*list</tt>",
+	Expl="pointer to intention list")
+@Opt3(Name="<tt>char</tt>",Desc="<tt>*addr</tt>",
+	Expl="transaction commit mode")
+
+
+<sect1>Description<P>
+In cases where the application must free recoverable storage without
+knowing whether the transaction will later abort, <tt>rds&lowbar;free</tt> should
+not be used since the internal free list lock is not held until commit
+or abort.
+To handle these cases, RDS allows the creation of an <em>intention
+list</em> for the blocks to be freed.  At the point where the block would
+logically be freed, <tt>rds&lowbar;fake&lowbar;free</tt> is called to place the block on
+the intention list.
+To actually free the blocks on the intention list, <tt>rds&lowbar;do&lowbar;free</tt> is
+called.  This must be done immediately before calling
+<tt>rvm&lowbar;end&lowbar;transaction</tt> for the deallocating transaction, and must not
+be done if 
+<tt>rvm&lowbar;abort&lowbar;transaction</tt> is called.  Also, no context swaps can be
+allowed between the calls on <tt>rds&lowbar;do&lowbar;free</tt> and <tt>rvm&lowbar;end&lowbar;transaction</tt>.
+
+The intention list header (type <tt>intentionList&lowbar;t</tt>) must be provided
+by the application.  The <tt>table</tt> 
+field must be null on the first call to <tt>rds&lowbar;fake&lowbar;free</tt>.  RDS will
+allocate space as necessary for the blocks to be freed.
+<tt>rds&lowbar;do&lowbar;free</tt> will deallocate the <tt>table</tt> vector.  The application
+is responsible for deallocation of <tt>table</tt> if the transaction is
+aborted.  Deallocation of the <tt>intentionList&lowbar;t</tt> itself is always the
+responsibility  of the application.
+RDS does not internally synchronize access to the intention list.
+If more than one thread is involved in the transaction,
+synchronization of access to the intention list is the responsibility
+of the application.
+
+The block to be deallocated is passed in the <tt>addr</tt> parameter to
+<tt>rds&lowbar;fake&lowbar;free</tt> .  This
+block must not already be free, or the <tt>EFREED&lowbar;TWICE</tt> error
+code will be returned.
+The <tt>ECORRUPT</tt> error return is given by <tt>rds&lowbar;fake&lowbar;free</tt> if the
+block guards are damaged.  <tt>rds&lowbar;do&lowbar;free</tt> returns this code if
+internal damage to the free lists is found.
+
+These functions return error codes as the
+value of the function rather than in a parameter.
+
+
+<sect1>Diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag>positive values,Desc</tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rds&lowbar;free (3)</tt>, <tt>rds&lowbar;malloc (3)</tt>
+
+
+<sect1>Author<P>
+David C. Steere
+
+
+</manpage>

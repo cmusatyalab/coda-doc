@@ -1,0 +1,111 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - define a modification range
+
+")
+@ToC(Contents="rvm&lowbar;set&lowbar;range")
+@IndexEntry(Key="rvm&lowbar;set&lowbar;range",Entry="rvm&lowbar;set&lowbar;range, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;set&lowbar;range",Text2="rvm&lowbar;set&lowbar;range")
+
+<sect1>synopsis
+<tt>#include "rvm.h"</tt>
+
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;set&lowbar;range (tid,dest,length)</tt>
+
+@Opt3(Name="<tt>rvm&lowbar;tid&lowbar;t</tt>",Desc="<tt>*tid</tt>",
+	Expl="pointer to transaction identifier")
+@Opt3(Name="<tt>char</tt>",Desc="<tt>*dest</tt>",
+	Expl="base address of modification range")
+@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>length</tt>",
+	Expl="length of range, in bytes")
+
+
+<sect1>Description<P>
+rvm&lowbar;set&lowbar;range defines a modification range within a transaction.
+The transaction must have been begun with rvm&lowbar;begin&lowbar;transaction, or
+the RVM&lowbar;ETID exception code is returned.
+
+The range is specified with the dest and length parameters, and 
+must be in valid virtual memory or RVM&lowbar;ERANGE is returned.
+The range must also be within a single mapped region
+or RVM&lowbar;ENOT&lowbar;MAPPED is returned.
+A range of zero length is ignored.
+
+Range modifications provide efficient logging for transactions modifying
+memory in a specific range, and is ideal when modifications are not sparse.
+The original values within the range are preserved for possible restoration upon
+transaction abort.
+eliminating the need for a modify operator to log changes as they are made
+so normal assignment statements can be used.
+Changes can be made anywhere in the range and need not be
+sequential.
+
+A common programming error is to make modifications without doing a
+rvm&lowbar;set&lowbar;range call to declare the modifications to RVM.
+This results in changes that are not permanent: since RVM has not been
+informed of the changes, it cannot log the new values and the changes
+are lost when the region is unmapped or if a crash occurs.
+
+The declaration of a modification range should always be made <em>before</em> the
+modifications are actually assigned.
+This is absolutely required if the transaction was begun in
+restore mode, since the old values cannot be recorded otherwise
+and will not be available for restoration upon transaction abort.
+In future versions, making modifications before calling
+rvm&lowbar;set&lowbar;range may result in incorrect operation.
+
+rvm&lowbar;set&lowbar;range can be used as many times as necessary within a
+transaction to define the ranges of modifications required.
+rvm&lowbar;set&lowbar;range and rvm&lowbar;modify&lowbar;bytes are not mutually exclusive,
+and can be used in the same transaction as is convenient to the programmer.
+
+If the transaction was begun with the no&lowbar;restore mode, no old
+value record will be created for the modification range, and
+an abort will not restore the state of virtual memory.
+If memory to create an old value record for the range cannot be allocated,
+RVM&lowbar;ENO&lowbar;MEMORY is returned.
+
+
+<sect1>Diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+@Begin(Transparent, Break, Group)
+<sect1>See also<P>
+<tt>rvm&lowbar;begin&lowbar;transaction (3)</tt>, <tt>rvm&lowbar;modify&lowbar;bytes (3)</tt>,
+<tt>rvm&lowbar;end&lowbar;transaction (3)</tt>, and <tt>rvm&lowbar;abort&lowbar;transaction (3)</tt>
+
+@End(Transparent)
+
+<sect1>Author<P>
+Hank Mashburn
+
+
+<sect1>Bugs<P>
+A range cannot extend across a region boundary even if 
+virtual memory is contiguously mapped.
+
+
+</manpage>

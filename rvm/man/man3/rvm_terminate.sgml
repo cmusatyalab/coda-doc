@@ -1,0 +1,54 @@
+
+<!doctype linuxdoc system>
+
+<manpage TITLE="" SECTNUM=3>
+<sect1>NAME 
+ <P> - terminate RVM
+
+")
+@ToC(Contents="rvm&lowbar;terminate")
+@IndexEntry(Key="rvm&lowbar;terminate",Entry="rvm&lowbar;terminate, function",Number)
+@Index2ndary(Key1="Functions",Text1="Functions",
+    	Key2="rvm&lowbar;terminate",Text2="rvm&lowbar;terminate")
+
+<sect1>synopsis
+<tt>#include "rvm.h"</tt>
+
+<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;terminate ()</tt>
+
+
+<sect1>description<P>
+rvm&lowbar;terminate checks for uncommitted transactions and otherwise insures
+a clean exit from RVM.
+If an uncommitted transaction is found, RVM&lowbar;EUNCOMMIT is returned,
+and the application should call rvm&lowbar;query to
+discover such transactions.
+If any are discovered, this is an indicator of likely program logic errors.
+If there are no uncommitted transactions, the log is flushed, and all
+regions unmapped.
+
+RVM cannot be reinitialized after termination.
+
+
+<sect1>diagnostics<P>
+<descrip>
+<tag></tag>
+<P></descrip>
+<!--8 points-->
+<descrip>
+<tag></tag>
+<P></descrip>
+<descrip>
+<tag></tag>
+<P></descrip>
+
+
+<sect1>See also<P>
+<tt>rvm&lowbar;initialize (3)</tt>, and <tt>rvm&lowbar;query (3)</tt>
+
+
+<sect1>author<P>
+Hank Mashburn
+
+
+</manpage>
