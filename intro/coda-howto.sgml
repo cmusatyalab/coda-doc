@@ -635,12 +635,16 @@ This will stop <tt>relay.exe</tt> (if it is still running)  and unload
 </enum> 
 
 
-<sect1> Codasrv -- the server <label id="codasrv"><p>
+<sect1> Codasrv -- the file server <label id="codasrv"><p>
 
 <sect2>Configuring your server<p>
 
-To set up an SCM server, you need to have the following
-<bf>resources</bf>: 
+To set up an SCM server, you will run a script <em/vice-setup/.  This
+script creates configuration files under the <tt> /vice </tt>
+directory and creates files and directories on your system for storage
+of file data and metatdata.  To answer the questions <em/vice-setup/
+is asking you need to have the following thought through:
+
 
 <descrip>
 
@@ -652,20 +656,43 @@ as the data you wish to store in Coda.
 You can use a file but it will be quite slow on a larger server. This
 partition must be around 4% of the total size of the files you wish to
 store under /vicepa (e.g. on a 2GB server we use around 80M of rvm
-data). For first installations we recommend the default 22M options.
+data). For first installations we recommend the default 22M options,
+and using <em/files/ for RVM log and data.  (NOTE: Windows NT Setup
+creates the file c:\coda\rvm\DATA. Use this for RVM metadata.)
 
-<bf>Note: </bf> Windows NT Setup creates the file c:\coda\rvm\DATA. Use 
-this for RVM metadata.
-
-<tag/virtual memory/  The metadata is memory mapped.  You need that
-amount of space as virtual memory on your system, in addition to
-virtual memory to run the server (~5MB) and other software.
+<tag/virtual memory/ The metadata, held in the RVM data file, is
+memory mapped.  You need that amount of space as virtual memory on
+your system, in addition to virtual memory to run the server (~6MB)
+and other software.
 
 <tag/RVM transaction log/a LOG file, preferably a raw partition on a
-disk by itself. This 	needs not be large. 
+disk by itself. This needs not be large, a few M's are fine.  (NOTE:
+Windows NT Setup creates the file c:\coda\rvm\LOG. Use this for RVM
+transaction log.)
 
-<bf>Note: </bf> Windows NT Setup creates the file c:\coda\rvm\LOG. Use 
-this for RVM transaction log. 
+<tag/A server number/
+
+All servers in a coda cell need to have a unique number to identify
+them. The servername to identifier mappings have to be defined by the
+administrator in the file <tt>/vice/db/servers</tt> on the SCM.  The
+format of this file is as follows:
+
+<tscreen>
+<verb>
+     servernameX.domain.name    1
+     servernameY.domain.name    2
+     ...
+</verb>
+</tscreen>
+
+There are currently several limitations to which identifiers are
+actually usable:
+<itemize>
+<item> all numbers must fit in a single byte.
+<item> 0 and -1 (255) are used in error conditions.
+<item> 127 is used to identify `replicated volumes'.
+</itemize>
+This leaves us with a usable range of 1-126 and 128-245 for server identifiers.
 
 <tag/secret tokens/two secret tokens of _exactly_ 8 characters (eg
 elephant).
@@ -785,6 +812,18 @@ directory. Read the next section to find out how to do more with Coda.
 
 <sect>Exploring Coda's features<p>
 
+<sect1> Restarting a server <p>
+
+On the server the command <tt/volutil shutdown/ will stop the server.
+If it is really toasted, you might need to kill the <em/codasrv/
+process.
+
+To restart the server issue the command <tt/startserver/.  This shell
+script invokes <tt/codasrv/ with the correct arguments.  If it
+complains about a server already running do the following: first check
+with <tt>ps auxww | grep codasrv</tt> if this is the case.  If not,
+remove the file <tt>/vice/srv/pid</tt> and reissue the
+<tt/startserver/ command.
 
 <sect1> Getting more volumes <p>
 
@@ -1114,6 +1153,128 @@ codasrv-se      2433/udp
 <sect1>Server Problems<p>
 
 <descrip>
+<tag>server doesn't start due to salvaging problems<p> 
+
+If this happens you have several options.  If the server has crashed
+during salvaging it will not come up by trying again, you must either
+repair the damaged volume or not attach that volume.
+
+Not attaching the volume is done as follows.  Find the volume id of
+the damaged volume in the SrvLog. Create a file named <tt>
+/vice/vol/skipsalvage</tt> with the lines:
+
+<verb>
+1
+0xdd000123
+</verb>
+
+Here <tt/1/ indicates that a single volume is to be skipped and
+<tt/0xdd000123/ is the volume id of the replica that should not be
+attached.  If this volume is a replicated volume, take all replicas
+offline, since otherwise the clients will get very confused.  
+
+You can also try to repair the volume with <tt/norton/.  Norton is invoked as: 
+<verb>
+norton LOG DATA DATA-SIZE
+</verb>
+These parameters can be found in /vice/srv.conf. 
+
+The Norton manual pages give details about norton's operation and
+there is online guidance available which is possibly more helpful.
+
+<bf/NOTES:/
+<enum>
+<item> Often corruption is replicated.  This means that if you find a
+server has crashed and does not want to salvage a volume, your other
+replicas may suffer the same fate: the risk is that you may have to go
+back to tape (you do make tapes, right?).  Therefore <bf/first/ copy
+out good data from the available replicas, <bf/then/ attend to
+repairing or skipping them in salvage.
+
+<item> Very often you have to take both a volume and its most recent
+clone (generated during backup) offline, since corruption in a volume
+is inherited by the clone.
+
+<item> If you find that a replica of a volume is corrupt, <em/do not
+attempt to merely replace that replica/.  We have found that this
+corrupts the volume databases.  It is better to make a new replicated
+volume and copy of the data from the healthy replicas (keep the server
+with the bad replica down).
+</enum>
+
+<tag> How to restore a backup from tape <p>
+
+Tuesday I lost my email folder - the whole volume
+<em/moose:braam.life/ was corrupted on server <em/moose/, it wouldn't
+salvage.  Here is how I got it back.
+
+First I tried mounting <tt/moose.braam.life.0.backup/ but this was
+corrupted too.
+
+On the SCM in <tt>/vice/vol/VRList</tt> I found the replicated volume
+number <tt/f0000427/ and the volume number <tt/ce000011/ (ficitious)
+for the volume.
+
+I logged in as root to bison, our backup controlller.  I read the
+backuplog for Tuesday morning in /vice/backuplogs/backuplog.DATE and
+saw that the incremental dump for August 31st had been fine. At the
+end of that log, I saw the name <tt/f0000427.ce000011/ listed as dumped
+under /backup (a mere symlink) and /backup2 as spool directory with
+the actual file. The backup log almost shows how to move the tape to
+the correct place and invoke restore:
+
+<verb>
+     cd /backup2
+     mt -f /dev/nst0 rewind
+     restore -b 500 -f /dev/nst0 -s 3 -i
+</verb>
+
+The <tt/-s 3/ option varies according to which <em> /backup[123] </em>
+volume the backup is restored from.  This invokes the restore
+command. Typing help allowed me to add then extract the file I
+wanted. It took a little while before the file was back. From the
+restore prompt do:
+
+<verb>
+     restore> cd 31Aug1998
+     restore> add viotti.coda.cs.cmu.edu-f0000427.ce000011
+     restore> extract
+     Specify volume #: 1
+<verb>
+
+In /vice/db/dumplist I saw that the last full backup had been on
+Friday Aug28. I went to the machine room and inserted that tape
+(recent tapes are above bison).  This time f0000427.ce000011 was a
+200MB file (the last full dump) in /backup3. I extract the file as
+above.
+
+Then I merged the two dumps:
+
+<verb>
+     merge /restore/peter.mail /backup2/28Aug1998/f0000427.ce000011 \
+           /backup3/31Aug1998/f0000427.ce000011
+</verb>
+
+This took a minute or two to create /restore/peter.mail. Now all that
+was needed was to upload that to a volume:
+
+<verb>
+     volutil -h moose restore /restore/peter.mail /vicepa vio:braam.mail.restored
+</verb>
+
+   Back to the SCM, to update the volume databases: 
+
+<verb>
+     bldvldb.sh viotti
+</verb>
+
+Now I could mount the restored volume: 
+
+<verb>
+     cfs mkm restored-mail vio:braam.mail.restored
+</verb>
+
+and copy it into a read write volume using cpio or tar. 
 
 <tag>createvol_rep reports RPC2_NOBINDING.</tag>
 When trying to create volumes, and createvol_rep reports RPC2_NOBINDING, it is

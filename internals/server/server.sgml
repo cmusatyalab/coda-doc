@@ -4,9 +4,9 @@
 
 <!-- Title information -->
 
-<title>Server Internals
+<title>The Coda File Server
 <author>Peter J. Braam, <tt/braam@cs.cmu.edu/
-<date>v0.9, 15 June 1997
+<date>v0.9, 25 Dec 1998
 
 <!-- Table of contents -->
 <toc>
@@ -25,64 +25,202 @@ backbacks for a Venus which has failed.
 <sect> Volumes <P>
 
 <sect1> Volume Data Structures<p>
-The following volume related structures are around:
-<enum>
-<item> Volume: defined in volume.h. A VM structure held in a hash
-table. Contains quite a lot of information, such as a pointer to a
-volHeader, Device, partition, vol_index, vnodeIndex, locks and other
-run time data. 
-<item> VolumeDiskData: defined in volume.h. An RVM structure holding
-the persistent data associated with the volume. 
-<item> volHeader: defined in volume. h, appears to be a VM structure
-sitting on a dlist. Contains a VolumeDiskData structure and points to
-a Volume structure.  
-<item> VolumeData: defined in camprivate.h. An RVM structure, points
-to VolumeDiskData and points to SmallVnodeLists (with some contstants
-related to these, and to BigVnodeLists. 
-<item> VolHead: defined in camprivate.h. An RVM structure containing a
-VolumeHeader and VolumeData. 
-<item> VolumeHeader: defined in volume.h. Contains the volumeid, type
-and parentid. 
-</enum> 
 
-<sect1> simple volume calls <p>
-In RVM an array is set up at initialization time: VolHead
-VolumeList[MAXVOLS]. 
+When a server is initialized during its first run, a structure at a
+fixed RVM address is initialized, from which all data access is
+initiated. The structure is of type <em/coda_recoverable_segment/
+defined in <tt/coda_globals.h/.  For volume handling it holds the
+following information:
+
+<enum>
+
+<item> an array <em/VolumeList/ of size <em/MAXVOLS/ of <em/VolHead/
+structures.  
+
+<item> a constant <em/MaxVolId/ holding the maximum allocated volume
+id. This constant is overloaded and holds the constant
+<em/ThisServerId/ in its top 8 bits.
+</enum>
+
+We will now explore how the <em/VolHead/ structures lead to other
+volume structures.  There are many data structures linking these
+things together:
+
+<descrip>
+
+<tag/VolHead:/ defined in <tt/camprivate.h/. An RVM structure
+containing a structure <em/VolumeHeader/ and <em/VolumeData/. 
+
+<tag/VolumeData:/ defined in <tt/camprivate.h/. An RVM structure,
+points to <em/VolumeDiskData/ and points to <em/SmallVnodeLists/ (with
+some contstants related to these, and to <em/BigVnodeLists/.
+
+<tag/VolumeHeader:/ defined in <tt/volume.h/. Contains the
+<em/volumeid, type/ and <em/parentid./
+
+<tag/VolumeDiskData:/ defined in <em/volume.h/. An RVM structure
+holding the persistent data associated with the volume.
+
+</descrip>
+
+These RVM structures are copied into VM when a volume is accessed - we
+will describe this in detail.  In VM we have a hash table
+<em/VolumeHashTable/ for <em/Volume/ structures, with hash key the
+<em/VolumeId/.  This is used in conjunction with a doubly linked list
+<em/volumeLRU/ of <em/volHeader/ structures, which was probably
+created to avoid keeping all <em/volHeader/'s in VM. 
+
+<descrip>
+<tag/Volume:/ defined in <tt/volume.h/. This structure is the
+principal access point to a volume.  These VM structures are held in a
+hash table. It contains quite a lot of information, such as a pointer to
+a <em/volHeader/ (which has the cached RVM data), Device, partition,
+vol_index, vnodeIndex, locks and other run time data.
+
+<tag/volHeader:/ defined in <tt/volume.h/.  A VM structure sitting on
+a dlist, with a backpointer to a <em/Volume/. Contains a
+<em/VolumeDiskData/ structure. This is the VM cached copy of the RVM
+<em/VolumeDiskData/ structure.
+</descrip>
+
+Notice that in RVM volume's are identified principally by their index,
+which is the index in the static <em/VolumeList/ array of <em/volHead/
+structures. Otherwise volumes are mostly accessed by their volume id.
+To map an index to a volumeid proceeds through the <em/VolumeHeader/
+structures held in the <em/VolumeList/ inside the <em/volHead/
+structures.   
+
+The reverse mapping, to get an index from a <em/VolumeId/ is done
+through an auxiliary hashtable <em/VolTable/ of type <em/vhashtab/,
+defined in <tt/volhash.cc/. 
+
+It is informative to know the sizes of all these structures:
+<itemize>
+<item> VolumeDiskData: 636
+<item> VolHead: 88
+<item> volHeader: 648
+<item> VolumeHeader: 20
+<item> Volume: 96
+</itemize>
+
+
+<sect1> Initializing the volume package <p>
 
 The VInitVolumePackage sets up a lot of other structures related to
 volumes and vnodes. 
-<enum>
-<item> InitLRU: calloc a sequence of volHeader's, then call
-ReleaseVolumeHeader to put it at the head of the volumeLRU. 
-<item> InitVolTable: sets up a volhash table, hashing volid's to get
+<descrip>
+
+<tag/InitLRU:/ calloc a sequence of (normally 50) volHeader's, then
+call ReleaseVolumeHeader to put it at the head of the volumeLRU.
+
+<tag/InitVolTable:/ sets up a volhash table, hashing volid's to get
 the index in the VolumeList.
-<item> VolumeHashTable: Hash table used to store pointers to the
+
+<tag/VolumeHashTable:/ Hash table used to store pointers to the
 Volume structure 
-<item> VInitVnodes: setup of the vnode VM lru caches for small and
+<tag/VInitVnodes:/ setup of the vnode VM lru caches for small and
 large vnodes. Store summary
 information in the VnodeClassInfoArray for both small and large
 vnodes. The way to reach allocated vnode arrays is through the
 VnodeClassInfoArray. 
-<item> InitLogStorage: go through the VolumeList and assign
+<tag/InitLogStorage:/ go through the VolumeList and assign
 VM resolution log memory for every volume; store the pointer
 in VolLog&lsqb;i&rsqb;. The number of rlentries assigned is
 VolumeList&lsqb i&rsqb;.data.volumeInfo-&gt;maxlogentries.
-<item> Check the vldb.
-<item> Find server partitions.
-<item> Run S_VolSalvage: this goes directly through the directory
+<tag/CheckVLDB:/
+<tag/DP_Init/Find server partitions.
+<tag/S_VolSalvage:/ this goes directly through the directory
 contents, without invoking the buffer cache. 
-<item> FSYNC_fsInit: sets up a thread to watch over volume relocation
+<tag/FSYNC_fsInit:/ sets up a thread to watch over volume relocation
 issues. No idea if this still works.
-<item> Now iterate through all volumes and call VAttachVolumeById, to
-instantiate the VM volume information and attach the volumes.  When
+<tag/Attach volumes/    Now iterate through all volumes and call
+VAttachVolumeById, to instantiate the VM volume information and attach
+the volumes.  When 
 attached, call InitVolLog which initialize pointers in VM for
 resolution. The pointers give olists, whose elements correspond to the
 vnode rec_smolists.  Finally create a VNResLog for each of the olist. 
 entries. 
 Set the RVM log transients for this volume.
-<item> Finally write out the /vice/vol/VolumeList file (VListVolumes).
-<item> The Vinit variable is now set to 1. 
+<tag/VListVolumes/ write out the /vice/vol/VolumeList file (VListVolumes).
+<tag/Vinit/ This variable is now set to 1. 
 </enum>
+
+Attaching volumes is the following process. First a <em/VGetVolume/ is
+done.  If it is found in the hash table and is in use, it is detached
+with <em/VDetachVolume/ (error here is ignored).  Next the
+<em/VolumeHeader/ is extracted from RVM.  If the program is running as
+a <em/volumeUtility/ then <em/FSYNC_askfs/ is used to request the
+volume.  We continue to chech the partition and call <em/attach2/. 
+
+Attach2 allocated a new <em/Volume/ structure, initializes the locks
+in this structure and fills in the partition information. A
+<em/VolHeader/ is found from the LRU list and the routine
+<em/VolDiskInfoById/ reads in the RVM data - this can only go wrong if
+the volume id cannot be matched to a valid index.  If the needs
+salvage field is set, we return the NULL pointer (leaving all memory
+allocated). Attach2 continues by checking for a variety of bad
+conditions, such as the volume apparently having crashed.  If it is
+<em/blessed/, <em/in service/ and the <em/salvage/ flag is not set,
+then we are ready to go and put the volume in the hash table. If the
+volume is writable the bitmaps for vnodes are filled in.
+
+<sect1> The FSYNC interface <p>
+
+Requests for volume operations, such as <em/VGetVolume/ can come from: 
+
+<itemize>
+<item> The fileserver
+<item> A volume utility
+<item> The salvager
+</itemize>
+
+The FSYNC package allows a volume utility to register itself. The call
+<em/VConnectFS/ is made during <em/VInitVolutil/ and makes available
+an array for the calling thread, named <em/OffLineVolumes/. This array
+is cleaned up during <em/VDisconnectFS/ and contains a list of volumes
+that have been requested to be offline.  The requests that can be made
+are <em/FSYNC_ON/ to get a volume back online.  This calls
+<em/VAttachVolume/ and clears the spot in the OffLineVolumes.
+
+The other request is <em/FSYNC_OFF/ and <em/FSYNC_NEEDVOLUME/.  If the 
+volume is not yet in the threads <em/OffLineVolumes/ then a spot is
+found for the volume. 
+
+<sect1> Interface to the <em/volumeLRU/ <p>
+
+This doubly linked list of <em/volHeader/'s is one of the more
+confusing areas in the code.  This is the interface between VM and RVM
+data, and the invariants are not very clear.
+
+<descrip>
+
+<tag/AvailVolumeHeader(struct Volume *)/ See if there is a
+<em/volHeader/ available for the volume passed.
+
+<tag/GetVolumeHeader(struct Volume *)/ Assign a <em/volHeader/ to the
+<em/Volume/ structure. This routine does <bf/not/ fill in the data. 
+
+
+<sect1> Interface to the <em/VolumeHashTable/. <p>
+
+The when a volume is needed, a call is made to <em/VGetVolume/.  This
+routine is given a <em/volumeid/ to search for and finds the
+<em/Volume/ structure in the <em/VolumeHashTable/.  If this is not
+found it returns <em/VNOVOL/.
+
+If there are users of this volume already, then we are guaranteed that
+the <em/VolumeHeader/ structure for this volume is available
+too. Perhaps the <em/header/ field in the volume structure still
+exists, otherwise a <em/volHeader/ must be found in the LRU, which
+possibly involves writing an old one back to RVM.
+
+
+ If
+the <em/header/ field in the volume structure is not null we are ok,
+if it is null we would like to use the first available header in the
+<em/volumeLRU/ list.  This is done by checking the <em/back/ pointer
+in the <em/volHeader/.
+
 
 <em/Attaching a volume/ is described in AttachVolumebyId and
 attach2. It means allocating a Volume structure in VM, finding its
