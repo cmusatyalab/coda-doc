@@ -1,0 +1,54 @@
+@Appendix(Header Files)
+<label id="HeaderFilesAppendix">
+
+@section&lt;The Header File rpc2.h&gt;
+<label id="rpc2.h">
+@begin(program)
+@include (rpc2.h.mss)
+@end(program)
+
+@section&lt;The Header File rpc2.private.h&gt;
+<label id="rpc2.private.h">
+@begin(program)
+@include (rpc2.private.h.mss)
+@end(program)
+
+@section&lt;The Header File se.h&gt;
+<label id="se.h">
+@begin(program)
+@include (se.h.mss)
+@end(program)
+
+@section&lt;The Header File sftp.h&gt;
+<label id="sftp.h">
+@begin(program)
+@include (sftp.h.mss)
+@end(program)
+
+@section&lt;The Header File lwp.h&gt;
+<label id="lwp.h">
+@begin(program)
+@include (lwp.h.mss)
+@end(program)
+
+@section&lt;The Header File lock.h&gt;
+<label id="lock.h">
+@begin(program)
+@include (lock.h.mss)
+@end(program)
+
+@section&lt;The Header File timer.h&gt;
+<label id="timer.h">
+@begin(program)
+@include (timer.h.mss)
+@end(program)
+
+@section&lt;The Header File preempt.h&gt;
+<label id="preempt.h">
+@begin(program)
+@include (preempt.h.mss)
+@end(program)
+
+
+
+</manpage>

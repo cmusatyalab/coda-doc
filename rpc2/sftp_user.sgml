@@ -1,0 +1,131 @@
+@Chapter(SFTP: A Side Effect for Bulk Data Transfer)
+<label id="SFTPChapter">
+
+<sect1>General Usage<p>
+SFTP is a protocol that allows a byte stream to be transferred efficiently 
+from point A to point B, using optimizations such as streaming for large files
+and piggybacking for small files.
+These optimizations are completely transparent to the programmer.
+The byte stream to be transferred can be a file in the file system or a file
+in virtual memory.
+A file in VM at one end need not be transferred into a file in VM
+at the other end; any combination is possible.
+An SFTP transfer can take place from either an RPC2 server to an RPC2 client
+or the other way around.  However the request for the transfer is always
+initiated by the client.  To avoid confusion, we will refer to the sending
+entity <em>source</em> and the receiving entity <em>sink</em>.
+
+The average user of SFTP need not be aware of the details of SFTP related to
+acknowledgements, flow control etc.
+All he needs to specify are the details of the file transfer such as 
+the name of the file, the transmission direction etc.
+These are specified by the user in a data structure called a
+<em>Side Effect Descriptor</em>.
+The side effect descriptor (shown in Appendix <ref id="se.h)" name="XXX"> is used both
+at the client and the server ends to describe the details of the byte
+stream transfer. The side effect descriptor is not transmitted:
+each side provides its own local version.
+
+The most relevant of the side effect descriptors fields are given below.
+@begin(description)
+<tt>Tag</tt>@\This describes the type of side effect used.
+Currently the only side effect that has been 
+implemented is the SFTP file transfer side effect.
+
+<tt>Value</tt>@\This is a union containing descriptor definitions for each
+type of side effect.  The Tag field serves as the discriminant of the 
+union.  Currently, there is only one member of the union, 
+corresponding to SFTP.
+
+<tt>Value.SmartFTPD.TransmissionDirection</tt>@\
+specifies if the transfer is from the server to the client (SERVERTOCLIENT) or from the client to the server (CLIENTTOSERVER).
+
+<tt>Value.SmartFTPD.SeekOffset</tt>@\specifies the initial position from where 
+a file should be read from, or written to.
+This is useful, for instance, when bytes are appended to a file.
+
+<tt>Value.SmartFTPD.ByteQuota</tt>@\specifies the  maximum number of data bytes
+to be sent or received.  A value of -1 implies a limit of infinity.
+The RPC call fails if an attempt is made to transfer more bytes.
+
+<tt>Value.BytesTransferred</tt>@\is an output parameter.  On completion of 
+the file transfer, it specifies the number of bytes actually transferred.
+
+<tt>Value.SmartFTPD.Tag</tt>@\indicates whether the file
+to be transferred is specified by its name, its inode number,
+or by its VM address.
+
+<tt>Value.SmartFTPD.FileInfo</tt>@\is a union type, discriminated by
+the previous Tag field, that specifies the  local identity of
+the file to be transferred.  Note that there is no information of
+the remote identity of the file.
+@end(description)
+
+<sect1>An Example<p>
+<label id="Example-rcat">
+An example of an RPC subsystem which uses SFTP is given in the following section. In describing the use of SFTP, we
+will refer to this example and outline the steps used. The client-server code using SFTP is very similar to that of an RPC which does not use SFTP.  Hence , we will only describe the additional steps needed when making an RPC which uses SFTP.
+
+@subsection&lsqb;rcat Subsystem Interface (<em>in file rcat.rpc</em>)&rsqb;
+@begin(program)
+@include(rcat.rpc.mss)
+@end(program)
+
+@subsection&lsqb;Server Code (<em>in file rcat&lowbar;srv.c</em>)&rsqb;
+
+@begin(enumerate)
+Initialize the SFTP package.  This is done by first declaring a
+data structure of type SFTP&lowbar;Initializer.
+The fields of the SFTP&lowbar;Initializer specify parameters of the
+SFTP file transfer protocol, and include items such as the
+window size, packet size etc.
+These can be set by the user, or can be set to default values 
+by calling the <em>SFTP&lowbar;SetDefaults</em> primitive.
+The SFTP&lowbar;Initializer is then activated using the <em>SFTP&lowbar;Activate</em> primitive.
+Note that the SFTP package should be activated before the RPC2
+package is initialized.
+
+The routine which actually transfers the file does so by first declaring a data structure of type SE&lowbar;Descriptor and filling in the values.   It then initiates the file transfer by calling the 
+<em>RPC2&lowbar;InitSideEffect</em> primitive.
+
+The <em>RPC2&lowbar;CheckSideEffect</em> primitive can then be used to check the status
+of the side effect.  Note that in the case of SFTP, the actual file transfer
+only occurs on this call.
+
+@end(enumerate)
+
+
+@begin(program)
+@include(rcat&lowbar;srv.c.mss)
+@end(program)
+
+@subsection&lsqb;Client Code (<em>in file rcat&lowbar;clnt.c</em>)&rsqb;
+@begin(enumerate)
+As with the server, the SFTP package is initialized by declaring an SFTP&lowbar;Initializer, and by calling the <em>SFTP&lowbar;SetDefaults</em> and <em>SFTP&lowbar;Activate</em> primitives.
+
+Set the SideEffectType field in RPC2&lowbar;BindParms to SMARTFTP.
+
+Declare a data structure of type SE&lowbar;Descriptor.
+Set the Tag field to SMARTFTP, and fill in the rest of the fields.
+
+Make the RPC.
+
+@end(enumerate)
+
+
+
+@begin(program)
+@include(rcat&lowbar;clnt.c.mss)
+@end(program)
+
+
+
+
+
+
+
+
+
+
+
+</manpage>

@@ -1,0 +1,538 @@
+@Chapter(The RP2Gen Stub Generator)
+<label id="RP2GenChapter">
+@Section&lsqb;Introduction&rsqb;
+RP2GEN takes a description of a procedure call interface and generates
+stubs to use the RPC2 package, making the interface available on remote
+hosts.  RP2GEN is designed to work with a number of different languages (C, FORTRAN 77, PASCAL), however, only the C interface is currently
+implemented.
+
+RP2GEN also defines a set of external data representations for RPC types. 
+These representations are defined at the end of this document in the
+section entitled <bf>External Data Representations.</bf>  Any program wishing
+to communicate with a remote program using the RP2GEN semantics must
+obey these representation standards.
+
+@Section&lsqb;Usage&rsqb;
+RP2GEN is invoked as follows:
+@begin(verbatim, centered)
+	rp2gen <em>file</em>
+@end(verbatim)
+
+
+<em>File</em> is the file containing the description of the interface.  Normally,
+these files have the extension <em>.rpc2</em>.  RPGen creates three files
+named <em>base</em>.client.c, <em>base</em>.server.c and <em>base</em>.h,
+where <em>base</em> is the name of the file without the extension and the
+pathname prefix.
+Thus
+@begin(verbatim, centered)
+rp2gen samoan.rpc2
+@end(verbatim)
+would yield the files samoan.client.c, samoan.server.c and samoan.h.
+
+A person wanting to provide a package remotely writes his package with
+a normal interface.  The client programmer writes his code to make normal
+calls on the interface.  Then the client program is linked with
+@begin(verbatim, centered)
+ld ... base.client.o /usr/andrew/lib/librpc2.a ...
+@end(verbatim)
+and the server program with
+@begin(verbatim, centered)
+ld ... base.server.o /usr/andrew/lib/librpc2.a ...
+@end(verbatim)
+
+The server module provides a routine, the <em>ExecuteRequest </em>routine,
+that will decode the parameters of the request and make an appropriate
+call on the interface.  (The routine is described below in the language
+interface sections.)  The client module translates calls on the interface
+to messages that are sent via the RPC2 package.  The .h file contains 
+type definitions that RP2GEN generated from the type definitions in
+the input file, and definitions for the op-codes used by RP2GEN.  This
+file, which is automatically included in the server and client files,
+may be included by any other module that needs access to these types.
+
+@Section&lsqb;Format of the description file&rsqb;
+In the syntax of a description file below, non-terminals are represented
+by <em>italic</em> names and literals are represented by <bf>bold</bf> strings.
+
+@begin(format)
+<em>file</em> ::= <em>prefixes</em> <em>header@ub&lsqb;</em>line default@ub&lsqb;&rsqb;timeout&rsqb; <em>decl@ub&lsqb;</em>or@ub&lsqb;&rsqb;proc@ub&lsqb;&rsqb;list&rsqb;
+
+<em>prefixes</em> ::= <em>empty</em> | <em>prefix</em> | <em>prefix</em> <em>prefix</em>
+<em>prefix</em> ::= <bf>Server Prefix</bf> <em>string</em> <bf>;</bf> | <bf>Client Prefix</bf> <em>string</em> <bf>;</bf>
+@Hinge
+<em>header@ub&lsqb;</em>line&rsqb; ::= <bf>Subsystem</bf> <em>subsystem@ub&lsqb;</em>name&rsqb; <bf>;</bf>
+<em>subsystem@ub&lsqb;</em>name&rsqb; ::= <em>string</em>
+<em>string</em> ::= <bf>"</bf> <em>zero@ub&lsqb;</em>or@ub&lsqb;&rsqb;more@ub&lsqb;&rsqb;ascii@ub&lsqb;&rsqb;chars&rsqb; <bf>"</bf>
+<em>default@ub&lsqb;</em>timeout&rsqb; ::= <bf>Timeout</bf> <bf>(</bf> <em>id@ub&lsqb;</em>number&rsqb; <bf>)@ ;</bf> | <em>empty</em>
+@Hinge
+<em>decl@ub&lsqb;</em>or@ub&lsqb;&rsqb;proc@ub&lsqb;&rsqb;list&rsqb; ::= <em>decl@ub&lsqb;</em>or@ub&lsqb;&rsqb;proc&rsqb; | <em>decl@ub&lsqb;</em>or@ub&lsqb;&rsqb;proc decl@ub&lsqb;&rsqb;or@ub&lsqb;&rsqb;proc@ub&lsqb;&rsqb;list&rsqb;
+<em>decl@ub&lsqb;</em>or@ub&lsqb;&rsqb;proc&rsqb; ::= <em>include</em> | <em>define</em> | <em>typedef</em> | <em>procedure@ub&lsqb;</em>description&rsqb;
+<em>include</em> ::= <bf>#include </bf> <em>file@ub&lsqb;</em>name&rsqb; <bf></bf>
+<em>define</em> ::= <bf>#define</bf> <em>identifier</em> <em>number</em>
+<em>typedef </em>::= <bf>typedef</bf> <em>rpc2@ub&lsqb;</em>type&rsqb; <em>identifier</em> <em>array@ub&lsqb;</em>spec&rsqb; <bf>;</bf>
+<em>rpc2@ub&lsqb;</em>type &rsqb;::= <em>type@ub&lsqb;</em>name&rsqb; | <em>rpc2@ub&lsqb;</em>struct&rsqb; | <em>rpc2@ub&lsqb;</em>enum&rsqb;
+<em>type@ub&lsqb;</em>name&rsqb; ::@!= <bf>@RPC2(Integer)</bf> | <bf>@RPC2(Unsigned)</bf> | <bf>@RPC2(Byte)</bf>
+@/| <bf>@RPC2(String)</bf> | <bf>@RPC2(CountedBS)</bf> | <bf>@RPC2(BoundedBS)</bf>
+@/| <bf>SE@ub&lsqb;</bf>Descriptor&rsqb; <bf>@RPC2(EncryptionKey)</bf> | <em>identifier</em>
+<em>rpc2@ub&lsqb;</em>struct&rsqb; ::= <bf>@RPC2(Struct) &lcub;</bf> <em>field@ub&lsqb;</em>list &rsqb;<bf>&rcub;</bf>
+<em>field@ub&lsqb;</em>list&rsqb; ::= <em>field</em> | <em>field field@ub&lsqb;</em>list&rsqb;
+<em>field</em> ::= <em>type@ub&lsqb;</em>name identifier@ub&lsqb;&rsqb;list&rsqb; <bf>;</bf>
+<em>identifier@ub&lsqb;</em>list&rsqb; ::= <em>identifier</em> | <em>identifier</em> <bf>,</bf> <em>identifier@ub&lsqb;</em>list&rsqb;
+<em>rpc2@ub&lsqb;</em>enum&rsqb; ::= <bf>@RPC2(Enum) &lcub;</bf> <em>enum@ub&lsqb;</em>list&rsqb; <bf>&rcub;</bf>
+<em>enum@ub&lsqb;</em>list&rsqb; ::= <em>enum</em> <bf>,</bf> <em>enum@ub&lsqb;</em>list&rsqb; | <em>enum</em>
+<em>enum</em> ::= <em>identifier</em> <bf>=</bf> <em>number</em>
+<em>array@ub&lsqb;</em>spec&rsqb; ::= <em>empty</em> | <bf>&lsqb;</bf> <em>id@ub&lsqb;</em>number&rsqb; @b&rsqb;
+<em>id@ub&lsqb;</em>number&rsqb; ::= <em>number</em> | <em>identifier</em>
+@Hinge
+<em>procedure@ub&lsqb;</em>description&rsqb; ::= @!<em>proc@ub&lsqb;</em>name&rsqb; <bf>(</bf> <em>formal@ub&lsqb;</em>list&rsqb; <bf>)</bf>
+@/<em>timeout@ub&lsqb;</em>override&rsqb; <em>new@ub&lsqb;</em>connection&rsqb; <bf>;</bf>
+<em>proc@ub&lsqb;</em>name&rsqb; ::= <em>identifier</em>
+<em>formal@ub&lsqb;</em>list&rsqb; ::= <em>empty</em> | <em>formal@ub&lsqb;</em>parameter&rsqb; | <em>formal@ub&lsqb;</em>parameter&rsqb; <bf>,</bf> <em>formal@ub&lsqb;</em>list&rsqb;
+<em>formal@ub&lsqb;</em>parameter&rsqb; ::= <em>usage</em> <em>type@ub&lsqb;</em>name&rsqb; <em>parameter@ub&lsqb;</em>name&rsqb;
+<em>usage</em> ::=  <bf>IN</bf> | <bf>OUT</bf> | <bf>IN OUT</bf>
+
+<em>parameter@ub&lsqb;</em>name&rsqb; ::= <em>identifier</em>
+<em>timeout@ub&lsqb;</em>override&rsqb; ::= <bf>Timeout</bf> <bf>(</bf> <em>id@ub&lsqb;</em>number&rsqb; <bf>)</bf> | <em>empty</em>
+<em>new@ub&lsqb;</em>connection&rsqb; ::= <bf>NEW@ub&lsqb;</bf>CONNECTION&rsqb; | <em>empty</em>
+<em>empty</em> ::=
+@end(format)
+
+In addition to the syntax above, text inclosed in /* and */
+is treated as a comment and ignored.  Appearances of an include statement
+will be replaced by the contents of the specified file.
+All numbers
+are in decimal and may be preceded by a single <bf>-</bf> sign.
+Identifiers
+follow C syntax except that the underline character, <bf>@ub&lsqb;</bf>&rsqb;, may not
+begin an identifier. (Note that a particular language interface defines
+what identifiers may actually be used in various contexts.)
+
+The following are reserved words in RP2GEN: <bf>server</bf>, <bf>client</bf>,
+<bf>prefix</bf>, <bf>subsystem</bf>, <bf>timeout</bf>, <bf>typedef</bf>, <bf>rpc2@ub&lsqb;</bf>struct&rsqb;, <bf>rpc2@ub&lsqb;</bf>enum&rsqb;,
+<bf>in</bf> and <bf>out</bf>.  Case is ignored for reserved words, so that, for
+example, <bf>subsystem</bf> may be spelled as <bf>SubSystem</bf> if desired. 
+Case is not ignored, however, for identifiers.  Note that the predefined
+type names (@RPC2(Integer), @RPC2(Byte), etc.) are identifiers and must
+be written exactly as given above.
+
+The <em>prefixes</em> may be used to cause the names of the procedures in
+the interface to be prefixed with a unique character string.  The line
+
+@begin(verbatim, centered)
+Server Prefix "test";
+@end(verbatim)
+
+will cause the server file to assume that the name of the server interface
+procedure <em>name</em> is test@ub&lsqb;&rsqb;<em>name</em>.  Likewise, the statement
+
+@begin(verbatim, centered)
+Client Prefix "real";
+@end(verbatim)
+
+affects the client interface.  This feature is useful in case it is
+necessary to link the client and server interfaces together.  Without
+this feature, name conflicts would occur.
+
+The <em>header@ub&lsqb;</em>line&rsqb; defines the name of this subsystem.  The subsystem
+name is used in generating a unique for the <em>execute request</em> routine.
+
+The <em>default@ub&lsqb;</em>timeout&rsqb; is used in both the server and client stubs. 
+Both are specified in seconds.  Zero is interpreted as an infinite timeout
+value.  The value specifies the timeout value used on @RPC2(MakeRPC)()
+and @RPC2(SendResponse)() calls in the client and server stubs respectively. 
+The timeout parameter may be overriden for individual procedures by
+specifying a <em>timeout@ub&lsqb;</em>override&rsqb;.  Note that the timeouts apply to
+each individual Unix blocking system call, not to the entire RPC2 procedure.
+
+The <em>new@ub&lsqb;</em>connection&rsqb; is used to designate at most one server procedure
+that will be called when the subsystem receives the initial RPC2 connection. 
+The new connection procedure must have 4 arguments in the following
+order with the following usages and types:
+
+@Begin(Program)
+ (IN @RPC2(Integer) SideEffectType,
+		IN @RPC2(Integer) SecurityLevel, 
+		IN @RPC2(Integer) EncryptionType,
+		IN @RPC2(CountedBS) ClientIdent)
+@End(Program)
+
+where SideEffectType, SecurityLevel, EncryptionType, and ClientIdent have the values
+that were specified on the clients call to @RPC2(Bind).  Note that RP2Gen will automatically
+perform an @RPC2(Enable) call at the end of this routine.
+If no new connection procedure is specified, then the call to the <em>execute
+request</em> routine with the initial connection request will return @RPC2(FAIL).
+
+The <em>usage</em> tells whether the data for the parameter is to be copied
+in, copied out, or copied in both directions.  The <em>usage</em> and <em>type@ub&lsqb;</em>name&rsqb;
+specifications together tell how the programmer should declare the parameters
+in the server code.
+
+@subsection&lsqb;Example 1: Common definitions for Coda File System&rsqb;
+@Begin(Program)
+
+/*
+ * Include file common to  callback.rpc2, vice.rpc2 and res.rpc2
+ */
+
+typedef RPC2&lowbar;Unsigned   VolumeId;
+typedef VolumeId	VolId;
+typedef RPC2&lowbar;Unsigned	VnodeId;
+typedef RPC2&lowbar;Unsigned	Unique;
+
+typedef RPC2&lowbar;Struct 
+	&lcub;
+	VolumeId	Volume;
+	VnodeId		Vnode;
+	Unique		Unique;
+	&rcub; ViceFid;
+
+typedef RPC2&lowbar;Struct
+	&lcub;
+	RPC2&lowbar;Unsigned	Host;
+	RPC2&lowbar;Unsigned	Uniquifier;
+	&rcub; ViceStoreId;
+
+typedef RPC2&lowbar;Struct
+	&lcub;
+	RPC2&lowbar;Integer	Site0;
+	RPC2&lowbar;Integer	Site1;
+	RPC2&lowbar;Integer	Site2;
+	RPC2&lowbar;Integer	Site3;
+	RPC2&lowbar;Integer	Site4;
+	RPC2&lowbar;Integer	Site5;
+	RPC2&lowbar;Integer	Site6;
+	RPC2&lowbar;Integer	Site7;
+	&rcub; ViceVersionArray;
+
+typedef RPC2&lowbar;Struct
+	&lcub;
+	ViceVersionArray	Versions;
+	ViceStoreId	StoreId;
+	RPC2&lowbar;Unsigned	Flags;
+	&rcub; ViceVersionVector;
+
+typedef RPC2&lowbar;Unsigned	UserId;
+typedef RPC2&lowbar;Unsigned	FileVersion;
+typedef RPC2&lowbar;Unsigned	Date;
+typedef RPC2&lowbar;Integer	Rights;
+
+typedef	RPC2&lowbar;Enum 
+	&lcub; 
+	Invalid = 0,
+	File = 1, 
+	Directory = 2, 
+	SymbolicLink = 3 
+	&rcub; ViceDataType;
+
+typedef RPC2&lowbar;Enum
+	&lcub;
+	NoCallBack = 0,
+	CallBackSet = 1,
+	BidFidReleased = 3
+	&rcub; CallBackStatus;
+
+
+typedef RPC2&lowbar;Struct
+	&lcub;
+	RPC2&lowbar;Unsigned	InterfaceVersion;
+	ViceDataType	VnodeType;
+	RPC2&lowbar;Integer	LinkCount;
+	RPC2&lowbar;Unsigned	Length;
+	FileVersion	DataVersion;
+	ViceVersionVector	VV;
+	Date		Date;
+	UserId		Author;
+	UserId		Owner;
+	CallBackStatus	CallBack;
+	Rights		MyAccess;
+	Rights		AnyAccess;
+	RPC2&lowbar;Unsigned	Mode;
+	VnodeId		vparent;
+	Unique		uparent;
+	&rcub; ViceStatus;
+@End(Program)
+
+<sect2>Example 2: The Coda Resolution Subsystem Interface<p>
+@begin(program)
+%&lcub;
+#ifndef &lowbar;BLURB&lowbar;
+#define &lowbar;BLURB&lowbar;
+/*
+                           CODA FILE SYSTEM
+                      School of Computer Science
+                      Carnegie Mellon University
+                          Copyright 1987-92
+
+Past and present contributors to Coda include M. Satyanarayanan, James
+Kistler, Puneet Kumar, David  Steere,  Maria  Okasaki,  Lily  Mummert,
+Ellen  Siegel,  Brian  Noble, Anders Klemets, Masashi Kudo, and Walter
+Smith.  The use of Coda outside Carnegie Mellon University requires  a
+license.  Contact the Coda project coordinator for licensing details.
+*/
+
+
+static char *rcsid = "$Header$";
+#endif &lowbar;BLURB&lowbar;
+
+%&rcub;
+/* res.rpc2 
+ * Defines the resolution subsystem interface
+ * 
+ * Created Puneet Kumar, June 1990
+ */
+server prefix "RS";
+client prefix "Res";
+
+Subsystem "resolution";
+
+#define RESPORTAL	1361
+#define RESOLUTIONSUBSYSID 5893
+
+/* 
+Return codes from the servers on resolution subsystem
+*/
+#define RES&lowbar;FAILURE	-512
+#define	RES&lowbar;SUCCESS	0
+#define RES&lowbar;TIMEDOUT	-513
+#define RES&lowbar;NOTRUNT	-514
+#define RES&lowbar;BADOPLIST	-515
+
+#include "vcrcommon.rpc2"
+
+typedef RPC2&lowbar;Struct
+	&lcub;
+	RPC2&lowbar;Integer	status;
+	RPC2&lowbar;Unsigned	Author;
+	RPC2&lowbar;Unsigned	Owner;
+	RPC2&lowbar;Unsigned	Date;
+	RPC2&lowbar;Unsigned 	Mode;
+	&rcub; ResStatus;
+
+typedef RPC2&lowbar;Struct
+	&lcub;
+	RPC2&lowbar;Integer		LogSize;
+	ViceVersionVector 	VV;
+	&rcub; ResVolParm;
+
+typedef RPC2&lowbar;Enum
+	&lcub;
+	FetchStatus = 0,
+	FetchSData = 1
+	&rcub; ResFetchType;
+
+typedef RPC2&lowbar;Enum
+	&lcub;
+	ResStoreStatus = 0,
+	ResStoreData = 1
+	&rcub; ResStoreType;
+
+COP2	 (IN ViceStoreId StoreId,
+		 IN ViceVersionVector UpdateSet);
+
+NewConnection (IN RPC2&lowbar;Integer SideEffectType,
+		 IN RPC2&lowbar;Integer SecurityLevel,
+		 IN RPC2&lowbar;Integer EncryptionType,
+		 IN RPC2&lowbar;CountedBS ClientIdent)
+                 NEW&lowbar;CONNECTION;
+
+ForceFile    (IN ViceFid Fid,
+		 IN ResStoreType Request,
+		 IN RPC2&lowbar;Integer Length,
+		 IN ViceVersionVector VV,
+		 IN ResStatus Status,
+		 IN OUT SE&lowbar;Descriptor BD);
+
+LockAndFetch (IN ViceFid Fid, 
+		 IN ResFetchType Request, 
+		 OUT ViceVersionVector VV,
+		 OUT RPC2&lowbar;Integer logsize);
+
+UnlockVol    (IN VolumeId Vid);
+
+MarkInc      (IN ViceFid Fid);
+
+FetchFile (IN ViceFid Fid, 
+		 IN RPC2&lowbar;Unsigned PrimaryHost,
+		 OUT ResStatus Status,
+		 IN OUT SE&lowbar;Descriptor BD);
+
+ForceDirVV (IN ViceFid Fid,
+		 IN ViceVersionVector VV);
+
+DoForceDirOps (IN ViceFid Fid,
+		 IN ViceStatus status,
+		 IN OUT RPC2&lowbar;CountedBS AccessList,
+		 OUT RPC2&lowbar;Integer rstatus,
+		 IN OUT SE&lowbar;Descriptor sed);
+
+GetForceDirOps  (IN ViceFid Fid,
+		 OUT ViceStatus status, 
+		 IN OUT RPC2&lowbar;CountedBS AccessList,
+		 IN OUT SE&lowbar;Descriptor sed);
+
+FetchLog (IN ViceFid Fid,
+		 OUT RPC2&lowbar;Integer logsize,
+		 IN OUT SE&lowbar;Descriptor sed);
+
+DirResPhase2 (IN ViceFid Fid,
+		 IN ViceStoreId logid,
+		 OUT ViceStatus status,
+		 IN RPC2&lowbar;BoundedBS pbinc);
+
+DirResPhase1 (IN ViceFid Fid, 
+		 IN RPC2&lowbar;Integer size,
+		 IN OUT ViceStatus status,
+		 IN OUT RPC2&lowbar;BoundedBS piggyinc,
+		 IN OUT SE&lowbar;Descriptor sed);
+
+DirResPhase3 (IN ViceFid Fid,
+		 IN ViceVersionVector UpdateSet,
+		 IN OUT SE&lowbar;Descriptor sed);
+
+@end(program)
+
+
+
+@Section&lsqb;The C Interface&rsqb;
+This section describes the C interface generated by RP2GEN.  The following
+table shows the relationship between RP2GEN parameter declarations and
+the corrseponding C parameter declarations.
+
+@begin(Table)
+@StandardTable(Name CDecls, Columns 4, FirstColumn Flushleft, Othercolumns center, ColumnLined, HeadingBoxed)
+@begin(CDecls)
+@tableid(CDecls)
+@TableHeading(Immediate, RowFormat CDeclsTopHeading, Line &lt;RP2Gen representation of parameters&gt;)
+@TableHeading(Immediate, RowFormat CDeclsColumnHeadings, Line &lt;RPC2 Type@\<bf>in</bf>@\<bf>out</bf>@\<bf>in out</bf>&gt;)
+
+@RPC2(Integer)@\long@\long *@\long *
+
+@RPC2(Unsigned)@\unsigned long@\unsigned long *@\unsigned long *
+
+@RPC2(Byte)@\unsigned char@\unsigned char *@\unsigned char *
+
+@RPC2(String)@\unsigned char *@\unsigned char *@\unsigned char *
+
+@RPC2(CountedBS)@\@RPC2(CountedBS) *@\@RPC2(CountedBS) *@\@RPC2(CountedBS) *
+
+@RPC2(BoundedBS)@\@RPC2(BoundedBS) *@\@RPC2(BoundedBS) *@\@RPC2(BoundedBS) *
+
+@RPC2(EncryptionKey)@\@RPC2(EncryptionKey)@\@RPC2(EncryptionKey) *@\@RPC2(EncryptionKey) *
+
+@SE(Descriptor)@\<em>illegal</em>@\<em>illegal</em>@\@SE(Descriptor) *
+
+@RPC2(Enum) <em>name</em>@\<em>name</em>@\<em>name</em> *@\<em>name</em> *
+
+@RPC2(Struct) <em>name</em>@\<em>name</em> *@\<em>name</em> *@\<em>name</em> *
+
+@RPC2(Byte) <em>name&lsqb;...&rsqb;</em>@\<em>name</em>@\<em>name</em>@\<em>name</em>
+
+@end(CDecls)
+@end(Table)
+
+In all cases it is the callers responsibility to allocate storage for
+all parameters.  This means that for IN and IN OUT parameters of a non-fixed
+type, it is the callees responsibility to ensure that the value to
+be copied back to the caller does not exceed the storage allocated by
+the callee.
+
+The caller must call an RPC2 procedure with an initial implicit argument
+of type @RPC2(Handle) that indicates the destination address (es) of the
+target process (es).  The callee must declare the C routine that corresponds
+to an RPC2 procedure with an initial implicit argument of type
+@RPC2(Handle). 
+Upon invocation, this argument will be bound to the address of a handle
+that indicates the address of the caller.
+
+RP2GEN also generates a routine that serves to decode an RPC2 request.
+The name of this routine is "<em>subsystem@ub&lsqb;</em>name&rsqb;@ub&lsqb;&rsqb;ExecuteRequest",
+and it is invoked as follows:
+@begin(program)
+int <em>subsystem@ub&lsqb;</em>name&rsqb;@ub&lsqb;&rsqb;ExecuteRequest (cid, Request, bd)
+    RPC2&lowbar;Handle cid;
+    RPC2&lowbar;PacketBuffer *Request;
+    SE&lowbar;Descriptor *bd;&rsqb;
+@end(program)
+
+This routine will unmarshall the arguments and call the appropriate
+interface routine.  The return value from this routine will be the return
+value from the interface routine.
+
+The client program is responsible for actually making the connection
+with the server and must pass the connection id as an additional parameter (the first) on each call to the interface.
+
+@Section&lsqb;External Data Representations&rsqb;
+This section defines the external data representation used by RP2GEN,
+that is, the representation that is sent out over the wire.  Each item
+sent on the wire is required to be a multiple of 4 (8-bit) bytes.  (Items
+are padded as necessary to achieve this constraint.)  The bytes of an
+item are numbered 0 through <em>n</em>-1 (where <em>n</em> <em>mod</em> 4 = 0).  The
+bytes are read and written such that byte <em>m</em> always precedes byte
+<em>m</em>+1.
+
+@begin(description)
+@RPC2(Integer)&rsqb;@\An @RPC2(Integer) is a 32-bit item that encodes an integer represented
+in twos complement notation.  The most significant byte of the integer
+is 0, and the least significant byte is 3.
+
+@RPC2(Unsigned)@\An @RPC2(Unsigned) is a 32-bit item that encodes an unsigned integer. 
+The most significant byte of the integer is 0, the least significant
+byte is 3.
+
+@RPC2(Byte)@\An @RPC2(Byte) is transmitted as a single byte followed by three padding
+bytes.
+
+@RPC2(String)@\An @RPC2(String) is a C-style null-terminated character string.  It is
+sent as an @RPC2(Integer) indicating the number of characters to follow,
+not counting the null byte, which is, however, sent.  This is followed
+by bytes representing the characters (padded to a multiple of 4), where
+the first character (i.e., farthest from the null byte) is byte 0. 
+A @RPC2(String) of length 0 is representing by sending an @RPC2(Integer)
+with value 0, followed by a 0 byte and three padding bytes.
+
+@RPC2(CountedBS)@\An @RPC2(CountedBS) is used to represent a byte string of arbitrary
+length.  The byte string is not terminated by a null byte.  An @RPC2(CountedBS)
+is sent as an @RPC2(Integer) representing the number of bytes, followed
+by the bytes themselves (padded to a multiple of 4).  The byte with
+the lowest address is sent as byte 0.
+
+@RPC2(BoundedBS)@\An @RPC2(BoundedBS) is intended to allow you to remotely play the game
+that C programmers play: allocate a large buffer, fill in some bytes,
+then call a procedure that takes this buffer as a parameter and replaces
+its contents by a possibly longer sequence of bytes.  An @RPC2(BoundedBS)
+is transmitted as two @RPC2(Integer)s representing the maximum and current
+lengths of the byte strings.  This is followed by the  bytes representing
+the contents of the buffer (padded to a multiple of 4).  The byte with
+the lowest address is byte 0.
+
+@RPC2(EncryptionKey)@\An @RPC2(EncryptionKey) is used to transmit an encryption key (surprise!). 
+A key is sent as a sequence of @RPC2(KEYSIZE) bytes, padded to a multiple
+of 4.  Element 0 of the array is byte 0.
+
+@SE(Descriptor)@\Objects of type @SE(Descriptor) are never transmitted.
+
+@RPC2(Struct)&rsqb;@\An @RPC2(Struct) is transmitted as a sequence of items representing its
+fields.  The fields are sent in textual order of declaration (i.e.,
+from left to right and top to bottom).  Each field is sent using, recursively,
+its RPC2 representation.
+
+@RPC2(Enum)@\An @RPC2(Enum) has the same representation has an @RPC2(Integer), and the
+underlying integer used by the compiler is transmitted as the value
+of an @RPC2(Enum).  (Note that in C this underlying value may be specified
+by the user.  This is recommended practice.)
+
+Array@\@~
+@begin(multiple)
+The total number of bytes transmitted for an array must be
+a multiple of 4.
+However, the number of bytes sent for each element depends on the type of
+the element.
+
+Currently, only arrays of @RPC2(Byte) are defined.
+The elements of such an array are each sent as a single byte (no padding),
+with array element <em>n-1</em> preceding element <em>n</em>.
+@end(multiple)
+@end(description)
+
+</manpage>

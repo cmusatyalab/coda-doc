@@ -1,0 +1,295 @@
+#ifndef _BLURB_
+#define _BLURB_
+/*
+                           CODA FILE SYSTEM
+                      School of Computer Science
+                      Carnegie Mellon University
+                          Copyright 1987-92
+
+Past and present contributors to Coda include M. Satyanarayanan, James
+Kistler, Puneet Kumar, David  Steere,  Maria  Okasaki,  Lily  Mummert,
+Ellen  Siegel,  Brian  Noble, Anders Klemets, Masashi Kudo, and Walter
+Smith.  The use of Coda outside Carnegie Mellon University requires  a
+license.  Contact the Coda project coordinator for licensing details.
+*/
+
+
+static char *rcsid = "$Header$";
+#endif _BLURB_
+
+/*
+exserver.c -- Trivial server to demonstrate basic RPC2 functionality
+Exports two subsystems: auth and comp, each with a dedicated LWP.
+*/
+
+#include <stdio.h>
+#include <strings.h>
+#include <sys/signal.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <assert.h>
+#include <pwd.h>
+#include <lwp.h>
+#include <rpc2.h>
+#include "auth.h"
+#include "comp.h"
+
+
+/*
+This data structure provides per-connection info.  It is
+created on every new connection and ceases to exist after AuthQuit().
+*/
+struct UserInfo
+    {
+    int Creation;	/* Time at which this connection was created */
+    /* other fields would go here */
+    };
+
+int NewCLWP(), AuthLWP(), CompLWP();	/* bodies of LWPs */
+void DebugOn(), DebugOff();   /* signal handlers */
+
+main()
+    {
+    int mypid;
+
+    signal(SIGEMT, DebugOn);
+    signal(SIGIOT, DebugOff);
+
+    InitRPC();
+    LWP_CreateProcess(AuthLWP, 4096, LWP_NORMAL_PRIORITY, "AuthLWP", NULL, &mypid);
+    LWP_CreateProcess(CompLWP, 4096, LWP_NORMAL_PRIORITY, "CompLWP", NULL, &mypid);
+    LWP_WaitProcess(main);	/* sleep here forever; no one will ever wake me up */
+    }
+
+AuthLWP(p)
+    char *p;	/* single parameter passed to LWP_CreateProcess() */
+    {
+    RPC2_RequestFilter  reqfilter;
+    RPC2_PacketBuffer *reqbuffer;
+    RPC2_Handle cid;
+    int rc;
+    char *pp;
+
+    /*  Set filter to accept  auth requests on new or existing connections */
+    reqfilter.FromWhom = ONESUBSYS;
+    reqfilter.OldOrNew = OLDORNEW;
+    reqfilter.ConnOrSubsys.SubsysId = AUTHSUBSYSID;
+    
+    while(1)
+	{
+	cid = 0;
+	rc = RPC2_GetRequest(&reqfilter, &cid, &reqbuffer, NULL, NULL, NULL, NULL);
+	if (rc < RPC2_WLIMIT)  HandleRPCError(rc, cid);
+	rc = auth_ExecuteRequest(cid, reqbuffer);
+	if (rc < RPC2_WLIMIT)  HandleRPCError(rc, cid);
+	pp = NULL;
+	if (RPC2_GetPrivatePointer(cid, &pp) != RPC2_SUCCESS || pp == NULL)
+	    RPC2_Unbind(cid);	/* This was almost certainly an AuthQuit() call */
+	}
+    }
+
+CompLWP(p)
+    char *p;	/* single parameter passed to LWP_CreateProcess() */
+    {
+    RPC2_RequestFilter  reqfilter;
+    RPC2_PacketBuffer *reqbuffer;
+    RPC2_Handle cid;
+    int rc;
+    char *pp;
+
+    /* Set filter  to accept  comp requests on new or existing connections */
+    reqfilter.FromWhom = ONESUBSYS;
+    reqfilter.OldOrNew = OLDORNEW;
+    reqfilter.ConnOrSubsys.SubsysId = COMPSUBSYSID;
+    
+    while(1)
+	{
+	cid = 0;
+	rc = RPC2_GetRequest(&reqfilter, &cid, &reqbuffer, NULL, NULL, NULL, NULL);
+	if (rc < RPC2_WLIMIT) HandleRPCError(rc, cid);
+
+	rc = comp_ExecuteRequest(cid, reqbuffer);
+	if (rc < RPC2_WLIMIT) HandleRPCError(rc, cid);
+
+	pp = NULL;
+	if (RPC2_GetPrivatePointer(cid, &pp) != RPC2_SUCCESS || pp == NULL)
+	    RPC2_Unbind(cid);	/* This was almost certainly an CompQuit() call */
+	}
+    
+    }
+
+
+/*
+Bodies of Auth RPC routines
+*/
+
+S_AuthNewConn(cid, seType, secLevel, encType, cIdent)
+    RPC2_Handle cid;
+    RPC2_Integer seType, secLevel, encType;
+    RPC2_CountedBS *cIdent;
+    {
+    struct UserInfo *p;
+
+    p = (struct UserInfo *) malloc(sizeof(struct UserInfo));
+    RPC2_SetPrivatePointer(cid, p);
+    p->Creation = time(0);
+    }
+
+
+S_AuthQuit(cid)
+/*
+Get rid of user state; note that we do not do RPC2_Unbind() here, because this
+	request itself has to complete.  The invoking server LWP therefore checks to see if this
+	connection can be unbound.
+*/
+    {
+    struct UserInfo *p;
+    RPC2_GetPrivatePointer(cid, &p);
+    assert(p != NULL); /* we have a bug then */
+    free(p);
+    RPC2_SetPrivatePointer(cid, NULL);
+    return(AUTHSUCCESS);
+    }
+
+
+S_AuthUserId(cid, userName, userId)
+    char *userName;
+    int *userId;
+    {
+    struct passwd *pw;
+    if ((pw = getpwnam(userName)) == NULL) return(AUTHFAILED);
+    *userId = pw->pw_uid;
+    return(AUTHSUCCESS);
+    }
+
+S_AuthUserName(cid, userId, userName)
+    int userId;
+    RPC2_BoundedBS *userName;
+    {
+    struct passwd *pw;
+    if ((pw = getpwuid(userId)) == NULL) return(AUTHFAILED);
+    strcpy(userName->SeqBody, pw->pw_name);
+    		/* we hope the buffer is big enough */
+    userName->SeqLen = 1 + strlen(pw->pw_name);
+    return(AUTHSUCCESS);
+    }
+
+S_AuthUserInfo(cid, userId, uInfo)
+    int userId;
+    AuthInfo *uInfo;
+    {
+    struct passwd *pw;
+    if ((pw = getpwuid(userId)) == NULL) return(AUTHFAILED);
+    uInfo->GroupId = pw->pw_gid;
+    strcpy(uInfo->HomeDir, pw->pw_dir);
+    return(AUTHSUCCESS);
+    
+    }
+
+
+
+/*
+Bodies of Comp RPC routines
+*/
+S_CompNewConn(cid, seType, secLevel, encType, cIdent)
+    RPC2_Handle cid;
+    RPC2_Integer seType, secLevel, encType;
+    RPC2_CountedBS *cIdent;
+    {
+    struct UserInfo *p;
+
+    p = (struct UserInfo *) malloc(sizeof(struct UserInfo));
+    RPC2_SetPrivatePointer(cid, p);
+    p->Creation = time(0);
+    }
+
+S_CompQuit(cid)
+/*
+Get rid of user state; note that we do not do RPC2_Unbind() here, because this
+	request itself has to complete.  The invoking server LWP therefore checks to see if this
+	connection can be unbound.
+*/
+    {
+    struct UserInfo *p;
+    RPC2_GetPrivatePointer(cid, &p);
+    assert(p != NULL);	/* we have a bug then */
+    free(p);
+    RPC2_SetPrivatePointer(cid, NULL);
+    return(0);
+    }
+
+
+S_CompSquare(cid, x)
+    int x;
+    {
+    return(x*x);    
+    }
+
+S_CompCube(cid, x)
+    RPC2_Handle cid;
+    int x;
+    {
+    return(x*x*x);    
+    }
+
+S_CompAge(cid, x)
+    RPC2_Handle cid;
+    int x;
+    {
+    struct UserInfo *p;
+    assert(RPC2_GetPrivatePointer(cid, &p) == RPC2_SUCCESS);
+    return(time(0) - p->Creation);
+    }
+
+/*
+ iopen() is a system call created at the ITC; put a dummy here for other sites
+*/
+iopen(){}
+
+
+/*
+RPC Initialization and Error handling
+*/
+InitRPC()
+    {
+    int mylpid = -1;
+    RPC2_PortalIdent portalid, *portallist[1];
+    RPC2_SubsysIdent subsysid;
+    long rc;
+
+    assert(LWP_Init(LWP_VERSION, LWP_NORMAL_PRIORITY, &mylpid) == LWP_SUCCESS);
+
+    portalid.Tag = RPC2_PORTALBYINETNUMBER;
+    portalid.Value.InetPortNumber = htons(AUTHPORTAL);
+    portallist[0] = &portalid;
+    rc = RPC2_Init(RPC2_VERSION, 0, portallist, 1, -1, NULL);
+    if (rc != RPC2_SUCCESS) {
+	fprintf(stderr, "RPC2_Init: failed with %ld\n", rc);
+	exit(1);
+    }
+    subsysid.Tag = RPC2_SUBSYSBYID;
+    subsysid.Value.SubsysId = AUTHSUBSYSID;
+    assert(RPC2_Export(&subsysid) == RPC2_SUCCESS);
+    subsysid.Value.SubsysId = COMPSUBSYSID;
+    assert(RPC2_Export(&subsysid) == RPC2_SUCCESS);
+    }
+
+
+HandleRPCError(rCode, connId)
+    int rCode;
+    RPC2_Handle connId;
+    {
+    fprintf(stderr, "exserver: %s\n", RPC2_ErrorMsg(rCode));
+    if (rCode < RPC2_FLIMIT && connId != 0) RPC2_Unbind(connId);
+    }
+
+void DebugOn()
+    {
+    RPC2_DebugLevel = 100;
+    }
+
+void DebugOff()
+    {
+    RPC2_DebugLevel = 0;
+    }

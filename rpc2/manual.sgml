@@ -1,0 +1,71 @@
+<!doctype linuxdoc SYSTEM [
+
+<!-- Changes from codadoc.dtd, to become separate file -->
+  <!-- <!element chapt - o (%sect, (sect | manpage)*) +(footnote)>	-->
+  <!-- <!element manpage - - ((mansect | sect1)*)			-->
+  <!-- <!element mansect - o (%sect)>					-->
+
+<!-- Clement? hacks for HTML & Latex newlines -->
+<!entity % latex "INCLUDE">
+<!entity % html  "IGNORE">
+<![ %latex; [ <!entity newpage PI "\newpage"> ]]>
+<![ %html; [ <!entity newpage PI "<HR>"> ]]>
+<!entity newpage PI "">
+
+<!-- Component files -->
+<!entity cover SYSTEM "cover.sgml">
+<!entity preface SYSTEM "preface.sgml">
+
+<!entity rpc2exam SYSTEM "rpc2&lowbar;examples.sgml">
+<!entity rp2gusr SYSTEM "rp2gen&lowbar;user.sgml">
+<!entity rpc2usr SYSTEM "rpc2&lowbar;user.sgml">
+<!entity sftpusr SYSTEM "sftp&lowbar;user.sgml">
+<!entity multusr SYSTEM "multi&lowbar;user.sgml">
+
+<!entity lwpusr SYSTEM "lwp&lowbar;user.sgml">
+
+<!entity rpc2int SYSTEM "rpc2&lowbar;int.sgml">
+<!entity failure SYSTEM "failure.sgml">
+<!entity sftpint SYSTEM "sftp&lowbar;int.sgml">
+<!entity seint SYSTEM "se&lowbar;int.sgml">
+<!entity multint SYSTEM "multi&lowbar;int.sgml">
+
+<!entity usgnts SYSTEM "usagenotes.sgml">
+<!entity hdrfls SYSTEM "headerfiles.sgml">
+]>
+
+<book>
+
+&cover;
+
+<toc>
+&preface;
+
+<!-- @Part(RPC2 User Reference) -->
+
+<!-- &rpc2exams; -->
+<!-- &rp2gusr; -->
+<!-- &rpc2usr; -->
+<!-- &sftpusr; -->
+<!-- &multusr; -->
+
+<!-- @Part(LWP User Reference) -->
+
+<!-- &lwpusr; -->
+
+<!-- RPC2 Internals <label id="IntPart"> -->
+
+<!-- &rpc2int; -->
+<!-- &failure; -->
+<!-- &sftpint; -->
+<!-- &seint; -->
+<!-- &multint; -->
+
+<!-- appendix -->
+
+<!-- &usgnts; -->
+<!-- &hdrfls; -->
+
+<!-- biblio style="alpha" files="manual" -->
+
+</book>

@@ -1,0 +1,1055 @@
+<label id="LWPPart">
+
+@Chapter(The Basic LWP Package)
+<label id="LWPReference">
+The LWP package implements primitive functions providing basic
+facilities that enable procedures written in C, to proceed in an
+unsynchronized fashion.  These separate threads of control may
+effectively progress in parallel, and more or less independently of
+each other.  This facility is meant to be general purpose with a heavy
+emphasis on simplicity.  Interprocess communication facilities can be
+built on top of this basic mechanism, and, in fact, many different IPC
+mechanisms could be implemented.  The RPC2 remote procedure call
+package (also described in this manual) is one such IPC mechanism.
+
+
+The LWP package makes the following key design choices:
+@begin(itemize)
+The package should be small and fast;
+
+All processes are assumed to be trustworthy -- processes are not protected
+from each others actions;
+
+There is no time slicing or preemption -- the processor must be yielded
+explicitly.
+@end(itemize)
+
+In order to set up the environment needed by the lightweight process
+support, a one-time invocation of the @LWP(Init) function must
+precede the use of the facilities described here.  The initialization
+function carves an initial process out of the currently executing C
+procedure.  The process id of this initial process is returned as the
+result of the @LWP(Init) function.  For symmetry a
+@LWP(TerminateProcessSupport) function may be used explicitly to
+release any storage allocated by its initial counterpart.  If used, it
+must be issued from the process created by the @LWP(Init) function.
+
+Upon completion of any of the lightweight process
+functions, an integer value is returned to indicate whether any error
+conditions were encountered.
+
+Macros, typedefs, and manifest constants for error codes needed by the
+lightweight process mechanism reside in the file <tt>&lt;lwp.h&gt;</tt> (shown
+in Appendix <ref id="lwp.h)" name="XXX">.
+A process is identified by an object of type PROCESS, which is
+defined in the include file.
+
+The process model supported by the operations described here
+is based on a non-preemptive priority dispatching scheme. (A priority is an integer in the range &lsqb;0..LWP&lowbar;MAX&lowbar;PRIORITY&rsqb;,
+where 0 is the lowest priority.)
+Once a given lightweight process is selected and dispatched, it
+remains in control until it voluntarily relinquishes its claim
+on the CPU.
+Relinquishment may be either explicit (@LWP(DispatchProcess)) or
+implicit (through the use of certain other LWP operations).
+In general, all LWP operations that may cause a
+higher priority process to become ready for dispatching,
+preempt the process requesting the service.
+When this occurs, the priority dispatching mechanism takes over and
+dispatches the highest priority process automatically.  Services in this
+category (where the scheduler is guaranteed to be invoked in the absence of
+errors) are
+@Begin(Itemize)
+@LWP(CreateProcess)
+
+@LWP(WaitProcess)
+
+@LWP(MwaitProcess)
+
+@LWP(SignalProcess)
+
+@LWP(DispatchProcess)
+
+@LWP(DestroyProcess)
+@End(Itemize)
+
+The following services are guaranteed not to cause preemption (and so may be issued with no fear of losing control to another
+lightweight process):
+@Begin(Itemize)
+@LWP(Init)
+
+@LWP(NoYieldSignal)
+
+@LWP(CurrentProcess)
+
+@LWP(StackUsed)
+
+@LWP(NewRock)
+
+@LWP(GetRock)
+@End(Itemize)
+
+The symbol LWP&lowbar;NORMAL&lowbar;PRIORITY provides a good default value to
+use for process priorities.
+
+<sect1>A word about initialization<p>
+The LWP, IOMGR, Fast Time, and RPC2 packages have routines that
+perform global initialization for the package.  Each of these routines
+may be called more than once, and only the parameters from the first
+invocation will be used.  In addition, each routine calls any of the
+others that it needs for proper operation.
+
+The result is that if you only use one package directly, you need only
+call the initialization routine for that package.  You may call the
+initialization routines for other packages anyway in order to set the
+initialization parameters yourself.  If you wish to initialize all of
+these packages yourself, you must call the initialization routines in
+this order: Fast Time, LWP, IOMGR, RPC2.  The RPC2 package does not
+call the LWP packages initialization routine.  You must call
+@LWP(Init) explicitly before calling @RPC2(Init).
+
+In contrast, the Preemption package initialization routine may be
+called multiple times to change the value of the preemption time
+slice.
+
+The Lock and Timer packages have initialization routines that initialize
+objects instead of global data.  The only restriction on the order of the
+initialization calls to these packages is that calls to @TM(Init) must
+follow your call to @FT(Init), if you have one.
+
+
+
+
+<sect1>A Simple Example<p>
+@begin(program)
+
+#include &lt;lwp.h&gt;
+
+static read&lowbar;process (id)
+    int *id;
+&lcub;
+    LWP&lowbar;DispatchProcess ();		/* Just relinquish control for now */
+
+    for (;;) &lcub;
+	/* Wait until there is something in the queue */
+	while (empty LEFTPAREN q) RIGHTPAREN LWP&lowbar;WaitProcess (q);
+	/* Process queue entry */
+	LWP&lowbar;DispatchProcess ();
+    &rcub;
+&rcub;
+
+static write&lowbar;process ()
+&lcub;
+    . . .
+
+    /* Loop & write data to queue */
+    for (mesg=messages; *mesg!=0; mesg++) &lcub;
+	insert (q, *mesg);
+	LWP&lowbar;SignalProcess (q);
+    &rcub;
+&rcub;
+
+main (argc, argv)
+   int argc; char **argv;
+&lcub;
+    PROCESS *id;
+
+    LWP&lowbar;Init (LWP&lowbar;VERSION, 0, &id);
+    /* Now create readers */
+    for (i=0; i&lt; nreaders; i++)
+	LWP&lowbar;CreateProcess (read&lowbar;process, STACK&lowbar;SIZE, 0, i, "Reader", &readers&lsqb;i&rsqb;);
+    LWP&lowbar;CreateProcess (write&lowbar;process, STACK&lowbar;SIZE, 1, 0, "Writer", &writer);
+    /* Wait for processes to terminate */
+    LWP&lowbar;WaitProcess (&done);
+    for (i=nreaders-1; i&gt;=0; i--) LWP&lowbar;DestroyProcess (readers&lsqb;i&rsqb;);
+&rcub;
+@end(program)
+
+<sect1>LWP Runtime Calls<p>
+@PasCall(Tag=&lt;LWPInit&gt;,
+	Type = `int,
+	CallName=`LWP&lowbar;Init,
+	Abstract=`Initialize LWP support & start initial process,
+	ParmList=`@w&lt;<bf>in</bf> char *VersionId&gt;, @w&lt;<bf>in</bf> int priority&gt;, @w&lt;<bf>out</bf> PROCESS *pid&gt;,
+	P1=`VersionId, PD1=`Set this to the constant @LWP(VERSION).  The current value of this string  constant must be identical to the value at the time the client runtime system was compiled.,
+	P2=`priority, PD2=`Priority at which initial process is to run.,
+	P3=`pid,
+	PD3=`The process id of the initial process will be returned in this parameter.,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`All went well, 
+	CC2=`LWP&lowbar;EBADPRI, CCD2=`Illegal priority specified (&lt; 0 or too large),
+	Text=`Initializes the LWP package.  In addition, this routine turns the current thread
+	      of control into the initial process with the specified priority.  The process id
+	      of this initial process will be returned in parameter pid. This routine must be
+	      called to ensure proper initialization of the LWP routines.  This routine will
+	      not cause the scheduler to be invoked.
+)
+
+@Pascall(Tag=&lt;TerminateProcess&gt;,
+	Type = `int,
+	Callname=`LWP&lowbar;TerminateProcessSupport,
+	Abstract=`Terminate process support and clean up,
+	Parmlist=`,
+	Text=`This routine will terminate the LWP process support and clean
+	     up by freeing any auxiliary storage used.  This routine must be
+	     called from within the procedure and process that invoked
+	     LWP&lowbar;Init.  After
+	     LWP&lowbar;TerminateProcessSupport has been called,
+	     LWP&lowbar;Init may be called again to resume
+	     LWP process support.
+)
+
+@Pascall(Tag=&lt;CreateProcess&gt;,
+	Type = `int,
+	CallName=`LWP&lowbar;CreateProcess,
+	Abstract=`Create and start a light-weight process,
+	ParmList=`@w&lt;<bf>in</bf> int (*ep) ()&gt;, @w&lt;<bf>in</bf> int stacksize&gt;, @w&lt;<bf>in</bf> int priority&gt;,
+@w&lt;<bf>in</bf> char *parm&gt;, @w&lt;<bf>in</bf> char *name&gt;,
+@w&lt;<bf>out</bf> PROCESS *pid&gt;,
+	P1=`ep,
+	PD1=`This is the address of the code that is to execute the function
+	     of this process.  This parameter should be the address
+	     of a C routine with a single parameter.,
+	P2=`stacksize,
+	PD2=`This is the size (in bytes) to make the stack for the
+	     newly-created process.  The stack cannot be shrunk or expanded,
+	     it is fixed for the life of the process.,
+	P3=`priority,
+	PD3=`This is the priority to assign to the new process.,
+	P4=`parm,
+	PD4=`This is the single argument that will be passed to the new
+	     process.  Note that this argument is a pointer and, in general,
+	     will be used to pass the address of a structure containing
+	     further "parameters".,
+	P5=`name,
+	PD5=`This is an ASCII string that will be used for debugging purposes
+	     to identify the process.  The name may be a maximum of 32
+	     characters.,
+	P6=`pid,
+	PD6=`The process id of the new process will be returned in this
+	     parameter,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`Process created successfully,
+	CC2=`LWP&lowbar;ENOMEM, CCD2=`Not enough free space to create process,
+	CC3=`LWP&lowbar;EBADPRI, CCD3=`Illegal priority specified (&lt; 0 or too large),
+	CC4=`LWP&lowbar;EINIT, CCD4=`LWP&lowbar;Init has not been called,
+	Text=`This routine is used to create and mark as runnable a new light-weight
+	     process.  This routine will cause the scheduler to be called.
+	     Note that the new process will begin execution before this call
+	     returns only if the priority of the new process is greater than
+	     or equal to the priority of the creating process.
+)
+
+@Pascall(Tag=&lt;DestroyProcess&gt;,
+	Type = `int,
+	CallName=`LWP&lowbar;DestroyProcess,
+	Abstract=`Destroy a light-weight process,
+	ParmList=`@w&lt;<bf>in</bf> PROCESS pid&gt;,
+	P1=`pid,
+	PD1=`The process id of the process to be destroyed,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`Process destroyed successfully,
+	CC2=`LWP&lowbar;EINIT, CCD2=`LWP&lowbar;Init has not been called,
+	Text=`This routine will destroy the specified process.  The
+	     specified process will be terminated immediately and its
+	     internal storage will be freed.  A process is allowed to
+	     destroy itself (of course, it will only get to see the return
+	     code if the destroy fails).  Note a process may also destroy
+	     itself by executing a <bf>return</bf> from the C routine.  This routine
+	     calls the scheduler.,
+)
+
+@Pascall(Tag=&lt;WaitProcess&gt;,
+	Type = `int,
+	CallName=`LWP&lowbar;WaitProcess,
+	Abstract=`Wait for event,
+	ParmList=`@w&lt;<bf>in</bf> char *event&gt;,
+	P1=`event,
+	PD1=`The event to wait for.  This can be any memory address.  But, 0 is an
+	     illegal event.,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`The event has occurred,
+	CC2=`LWP&lowbar;EINIT, CCD2=`LWP&lowbar;Init has not been
+	     called,
+	CC3=`LWP&lowbar;EBADEVENT, CCD3=`The specified event was illegal (0),
+	Text=`This routine will put the calling process to sleep until
+	     another process does a call of LWP&lowbar;SignalProcess or LWP&lowbar;NoYieldSignal with the
+	     specified event.  Note that signals of events are not queued:
+	     if a signal occurs and no process is woken up, the signal is
+	     lost.  This routine invokes the scheduler.
+)
+
+@Pascall(Tag=&lt;Mwaitrocess&gt;,
+	Type = `int,
+	CallName=`LWP&lowbar;MwaitProcess,
+	Abstract=`Wait for a specified number of a group of signals,
+	ParmList=`@w&lt;<bf>in</bf> int wcount&gt;, @w&lt;<bf>in</bf> char *evlist&lsqb;&rsqb;&gt;,
+	P1=`wcount,
+	PD1=`Is the number of events that must be signaled to wake up this
+	     process,
+	P2=`evlist,
+	PD2=`This a null-terminated list of events (remember that 0 is not a
+	     legal event).  There may be at most LWP&lowbar;MAX&lowbar;EVENTS events.,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`The specified number of appropriate
+	     signals has occurred,
+	CC2=`LWP&lowbar;EBADCOUNT, CCD2=`There are too few events (0)
+	     or wcount &gt; the number of events in evlist,
+	CC3=`LWP&lowbar;EINIT,  CCD3=`LWP&lowbar;Init has not been
+	     called,
+	Text=`This routine allows a process to wait for wcount signals of
+	     any of the signals in evlist.  Any number of signals of a
+	     particular event is only counted once.  The scheduler will be
+	     invoked.
+)
+
+@Pascall(Tag=&lt;SignalProcess&gt;,
+	Type = `int,
+	Callname=`LWP&lowbar;SignalProcess,
+	Abstract=`Signal an event,
+	ParmList=`@w&lt;<bf>in</bf> char *event&gt;,
+	P1=`event,
+	PD1=`The event to be signaled.  An event is any memory address
+	     except 0,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`The signal was a success (a process was
+	     waiting for it),
+	CC2=`LWP&lowbar;EBADEVENT, CCD2=`The specified event was illegal (0),
+	CC3=`LWP&lowbar;EINIT, CCD3=`LWP&lowbar;Init was not
+	     called,
+	CC4=`LWP&lowbar;ENOWAIT, CCD4=`No process was waiting for this signal,
+	Text=`This routine causes event to be signaled.  This will mark all
+	     processes waiting for only this event as runnable.  The
+	     scheduler will be invoked.  Signals are not queued: if no
+	     process is waiting for this event, the signal will be lost and
+	     LWP&lowbar;ENOWAIT will be returned.
+)
+
+@Pascall(Tag=&lt;NoYieldSignal&gt;,
+	Type = `int,
+	Callname=`LWP&lowbar;NoYieldSignal,
+	Abstract=&lsqb;Signal an event, but dont yield&rsqb;,
+	ParmList=`@w&lt;<bf>in</bf> char *event&gt;,
+	P1=`event,
+	PD1=`The event to be signaled.  An event is any memory address
+	     except 0,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`The signal was a success (a process was
+	     waiting for it),
+	CC2=`LWP&lowbar;EBADEVENT, CCD2=`The specified event was illegal (0),
+	CC3=`LWP&lowbar;EINIT, CCD3=`LWP&lowbar;Init was not
+	     called,
+	CC4=`LWP&lowbar;ENOWAIT, CCD4=`No process was waiting for this signal,
+	Text=`This routine causes event to be signaled.  This will mark all
+	     processes waiting for only this event as runnable.  This call
+	     is identical to LWP&lowbar;SignalProcess except that the scheduler
+	     will not be invoked -- control will remain with the signalling process.
+	     Signals are not queued: if no process is waiting for this event, the signal
+	     will be lost and LWP&lowbar;ENOWAIT will be returned.
+)
+
+@Pascall(Tag=&lt;DispatchProcess&gt;,
+	Type = `int,
+	CallName=`LWP&lowbar;DispatchProcess,
+	Abstract=`Yield to the scheduler,
+	ParmList=`,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`All went well,
+	CC2=`LWP&lowbar;EINIT, CCD2=`LWP&lowbar;Init has not been
+	     called,
+	Text=`This routine is a voluntary yield to the LWP scheduler.
+)
+
+@Pascall(Tag=&lt;CurrentProcess&gt;,
+	Type = `int,
+	CallName=`LWP&lowbar;CurrentProcess,
+	Abstract=`Get the current process id,
+	ParmList=`@w&lt;<bf>out</bf> PROCESS *pid&gt;,
+	P1=`pid,
+	PD1=`The current process id will be returned in this parameter,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`The current process id has been returned,
+	CC2=`LWP&lowbar;EINIT, CCD2=`LWP&lowbar;Init has not been
+	     called,
+	Text=`This routine will place the current process id in the
+	     parameter pid.
+)
+
+@Pascall(Tag=&lt;StackUsed&gt;,
+	Type = `int,
+	CallName=`LWP&lowbar;StackUsed,
+	Abstract=`Get information about stack usage for a process,
+	ParmList=`@w&lt;<bf>in</bf> PROCESS pid&gt;, @w&lt;<bf>out</bf> int *max&gt;, @w&lt;<bf>out</bf> int *used&gt;,
+	P1=`pid,
+	PD1=`The target process,
+	P2=`max,
+	PD2=`Max stack size given at process creation time,
+	P3=`used,
+	PD3=`Stack used so far,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`No problem,
+	CC2=`LWP&lowbar;NO&lowbar;STACK, CCD2=`Stack counting was not enabled for this
+		process.,
+	Text=`This routine returns the amount of stack space allocated to
+	      the process and the amount actually used by the process so
+	      far.  It works by initializing the stack to a special pattern
+	      at process creation time and checking to see how much of the
+	      pattern is still there when <bf>LWP&lowbar;StackUsed</bf> is called.
+	      The stack of the process is only initialized to the special
+	      pattern if the global variable <bf>lwp&lowbar;stackUseEnabled</bf> is
+	      true when the process is created.  This variable is initially
+	      true.  If <bf>lwp&lowbar;stackUseEnabled</bf> was false at the time the
+	      process was created, then <bf>*used</bf> will be set to zero
+	      and the routine will return <bf>LWP&lowbar;NO&lowbar;STACK</bf>.
+)
+
+@Pascall(Tag=&lt;NewRock&gt;,
+	Type = `int,
+	CallName=`LWP&lowbar;NewRock,
+	Abstract=`Find a rock under which private information can be hidden,
+	ParmList=`@w&lt;<bf>in</bf> int Tag&gt;, @w&lt;<bf>in</bf> char *Value&gt;,
+	P1=`Tag,
+	PD1=`A unique integer identifying this rock.,
+	P2=`Value,
+	PD2=`A value (usually a pointer to some data structure) to be associated with the current LWP and identified by Tag.,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`No problem,
+	CC2=`LWP&lowbar;EBADROCK, CCD2=`Rock called Tag already exists for this LWP.,
+	CC3=`LWP&lowbar;ENOROCKS, CCD3=`All rocks are in use.,
+	Text=`The rock is exactly what its name implies: a place to squirrel away application-specific
+		information associated with an LWP.  The Tag is any unique integer.
+		Users of the LWP package must coordinate their choice of Tag values.
+		Note that you cannot change the value associated with Tag.  To obtain
+		a mutable data structure use one level of indirection.
+)
+
+@Pascall(Tag=&lt;GetRock&gt;,
+	Type = `int,
+	CallName=`LWP&lowbar;GetRock,
+	Abstract=`Obtain information hidden under a rock.,
+	ParmList=`@w&lt;<bf>in</bf> int Tag&gt;, @w&lt;<bf>out</bf> char **Value&gt;,
+	P1=`Tag,
+	PD1=`Rock under which to look.,
+	P2=`Value,
+	PD2=`The current value (usually a pointer to some data structure) hidden under this rock.,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`Value has been filled.,
+	CC2=`LWP&lowbar;EBADROCK, CCD2=`Specified rock does not exist.,
+	Text=`Recovers information hidden by a LWP&lowbar;NewRock call.
+)
+
+@Chapter(The Lock Package)
+<label id="LockPackage">
+
+The lock package contains a number of routines and macros that allow C
+programs that utilize the LWP abstraction to place read and write locks on
+data structures shared by several light-weight processes.
+Like the LWP package, the lock package was written with simplicity in mind
+-- there is no protection inherent in the model.
+
+In order to use the locking mechanism for an object, an object of type
+<tt>struct Lock</tt> must be associated with the object.
+After being initialized, with a call to @Lock(Init), the lock is used
+in invocations of the macros ObtainReadLock,
+ObtainWriteLock, ReleaseReadLock and ReleaseWriteLock.
+
+The semantics of a lock is such that any number of readers may hold a lock.
+But only a single writer (and no readers) may hold the clock at any time.
+The lock package guarantees fairness: each reader and writer will eventually
+have a chance to obtain a given lock.
+However, this fairness is only guaranteed if the priorities of the competing
+processes are identical.
+Note that no ordering is guaranteed by the package.
+
+In addition, it is illegal for a process to request a particular lock more
+than once, without first releasing it.
+Failure to obey this restriction may cause deadlock.
+
+<sect1>Key Design Choices<p>
+@Begin(Itemize)
+The package must be simple and @u&lsqb;fast&rsqb;: in the case that a lock can be
+obtained immediately, it should require a minimum of instructions;
+
+All the processes using a lock are trustworthy;
+
+The lock routines ignore priorities;
+@End(Itemize)
+
+
+<sect1>A Simple Example<p>
+@Begin(program)
+#include "lock.h"
+
+struct Vnode &lcub;
+    . . .
+    struct Lock	lock;	/* Used to lock this vnode */
+    . . .
+&rcub;;
+
+#define READ	0
+#define WRITE	1
+
+struct Vnode *get&lowbar;vnode (name, how)
+    char *name;
+    int how;
+&lcub;
+    struct Vnode *v;
+
+    v = lookup (name);
+    if (how == READ)
+	ObtainReadLock (&v-&gt; lock);
+    else
+	ObtainWriteLock (&v-&gt; lock);
+&rcub;
+@End(program)
+
+
+<sect1>Lock Primitives<p>
+@Pascall(Tag=&lt;Lock&lowbar;Init&gt;,
+	CallName=`Lock&lowbar;Init,
+	Type="void",
+	Abstract=`Initialize a lock,
+	ParmList=`@w&lt;<bf>out</bf> struct Lock *lock&gt;,
+	P1=`lock,
+	PD1=`The (address of the) lock to be initialized,
+	Text=`This routine must be called to initialize a lock before it is
+	     used.
+)
+
+@Pascall(Tag=&lt;ObtainReadLock&gt;,
+	CallName=`ObtainReadLock,
+	Abstract=`Obtain a read lock,
+	Type="void",
+	ParmList=`@w&lt;<bf>in out</bf> struct Lock *lock&gt;,
+	P1=`lock,
+	PD1=`The lock to be read-locked,
+	Text=`A read lock will be obtained on the specified lock.  Note that
+	     this is a macro and not a routine.  Thus, results are not
+	     guaranteed if the lock argument is a side-effect producing
+	     expression.
+)
+
+@Pascall(Tag=&lt;ObtainWriteLock&gt;,
+	CallName=`ObtainWriteLock,
+	Abstract=`Obtain a write lock,
+	Type="void",
+	ParmList=`@w&lt;<bf>in out</bf> struct Lock *lock&gt;,
+	P1=`lock,
+	PD1=`The lock to be write-locked,
+	Text=`A write lock will be obtained on the specified lock.  Note that
+	     this is a macro and not a routine.  Thus, results are not
+	     guaranteed if the lock argument is a side-effect producing
+	     expression.
+)
+
+@Pascall(Tag=&lt;ReleaseReadLock&gt;,
+	CallName=`ReleaseReadLock,
+	Type="void",
+	Abstract=`Release a read lock,
+	ParmList=`@w&lt;<bf>in out</bf> struct Lock *lock&gt;,
+	P1=`lock,
+	PD1=`The lock to be released,
+	Text=`The specified lock will be released.  This macro requires that
+	     the lock must have been previously read-locked.  Note that
+	     this is a macro and not a routine.  Thus, results are not
+	     guaranteed if the lock argument is a side-effect producing
+	     expression.
+)
+
+@Pascall(Tag=&lt;ReleaseWriteLock&gt;,
+	CallName=`ReleaseWriteLock,
+	Abstract=`Release a write lock,
+	ParmList=`@w&lt;<bf>in out</bf> struct Lock *lock&gt;,
+	Type="void",
+	P1=`lock,
+	PD1=`The lock to be released,
+	Text=`The specified lock will be released.  This macro requires that
+	     the lock must have been previously write-locked.  Note that
+	     this is a macro and not a routine.  Thus, results are not
+	     guaranteed if the lock argument is a side-effect producing
+	     expression.
+)
+
+@Pascall(Tag=&lt;CheckLock&gt;,
+	CallName=`CheckLock,
+	Abstract=`Check status of a lock,
+	Type = `int,
+	ParmList=`@w&lt;<bf>in</bf> struct Lock *lock&gt;,
+	P1=`lock,
+	PD1=`The lock to be checked,
+	Text=`This macro yields an integer that specifies the status of the
+	     indicated lock.  The value will be -1 if the lock is write-locked,
+	     0 if unlocked, or a positive integer that indicates the numer
+	     of readers with read locks.  Note that this is a macro and not a
+	      routine.  Thus, results are not guaranteed if the lock argument
+	      is a side-effect producing expression.
+)
+
+@Chapter(The IOMGR Package)
+<label id="IOMGRPrimitives">
+
+The IOMGR package allows light-weight processes to wait on various Unix
+events.  @IOMGR(Select) allows a light-weight process to wait on the same
+set of events that the Unix <tt>select</tt> call waits on.  The parameters to
+these routines are the same.  @IOMGR(Select) puts the caller to sleep
+until no user processes are active.  At this time the IOMGR process, which
+runs at the lowest priority, wakes up and coaleses all of the select request
+together.  It then performs a single <tt>select</tt> and wakes up all processes
+affected by the result.
+
+The @IOMGR(Signal) call allows a light-weight process to wait on delivery
+of a Unix signal.  The IOMGR installs a signal handler to catch all
+deliveries of the Unix signal.  This signal handler posts information about
+the signal delivery to a global data structure.  The next time that the
+IOMGR process runs, it delivers the signal to any waiting light-weight
+processes.
+
+<sect1>Key Design Choices<p>
+@Begin(Itemize)
+The meanings of the parameters to @IOMGR(Select), both before and after
+the call, should be identical to those of the Unix <tt>select</tt>;
+
+A blocking select should only be done if no other processes are runnable.
+@End(Itemize)
+
+<sect1>A Simple Example<p>
+@Begin(program)
+void rpc2&lowbar;SocketListener ()
+&lcub;
+    int ReadfdMask, WritefdMask, ExceptfdMask, rc;
+    struct timeval *tvp;
+
+    while (TRUE) &lcub;
+	. . .
+	ExceptfdMask = ReadfdMask = (1 &lt;&lt; rpc2&lowbar;RequestSocket);
+	WritefdMask = 0;
+	rc = IOMGR&lowbar;Select (8*sizeof(int), &ReadfdMask, &WritefdMask, &ExceptfdMask, tvp);
+
+	switch (rc) &lcub;
+	    case 0:	/* timeout */
+		    continue;	/* main while loop */
+		    
+	    case -1:	/* error */
+		    SystemError ("IOMGR&lowbar;Select");
+		    exit (-1);
+		    
+	    case 1:	/* packet on rpc2&lowbar;RequestSocket */
+		    . . . process packet . . .
+		    break;
+
+	    default:	/* should never occur */
+	&rcub;
+    &rcub;
+&rcub;
+@End(program)
+
+<sect1>IOMGR Primitives<p>
+@Pascall(Tag=&lt;Initialize&gt;,
+	CallName=`IOMGR&lowbar;Initialize,
+	Abstract=`Initialize the IOMGR package,
+	Type = `int,
+	Parmlist=`,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`All went well,
+	CC2=`LWP&lowbar;ENOMEM, CCD2=`Not enough free space to create the IOMGR
+	    process,
+	CC3=`-1, CCD3=`Something went wrong with other init calls,
+	Text=`This call will initialize the IOMGR package.  Its main task is
+	     to create the IOMGR process, which runs at priority 0, the
+	     lowest priority.  The remainder of the processes must be
+	     running at priority 1 or greater for the IOMGR package to
+	     function correctly.
+)
+
+@Pascall(Tag=&lt;Finalize&gt;,
+	CallName=`IOMGR&lowbar;Finalize,
+	Abstract=`Finalize the IOMGR package,
+	Type = `int,
+	Parmlist=`,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`Package finalized okay,
+	Text=`This call cleans up when the IOMGR package is no longer
+	     needed.  It releases all storage and destroys the IOMGR
+	     process.
+)
+
+@pascall(Tag=&lt;Select&gt;,
+	CallName=`IOMGR&lowbar;Select,
+	Abstract=`Perform an LWP select operation,
+	Type = `int,
+	Parmlist=`@w&lt;<bf>in</bf> int fds&gt;, @w&lt;<bf>in out</bf> int *readfds&gt;, @w&lt;<bf>in out</bf> *writefds&gt;,
+		 @w&lt;<bf>in out</bf> *exceptfds&gt;, @w&lt;<bf>in</bf> struct timeval *timeout&gt;,
+	P1=`fds,
+	PD1=`Maximum number of bits to consider in masks,
+	P2=`readfds,
+	PD2=`Mask of file descriptors that process wants notification of
+	    when ready to be read,
+	P3=`writefds,
+	PD3=`Mask of file descriptors that process wants notification of
+	    when ready to be written,
+	P4=`exceptfds,
+	PD4=`Mask of file descriptors that process wants notification of
+	    when exceptional condition occurs,
+	P5=`timeout,
+	PD5=`Timeout for use on this select,
+	Text=`This function performs an LWP version of Unix <bf>select</bf>.  The
+	     parameters have the same meanings as the Unix call.  However,
+	     the return value will only be -1 (an error occurred), 0 (a timeout occurred),
+	     or 1 (some number of file descriptors are ready).  If this is
+	     a polling select, it is done and IOMGR&lowbar;Select returns to
+	     the user with the results.  Otherwise, the calling process is
+	     put to sleep.  If at some point, the IOMGR process is the only
+	     runnable process, it will awaken and collect all select
+	     requests.  It will then perform a single select and awaken
+	     those processes the appropriate processes -- this will cause
+	     return from the affected IOMGR&lowbar;selects.
+)
+
+@pascall(Tag=&lt;Signal&gt;,
+	CallName=`IOMGR&lowbar;Signal,
+	Abstract=`Convert Unix signals to LWP signals,
+	Type = `int,
+	Parmlist=`@w&lt;<bf>in</bf> int signo&gt;, @w&lt;<bf>in</bf> char *event&gt;,
+	P1=`signo,
+	PD1=`The unix signal number, as defined in signal.h,
+	P2=`event,
+	PD2=`The light-weight process event that should be signaled whenever
+	    <em>signo</em> is delivered,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`No problems.,
+	CC2=`LWP&lowbar;EBADSIG, CCD2=`<em>signo</em> was out of range,
+	CC3=`LWP&lowbar;EBADEVENT, CCD3=`<em>event</em> was zero,
+	Text=`This function associates an LWP signal with a Unix signal.
+	     When the Unix signal <em>signo</em> is delivered to the
+	     process, the IOMGR process will deliver an LWP signal to the
+	     event <em>event</em> via LWP&lowbar;NoYieldSignal,
+	     waking any light-weight processes waiting
+	     on that event.  Multiple deliveries of the signal may be
+	     coalesed into one LWP wakeup.  The call to LWP&lowbar;NoYieldSignal
+	     will happen synchronously.  It is safe for an LWP to check for
+	     some condition and then go to sleep waiting for a Unix signal
+	     without having to worry about delivery of the signal happening
+	     between the check and the call to LWP&lowbar;WaitProcess.
+)
+
+@pascall(Tag=&lt;CancelSignal&gt;,
+	CallName=`IOMGR&lowbar;CancelSignal,
+	Abstract=`Cancel association between Unix signal and LWP event,
+	Type = `int,
+	Parmlist=`@w&lt;<bf>in</bf> int signo&gt;,
+	P1=`signo,
+	PD1=`The Unix signal that should no longer be converted.,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`The association was cancelled,
+	CC2=`LWP&lowbar;EBADSIG, CCD2=`<em>signo</em> is out of range or
+		LWP&lowbar;Signal has not been called on it,
+	Text=`This function cancels the association of a Unix signal and an
+	    LWP event.  After calling this function, the Unix signal
+	     <em>signo</em> will be handled however it was handled before the
+	     corresponding call to LWP&lowbar;Signal.
+)
+
+@Chapter(The Timer Package)
+<label id="TMPackage">
+
+The timer package contains a number of routines that assist in manipulating
+lists of objects of type <tt>struct TM&lowbar;Elem</tt>.
+@TM(Elem)s (timers) are assigned a timeout value by the user and inserted in a
+package-maintained list.
+The time remaining to timeout for each timer is kept up to date by the
+package under user control.
+There are routines to remove a timer from its list, to return an expired
+timer from a list and to return the next timer to expire.
+This specialized package is currently used by the IOMGR package and by the
+implementation of RPC2.
+
+A timer is used commonly by inserting a field of type <tt>struct TM&lowbar;Elem</tt>
+into a structure.
+After inserting the desired timeout value the structure is inserted into a
+list, by means of its timer field.
+
+<sect1>A Simple Example<p>
+
+@Begin(program)
+static struct TM&lowbar;Elem *requests;
+
+. . .
+
+    TM&lowbar;Init (&requests);        /* Initialize timer list */
+    . . .
+    for (;;) &lcub;
+        TM&lowbar;Rescan (requests);   /* Update the timers */
+        expired = TM&lowbar;GetExpired (requests);
+        if (expired == 0) break;
+        . . . process expired element . . .
+    &rcub;
+@End(program)
+
+<sect1>Timer Primitives<p>
+@Pascall(Tag=&lt;TMInit&gt;,
+	CallName=`TM&lowbar;Init,
+	Abstract=`Initialize a timer list,
+	Type = `int,
+	Parmlist=`@w&lt;<bf>out</bf> struct TM&lowbar;Elem **list&gt;,
+	P1=`list,
+	PD1=`The list to be initialized,
+	CC1=`0, CCD1=`ok,
+	CC2=`-1,  CCD2=`not enough free storage,
+	Text=`The specified list will be initialized so that it is an empty
+	     timer list.  This routine must be called before any other
+	     operations are applied to the list.
+)
+
+@Pascall(Tag=&lt;TMFinal&gt;,
+	CallName=`TM&lowbar;Final,
+	Abstract=`Finalize a timer list,
+	Type = `int,
+	Parmlist=@w&lt;<bf>in out</bf> struct TM&lowbar;Elem **list&gt;,
+	P1=`list,
+	PD1=`The list to be finalized,
+	CC1=`0, CCD1=`ok,
+	CC2=`-1, CCD2=`*list was 0 or list was never initialized,
+	Text=`Call this routine when you are finished with a timer list and
+	     the list is empty.  This routine releases any auxiliary storage
+	     associated with the list.
+)
+
+@Pascall(Tag=&lt;TMInsert&gt;,
+	CallName=`TM&lowbar;Insert,
+	Abstract=`Initialize a timer element and insert it into a timer list,
+	Parmlist=`@w&lt;<bf>in</bf> struct TM&lowbar;Elem *list&gt;, @w&lt;<bf>in out</bf> struct TM&lowbar;Elem *elem&gt;,
+	Type="void ",
+	P1=`list,
+	PD1=`The list into which the element is to be inserted,
+	P2=`elem,
+	PD2=`The element to be initialized and inserted,
+	Text=`The element <em>elem</em> is initialized so that the <em>TimeLeft</em>
+	     field is equal to the <em>TotalTime</em> field.  (The <em>TimeLeft</em>
+	     field may be kept current by use of TM&lowbar;Rescan.)  The
+	     element is then inserted into the list.
+)
+
+@Pascall(Tag=&lt;TMRescan&gt;,
+	CallName=`TM&lowbar;Rescan,
+	Abstract=`Update <em>TimeLeft</em> fields of entries on a timer list and
+		 look for expired elements,
+	Type = `int,
+	Parmlist=`@w&lt;<bf>in out</bf> struct TM&lowbar;Elem *list&gt;,
+	P1=`list,
+	PD1=`The list to be updated,
+	Text=`This routine will update the <em>TimeLeft</em> fields of all timers
+	     on <em>list</em>.  (This is done by checking the time of day clock in
+	     Unix.)  This routine returns a count of the number of expired
+	     timers on the list.  This is the only routine (besides TM&lowbar;Init
+	     that updates the <em>TimeLeft</em> field.
+)
+
+@Pascall(Tag=&lt;TMGetExpired&gt;,
+	Callname=`TM&lowbar;GetExpired,
+	Abstract=`Return an expired timer from a list,
+	Parmlist=`@w&lt;<bf>in</bf> struct TM&lowbar;Elem *list&gt;,
+	Type=`struct TM&lowbar;Elem *,
+	P1=`list,
+	PD1=`The list to be searched,
+	Text=`The specified list will be searched and a pointer to an
+	     expired timer will be returned.  0 is returned if there are no
+	     expired timers.  An expired timer is one whose <em>TimeLeft</em>
+	     field is less than or equal to 0.
+)
+
+@Pascall(Tag=&lt;TMGetEarliest&gt;,
+	CallName=`TM&lowbar;GetEarliest,
+	Abstract=`Return the earliest timer on a list,
+	Parmlist=`@w&lt;<bf>in</bf> struct TM&lowbar;Elem *list&gt;,
+	Type=`struct TM&lowbar;Elem *,
+	P1=`list,
+	PD1=`The list to be searched,
+	Text=`This routine returns a pointer to the timer that will be next
+	     to expire -- that with a smallest <em>TimeLeft</em> field.  If there
+	     are no timers on the list, 0 is returned.
+)
+
+@Pascall(Tag=&lt;TMeql&gt;,
+	CallName=`TM&lowbar;eql,
+	Abstract=`See if 2 timevals are equal,
+	Parmlist=`@w&lt;<bf>in</bf> struct timeval *t1, <bf>in</bf> struct timeval *t2&gt;,
+	Type=`unsigned char ,
+	P1=`t1,
+	PD1=`a timeval,
+	P2=`t2,
+	PD2=`Another timeval,
+	Text=`This routine returns 0 if and only if <em>t1</em> and <em>t2</em> are not equal.
+)
+
+@Chapter(The Preemption Package)
+The preemption package provides a mechanism by which control can pass
+between light-weight processes without the need for explicit calls to
+@LWP(DispatchProcess).
+This effect is achieved by periodically interrupting the normal flow
+of control to check if other (higher priority) procesess are ready to
+run.
+
+The package makes use of the <em>interval timer</em> facilities provided
+by 4.2BSD, and so will cause programs that make their own use of
+these facilities to malfunction.
+In particular, use of <em>alarm (3)</em> or explicit handling of <em>SIGALRM</em>
+is disallowed.
+Also, calls to <em>sleep (3)</em> may return prematurely.
+
+Care should be taken that routines are re-entrant where necessary.
+In particular, note that stdio (3) is not re-entrant in general, and
+hence light-weight processes performing I/O on the same FILE structure
+may function incorrectly.
+
+<sect1>Key Design Choices<p>
+@Begin(Itemize)
+The package should not affect the nonpreemptive scheduling behaviour
+of processes which do not use it;
+
+It must be simple and @u&lsqb;fast&rsqb;, with a minimum of extra system overhead;
+
+It must support nested critical regions;
+
+Processes using the package are assumed to be <em>co-operating</em>.
+@End(Itemize)
+
+
+<sect1>A Simple Example<p>
+@Begin(program)
+#include &lt;sys/time.h&gt;
+#include "preempt.h"
+
+	...
+
+	struct timeval tv;
+
+	LWP&lowbar;Init (LWP&lowbar;VERSION, ... );
+	tv.tv&lowbar;sec = 10;
+	tv.tv&lowbar;usec = 0;
+	PRE&lowbar;InitPreempt (&tv);
+	PRE&lowbar;PreemptMe ();
+
+	...
+
+	PRE&lowbar;BeginCritical ();
+
+	...
+
+	PRE&lowbar;EndCritical ();
+
+	...
+
+	PRE&lowbar;EndPreempt ();
+@End(program)
+
+
+<sect1>Preemption Primitives<p>
+@Pascall(Tag=&lt;PREInitPreempt&gt;,
+	CallName=`PRE&lowbar;InitPreempt,
+	Type="int ",
+	Abstract=`Initialize the preemption package,
+	ParmList=`@w&lt;<bf>in</bf> struct timeval *slice&gt;,
+	P1=`slice,
+	PD1=`The period of the implicit scheduler calls.  Use NULL to
+	     obtain a useful default.,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`All went well,
+	CC2=`LWP&lowbar;EINIT, CCD2=`LWP&lowbar;Init was not
+	     called,
+	CC3=`LWP&lowbar;ESYSTEM, CCD3=`A system call failed,
+	Text=`This routine must be called to initialize the package
+	     (after the call to LWP&lowbar;Init).
+)
+
+@Pascall(Tag=&lt;PREEndPreempt&gt;,
+	CallName=`PRE&lowbar;EndPreempt,
+	Type="int ",
+	Abstract=`Finalize the preemption package,
+	ParmList=`,
+	CC1=`LWP&lowbar;SUCCESS, CCD1=`All went well,
+	CC2=`LWP&lowbar;EINIT, CCD2=`LWP&lowbar;Init was not
+	     called,
+	CC3=`LWP&lowbar;ESYSTEM, CCD3=`A system call failed,
+	Text=`This routine finalizes use of the preemption package.
+	     No further preemptions will be made.  Note that is not
+	     necessary to make this call before exit - it is provided
+	     only for those applications that wish to continue after
+	     turning off preemption.
+)
+
+@Pascall(Tag=&lt;PREPreemptMe&gt;,
+	CallName=`PRE&lowbar;PreemptMe,
+	Type="",
+	Abstract=`Mark a process as a candidate for preemption,
+	Parmlist=`,
+	Text=`This is a macro that marks the current process as a
+	     candidate for preemption.  It is erroneous to invoke
+	     PRE&lowbar;PreemptMe () if LWP&lowbar;Init has not been
+	     called.
+)
+
+@Pascall(Tag=&lt;PREBeginCritical&gt;,
+	CallName=`PRE&lowbar;BeginCritical,
+	Abstract=`Enter a critical section,
+	Parmlist=`,
+	Type="",
+	Text=`This routine places the current LWP in a <em>Critical
+	     Section</em>.  Upon return, involunatry preemptions of this
+	     process will no longer occur.  Note that this is a macro
+	     and that LWP&lowbar;Init must have been
+	     previously invoked.
+)
+
+@Pascall(Tag=&lt;PREEndCritical&gt;,
+	CallName=`PRE&lowbar;EndCritical,
+	Type="",
+	Abstract=`Leave a critcal section,
+	Parmlist=`,
+	Text=`This routine leaves a critical section previously
+	     entered with PRE&lowbar;BeginCritical ().  If involuntary
+	     preemptions were possible before the matching
+	     PRE&lowbar;BeginCritical (), they are once again possible.
+	     Note that this is a macro and that
+	     LWP&lowbar;Init must have been
+	     previously invoked.
+)
+
+
+
+@Chapter(The Fast Time Package)
+The Fast Time package allows the caller to find out the current time of day
+without incurring the expense of a kernel call.  It works by mapping the
+page of the kernel that has the kernels time-of-day variable and
+examining it directly.  Currently, this package only works on Suns.  You may
+call the routines on other machines, but they will run more slowly.
+
+The initialization routine for this package is fairly expensive since it
+does a lookup of a kernel symbol via nlist ().  If you have a program which
+runs for only a short time, you may wish to call @FT(Init) with the
+<tt>notReally</tt> parameter true to prevent the lookup from taking place.  This
+is useful if you are using another package that uses Fast Time (such as
+RPC2).
+
+<sect1>Fast Time Primitives<p>
+@Pascall(Tag=&lt;FTInit&gt;,
+	CallName=`FT&lowbar;Init,
+	Abstract=`Initialize the Fast Time package,
+	Type = `int,
+	Parmlist=`@w&lt;<bf>in</bf> int printErrors&gt;, @w&lt;<bf>in</bf> int notReally&gt;,
+	P1=`printErrors,
+	PD1=`Print error messages on stderr if somethingn goes wrong,
+	P2=`notReally,
+	PD2=&lt;Dont really do the memory mapping.  Make <bf>FT&lowbar;GetTimeOfDay</bf>
+	     call gettimeofday&gt;,
+	CC1=0, CCD1=`No problems,
+	CC2=-1, CCD2=`Error in initialization,
+	Text=`This call mmaps the kernel page with the time of day variable.
+	      If the routine returns -1, calls to <bf>FT&lowbar;GetTimeOfDay</bf>
+	      will still work properly, but will make a kernel call.
+)
+
+@pascall(Tag=&lt;FTGetTimeOfDay&gt;,
+	CallName=`FT&lowbar;GetTimeOfDay,
+	Abstract=`Get the time of day from the mapped kernel pages,
+	Type = `int,
+	Parmlist=`@w&lt;<bf>out</bf> struct timeval *tv&gt;, @w&lt;<bf>out</bf> struct timezone *tz&gt;,
+	P1=`tv,
+	PD1=`Where to put the time of day,
+	P2=`tz,
+	PD2=Where to put the time zone information,
+	CC1=`0, CCD1=`No problem,
+	CC2=`-1, CCD2=`Something went wrong,
+	Text=&lt;This function has the same calling sequence as the kernels
+	      <bf>gettimeofday</bf> routine.  If the <bf>tz</bf> parameter is not zero,
+	      or if initialization failed, or if the <bf>notReally</bf> parameter
+	      in the initialization was true, then this routine calls
+	      <bf>gettimeofday</bf>.  Otherwise, it looks in the mapped page of
+	      the kernel to get the time of day.&gt;
+)
+
+
+
+</manpage>

@@ -1,0 +1,68 @@
+<chapt> Usage and Implementation Notes			<label id="UsgNts">
+<p>
+<sect> Current Limitations
+<p>
+<itemize>
+<item>
+  Only one portal is allowed in @RPC2(Init).  This should be a list eventually.
+<item>
+  SmartFTP is the only side-effect type currently supported.
+<item>
+  getsubsysbyname() is a fake routine.  It knows about "Vice2-FileServer", 
+  and "Vice2-CallBack".
+<item>
+  At present the multicast routines work only on RTs running Mach.  The
+  non-multicast MultiRPC routines work on all architectures.
+</itemize>
+
+
+<sect> Where to Find Files at Carnegie Mellon
+<p>
+The LWP release consists of a set of include files (cargs.h, lwp.h,
+lock.h, timer.h, and preempt.h) and a library (liblwp.a).
+
+The RPC2 release consists of a set of include files (rpc2.h, se.h), 
+a set of libraries (librpc2.a and libse.a), and the RP2Gen binary (rp2gen).
+
+The LWP and RPC2 releases are available for RTs, Sun-3s, Vaxen, Pmaxen running
+Andrew and Mach, and Next running Andrew.  (Systypes rt&lowbar;r3,
+rt&lowbar;mach, sun3&lowbar;35, sun3&lowbar;mach, vax&lowbar;3,
+vax&lowbar;mach, pmax&lowbar;3, pmax&lowbar;mach, next&lowbar;mach20)
+
+On Coda, these files may be found in
+<tt>/coda/project/coda/alpha/&lcub;include,lib,bin&rcub;</tt>.
+
+On Andrew, these files are located in
+<tt>/afs/andrew/scs/cs/15-612&lcub;include,lib,bin&rcub;</tt>.
+
+iopen () is a system call created at Carnegie Mellon.  Put an empty dummy 
+function if your C library doesn't have it.
+
+<sect> Debugging
+<p>
+The following external RPC2 variables may be set for debugging:
+<descrip>
+<tag>@RPC2(DebugLevel)</tag>values of 0, 1, 10 and 100 are meaningful.
+  Initial value is 0.
+
+<tag>@RPC2(Perror)</tag>set to 1 to see Unix error messages on stderr.
+  Initial value is 1.
+
+<tag>@RPC2(Trace)</tag>set to 1 to enable tracing. 0 turns off tracing.
+  Initial value is 0.  Also see description of @RPC2(InitTrace) and 
+  @RPC2(DumpTrace) calls.
+</descrip>
+
+A global variable <bf>lwp&lowbar;debug</bf> can be set to activate or
+deactivate debugging messages tracing the flow of control within the LWP
+routines.  To activate debugging messages, set <bf>lwp&lowbar;debug</bf> to a
+non-zero value.  To deactivate, reset it to zero.  All debugging output from
+the LWP routines is sent to stdout.
+
+The LWP package checks for stack overflows at each context switch.  The
+<bf>lwp&lowbar;overflowAction</bf> variable controls the action of the package
+when an overflow occurs.  If it is set to <bf>LWP&lowbar;SOMESSAGE</bf>, then
+LWP will print a message on stderr telling of the overflow and will then be
+quiet.  If it is set to <bf>LWP&lowbar;SOABORT</bf>, LWP will call the abort
+() subroutine.  Finally, if it is set to <bf>LWP&lowbar;SOQUIET</bf>, LWP will
+ignore the errors.  The <bf>LWP&lowbar;SOABORT</bf> setting is the default.

@@ -1,0 +1,41 @@
+<titlepag>
+<title> RPC2 User Guide and Reference Manual
+<author> M. Satyanarayanan (Editor)
+  Richard Draves, James Kistler, Anders Klemets, Qi Lu, Lily Mummert, 
+  David Nichols, Larry Raper, Gowthami Rajendran, Jonathan Rosenberg, 
+  Ellen Siegel
+
+<thanks>
+  This work has been supported by the Defense Advanced Research Projects
+  Agency (Avionics Lab, Wright Research and Development Center, Aeronautical
+  Systems Division (AFSC), U.S. Air Force, Wright-Patterson AFB, Ohio,
+  45433-6543 under Contract F33615-90-C-1465, ARPA Order No. 7597), the
+  National Science Foundation (CCR-8657907), and the IBM Corporation (Andrew
+  Project, Faculty Development Grant, Research Initiation Grant), and
+  Digital Equipment Corporation (External Research Project).  The views and
+  conclusion expressed in this paper are those of the authors, and should
+  not be interpreted as those of DARPA, NSF, IBM, DEC or Carnegie Mellon
+  University.  
+</thanks>
+
+<inst>
+  School of Computer Science
+  Carnegie Mellon University
+  Pittsburgh, PA 15213
+</inst>
+</author>
+
+<abstract>
+  This manual describes the programming interface and internal design of
+  <em>RPC2</em>, a highly portable and extensible remote procedure call
+  package for Unix. RPC2 runs on top of the IP/UDP protocol, and provides
+  support for streaming file transfer, parallel RPC calls, and IP-level
+  multicast.  The manual also describes two other packages used by RPC2:
+  <em>RP2Gen</em>, a stub generator, and <em>LWP</em>, a coroutine-based
+  lightweight process package.  All the software described in this manual
+  runs at user-level on the Unix 4.3BSD interface; no kernel modifications
+  are necessary.  The software has been ported to a variety of machine
+  architectures (such as IBM-RT, MIPS, Sun2, Sun3, Sparc, and i386) and to
+  variants of the Unix operating system (such as Mach, SunOS and AIX).
+</abstract>
+</titlepag>

@@ -1,0 +1,299 @@
+@Chapter(Adding New Kinds of Side Effects)
+<label id="SideEffects">
+
+This chapter is not intended for the average user.  
+Rather, it is meant for a system programmer who intends
+to add support for a new kind of side effect.
+To do this, the system programmer must do the following:
+@begin(enumerate)
+Define an appropriate side effect descriptor, add it to the header file se.h and to the discriminated union in the
+definition of @SE(Descriptor).
+
+Define an appropriate Initializer structure and a corresponding component in the @SE(Initializer)
+structure in file se.h.
+
+Write a set of routines corresponding to each of the @SE(XXX) routines described in the following pages.
+This includes a @SE(Activate)() routine to enlarge the table in file se.c,  and a @SE(SetDefaults)() routine to
+deal with @SE(Initializer) structures.
+@end(enumerate)
+
+
+<sect1>Usage Notes<p>
+@begin(enumerate)
+You will modify two RPC2 files (se.h and se.c), and add one more file
+containing the code implementing your new side effect.
+Also modify the Makefile to compile and link in your new file. 
+
+Client and server programs will cause the appropriate side effect routines
+to be linked in by calling the appropriate
+@SE(Activate)() for each side effect they are interested in.
+Note that these calls must precede @RPC(Init)().
+
+None of these procedures will be called for a connection, if the 
+@RPC2(Bind) that created the connection specified NULL for the
+SideEffectType parameter.
+	
+In each of the calls, ConnHandle is the handle identifying the connection
+on which the side effect is desired.  It is not likely to be a small
+integer.  Since you cannot access the internal data structures of the
+RPC2 runtime system, you cannot use this for much.
+It is passed to you primarily for identification.
+	
+You can use @RPC2(GetSEPointer)() and @RPC2(SetSEPointer)() to
+associate per-connection side effect data structures.
+	
+Use @RPC2(GetPeerInfo)() to get the identity of a connections peer.
+
+Three return codes:@RPC2(SUCCESS) and @RPC2(SEFAIL1) and @RPC2(SEFAIL2) are
+recognized for each of the calls.
+The successful return causes the RPC runtime system to resume normal
+execution from the point at which the side effect routine 
+was invoked. The failure returns abort the call at that point and returns
+@RPC2(SEFAIL1) or @RPC(SEFAIL2) to the client
+or server code that invoked the RPC system call.
+@RPC2(SEFAIL1) is an error, but not a fatal error.
+Future RPC calls on this connection will still work.
+@RPC2(SEFAIL2) is a fatal error.
+
+@end(enumerate)
+
+<sect1>Entry Point Templates<p>
+<label id="SETemplates">
+
+@PasCall(Tag=&lt;SEInit&gt;,
+	CallName = `@SE(Init),
+	ParmList=`,
+	CC1=`@RPC2(SUCCESS),CCD1=`,
+	CC2=`@RPC2(SEFAIL1), CCD2=`,
+	CC3=`@RPC2(SEFAIL2), CCD3=`,
+	Text=`Called just prior to return from @RPC2(Init).
+	)
+
+@PasCall(Tag=&lt;SEBind1&gt;,
+	CallName = `@SE(Bind1),
+	ParmList=`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>in</bf> @RPC2(CountedBS) *ClientIdent&gt;,
+	P1=`ConnHandle, PD1=`,
+	P2=`ClientIdent, PD2=`,
+	CC1=`@RPC2(SUCCESS),
+	CC2=`@RPC2(SEFAIL1),
+	CC3=`@RPC2(SEFAIL2),
+	CCD1=`,
+	CCD2=`,
+	CCD3=`,
+	Text=`Called on @RPC2(Bind) on client side.
+	The call is made just prior to sending the first connection-establishment packet to the server.  The 
+	connection establishment is continued only if @RPC2(SUCCESS) is returned.
+    	)
+
+@PasCall(Tag=&lt;SEBind2&gt;,
+	CallName = `@SE(Bind2),
+	ParmList=`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>in</bf> struct timeval *BindTime&gt;,
+	P1=`ConnHandle, PD1=`,
+	P2=`BindTime, PD2=`,
+	CC1=`@RPC2(SUCCESS),
+	CC2=`@RPC2(SEFAIL1),
+	CC3=`@RPC2(SEFAIL2),
+	CCD1=`,
+	CCD2=`,
+	CCD3=`,
+	Text=`Called on @RPC2(Bind) on client side.
+	The call is made just after the connection is successfully established, before control is returned
+	to the caller. BindTime is the amount of time the bind took because of the network. 
+        If @SE(Bind2) returns @RPC2(SEFAIL1) or @RPC2(SEFAIL2), that code is returned as the
+	result of the @RPC2(Bind). Otherwise the usual code is returned.
+    	)
+
+@PasCall(Tag=&lt;SEUnbind&gt;,
+	CallName = `@SE(Unbind),
+	ParmList = `@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;,
+	P1=`ConnHandle, PD1=`,
+	CC1=`@RPC2(SUCCESS),
+	CC2=`@RPC2(SEFAIL1),
+	CC3=`@RPC2(SEFAIL2),
+	CCD1=`,
+	CCD2=`,
+	CCD3=`,
+	Text = `Called when @RPC2(Unbind) is executed on the client or server side.  You are expected to free
+	any side effect storage you associated with this connection,  and to do whatever cleanup is necessary.
+	Note that the connection state is available to you and is not destroyed until you return @RPC2(SUCCESS).
+	)
+
+@PasCall(Tag=&lt;SENewConnection&gt;,
+	CallName = `@SE(NewConnection),
+	ParmList = `@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>in</bf> @RPC2(CountedBS) *ClientIdent&gt;,
+	P1=`ConnHandle, PD1=`,
+	P2=`ClientIdent, PD2=`,
+	CC1=`@RPC2(SUCCESS),
+	CC2=`@RPC2(SEFAIL1),
+	CC3=`@RPC2(SEFAIL2),
+	CCD1=`,
+	CCD2=`,
+	CCD3=`,
+	Text = `Called on server side when a new connection is established, just prior to exit from the
+    corresponding @RPC2(GetRequest)().
+	)
+
+@PasCall(Tag=&lt;SEMakeRPC1&gt;,
+	CallName = `@SE(MakeRPC1),
+	ParmList = `@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>inout</bf> @SE(Descriptor) *SDesc&gt;, @w&lt;<bf>inout</bf> @RPC2(PacketBuffer) **RequestPtr&gt;,
+	P1=`ConnHandle, PD1=`,
+	P2=`SDesc, PD2=`,
+	P3=`RequestPtr, PD3=`,
+	CC1=`@RPC2(SUCCESS),
+	CC2=`@RPC2(SEFAIL1),
+	CC3=`@RPC2(SEFAIL2),
+	CCD1=`,
+	CCD2=`,
+	CCD3=`,
+	Text=`Called after a request has been completely filled, just prior to network
+    ordering of header fields, encryption and transmission.
+    You may use the Prefix information to determine the actual size of the 
+    buffer corresponding to *RequestPtr.  If you add data, 
+    remember to update the BodyLength field of the header in *RequestPtr.
+    You also probably wish to update the SideEffectFlags and
+    SideEffectDataOffset fields of the header.
+    SDesc points to the side effect descriptor passed in by the client.
+
+    If you need more space than available in the buffer passed to you, you may 
+    allocate a larger packet, copy the current contents and add additional data.
+    Return a pointer to the packet you allocated in RequestPtr: this is the packet
+    that will actually get sent over the wire.  DO NOT free the buffer pointed to
+    by RequestPtr initially.  If you allocate a packet, it will be freed immediately
+    after successful transmission.
+    	)
+
+@PasCall(Tag=&lt;SEMakeRPC2&gt;,
+	CallName=`@SE(MakeRPC2),
+	ParmList = `@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;,  @w&lt;<bf>inout</bf> @SE(Descriptor) *SDesc&gt;, @w&lt;<bf>inout</bf> @RPC2(PacketBuffer) *Reply&gt;,
+	P1=`ConnHandle, PD1=`,
+	P2=`SDesc, PD2=`,
+	P3=`Reply, PD3=`,
+	CC1=`@RPC2(SUCCESS),
+	CC2=`@RPC2(SEFAIL1),
+	CC3=`@RPC2(SEFAIL2),
+	CCD1=`,
+	CCD2=`,
+	CCD3=`,
+	Text=`Called just after Reply has been received, after decryption and host
+	    ordering of header fields.
+	    Examine the SideEffectFlags and SideEffectDataOffset fields to 
+	    determine if there is piggy-backed side effect data for you in
+	    Reply.  If you remove data,
+	    remember to update the BodyLength field of the header in Reply.
+	    SDesc points to the side effect descriptor.
+	    You will probably wish to fill in the status fields of this descriptor.  
+	    If the MakeRPC call fails for some reason, this routine will be called with
+	    a Reply of NULL.  This allows you to take suitable cleanup action.
+	)
+
+@PasCall(Tag=&lt;SEGetRequest&gt;,
+	CallName=`@SE(GetRequest),
+	ParmList=`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>inout</bf> @RPC2(PacketBuffer) *Request&gt;,
+	P1=`ConnHandle, PD1=`,
+	P2=`Request, PD2=`,
+	CC1=`@RPC2(SUCCESS),
+	CC2=`@RPC2(SEFAIL1),
+	CC3=`@RPC2(SEFAIL2),
+	CCD1=`,
+	CCD2=`,
+	CCD3=`,
+	Text=`Called just prior to successful return of Request to the server.
+	    You should look at Request, extract side effect data if any, 
+	    modify the header fields appropriately.
+	)
+
+@PasCall(Tag=&lt;SEInitSideEffect&gt;,
+	CallName=`@SE(InitSideEffect),
+	ParmList=`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>inout</bf> @SE(Descriptor) *SDesc&gt;,
+	P1=`ConnHandle, PD1=`,
+	P2=`SDesc, PD2=`,
+	CC1=`@RPC2(SUCCESS),
+	CC2=`@RPC2(SEFAIL1),
+	CC3=`@RPC2(SEFAIL2),
+	CCD1=`,
+	CCD2=`,
+	CCD3=`,
+	Text=`Called when the server does an @RPC2(InitSideEffect) call. You will
+	    probably want to examine some fields of SDesc and fill in some
+	    status-related fields.  Note that there is no requirement that 
+	    you should actually initiate any side effect action. You may choose
+	    to piggy back the side effect with the reply later.
+	)
+
+@PasCall(Tag=&lt;SECheckSideEffect&gt;,
+	CallName=`@SE(CheckSideEffect),
+	ParmList=`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>inout</bf> @SE(Descriptor) *SDesc&gt;, @w&lt;<bf>in</bf> long Flags&gt;,
+	P1=`ConnHandle, PD1=`,
+	P2=`SDesc, PD2=`,
+	P3=`Flags, PD3=`,
+	CC1=`@RPC2(SUCCESS),
+	CC2=`@RPC2(SEFAIL1),
+	CC3=`@RPC2(SEFAIL2),
+	CCD1=`,
+	CCD2=`,
+	CCD3=`,
+	Text=`Called when the server does an @RPC2(CheckSideEffect) call.  The Flags
+	    parameter will specify what status is desired.  You may have to 
+	    actually initiate the side effect, depending on the circumstances.
+	)
+
+@PasCall(Tag=&lt;SESendResponse&gt;,
+	CallName=`@SE(SendResponse),
+	ParmList=`@w&lt;<bf>in</bf> @RPC2(Handle) ConnHandle&gt;, @w&lt;<bf>in</bf> @RPC2(PacketBuffer) **ReplyPtr&gt;,
+	P1=`ConnHandle, PD1=`,
+	P2=`ReplyPtr, PD2=`,
+	CC1=`@RPC2(SUCCESS),
+	CC2=`@RPC2(SEFAIL1),
+	CC3=`@RPC2(SEFAIL2),
+	CCD1=`,
+	CCD2=`,
+	CCD3=`,
+	Text=`Called just before the reply packet is network-ordered, encrypted and transmitted.
+	    You may wish to add piggy-back data to the reply; modify the BodyLength
+	    field in that case.  If you are not piggybacking data, make sure
+	    that the side effect is complete before returning from this call.
+	
+	    If you need more space than available in the buffer passed to you, you may 
+	    allocate a larger packet, copy the current contents and add additional data.
+	    Return a pointer to the packet you allocated in ReplyPtr: this is the packet
+	    that will actually get sent over the wire.  DO NOT free the buffer pointed to
+	    by ReplyPtr initially.  If you allocate a packet, it will be freed immediately
+	    after successful transmission.,
+	)
+
+
+@PasCall(Tag=&lt;PrintSEDescriptor&gt;,
+	CallName=`@SE(PrintSEDescriptor),
+	ParmList=`@w&lt;<bf>in</bf> @SE(Descriptor) *SDesc&gt;, @w&lt;<bf>in</bf> FILE *outFile&gt;,
+	P1=`SDesc, PD1=`Guaranteed to refer to your type of side effect.,
+	P2=`outFile, PD2=`Already open and ready to receive bytes.,
+	CC1=`@RPC2(SUCCESS),
+	CCD1=`,
+	Text=`Called when printing debugging information.  You should print out SDesc, suitably formatted, on outFile.,
+	)
+
+@PasCall(Tag=&lt;SESetDefaults&gt;,
+	CallName=`@SE(SetDefaults),
+	ParmList=`@w&lt;<bf>out</bf> @XXX()Initializer *SInit&gt;,
+	P1=`SInit, PD1=`An initializer for this side effect, XXX.,
+	CC1=`@RPC2(SUCCESS),
+	CCD1=`,
+	Text=`Called to set SInit to appropriate default values.,
+	)
+
+
+@PasCall(Tag=&lt;SEActivate&gt;,
+	CallName=`@SE(Activate),
+	ParmList=`@w&lt;<bf>in</bf> @XXX()Initializer *SInit&gt;,
+	P1=`SInit, PD1=`Initialization values to be used for this side effect, XXX.,
+	CC1=`@RPC2(SUCCESS),
+	CCD1=`,
+	Text=`Called to activate this side effect type.  The body of this procedure should allocate and fill in
+		a routine vector in the side effect table in file se.c. It should also obtain its initialization
+		parameters from SInit.
+	)
+
+
+
+
+</manpage>
