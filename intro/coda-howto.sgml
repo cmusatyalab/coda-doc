@@ -301,6 +301,9 @@ Get the installer files for servers and clients from <URL
 URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/win95" 
 NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/win95">. 
 
+The Server has not been tested on Windows 95 and might not run at all.
+Use the Server for Windows NT instead.
+
 Install these by double clicking on the installer files.
 
 <bf/NOTE:/ Before you start, make sure you know the IP address of your
@@ -312,7 +315,7 @@ address offered is that of the testserver at CMU.
 
 Do all your work as administrator. 
 
-First get the Cygwin kit from 
+First get the Cygwin B19 kit from 
 <URL
 URL="http://www.cygnus.com/misc/gnu-win32/"
 NAME="http://www.cygnus.com/misc/gnu-win32/">
@@ -531,7 +534,7 @@ help with this.
 messages appear in <tt>/var/log/messages</tt>
 </itemize>
 
-<sect1>Windows 95: Starting and Configuring a Coda client<P> 
+<sect1>Windows 95: Starting and Configuring a Coda client<label id="sec-win95-start-conf"><P> 
  
 During installation you will be prompted for the IP address of
 your client and of your Coda server(s).  Enter this as indicated.
@@ -585,11 +588,11 @@ unmount.exe
 </verb>
 </tscreen>
 This will stop <tt>relay.exe</tt> (if it is still running)  and unload
-<tt>mc.vxd</tt> which was loaded by <tt>relay.exe</tt>.  
+<tt>codadev.vxd</tt> which was loaded by <tt>relay.exe</tt>.  
 </enum> 
 
 
-<sect1> Codasrv -- the server <p>
+<sect1> Codasrv -- the server <label id="codasrv"><p>
 
 <sect2>Configuring your server<p>
 
@@ -608,12 +611,18 @@ partition must be around 4% of the total size of the files you wish to
 store under /vicepa (e.g. on a 2GB server we use around 80M of rvm
 data). For first installations we recommend the default 22M options.
 
+<bf>Note: </bf> Windows NT Setup creates the file c:\coda\rvm\DATA. Use 
+this for RVM metadata.
+
 <tag/virtual memory/  The metadata is memory mapped.  You need that
 amount of space as virtual memory on your system, in addition to
 virtual memory to run the server (~5MB) and other software.
 
 <tag/RVM transaction log/a LOG file, preferably a raw partition on a
-disk by itself. This 	needs not be large.  
+disk by itself. This 	needs not be large. 
+
+<bf>Note: </bf> Windows NT Setup creates the file c:\coda\rvm\LOG. Use 
+this for RVM transaction log. 
 
 <tag/secret tokens/two secret tokens of _exactly_ 8 characters (eg
 elephant).
@@ -632,6 +641,9 @@ vice-setup
 and answer its questions.  Note down the commands that vice-setup
 prints out for you at the end.
 
+<bf>Note: </bf> For Windows NT you will need the Cygwin B19 Shell which can
+be started from the "Start" menu. The shell uses the c:\coda directory as the
+root mountpoint "/".
 
 <sect2> Running Vice:<p>
 
@@ -1531,10 +1543,12 @@ in the section 386Enh by typing "device=C:\usr\coda\bin\mcstub.vxd".
 <item> Add the path <tt>c:\usr\coda\bin</tt> to the PATH environment variable 
 in <tt>c:\autoexec.bat</tt>.
 <item> Restart the computer. 
+<item> The programs clog.exe, ctokens.exe, cunlog.exe, cfs.exe, hoard.exe, codacon.exe, venus-setup.bat will be build with the coda server for NT.
 </itemize>
 
 You are now at the point where the installer would have left you. To
-start Coda read the XXXX Marc put in a REF. 
+start Coda read the section <ref id="sec-win95-start-conf" name=
+"Windows95: Starting and Configuring a Coda client">. 
 
 
 <sect1> Building and installing a Coda Server for NT <p>
@@ -1612,40 +1626,59 @@ with the one from:
 <URL URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/support/nt-patches"
 NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/support/nt-patches">
 
-<item> get bash going (its in the Cygwin package, see the install section).
+<item> get bash going. It can be started from the "Start" menu.
 
-<item> organise your mountpoints for Cywin.  Find a large directory say
-<tt>C:\coda</tt>
-that can serve as your "Coda root" on NT and type
+<item> organise your mountpoints for Cywin.  You will find the root volume 
+mounted on <tt>c:\</tt>. Change this to <tt>c:\coda</tt> by typing:
 
 <tscreen>
 <verb>
-mount -b //C/coda /
+umount /
+mount -b C:\coda  /
 </verb>
 </tscreen>
-The -b, for binary mounting is vital. 
+The -b, for binary mounting is vital.
 
-<item> We need /bin/sh in several places.
+<item>For your convenience add the entry 
+<tscreen>
+<verb>
+SET HOME=C:\Coda
+</verb>
+</tscreen>
+in the file <tt>cygnus.bat</tt> somewhere in the Cygwin path.
 
+You can also create the file <tt>.bashrc</tt> in the <tt>c:\coda</tt> directory
+which gets called, when the Cygwin shell gets started. We set the export path
+(described below) and cd to the home directory that way.
+
+<item>Create some directories, create <tt>/bin/sh</tt> and export the path by 
+typing:
 <tscreen>
 <verb>
 mkdir /bin /vice /rvm /vicepa /tmp
+touch /rvm/LOG
+touch /rvm/DATA
 cp //C/Cygnus/B19/H-i386-cygwin32/bin/bash /bin/sh
 export PATH=/bin:$PATH
 </verb>
 </tscreen>
 
-<item>  install your Coda stuff.  Suppose the coda-4.5.1 area is a mapped
-drive on the NT machine with drive letter H:
-
-In bash: 
-
+<item>Install your Coda stuff build as described above. Suppose the coda-?.?.? 
+area is a mapped drive on the NT machine with drive letter H: type in bash: 
+<tscreen>
+<verb>
 cd //H/
-<item>
-Copy all the .exe files you built above to /bin
+cp * /bin
+</verb>
+</tscreen>
+or use the Windows Explorer. The binary files might not have the extension 
+<tt>.exe</tt>. In that case just change the name, but distinguish between 
+bash shell scripts and binaries.
 </enum>
 
-
-
+You are now at the point where the installer would have left you. To configure
+and start the server read the section <ref id="codasrv" name="Codaserv -- the 
+server">. 
 
 </article>
+
