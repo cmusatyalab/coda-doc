@@ -1,0 +1,211 @@
+<!doctype linuxdoc system>
+
+<article>
+
+<!-- Title information -->
+
+<title>Server Internals
+<author>Peter J. Braam, <tt/braam@cs.cmu.edu/
+<date>v0.9, 15 June 1997
+
+
+<sect> Callback management in the server <P>
+This code is in vicecb.cc. 
+
+Callback management handles a hash table for FileEntry's and for
+CallBackEntry's.  A CallBackEntry is attached/removed to each
+FileEntry as needed. A CallBackEntry contains a pointer to the host
+HostTable (the host (vicedep/srv.h) so that the host to notify can be
+found back. All structures are managed in VM.  For locality of
+referenence, CallBacks and FileEntry are allocated in blocks. Routines
+are present to delete the callbacks for a Fid, or to remove all
+backbacks for a Venus which has failed.
+
+<sect> Volume Package <P>
+The following volume related structures are around:
+<enumerate>
+<item> Volume: defined in volume.h. A VM structure held in a hash
+table. Contains quite a lot of information, such as a pointer to a
+volHeader, Device, partition, vol_index, vnodeIndex, locks and other
+run time data. 
+<item> VolumeDiskData: defined in volume.h. An RVM structure holding
+the persisten data associated with the volume. 
+<item> volHeader: defined in volume. h, appears to be a VM structure
+sitting on a dlist. Contains a VolumeDiskData structure and points to
+a Volume structure.  
+<item> VolumeData: defined in camprivate.h. An RVM structure, points
+to VolumeDiskData points, to SmallVnodeLists (with some contstants
+related to these, and to BigVnodeLists. 
+<item> VolHead: defined in camprivate.h. An RVM structure containing a
+VolumeHeader and VolumeData. 
+<item> VolumeHeader: defined in volume.h. Contains the volumeid, type
+and parentid. 
+</enumerate> 
+
+In RVM an array is set up at initialization time: VolHead
+VolumeList[MAXVOLS]. 
+
+The VInitVolumePackage sets up a lot of other structures related to
+volumes and vnodes. 
+<enumerate>
+<item> InitLRU: calloc a sequence of volHeader's, then call
+ReleaseVolumeHeader to put it at the head of the volumeLRU. 
+<item> InitVolTable: sets up a volhash table, hashing volid's to get
+the index in the VolumeList.
+<item> VolumeHashTable: Hash table used to store pointers to the
+Volume structure 
+<item> VInitVnodes: setup of the vnode lru caches. Store summary
+information in the VnodeClassInfoArray for both small and large
+vnodes. 
+<item> InitLogStorage: go through the VolumeList and assign
+recoverable resolution log memory for every volume; store the pointer
+in VolLog[i]; This memory appears not to be released and reassigned
+upon each startup. 
+<item> Check the vldb.
+<item> Find server partitions.
+<item> Run S_VolSalvage: this goes directly through the directory
+contents, without invoking the buffer cache. 
+<item> FSYNC_fsInit: sets up a thread to watch over volume relocation
+issues. No idea if this still works.
+<item> Now iterate through all volumes and call VAttachVolumeById, to
+instantiate the VM volume information and attach the volumes.  When
+attached call InitVolLog which initialize pointers in VM for
+resolution. The pointers give olists, whose elements correspond to the
+vnode rec_smolists.  Finally create a VNResLog for each of the olist. 
+entries. 
+Set the RVM log transients for this volume.
+<item> Finally write out the /vice/vol/VolumeList file (VListVolumes).
+<item> The Vinit variable is now set to 1. 
+</enumerate>
+
+<em/Attaching a volume/ is described in AttachVolumebyId and
+attach2. It means allocating a Volume structure in VM, finding its
+partition, finding its VolHeader on the LRU, locating the
+VolumeDiskData.  If the volume needs salvaging, or appears to be inuse
+already, or not blessed don't attach it. Now insert the Volume
+structure into the hash table, and initialize some vnode information
+in the volume structure.
+
+
+
+
+<sect>
+
+
+VInitVolumePackage
+    InitLRU
+    InitVolTable
+    VInitVnodes
+    VInitVnodes
+    InitLogStorage
+    VCheckVLDB: checks header of disk VLDB, reports size
+    check partitions & call: VInitPartition: puts partition in olist
+    S_VolSalvage:
+    FSYNC_fsInit: what are volume relocations????
+    attaches all volumes:
+      GetVolPartition: check consistency of index and volid in RVM, return parti
+tions info.
+      VAttachVolumeById
+          Lookup in hash table
+          if found take out of hash table
+          sanity checks followed by 
+          attach2
+              callocs a volume structure
+              GetVolumeHeader: take lru slot;  the vp header appears to maybe re
+side in hash table 
+              VoldDiskInfoById: link the vp with the RVM information (looks up t
+he header in hashtable)
+                    if this fails the volume is freed up again. 
+              Tests if volume needs to be salvaged: ec set to VSALVAGE
+              more of sanity and destroy
+              AddVolumeToHashTable
+              Set up uniquefier
+              null VM bitmaps, then fill them in.
+          If vp == NULL and other things: FSYNC_askfs else
+          VUpdateVolume
+              WriteVolumeHeader
+              if error VForceOffline
+          if error: VPutVolume
+          VAddToVolumeUpdateList: update time stamps, calls VUpdateVolume (again
+??)
+          VAppenVolume is called to add to VolumeList if system is up and not li
+sted yet.
+      InitVolLog
+      V_VolLog
+    VListVolumes: dump partitions and volumehash table to VolumeList
+
+
+Finding volumes by name:
+
+ViceGetVolumeInfo
+        VRDB.find by name
+        if not found try to find by id (VRDB.find nasty casts)
+        if found: call
+             vrent::GetVolumeInfo for the entry 
+                     fills in VSGADD stuff
+                     special case for canonicalize
+                     fills in the replica volid's in INFO           
+        else 
+             VGetVolumeInfo
+                     gets it out of the VLDB_fd
+             if successful & ROVOL: calculate GetVSGAddress
+             elseif RWVOL lookup the volumeinfo for a replicated volume
+        return information
+
+
+VgetVolume and VPutVolume are probably like iget iput.
+
+
+
+<itemize>
+<item> Volume databases (text) 
+<item> <tt>/vice/vol/VolumeList</tt> Holds partition and volume
+information for volumes for which this server is custodian.  This is
+file is generated by srv.   
+<item> <tt> /vice/vol/groupid</tt> is maximum replicated volume id
+allocated so far.  
+<item> <tt> /
+
+<item> HOSTS (text) 
+<itemize>
+<item> Entries describe volume storage groups: 
+ id  hostname1 hostname2 etc.  Stored in /vice/db/VSGDB
+<item> <tt>/vice/db/hosts</tt> servers should be in this file.  Servers found in
+ the VSGDB are checked to be in this file before proceeding to make a volume. 
+<item> <tt> /vice/db/servers</tt> contains an id for each server. 
+</itemize>
+</itemize>
+
+Createvol_rep works as follows:
+Parameters are: <volname> <vsgaddr> <partition-name> [<groupid>]
+<itemize>
+<item> check we are the SCM
+<item> Check that the volname doesn't appear in AllVolumes or VRList
+<item> Get the list of servers from the vsgaddr using the VSGDB
+<item> verify the servers against /vice/db/hosts
+<item> get a new replicated id for this replicated volume using the
+<tt> /vice/vol/groupid</tt> file
+<item> use volutil to create the volume on each host, using the
+partition, volumename and groupid acquired before. Note that each server now
+assigns a volume id for this newly created volume.  It dumps
+
+
+<sect1> 
+bldvldb.sh <P>
+<itemize>
+<item> get <tt> /vice/vol/VolumeList </tt> from each server in <tt>
+/vice/db/hosts</tt>. Names is $server.list.new. First try this using
+ftp, then rfs, then krcp. 
+<item> if the file was acquired move it to <tt>
+/vice/vol/remote/$server.list</tt>
+<item> dump them all in <tt>/vice/vol/BigVolumeList</tt>
+<item> volutil rebuilds the VLDB with <tt> volutil makevldb
+/vice/vol/BigVolumeList</tt> 
+</itemize> 
+
+Note this rebuilds the VLDB on the machine where is script is run,
+i.e. the scm. 
+
+
+
+</article>

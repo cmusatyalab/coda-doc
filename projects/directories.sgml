@@ -1,0 +1,181 @@
+<title> Coda Directory handling. </title>
+<author> Peter Braam </author>
+
+<section> Client Side <P>
+
+Directories are used by the kernel code and by Venus, to implement the
+filesystem operations for the Coda filesystem.  Most of these
+operations initiate in the user program making a system call such as
+"create", "mkdir", "rmdir" or "readdir".
+
+These calls trap to the kernel and lead through the kernel VFS layer
+into the Coda specific filesystem code. Inside the filesystem code
+routines like coda_mkdir handle the request, which on the whole are
+not more than sanity checks followed by an upcall to Venus, which will
+perform the request.  However, there is one important exception which
+is the readdir operation, which never reaches Venus (although Venus
+does a great deal of preparatory work for it.).
+
+Readdir is the system call which allows a user process to read
+directory entries out into a user buffer. In Coda this is accomplished
+in many steps.  Let us go through the mock C program
+
+<code>
+main ()
+{
+ dir = opendir("/coda");
+ while ( next = readdir(dir) ) {
+   print(next);
+ }
+ closedir(dir);
+}
+</code>
+
+Summarizing the following happens:
+<enumerate>
+<item> The kernel passes the open request to Venus.
+<item> When the opendir call reaches Venus, it Fetches the directory in
+RVM in the same format as the server holds it in RVM.
+<item> The RVM directory is written out in a directory container file in
+the lcoal file system in a platform independent format.  
+<item> The readdir system call does parses this container file (without
+notifying Venus) and returns the results to the user.
+</enumerate>
+
+In more detail the following is going on:
+
+<enumerate>
+<item> The request from the kernel is dispatched by venus/worker.cc to
+vproc_vfscalls.cc: vproc::open. This invokes the fsdb::Get method to
+fetch.
+<item> Get creates an fso object for the directory:
+ <enumerate>
+   <item> the attributes of the directory are acquired.
+   <item> the fields in the directory structure are zeroed out
+   (fso_cfscalls0.cc:191)  
+   <item> the data in the directory fso has size of VenusDirData +
+   length.  The VenusDirData structure is described in fso.h and
+   contains the following information:
+  <enumerate>
+     <item> A mallocbitmap of length MAXPAGES
+     <item> An array VenusDirPage *pages[MAXPAGES]
+     <item> a flag to say if the UFS directory container file is valid:
+     udcfvalid.
+     <item> a pointer CacheFile *udcf
+     <item> padding.
+  </enumerate>
+ <item> the SFTP side effect parameters are set up to
+   prepare for the ViceFetch to deliver the data in situ. The pageptr
+   points to the block of size Length.  
+ <item> the rpc is made and the dominant host is asked to send the file
+   data.  This is handled in srvproc.
+      1. ViceFetch does a FetchBulkTransfer in case the host handling
+      the rpc is the primary host.
+      2. The directory inode is found at inArr =
+      vprt->disk.inodeNumber
+      3. It's data pages are at: inArr->Pages[]
+      4. These pages are copied to a temporary buffer, buf
+      5. The size of the bulk transfer is computed by adding a page
+      size for every non NULL inArr->Pages[i] buffer. This array has
+      MAXPAGES entries and they are checked until a NULL entry is
+      found.
+      6. The copying of the pages into buf proceeds similarly. 
+      7. The SFTP transfers the buffer to the client.
+
+<item> vproc::open does sanity and access control checks: it proceeds to
+call fso_cfscalls2.cc: fsobj::Open.  
+
+<item> The object is locked (until Close arrives).  If we are dealing with
+a directory it is checked if the udcf is NULL.  If so the fso's
+container file is used. Now we will copy the RVM contents into the
+container file in a suitable BSD format using the fsobj::dir_Rebuild
+routine fso_dir.cc:
+  <itemize>
+     <item>  a RebuildDirHook hook is used to copy some arguments into.
+     <item>  The CVOpen method is called with the name and address of the
+     hook.cvd. 
+        <enumerate>
+        <item> CVOpen opens the container file, and sets cvd->dirFD,
+	 cvd->dirBytes, cvd->dirPos. 
+	<item> Something obscure is done: if minFreeSize == -1 that
+	 variable is reset to equal DIRSIZ of a dirent with a
+	 d_namlen of 1. Why???? 
+        </enumerate>
+     <item>  fsobj::Lookup is called to get the "." and ".." entries.
+     These are written into the container file with CVWriteEntry (see
+     below).  The inode number is computed explicitly
+     here. Dangerous!! 
+     <item> Before closing (CVClose) fsobj::Enumerate dir is called to
+     iterate through the directory in RVM and call RebuildDir.  This
+     just recomputes the inode number once more and calls CVWrite
+     skipping the "." and ".." entries.
+     <item> CVWrite is the heart of the routine that writes out container
+     files with directories. It will be worth comparing this carefully
+     to the BSD44 code which writes directory files, since it seems
+     quite strange. 
+		i) XXX calls strlen instead of strnlen
+		ii) XXX I don't think that the blocksizes should matter at
+		all.  A file is a file is a file. 
+		iii) XXX It doesn't refer to venus_dirent relying on
+		the include files to provide the right format.
+		iv) XXX RebuildDir seems to do the same as
+		fsobj::dir_Rebuild. We can't have both.
+		v) XXX We comput fileid's in at least 5 places. Asking
+		for accidents!!!
+      The only place where the directory cache file is modified is in
+      CVWrite and this routine is highly suspicious.
+
+EnumerateDir gropes into the core of the rvm directory
+structures. These are hash tables/LRU tables of blocks holding
+directory entries.  We proceed to describe this system.  This
+subsystem is used on both servers and clients.
+
+Still to analyze:
+ a) where are the attributes of the directories compared (which
+ generates inconsistencies if they are not identical on all servers):
+
+   The Fetch routine acquires attributes (status variables) and
+   compares the version vectors of these. It appears as though the
+   client doesn't judge the contents of these, but merely checks the
+   last modification stamp and version vectors.  If this is true a
+   client cannot detect different directory sizes.  Different
+   directory sizes can only occur through operation happening
+   on servers in the VSG over time.  Perhaps the different sizes
+   are detected upon resolution? (which then marks the object "in"
+   conflict?) 
+
+   In stage 2 a decision is made to see if the incore copies of the
+   directory need to be resolved.  Here CompareDirStatus does an evil
+   comparison of the size of the directories. Then CompareDirContents
+   is called which could again only too easily create conflicts.
+
+   I suspect that the last part of phase 4 is also at fault:
+   rvmrescoord.cc: CoordPhase4 calls rescoord: CompareDirContents
+   which goes way overboard in making a bit by bit comparison of
+   directories. This will fail in so many cases that it is amazing it
+   isn't always failing.  Should be easy to detect this.  By putting
+   the debuglevel to 10, the directories are written out onthe
+   coordinator in /tmp and can be compared manually.  This is very
+   valuable, since it might show the format of a directory entry in
+   RVM (Norton can do this too I suppose?).
+
+
+ b) what exactly is wrong when fake directory entries appear? Like on
+ the testserver where we have banana somewhere in a directory file.
+ Here norton can maybe show us the contents of the bad directory in
+ RVM. This would allow a one-shot solution to the problem. Ask Josh.
+
+
+ c) are Unix semantics for directories OK in Coda? I doubt it very
+ much.  Venus can block on a write in CVWrite and in the mean time a
+ user process can access an incompletely filled directory and get very
+ confused.
+
+
+
+Worst written call in Coda: fsobj::Fetch ... sit down with Lily to
+clean it up.  It's INCOMPREHENSIBLE.
+
+a) What is a local object?
+b) What are replica control rights (RCRights)
+c) What is a dirty fsobj

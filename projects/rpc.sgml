@@ -1,0 +1,112 @@
+ViceConnectFS: client request to connect to a fileserver
+  get a private pointer to the client using the RPCId
+  make a callback connection using MakeCallBackConn(client)
+
+ViceGetRootVolume: open /ROOTVOLUME and copy the contents into the reply
+buffer. Return this to the client
+
+ViceSetRootVolume: open /ROOTVOLUME and write a new name in it.  There
+is no client making this rpc; this is a pity.
+
+ViceNewConnections: called the first time a client connects to a
+server. Copies out the Secret Token from the packet sent and looks the
+ViceId up in the authorization database. It then builds a new client
+entry.  BuildClient checks that it can find a private client area (**
+and erroneously frees it?? **) and builds a ClientEntry which is
+stashed in the private pointer for the connection entry.  There is a
+chain of connections for each (client) host and this connection is now
+put in the chain.
+
+ViceDisconnnectFS: remove a client entry associated to the host (clientproc.cc). 
+
+ViceProbe: see if a server is alive.
+
+ViceFetch: Fetches a directory or a File. 
+
+  First switches on RequestType: if ViceFetchNoData or
+  ViceFetchNoDataRepair then attributes or ACL's are returned.
+  This translates the Fetch request to a ViceGetAttr or ViceGetACL,
+  depending on the length of the AccessList->MaxSeqLen.
+  
+  Throughout inconsistency is OK if we are in a Repair situation
+  otherwise it is not ok.  This is passed to other routines.
+
+  ValidateParms applies piggy backed cop2 operations, extracts a
+  client entry from the RPC2Handle and translates the replicated group
+  id to a volume id applicable for this server. XLatVid looks in the
+  vrdb and fills in a pointer.
+
+  After validation of parameters and sanity checking the volume is
+  added to the vlist (** not properly locked) or located if it was in
+  the vlist already.  
+
+  This is followed by a GetFSObj routine trying to get the object with
+  a READLOCK. This translates directly to GrabFSObj, which is more
+  involved.
+
+  GrabFSObj If the v->volptr is still zero first the volume is looked
+  up, using GetVolObj.  GetVolObj starts with GetVolInfo which is the
+  same routine answering most of the VGetVolInfo to Venus.  A messy
+  piece of code tries to lock the volume.
+
+  VGetVnode proceeds to get the Vnode.  Maybe it is in the hash table,
+  maybe it has to be read out of the volume VnodeTable. The version
+  vector of the Vnode is checked to see if it is inconsistent or
+  barren (** what is this).  The use count of the vnode is increased
+  and if it now equals 1, the vnode is taken off the LRU chain. Messy
+  code tries to lock the vnode with a read or write lock.
+
+  If the vnode is not a directory the parent is looked up. After this
+  the access semantics can be checked by CheckFetchSemantics.
+
+  We are now ready to honour the request the client made. If we are
+  the primary host or the operation is for a non replicated volume, we
+  do the FetchBulkTransfer.  This is a nice rpc2 routine using the
+  side effects. Probably this routine can block.  If the object to be
+  fetched is a directory it is copied out of rvm into a temporary
+  buffer. PerformFetch does nothing. 
+
+  Finally we add a callback with CodaAddCallBack which modifies server
+  data and does AddCallBack.  This manipulates some has tables.  The
+  return value is report ed to the client in the status fields.
+
+GetAttr: gets attributes for a Fid.  Proceeds similarly to fetch,
+but is simpler.  After getting volumes and vnode the Status is filled
+out with the Vnode attributes which are returned to the client.
+
+Interestingly the client receives a callback for the attributes it
+fetched. 
+
+ViceValidateAttrs:  does a GetAttr on a list of fids in one blow. 
+
+ViceGetACL: fetches the ACL for a Fid. 
+
+ViceNewSetAttr: proceeds similar to the above.  Get the volume and vnode
+and make sure the semantics are OK.  Now things get interesting.
+  
+  In prepartion for performing the operation, it is ascertained that
+  the object has a resolution log into which the operation can be
+  logged.
+
+  Next the server gets a version stamp in GetMyVS.  It looks up the
+  entry of this host in the VRDB for the volume and gets a stamp from
+  the list of VS's for this host.
+
+  Now we go into PerformNewViceSetAttr.  This begins by breaking the
+  callbacks on the object.  Next we do a copy on write in case we
+  truncate the inode and it is cloned.  This is an expensive operation
+  involving reading and writing rvm or files. 
+
+  We proceed in PerformNewViceSetAttr with NewCop1Update.  This
+  increments the version vector component for this replica.  If a
+  volume version stamp was sent in, increase it if it mathces.  Now
+  increase the version vector as said and record the StoreId which was
+  sent in by the client. Finally set the COP2 operation pending
+  flag. We finish by recording the entry in the COP2pendingmanagers
+  queue.
+
+  We return to ViceNewSetAttr here and set the Status for the reply to
+  the client.  If the object is replicated we also set the version
+  stamp we generated. Finally the resolution log record is spooled.
+
+ViceSetACL: proceeds very similar to ViceNewSetAttr. 

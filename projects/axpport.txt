@@ -1,0 +1,95 @@
+Hello Jim,
+
+I enjoyed talking to you a lot.  It's great you are tinkering with an
+AXP port for Coda.
+
+Most machines now have an LP design. This means that Longs and
+Pointers are 64 bit, integers remain 32bit and shorts remain 16.
+Initially ILP designs were used too but these have disappeared.  An
+_excellent_ paper on porting 32->64 bit issues appeared in ;login:
+(sp?) a month or two ago and can also be found in Go Solo 2 (from
+opengroup.org).  I strongly recommend you read that again so that we
+are exactly on the same frequency discussing this.
+
+Regarding the Coda code the following:
+
+- the key issue is to get the types right so that a 64 bit Venus can
+talk to a 32 bit server. This involves many steps, some of which are
+quite involved.
+
+a) first you will need to port lwp to use some Alpha assembly for
+context switching.  Such code is shown in the RX package available
+from Transarc and can be adapted for Coda.  Should not be hard.  There
+are a few test programs in the lib-src/mlwp directory which will
+confirm basic functionality of the package.
+
+b) I would then proceed to rpc2.  This uses many longs, but most are
+carefully defined as RPC2_Long.  RPC2 would have used ints if it had
+been written in 1998 -- in view of the ILP business.  Many of these
+longs go over the net so need to be 32 bit to match other platforms. I
+would continue to have a layer of indirection between the system and
+RPC2, using types like RPC2_Long or better RPC2_Int, but make sure
+that it uses 32 bit ints.
+
+There are test programs in the rpc2 package and these should be run
+from an Alpha machine to a 32 bit architecture.  This might be a bit
+of work but should be straightforward.
+
+c) From here we go to RVM. RVM is our transaction package (Recoverable
+virtual memory).  RVM is probably 64 bit clean but there is probably also a flag which would be desirable to use, to enable the following. Even on 32 bit architectures, RVM supports data segments which are longer than 2^32 bytes.  It does this by managing OFFSET types (or something like it) which have a high and a low component for the lower and higher 32 bits.  
+
+Here of course we should exploit 64 bit alpha arithmetic and rvm is
+already prepared to do this.  Why don't you browse that code and see
+if you can compile it, and run the rvm_basher.  This basher is a
+pretty good test of rvm, but you can only be satisfied that your code
+is right when it can run stably for days at a time.
+
+
+d) The next thing is to modify the rpc2 stub files (extension .rpc2,
+mostly in coda-src/vicedep) _AND_ coda.h so that on AXP the types are
+correct.  These are the things going over the network so they need to
+exactly match the types found on 32 bit architectures.
+
+Again, there are some small test programs which use this stub
+generator.  The simples two I can think of are the auth server and au
+(a small client) and the update server and client.  These would be
+easy to build and test across the 32/64 boundary.
+
+coda.h is contained in kernel-src/vfs/includes.  It is the single file which is shared by user level code and kernel code and it contains a typedef for ViceFids (which travel all the way from servers into kernel -- so they need to be 32/6 bit safe).  The longs here should become ints.
+
+There is a small program called potemkin which would test an awful lot
+of this stuff.  Potemkin works with the kernel like Venus, and
+"serves" a local directory.  So insmod coda potemkin -rd /home/braam
+mounts /coda and all operations on /coda are redirected to operations
+in /home/braam by potemkin.
+
+e) The disastrous part is that fairly often in the code various
+programmers have used a "long" here and a VnodeT (Vnode type) there
+and freely assign one to the other.  
+
+These are the same on 32 bit, but NOT on AXP.  Finding all these longs
+and replacing them with the appropriate type is going to be quite a
+bit of work.  It will also require great familiarity with the code
+since in effect every long defined in Coda is suspect and will have to
+be investigated.  Perhaps I am the right person to help with that,
+since I know what most things are used for.
+
+This happens particularly in the Volume package. This package writes
+metadata to the RVM data files and I would want the layout of this
+data to be platform independent (as much as possible, read on).  If
+not, we could not dump a volume on one host and restore it on another.
+
+There are however some areas here where it is vital that true 64
+quantities are stored.  RVM holds pointers -- it must therefore be
+mapped into memory at exactly the same address each time the server
+starts.  These pointers are to become 64 bit.  Also most information
+is not stored in network order, though things that travel from one
+host to another (such as directories) _are_ stored in network order.
+
+This is a marvellous thing to work on.  I hope you will follow the
+order above, so that if you don't have time to complete it, others can
+take over easily by picking up where you left off.  When you get close
+to e) contact me, since I think I should do e) to make sure we catch
+all longs!
+
+- Peter -

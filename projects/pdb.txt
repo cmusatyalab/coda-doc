@@ -1,0 +1,117 @@
+The Protection Database -- lower edge
+
+This project aims to replace the protection database with a dbm type
+database, and a clean interface.
+
+The records in the protection database are described in detail in
+Satya's paper "Integrating Security in a large Distributed System". 
+A records contains (see sect 6.3):
+  - a string identifying a user or group name
+
+  - an integer, if positive making the name a user, if negative a
+  group. 
+
+  - if the record is a group name, the owner of the group is
+  determined by the string in the group preceeding the first colon.
+
+   - the remaining components of the records are three lists, the
+   third of which is  different for group entries and user entries.
+        - list 1: elements are groups this entry directly belongs to
+        - list 2: the CPS (see Satya, sect 4)
+	- list 3: for users, the list of groups owned by the id
+                  for groups, the list of direct members of this group
+      
+  - an access control list, containing two sublists:
+  the positive and negative right list. Each entry in each list is a pair 
+  ( id right)	    
+	 id is a user or group id defined in the pdb
+	 a right +1: permit/deny modification of this entry by "id"
+	         -1: permit/deny reading of this entry by "id"
+	 negative rights will override positive rights.
+   The access rights are applicable for modification of the pdb
+   database using the yps (Yale Protection Server). 
+	 
+
+
+
+Task 0: define an in core representation of the records more or less
+as follows:
+
+struct pdbrecord {
+       char *name;
+       int32 *id;
+       struct list_head member_of;
+       struct list_head cps;
+       union {
+          struct list_head owned_groups;
+	  struct list_head members;
+       } l3
+       struct acl *pdbacl;
+}
+
+Use the list.h routines found in the Linux 2.1 kernel (header
+/usr/include/linux/list.h and list.c). They are excellent macros.
+
+Task 2: define a serialization of this structure to a disk record.
+The records will contain a header like:
+
+struct pdbdiskrecord { 
+       int namelen;
+       int member_of_length;
+       int cps_length;
+       int l3_length;
+       int acl_lengt;
+} 
+followed by data. 
+
+These records must in principle be indexed by "id" (in network order),
+packed in network order (they are shared by servers of different
+endians), and stored in GNU dbm (gdbm) format.  (Install the gdbm rpm
+and read the info file and man page coming with it).  We will also
+want to search for records by name (I suspect). 
+
+Taks 3: 
+
+Routines will need to be written to accomplish the following: 
+ - convert a record to an in core representation
+ - convert an in core representation to the a disk record
+ - store, delete or read a disk record by id
+ - precompute the CPS in the format used by the server
+ - lock the database (using flock "pdb.lock") so that the fileserver can be
+ prohibited from reading the pdb while records are being looked up. 
+ - we need an index table to find records by name (use a second dbm
+ file) 
+ - dump the database in readable format. 
+
+This constitues the real bottom end of the interface.  From here up we 
+get:
+
+Task 4: 
+
+ - given a cps (pdb) do a check for lookup or modification in
+   the pdb.  The fileserver can _always_ look things up -- we may need
+   to think about this, since it should prove its authority. 
+ - create or remove a new user or group
+ - add a member to a group
+ - remove a member from a group
+ - the owner of a group can change the ACL on the group
+     - remove/add an entry in the ACL. 
+ - user records can probably only be modified by System:Administrators
+
+Pointers to source:
+ - the coda-src/pdbstuff directory defines conversions between text files and 
+   pdb databases.  Probably not very useful - this is exactly what we
+   want to get rid of.
+ - the libal directory contains a lot of routines to look up records
+ etc. It might be good to understand how the server uses an ACL and a
+ CPS to compute authorization. 
+
+There are obscure things here such as internal and external CPS's: I
+will help with this and make sure the fileserver can use the records
+you guys produce. 
+
+Prefix routines which are exported to the fileserver or other packages 
+with PDB_, static ones with pdb_.  Try not to expose structs, but use
+procedures to return relevant fields.  Write a simple test program to
+test _all_ your functions. 
+

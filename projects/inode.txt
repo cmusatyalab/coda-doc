@@ -1,0 +1,109 @@
+Inode Methods for Coda
+======================
+
+The fileserver will generally store its files under a directory named
+something like "/vicepa". On the whole it is reasonable to assume that
+/vicepa is a mount point of a partition by itself and is not used by
+other programs. Access to these files should be as fast as possible.
+Currently we use a tree system, but an even faster solution would be
+to create raw inodes.
+
+Under Mach there were the following system calls for this purpose:
+
+iopen(dev, inode) -- return a filehandle for file inode on device dev.
+icreate(dev) -- returns the inode number of a new file on device dev.
+istat(dev, inode, statb) -- fill in the statb structure.
+iinc(dev,inode) -- increase the disk link count of the file
+idec(dev, inode) -- decrease the disk link count (remove file when 0).
+
+Note that at kernel level open maps to a lookup operation which
+searches a directory, and iopen would try to bypass this.  Similarly
+stat maps to a lookup followed by a read-inode operation to get the
+attributes of the file.  istat would bypass the the lookup. icreate is
+quite different from create since it must return the inode number of
+the new file which has been created.
+
+Device numbers might be on their way out in Linux -- due to devfs so
+the arguments should probably change.
+
+Ted Tso and I discussed this over some coffee and he suggested the
+following clever solution for the implementation of the inode calls.
+Ext2 could be mounted -- either as a mount option or by modifying a
+bit in the superblock -- with a special flag "rawinode".  Raw inode
+uses some "reserved" filenames which allow for the following:
+
+If open is called on the file: 
+
+fd = open("/mntpnt/__#ino#__4711", flags, mode) 
+
+ext2 will open the file by inode number.  This means that in the
+lookup operation in the kernel which intercepts this open, the
+directory is NOT searched for name __#ino#__4711 but instead inode
+4711 is returned by the lookup.  It may be a good idea to NOT hash a
+dentry for this name in the hash table, since we think that using the
+inode directly might be faster.  However we will have to create a
+dentry for the inode in any case.
+
+To mimic icreate we do something similar:
+
+fd = open("/mntpnt/__#icreate#__, O_CREAT ...) 
+
+This lookup will be called and will -- without consulting -- the
+/mntpnt directory return ENOENT, upon which ext2_create is called.
+Create treats the name as a special case and finds an unused inode and
+allocates it.  Now we face two choices.  Either we put a bogus name
+__#inoname#__4712 in the /mntpnt directory (in which case e2fsck will
+work fine), or we do not create a name in the directory, in which case
+we need to modify fsck a bit (not a problem either) to not consider
+the inode lost.  In fact we could ask Ted Tso for a bit in the
+superblock to indicate that fsck should not move lose inodes to
+lost+found. I think it is better not to create a funny name but to
+modify fsck.
+
+Since this open returns a filedescriptor, the inode number (previously
+returned by icreate) can be retrieved using fstat(fd, &statbuf).
+
+Now we have enough to do:
+iopen
+istat
+icreate.
+
+iinc and idec are easy too: we simply call
+link("/mntpnt/__#ino#__4711", "/mntpnt/__#iinc#__")
+and 
+unlink("/mntpnt/__#idec#__4711")
+and make similar modifications to lookup, link and unlink. 
+
+One will have to be carefull with the dentry's involved in these
+special names, but they can probably be easily prevented from entering
+the dcache by modifying lookup.  In some cases having them will do no
+harm.
+
+I think the path forward with this project is now pretty clear:
+ 
+- use a recent 2.1 kernel.
+- hack ext2fs_lookup to treat the case of /mntpnt/__#ino#__4711 as a
+special case.  Try to not put a dentry in the hash table for it. 
+
+- hack ext2fs_create to handle /mntpnt/__#icreate#__ as a special case
+etc. (this is much more dangerous since you could hose your disk!!!!).
+
+Make sure to do your testing on a partition by itself.
+
+- implement this as a mount option, or perhaps activate this with an
+ext2fstools utility which sets a bit in the superblock, after which it
+becomes automatic.  Ted will guide us further on this.
+
+- change fsck to make ignore inodes not in a directory 
+
+- then put it to work in Coda. 
+
+Important files for you to read are in the linux kernel: fs/ext2/*,
+and the source to fsck and libext2fs.  The kernels can be found on ftp.kernel.org://pub/linux/kernel/v2.1/ and the sources to fsck and libext2fs can be found by downloading Red Hat srpms for: e2fsprogs. 
+
+Good luck, keep me posted and don't hesitate to ask questions.
+
+- Peter -
+
+
+

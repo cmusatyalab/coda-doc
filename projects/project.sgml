@@ -1,0 +1,228 @@
+<!doctype linuxdoc system>
+
+<!-- Here's an SGML example file. Format it and print out the source, and
+     use it as a model for your own SGML files. As you can see this is a
+     comment. 
+ -->
+
+
+<!-- Title information -->
+<article>
+
+<title>Coda Projects
+<author>Peter Braam <tt/braam@cs.cmu.edu/
+<date>v1.0, Sept 18, 1997
+<abstract>
+Coda projects for interested hackers</abstract>
+
+<sect> Introduction <p>
+
+Below you can find a collection of projects for Coda. The difficulty
+has been indicated, as well as whether the design has been discussed
+already. Please get in touch with us if you want to hack, to see if
+others are already on their way with the project you are interested
+in.
+
+All contributors will be asked to grant CMU an unencumbred license
+before code can be included in Coda. Of course we will give
+contributors credit.
+
+<sect> System administration <p>
+<descrip>
+<tag/Volume Creation/ 
+
+<tag/Database distribution/
+
+<tag/Server setup/
+
+<tag/Moving volumes/
+
+<tag/Shrinking or extending the VSG for a volume/
+
+<tag/Resolving a volume/
+
+<tag/Multi level backups/
+
+<tag/GUIs/
+
+</descrip>
+
+
+<sect>Client Utilities <p>
+<descrip>
+<tag/Failure utilities/
+
+<tag/Repair/
+
+<tag/Vutil (Venus utilities)/
+
+<tag/CFS/
+
+<tag/GUIs/
+
+</descrip>
+
+<sect> Peformance <p>
+<descrip>
+<tag/Write-back caching/
+
+<tag/Fast Inode Libraries/
+
+<tag/Kernel Inode access/
+
+<tag/Optimizing store through replay/
+
+<tag/Profiling/
+
+<tag/Piggybacking getattr/
+
+<tag/Read ahead/
+
+</descrip>
+
+<sect> Cells <p>
+<descrip>
+<tag/Naming of objects in remote cells/
+
+<tag/Locating cells/
+
+<tag/Remote volume location service/
+
+<tag/Locating file sets/
+
+<tag/Adapting the FID for cells/
+
+<tag/Optimizing store through replay/
+
+<tag/Profiling/
+
+<tag/Authentication to remote cells/
+
+</descrip>
+
+<sect> Security and user handling <p>
+
+For a general description of security issues see our Coda internals
+document on security.  Also Satya's paper is invaluable in
+understanding the concepts.
+
+<descrip>
+
+<tag/UID translation/
+
+It is desirable for Venus to translate a Coda uid to a client uid for authenticated connections.  Clients should have a translation table (to be manipulated by root) in the coda etc directory, giving Coda cells, uid's and their mapping to a local uid.  Whenever the kernel is handed a uid it should be handed the translated one.
+
+Example: suppose bovik has Coda uid 2 at CMU and 3 at MIT and uid 2 on
+his client. I envisage a translation file like:
+<verb>
+cmu   2   2
+mit   3   2
+</verb>
+
+The last column could even be replaced with the local username.  The
+default translation should perhaps translate ownership of Coda
+username to local usernames using the Coda and local uid.
+
+This will cause a ripple of small changes in the Venus code, and
+probably a few unexpected surprises in the authentication area.
+
+<tag/Linux minicache/ The Linux minicache does currently not store
+"cred" (uid) information in the minicache.  This gives a security
+problem since lookups will be serviced to unauthorized users.
+
+It is not difficult to implement this and the NetBSD code already has
+it. Make sure to update the /proc files to show the new entry.
+
+<tag/Kerberos/ This is a project that is ready to be implemented. A
+patch file is desired which changes Coda so that it uses a kerberos
+token for authentication. For reasons of exportability the patch file
+must remain separate from the distribution.
+
+The components of this task appear to be the following:
+<itemize>
+<item> Currently when a user authenticates, a session key is handed to
+Venus. This session key is used by RPC2_NewBinding to set up an
+authenticated and "encrypted" connection with the server.  Each time a
+new connection is established, the routine NewConnectFS should see if
+it has already acquired a kerberos session key. If so, this should be
+used by RPC2_NewBinding through a new GetToken routine. If not, it
+should see if a local TGT is available and get a session key from the
+TGS. 
+
+<item> Buffer sizes for the keys should be adapted.
+
+<item> Callback connections, failure package connections, resolution
+and volutil connections should be kerberized.
+
+<item> The mariner port should be changed from a TCP port to a
+kerberized RPC2 connection.
+</itemize>
+
+
+<tag/PTS/ Coda needs a server similar to PTS. While the code for this
+project is probably not terribly difficult to write, design decisions
+will have to be discussed.
+
+The project seems to have a couple of obvious components: 
+
+<itemize>
+
+<item> The <tt/.pdb/ database obviously contains sensitive information. Any
+manipulation should be through authenticated connections only.
+
+<item> The PTS server needs to have write access to the database, the
+fileserver needs to have readonly access to the database. Locking must
+be done properly.
+
+<item> The fileserver will need to cache records and needs to be
+notified when to flush cache entries.
+
+<item> The database should do pre-computation of the CPS and have
+access through fast indices (currently the fileserver computes indices
+(the <tt/.pcf/ file).)
+
+<item> The database should be suitable for distribution to many
+servers.  Since write access will not be that frequent, a single point
+of entry for modifications (on the SCM) may be allright.
+
+<item> A significant amount of code cleanup in this area is
+needed. This is described in our internals document.
+
+<item> It would be nice if existing AFS pdb's could be converted to
+Coda pdb's.
+
+<item> Originally I thought that LDAP was the obvious choice, but I'm
+no longer sure.  Constraints in the choice of database are the
+following considerations:
+
+<enum> 
+
+<item> it needs to run on Unix and Windows NT, or a really thin layer
+needs to arange access to the database for each platform (I wouldn't
+like this).
+
+<item> if it has a transactional interface that would be best, but we could do without one.
+
+<item> it should have a perl interface for system administration
+purposes that would be best.
+
+<item> if it could be used by the volume package too that would save
+writing two interfaces: so this is a must.
+
+</enum>
+
+</itemize>
+
+<tag/Fortezza Encryption/ 
+
+SRI has suggested that storing files in encrypted form on the server
+is a good feature.  Particularly for military applications this is
+undoubtedly so.  Work is about to start to implement this. Components:
+
+<itemize>
+<item> Fortezza drivers: this is kernel work. 
+<item> Small modifications to the <bf> Store</bf> RPC to encrypt the data. 
+</itemize>
+
+</descrip>
+</article>
