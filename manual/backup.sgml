@@ -54,9 +54,8 @@ Practically, this system has been implemented as series of tasks:
 <item>create a readonly clone<P>
 <item>dumping the readonly clone to a local disk<P>
 <item>backing up the dumped data to a suitable archive media<P>
-</enum><P>
+</enum>
 <item>Restoring:
-<P>
 <enum>
 <item>Retriving appropriate full and incremental dumps from the archive media.<P>
 <item>integrating the full and incremental dumps to the time line of restoration.<P>
@@ -64,7 +63,7 @@ Practically, this system has been implemented as series of tasks:
 </enum><P>
 </itemize>
 <P>
-[Remeber, in practice, many restores are a result of a user accidently
+Remeber, in practice, many restores are a result of a user accidently
 deleting or corrupting thier own files.  In this case, users may use
 the the <tt>cfs</tt> mechanism to retrive files for the last 24 hour
 time line.  For example:
@@ -75,7 +74,7 @@ will mount the hmpierce's user backup volume from replica 0 to the
 OldFiles mount point.  The file can then be copied out (backup volumes
 are read-only). Only if restoration needs are older than 24-hours or some
 chatastrophic event outside of the users control occurs do restores
-from tape normally need be done]
+from tape normally need be done
 <P>
 Several tools have been developed to help in the creation, analysis, and
 restoration of data backups.  Some of these tools have been developed by
@@ -98,9 +97,10 @@ although it is not necessary to run a fileserver on the backup coordinator
 Assuming the Backup Coodinator has been setup with an appropriate
 operating system, the steps are as follows:
 <P>
-[NEEDS SECTION RECOMMENDING DATA/LOCAL DISK SPACE RATIO]
-<itemize>
-<enum>On the Coda File Server designated as the SCM, create a file called <tt>/vice/db/dumplist</tt>.  The dumplist contains three fields:
+<bf>NEEDS SECTION RECOMMENDING DATA/LOCAL DISK SPACE RATIO</bf>
+
+On the Coda File Server designated as the SCM, create a file called 
+<tt>/vice/db/dumplist</tt>.  The dumplist contains three fields:
 volume id# specified as its hex value, the full/incremental backup schedule,
 and a comment which is generally the human readable volume name.  
 For example:
@@ -120,28 +120,29 @@ the second volume #7f000002 is scheduled for a Full backup on Friday with
 incrementals being done Saturday through Thursday and is a user volume
 called "satya".
 <P>
-<enum> On the SCM, modify <tt>/vice/db/vicetab</tt> to indicate
+On the SCM, modify <tt>/vice/db/vicetab</tt> to indicate
 which host is acting as the backup coordinator and which partitions 
 on the backup server are to be used by the backup coordinator to store
 the dump files.  On a tripily replicated system, <tt>vicetab</tt> might
 look like this:
 <P>
-<code>
+<tscreen><verb>
 tye             /vicepa         ftree  width=8,depth=5
 taverner        /vicepa         ftree  width=8,depth=5
 tallis          /vicepa         ftree  width=8,depth=5
 dvorak          /backup1        backup
 dvorak          /backup2        backup
 dvorak          /backup3        backup
-</code>
+</verb></tscreen>
 <P>
 <tt>vicetab</tt>, in addition to listing information on the servers providing
 replicated data, must also include information on the backup coordinator with 
 backup coordinator's name in the first column, the backup partitions in the
 second column, and the designation "backup" in the third column.  The 4th
-column is not used for the backup sub-system.  Please see the <em>vicetab (5)</em> man page for additional information.
+column is not used for the backup sub-system.  Please see the 
+<em>vicetab(5) </em> man page for additional information.
 <P>
-[Note: that the number of partitions available for dumping may be
+Note: that the number of partitions available for dumping may be
 controlled by the system administrator.  Because the volume of data
 may be both large and variable, the <bf>backup</bf> program intelligently
 decides where to store individual dump files based on size accross the
@@ -149,7 +150,7 @@ specified backup partitions.  The directories in the sample <bf>vicetab</bf>,
 are assumed to be seperate local disk partitions.  An organized central
 symbolic link tree is created by the backup.sh script in the directory
 <tt>/backup</tt> that points to the actual files scattered accross the
-<tt>/backup1, /backup2, and /backup3</tt> given in this example.]
+<tt>/backup1, /backup2, and /backup3</tt> given in this example.
 
 <enum>
 <item>On the Backup Coordinator, the backup binaries and shell scripts need
@@ -157,7 +158,7 @@ to be installed.  The following directories should be have been created
 under <tt>/vice</tt> upon the installation of the Coda backup package:
 </enum>
 
-<code>
+<tscreen><verb>
 /backup
 /vice/backup
 /vice/backuplogs
@@ -167,13 +168,13 @@ under <tt>/vice</tt> upon the installation of the Coda backup package:
 /vice/bin
 /vice/spool
 /vice/srv
-</code>
+</verb></tscreen>
 <P>
 In addition, the file <tt>/vice/UpdateMonitor</tt> should be created once
 the update monitor is run for the first time.  The primary binaries
 that should be installed under /vice/bin to get started are:
 <P>
-<code>
+<tscreen><verb>
 backup
 backup.sh
 bldvldb.sh
@@ -183,14 +184,14 @@ updatemon
 updatesrv
 updfetch
 tape.pl
-</code>
+</verb></tscreen>
 <P>
 Once it has been verified that the backup system is installed, the files
 <P>
-<code>
+<tscreen><verb>
 /vice/db/hosts 
 /vice/db/files
-</code>
+</verb></tscreen>
 <P>
 on the SCM should be manually copied to the same location on 
 the Backup Coordinator.  These are needed the first time
@@ -205,26 +206,28 @@ Upon completion <bf>backup</bf> will print which
 volumes were successfully backed up, the volumes on which backup failed,
 and those volumes which were not specified for backup.
 
-The <bf>merge</bf> program allows a system administrator to update the state seen
+The <bf>merge</bf> program allows a system administrator to update the
+state seen
 in a full dump by the partial state in an incremental dump.  This is useful when
 a user wishes to restore to a state that was captured by a full and some number
-of incremental dumps.  (For instance, in the middle of the week) The <bf>merge</bf>
+of incremental dumps
+(For instance, in the middle of the week) The <bf>merge</bf>
 program applies an incremental to a full dump, producing a new full dump file.
 
-An incremental is a partial snapshot <em>with respect to</em> the previous dump.
+An incremental is a partial snapshot <em>with respect to</em> the previous 
+dump.
 The Coda backup facility maintains an order on dumps for a volume.  The merge
 program will only allow an incremental to be applied to its predecessor in
-the order.  This predecessor may be a full dump or the output of the <bf>merge</bf>
-program.
+the order.  This predecessor may be a full dump or the output of the
+<bf>merge</bf> program.
 
 Once the administrator has created or retrieved the full dump which contains
 the desired state of a volume, she can create a read-only copy of that state
-by using the <bf>volutil restore</bf> facility.  This <bf>volutil</bf> command creates
-a new read-only volume on a server.  The new volume can
- be mounted as any other Coda volume.  Regular Unix file operations can
-then be used to extract the desired old data.
-The obvious exception is that mutating
-options will fail on files in a readonly volume.
+by using the <bf>volutil restore</bf> facility.  This <bf>volutil</bf> command 
+creates a new read-only volume on a server.  The new volume can
+be mounted as any other Coda volume.  Regular Unix file operations can
+then be used to extract the desired old data.  The obvious exception is that 
+mutating options will fail on files in a readonly volume.
 
 <sect>Incremental Dumps<p>
 
@@ -392,8 +395,3 @@ replicated volumes and "volid" for non-replicated volumes.
 <bf>extract.sh</bf> will locate the correct group by reading the
 tape label, fast-forward the tape to the correct tape file, and extract the 
 dump file for the volume.
-
-
-<sect>Installing a Coda Backup Coordinator Machine
-<p>
-.
