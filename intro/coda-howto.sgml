@@ -9,7 +9,7 @@ Robert Baron <tt/rvb@cs.cmu.edu/,
 Jan Harkes <tt/jaharkes@cs.cmu.edu/,
 Marc Schnieder <tt/smarc@cs.cmu.edu/.
 </author>
-<date>v0.46, Nov 04 1998
+<date>v0.50, Dec 12, 1998
 
 <abstract>
 This HOWTO should give you help in running Coda.  We try to cover
@@ -21,9 +21,24 @@ how to troubleshoot and prepare useful bug reports.
 
 <sect>Coda's ingredients <p>
 
-Coda is a distributed file system.  Coda is very differently organized 
+<sect1> What is Coda ? <p> 
+
+Coda is a distributed file system, i.e. it makes files available to a
+collection of client computers as part of their directory tree, but
+ultimately maintains the authoritative copy of the file data on
+servers. Coda has some features that make it stand out: it supports
+<em/disconnected operation/, i.e. full access to a cached section of
+the file space during voluntary or involuntary network or server
+outages. Coda will automatically reintegrate the changes made on
+disconnected clients when reconnecting.  Further Coda has read write,
+failover server replication, meaning that data is stored and fetch
+from any of a group of servers and Coda will continue to operate when
+only a subset of all servers is available.  If server differences
+arise due to <em/network partitions/ Coda will resolve differences
+automatically to a maximum extent possible and aid users in repairing
+what can't be done automatically. Coda is very differently organized
 from NFS and Windows/Samba shares.  Coda does have many similarities
-to AFS and DCE/DFS.  
+to AFS and DCE/DFS.
 
 <sect1> Getting clued in with the Coda terminology <p>
 
@@ -38,13 +53,13 @@ needs to know is the name of one bootstrap server that gives it
 information how to find the root volume of Coda.
 
 <tag/A Coda cell/ is a group of servers sharing one set of
-configuration databases.  A cell can consist of a single server or up to
-hundreds of servers. One server is designated as the <bf>SCM</bf>.  It
-is distinguished by being the only server modifying the configuration
-databases shared by all servers, and propagating such changes to other
-servers. At present a Coda client can belong to a single cell.  We
-hope to get a cell mechanism into Coda whereby a client can see files
-in multiple cells.
+configuration databases.  A cell can consist of a single server or up
+to hundreds of servers. One server is designated as the <bf>SCM</bf>,
+the system Control machine.  It is distinguished by being the only
+server modifying the configuration databases shared by all servers,
+and propagating such changes to other servers. At present a Coda
+client can belong to a single cell.  We hope to get a cell mechanism
+into Coda whereby a client can see files in multiple cells.
 
 <tag/Coda volumes:/ File servers group the files in volumes.  A volume
 is typically much smaller than a partition and much larger than a
@@ -80,17 +95,28 @@ meta data (owners, access control lists, version vectors) and
 directory contents is stored in an RVM data file which would often be
 a raw disk partition.
 
-<tag/RVM/ is a transaction mechanism and in addition to the RVM data
-file there is a LOG file.  The LOG file contains committed data that
-has not yet been incorporated into the data file on disk. 
+<tag/RVM/ stands for <em/Recoverable Virtual Memory/.  RVM is a
+transaction based library to make part of a virtual address space of a
+process persistent on disk and commit changes to this memory
+atomically to persistent storage. Coda uses RVM to manage its
+metadata.  This data is stored in an RVM data file which is mapped
+into memory upon startup. Modifications are made in VM and also
+writtent to the RVM LOG file upon committing a transaction.  The LOG
+file contains committed data that has not yet been incorporated into
+the data file on disk.
 
 <tag/Client data/ is stored somewhat similarly: meta data in RVM
-(typically in <tt>/usr/coda/DATA</tt> and cached files in
-<tt>/usr/coda/venus.cache</tt>.   The cache on a client is
-persistent.  This cache contains copies of files on the server.
-The cache allows for quicker access to data for the client and
-allows for access to files when the client is not connected to 
-the server.  
+(typically in <tt>/usr/coda/DATA</tt>) and cached files are stored by
+number under <tt>/usr/coda/venus.cache</tt>.  The cache on a client is
+persistent.  This cache contains copies of files on the server.  The
+cache allows for quicker access to data for the client and allows for
+access to files when the client is not connected to the server.
+
+<tag/Validation/ When Coda detects that a server is reachable again it
+will <em/validate/ cached data before using it to make sure the cached
+data is the latest version of the file.  Coda compares cached version
+stamps associated with each object, with version stamps held by the
+server.
 
 <tag/Authentication/
 Coda manages authentication and authorization through a token.
@@ -107,6 +133,8 @@ its associated identity and match this against priviliges granted to
 this identity in access control lists (ACL).  If a token is not
 present, anonymous access is assumed, for which permissions are again
 granted through the access control lists.
+
+
 
 </descrip>
 
@@ -133,7 +161,9 @@ variety of small utilities is provided. The most important one is the
 <bf>cfs </bf> command.
 
 There is also a <bf>clog</bf> program to authenticate to the Coda
-authentication server.
+authentication server.  The <bf/codacon/ programm allows one to
+monitor the operatoin of the cache manager, and <bf/cmon/ program
+gives summary information about a list of servers.
 
 
 <sect1> The server organization <p>
@@ -166,7 +196,16 @@ There is also a tool to manipulate the protection databases.
 
 All code can be obtained from:
 <URL URL="ftp://ftp.coda.cs.cmu.edu/pub/coda"
-NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda">.
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda">.  For any platform you need:
+<itemize> 
+<item>documentation and manual pages <em/coda-doc/
+<item>user level client code for coda: <em/coda-client/
+<item>a server: <em/coda-debug-server/ rpms
+<item> kernel code for the client: <em/coda-kernel-module/ rpms code
+</itemize>
+
+<bf/NOTE:/ Coda is <em/platform independent/.  You can mix and match
+servers and clients on any supported platform.
 
 <sect1> Linux <p>
 
@@ -184,7 +223,8 @@ NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux/">.  You should get:
 Install these as ususal. 
 
 You may need to build a Coda kernel module for which you will need
-source, see below.
+source.  Look at the section <ref id="Modules" name="building a kernel
+module.">
 
 <sect1> FreeBSD <p>
 
@@ -363,7 +403,10 @@ instructions below where to find it.
 
 Get a <URL NAME="coda-fs-module-k2.?.?-c?.?.?.arch.rpm"
 URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux"> rpm package and
-install it.  
+install it.  <tt/k2.?.?/ should match your kernel version (use uname
+-a) and <tt/c?.?.?/ should match you Coda version.
+
+Linux kernels change often and many people have custom kernels for their environment.  Our modules will generally only work on RedHat Linux kernels and you may have to build a module for your kernel. Look at the section <ref id="Modules" name="building a kernel module.">
 
 <sect2> FreeBSD <p>
 
@@ -743,6 +786,86 @@ directory. Read the next section to find out how to do more with Coda.
 <sect>Exploring Coda's features<p>
 
 
+<sect1> Getting more volumes <p>
+
+It is a good idea to create a few extra volumes on your server and
+mount these in the coda directory tree.  In particular if you want to
+explore reintegration, conflict resolution and replication servers we
+recommend that you do that in new volumes and not in the volume
+mounted on the root of the Coda filesystem.
+
+To make a new volume:
+<enum>
+<item> make sure your codasrv, updatecln and updatesrv are running.
+<item> type <tt/createvol_rep volname vsgaddr partitionname/.  Typically
+you determine your own volume name, the VSG address can be found in
+/vice/db/VSGDB and the partition name will be /vicepa. 
+<item> mount the volume using <tt/cfs makemount path volumename/.
+This creates the mount point, and mounts the volume.
+</enum>
+
+To <bf/explore volumes/ you can use other cfs commands, such as
+<tt/cfs whereis path/ and <tt/cfs listvolume path/.  To see the FID of 
+a file type <tt/cfs getfid path/. 
+
+<sect1> Adding a user <p>
+
+This is currently slightly involved.  Follow the following steps:
+<enum>
+<item> add the user to /vice/db/user.coda
+<item> add the user to groups in  /vice/db/group.coda (do not separate 
+users with commas)
+<item> run <tt> cd /vice/db; pwd2pdb -u user.coda -g group.coda >
+vice.pdb </tt>
+<item> run <tt/pcfgen vice.pdb/. 
+<item> Give the new user a password by using the <tt/au nu/ program
+(from either a client or a server).    
+</enum> 
+
+The user should now be able to login to Coda just like the first user
+set up at installation time.
+
+<sect1> Exploring ACL's.  <p>
+
+You can set and list Access Control Lists on directories using <tt/cfs 
+setacl dir user rights [user rights...]/.  To show the ACLs type
+<tt/cfs listacl directory/.
+
+<sect1> Monitoring Coda <p>
+
+Use <tt/codacon/ to see many RPC's and a few other actions taken by
+the client.  The file <tt>/usr/coda/etc/console</tt> also has
+interesting information. 
+
+To see how a server is doing use <tt/cmon/, in the form <tt/cmon
+server:25/, 25 depicts the width of the column used by the server.
+
+<sect1> Using Coda disconnected and reintegrating.<p>
+
+First get a new volume to try this with.  We <bf/strongly/ recommend
+not using the root volume to explore disconnected operation.  See
+below how to add a volume.
+
+<enum>
+<item> change directory into this volume.  Do "ls -l" on the directory 
+where you want to start work while disconnected.  Get tokens using
+<tt/clog/. 
+
+<item> type <tt/cfs disconnect/ or disconnect your network.  After 30
+seconds you can see that <em/codacon/ (which you should always run)
+displays that your server is not reachable anymore.
+
+<item> do some work disconnected, create some files, edit them etc.
+
+<item> type <tt/cfs reconnect/. Venus will discover that the net is
+up, but you can speed that up by typing <tt/cfs checkservers/.
+Monitoring codacon, you will see that your changes are being
+re-integrated.
+</enum>
+
+
+
+
 <sect1> Repairing conflicts <p>
 
 Files and directories can get into conflict due to disconnections of
@@ -782,55 +905,39 @@ directories are fixed with <tt/repair/.
 </enum>
 
 
+<sect1> Exploring replication <p>
 
+First you will have to add a second server to your Coda cluster.
+Install the software and use <tt/vice-setup/ again.  This time your
+server is <em/not/ going to be the SCM.  Proceed answering the
+questions until done. 
 
+On the SCM add the following:
 
+<enum>
+<item> Your server needs a server number, to be added to the
+<tt>/vice/db/servers</tt> file <bf/ON THE SCM/.
+<item> Make two new entries in the <tt>/vice/db/VSGDB</tt> file. One
+for your new server by itself, one of the form: <tt/E0000104
+scm-server second-server/. 
+<item> Start updatesrv and updateclnt on the second server.
+<item> Start codasrv on the second server
+<item> Make a new volume <bf/from the SCM/ using <tt/createvol_rep/
+giving the address of the volume as <tt/E0000104/. 
+<item> Mount the volume as above.
+</enum>
+You can now use this volume and your files will automatically be
+stored on multiple servers.  To temporarily disable a server, and see
+that things continue to function normally, either shut the server down 
+with <tt/volutil shutdown/ or disconnect its network.  You can also
+isolate the server using our network filters with <tt/filcon isolate
+-s server-name/.  Using <tt/filcon clear server-name/ clears the
+filter.
 
-V. Common Tasks
-
-1. Normal server startup:
-startserver &
-
-it comes up at boot time from rc.vice, unless you said <bf/No/ to
-automatic startup, OR if the there is a file /vice/srv/CRASH exists,
-which indicates the fileserver crashed. Howver you need the update
-server and client for system administration and the authserver for
-authentication -- see /usr/pkg/etc/rc.vice.
-
-2. Re-run venus-setup and point your server to your own server.
-
-* make sure the server is up _AND_ you have made root volumes*
-On your client do setup and start the client as follows:
-
-<tscreen> 
-<verb>
-venus-setup your-server 40000
-
-venus -init &
-     xterm -e tail -f /usr/coda/venus.cache/venus.log
-     xterm -e tail -f /usr/coda/etc/console
-     xterm -e codacon
-</verb>
-</tscreen>
-
-
-When the server is up cd to /coda and start playing.  You won't run
--init the next time you start venus.  The flag is necessary in this
-case since we are switching the server venus is talking to.
-(Currently, venus does not support Cells.)
-
-
-3. Restarting a server:
-
-     volutil shutdown
-shuts down the server.  Restart as above.
-
-4. Restarting a client.
-
-The official procedure is to:
-vutil shutdown
-
-kill -9 venus works equally well.  Then restart as stated above.
+Modifications made to coda files during the server outage will be
+resolved when the files are first accessed.  You see message of the
+form <tt/Resolve path/ in the codacon output. By typing <tt/cfs
+checkservers/ you can see if the server is available again.
 
 
 <sect>Troubleshooting<p>
@@ -1316,7 +1423,7 @@ As a file system, Coda has several major components that need to be built:
 
 <sect1> Building on Linux <p>
 
-<sect2> Building the kernel module <p>
+<sect2> Building the kernel module <p> <label id="Modules">
 
 We now have a reaonably flexible method to build kernel modules. You
 can build the module for a kernel which you are not running at the

@@ -1,0 +1,277 @@
+<!doctype linuxdoc system> 
+
+<article>
+
+<title>The vice-setup HOWTO
+<author>
+Peter Braam, <tt/braam@cs.cmu.edu/,
+Andres Kruse <tt/Andres.Kruse@cern.ch/,
+Jan Harkes <tt/jaharkes@cs.cmu.edu/,
+Robert Baron <tt/rvb@cs.cmu.edu/,
+Henry Pierce 
+</author>
+<date>v0.8, Nov 02 1998
+
+<abstract>
+This HOWTO should give you help in answering vice-setup questions.
+</abstract>
+
+<toc>
+
+<sect> Explanation <p>
+In the text that follows:
+indented sections are used to indicate what the <tt/vice-setup/ program
+printed out,
+<tt/``''/ encloses text that was
+typed as a response, and
+<em>italics are used to add commentary and explanation</em>.
+<tscreen><verb>root. ``/vice-setup''
+Setting up config files (under /vice).
+Directories under /vice are set up.
+</verb></tscreen>
+<em>NOTE: The server control files are stored under /vice.</em>
+<tscreen><verb>Setting up tokens for authentication.
+The following tokens must be identical on all servers.
+Enter a random token for auth2 authentication : ``aaaaaaaa''
+The following tokens must be identical on all servers.
+Enter a random token for volutil authentication : ``bbbbbbbb''
+tokens done!
+</verb></tscreen>
+<em>Obviously, you need better password than these.  But nothing else
+during vice-setup will ask for them so you probably should write
+them down.</em>
+
+<tscreen><verb>Setting up the file list for update
+filelist for update ready.
+</verb></tscreen>
+
+<tscreen><verb>Populating /vice/vol...
+lockfiles created.
+/etc/services already has new services registered! Good.
+/etc/services ready for Coda
+Do you want to start the server at boot time? (y/n) ``n''
+Is this the master server, aka the SCM machine? (y/n) ``y''
+Now installing files specific to the SCM...
+</verb></tscreen>
+<em>Don't ask about SCM's the answer is yes!  You might or might not
+want to start codasrv when you boot -- your choice. </em>
+<tscreen><verb>Setting up servers file.
+Enter an id for this server (a number > 0 < 255) : ``3''
+</verb></tscreen>
+<em>Any single u_char is good here.  The number appears much later in
+the /vice/vol/VRList.  It is just a way to identify particular servers.
+</em>
+<tscreen><verb>
+done!
+Initializing the VSGDB to contain the SCM as E0000100
+/vice/db/VSGDB set up
+</verb></tscreen>
+
+<tscreen><verb>Setting up ROOTVOLUME file
+Enter the name of the rootvolume (< 32 chars) : ``gluck.root''
+</verb></tscreen>
+<em>&lt;Server name&gt;.root is a good choice.</em>
+<tscreen><verb>Setting up users and groups for Coda
+</verb></tscreen>
+
+<tscreen><verb>You need to give me a nonzero uid of a user on this system,
+who will be a Coda System:Administrator member,
+(sort of a Coda super user)
+</verb></tscreen>
+
+<tscreen><verb>Enter the uid of this user:``1234''
+</verb></tscreen>
+<em>Since you are playing here you most probably want to choose your
+uid and user name.</em>
+<tscreen><verb>[: V.: unknown operand
+1 user entries found
+An initial administrative user <you> (id 1234) with Coda password changeme now exists.
+</verb></tscreen>
+
+<em>
+What needs to be done next is that you need to set up the data space
+for your server.  Ultimately, you will provide a directory where the
+server will keep its files.  But first you need space for the metadata
+that the server uses.  As discussed elsewhere, the metadata is kept in
+a scheme that we call RVM.  There are two components to RVM: the real
+data and a log file (because rvm is a database-like scheme).  We will
+ask for this data in the reverse order to what was described.
+</em>
+<tscreen><verb>You need a small log disk partition, preferrably on a disk by itself.
+You need a metadata partition of approx 4% of you filespace.
+</verb></tscreen>
+
+<tscreen><verb>For trial purposes you may give ordinary files instead of raw
+partitions. Keep all size small if you do this.
+Production servers will want partitions for speed.
+</verb></tscreen>
+
+<tscreen><verb>
+-------------------------------------------------------
+WARNING: you are going to play with your partitions now.
+verify all answers you give.
+-------------------------------------------------------
+</verb></tscreen>
+
+<tscreen><verb>
+WARNING: these choices are not easy to change once you are up and running.
+</verb></tscreen>
+
+<tscreen><verb>
+Are you ready to set up RVM? [yes/no] ``yes''
+</verb></tscreen>
+
+<tscreen><verb>
+What is your log partition? ``/dev/rsd0h''
+</verb></tscreen>
+<em/This can also be a file./
+<tscreen><verb>
+The log size must be smaller than you log partition.
+We recommend not more than 30M log size, and 2M is a good choice.
+What is your log size? (enter as e.g. '12M') ``2M''
+</verb></tscreen>
+
+<tscreen><verb>
+What is your data partition (or file)? ``/vicepa/DATA''
+</verb></tscreen>
+<em>Here we are using a file, but we could also have used a raw
+partition if we had one spare.
+</em>
+<tscreen><verb>
+The data size must be approx 4% of you server file space.
+We have templates for servers of approx: 500M, 1G, 2.2G, 3.3G, 8G
+(you can store less, but not more on such servers).
+The corresponding data sizes are  22M, 44M, 90M, 130M, 315M.
+(use 330M only on very fast machines)
+Pick one of the defaults, otherwise I will bail out
+</verb></tscreen>
+
+<tscreen><verb>
+What is the size of you data partition (or file) [22M,44M, 90M, 130M, 315M]: ``44M''
+</verb></tscreen>
+
+<tscreen><verb>
+--------------------------------------------------------
+WARNING: DATA and LOG partitions are about to be wiped.
+--------------------------------------------------------
+</verb></tscreen>
+
+<tscreen><verb>
+  --- log area: /dev/rsd0h, size 2M.
+  --- data area: /vicepa/DATA, size 44M.
+</verb></tscreen>
+
+<tscreen><verb>
+Proceed, and wipe out old data? [y/N] ``y''
+</verb></tscreen>
+
+<tscreen><verb>
+LOG file has been initialized!
+</verb></tscreen>
+
+<tscreen><verb>Rdsinit will initialize data and log.
+This takes a while.
+rvm_initialize succeeded.
+Going to initialize data file to zero, could take awhile.
+done.
+
+Just mapped in region (50000000,37748736)
+Just mapped in region (52400000,1048576)
+rds_zap_heap completed successfully.
+rvm_terminate succeeded.
+RVM setup is done!
+</verb></tscreen>
+
+<tscreen><verb>
+Your server directories will hold the files (not directories).
+You can currently only have one directory per disk partition.
+</verb></tscreen>
+
+<tscreen><verb>
+Where shall we store your data [/vicepa]? ``/vicepa''
+mkdir: /vicepa: File exists
+Shall I set up a vicetab entry for approx 256000 files for /vicepa (y/n) ``y''
+grep: /vice/db/vicetab: No such file or directory
+Now initializing the partition. This takes a while....
+Partition /vicepa: inodes in use: 0, total: 262144.
+</verb></tscreen>
+
+<tscreen><verb>
+Date: Thu 11/05/98
+</verb></tscreen>
+
+<tscreen><verb>
+16:12:25 Partition /vicepa: 923566 available size (1K blocks, minfree=5%), 884773 free blocks.
+done.
+Server directory is set up!
+</verb></tscreen>
+
+<tscreen><verb>
+Congratulations: your configuration is ready...and now
+to get going do the following:
+ - start the auth2 server as: auth2
+ - start rpc2portmap as: rpc2portmap
+ - start updateclnt as:  updateclnt -h gluck.coda.cs.cmu.edu -q coda_udpsrv
+ - start updatesrv as: updatesrv -p /vice/db
+ - start the fileserver: startserver &
+    echo  - wait until the server is up: tail -f /vice/srv/SrvLog
+    echo  - create your root volume: createvol_rep gluck.root E0000100 /vicepa
+ - setup a client: venus-setup gluck.coda.cs.cmu.edu 20000
+ - start venus: venus
+ - enjoy Coda.
+root. ``auth2''
+root. ``rpc2portmap''
+root. ``updateclnt -h gluck.coda.cs.cmu.edu -q coda_udpsrv''
+root. Creating /vice/spool
+</verb></tscreen>
+
+<tscreen><verb>
+root. ``updatesrv -p /vice/db''
+root. ``ps ax''
+  PID TT  STAT      TIME COMMAND
+ 1003 ??  Is     0:00.01 auth2 
+ 1005 ??  Ss     0:00.02 rpc2portmap 
+ 1007 ??  Ss     0:00.07 updateclnt -h gluck.coda.cs.cmu.edu -q coda_udpsrv 
+ 1009 ??  Ss     0:00.02 updatesrv -p /vice/db 
+root. ``startserver &''
+[1] 1012
+root. mv: rename /vice/srv/SrvErr to /vice/srv/SrvErr.prev: No such file or directory
+</verb></tscreen>
+
+<tscreen><verb>
+root. ``tail -f /vice/srv/SrvLog''
+</verb></tscreen>
+
+<tscreen><verb>
+16:21:41 ResLWP-1 just did a RVM_SET_THREAD_DATA
+
+16:21:41 VolUtilLWP 0 just did a RVM_SET_THREAD_DATA
+
+16:21:41 VolUtilLWP 1 just did a RVM_SET_THREAD_DATA
+
+16:21:41 Starting SmonDaemon timer
+16:21:41 File Server started Thu Nov  5 16:21:41 1998
+</verb></tscreen>
+This last message is what we were looking for to see that
+the server had started.
+<tscreen><verb>
+root. ``createvol_rep gluck.root E0000100 /vicepa''
+Servers are (gluck )
+HexGroupId is 7F000000
+creating volume gluck.root.0 on gluck
+V_BindToServer: binding to host GLUCK.CODA.CS.CMU.EDU
+Volume 3000001 (gluck.root.0) created 
+Fetching /vice/vol/Volumelist from gluck 
+V_BindToServer: binding to host gluck.coda.cs.cmu.edu
+VLDB completed.
+&lt;echo gluck.root 7F000000        1  3000001 0 0 0 0 0 0 0 E0000100 &gt;&gt; /vice/vol/VRList&gt;
+V_BindToServer: binding to host gluck.coda.cs.cmu.edu
+VRDB completed.
+Do you wish this volume to be Backed Up (y/n)? [n] ``n''
+</verb></tscreen>
+<em>Let's not worry about backup's yet.</em>
+<tscreen><verb>
+root:
+</verb></tscreen>
+
+</article>

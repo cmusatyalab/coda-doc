@@ -1,0 +1,96 @@
+
+Looking up volumes: one single RPC does it all.
+
+
+ViceGetVolumeInfo has the following strategy:
+
+It is given a string.  First it looks in the VRDB with the find
+method, to get a VRDB record.
+
+
+
+vrdb.cc/vrdb.h
+--------------
+
+Load it with CheckVRDB()
+
+Destroy the old VRDB if there is one. Then load the new one.
+
+Data is stored in the same format as in the VM format, but all
+integers are net order.  The fields are those of the VRList, but
+packed in binary form, with one difference: the hosts were sorted in
+canonical order.  
+
+Canonical order is the order of the integers giving the server number,
+i.e. the top 8 bytes of the volumeid.
+
+
+vrents:
+
+char               key[33]
+(Rep)VolumeId      volnum
+unsigned char      nServers
+VolumeId           ServerVolnum[VSG_MEMBERS]
+(VSG) ulong        addr
+
+vrtab:
+char *name   (yup, the table has a name!)
+
+There are two hash names: one is to look up a volume by id, another to
+look it up by name.
+
+
+vldb.cc/vldb.h
+--------------
+
+This is much more obtuse.
+
+VCheckVLDB: set static variable VLDB_size
+VLDBPrint: print the thing out
+VLDBLookup: lookup a key
+
+The vldb file consisting of a header followed by records:
+struct vldb {
+    char key[33];     /* Name or volume id, in ascii, null terminated */
+    byte hashNext;    /* Number of entries between here and next hash 
+                         entry for same hash.   0 is the last */
+    byte volumeType;  /* Volume type, as defined in vice.h  (RWVOL,
+                         ROVOL, BACKVOL) */
+    byte nServers;    /* Number of servers that have this volume */
+    unsigned long volumeId[MAXVOLTYPES]; /* *NETORDER* Corresponding volume 
+                                         of each type + 2 extra unused */
+    byte serverNumber[MAXVOLSERVERS];   /* Server number for each server 
+                                        claiming to know about this volume */
+};
+
+
+The contents of the array of volume id's is different for RW volumes
+and for others.  For backup volumes there is only one entry, for RW
+volumes the latest backup and RO clone is also recorded in the array. 
+
+<descrip>
+
+<tag/ ReadWrite volumes/   are stored exactly twice in the data base.
+			Once under name of volume, once under number.
+			Only one server site will be recorded.
+			Latest read-only and backup-volumes corresponding to
+			the read-write volume will be recorded in the read
+			write entry.
+<tag/Backup volumes/	Only the latest backup volume is stored by name
+   			in the data base; it is also stored by number as are
+			any old backup volumes which may still exist or appear
+			to exist.  The corresponding read-write and read-only
+			volumes will not be recorded.
+
+<tag/Readonly volumes/	Same as backup volumes.
+</descrip>
+
+
+volume.h
+--------
+
+VolumeDiskData: cache in hash table of volHeader which contain this
+and also point to a VM Volume structure.
+
+
+
