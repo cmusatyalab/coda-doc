@@ -61,7 +61,7 @@ install: ps-install ppt-install html-install man-install
 # clean
 clean:
 	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
-	rm -f *.sgml.cntr *.sgml.cntr.man *.man __tmp.sgml *.[0-9] *.html *.tex $(MANPAGES) $(PSDOCS)
+	rm -f *.sgml.cntr *.sgml.cntr.man *.man __tmp.sgml *.[0-9] *.html *.dvi *.log *.aux *.tex $(MANPAGES) $(PSDOCS)
 
 distclean: 
 	make clean

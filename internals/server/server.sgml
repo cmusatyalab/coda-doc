@@ -65,8 +65,8 @@ vnodes. The way to reach allocated vnode arrays is through the
 VnodeClassInfoArray. 
 <item> InitLogStorage: go through the VolumeList and assign
 VM resolution log memory for every volume; store the pointer
-in VolLog[i]. The number of rlentries assigned is
-VolumeList[i].data.volumeInfo-&gt;maxlogentries.
+in VolLog&lsqb;i&rsqb;. The number of rlentries assigned is
+VolumeList&lsqb i&rsqb;.data.volumeInfo-&gt;maxlogentries.
 <item> Check the vldb.
 <item> Find server partitions.
 <item> Run S_VolSalvage: this goes directly through the directory

@@ -31,6 +31,7 @@ documents.
 <item> <url url="sec.html"  name="Notes and explanations about Coda securtiy.">
 <item> <url url="kernel-venus-protocol.html"  name="A detailed document about hthe kernel Venus interaction.">
 <item> <url url="codadir.html"  name="A document describing the new directory system we are implementing now.">
+<item> <url url="server.html"  name="A few of the server internals, to be extended.">
 <item> <url url="venus-ds.html"  name="A document describing the main Venus data structures">
 </itemize>
 
@@ -44,6 +45,7 @@ documents.
 <item> <url url="../ps/kernel-venus-protocol.ps"  name="A detailed document about hthe kernel Venus interaction.">
 <item> <url url="../ps/sec.ps"  name="Notes and explanations about Coda securtiy.">
 <item> <url url="../ps/codadir.ps"  name="A document describing the new directory system we are implementing now.">
+<item> <url url="../ps/server.ps"  name="A few of the server internals, to be extended.">
 <item> <url url="../ps/venus-ds.ps"  name="A document describing the main Venus data structures">
 </itemize>
 

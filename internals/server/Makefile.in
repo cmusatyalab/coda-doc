@@ -3,8 +3,8 @@ SHELL = /bin/sh
 srcdir = @srcdir@
 VPATH = @srcdir@
 
-PSDOCS=codadir.ps 
-HTMLDOCS=codadir.html 
+PSDOCS=codadir.ps server.ps
+HTMLDOCS=codadir.html server.html
 
 PPTDOCS=server.ppt  directories.ppt
 
