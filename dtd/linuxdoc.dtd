@@ -1,7 +1,67 @@
-<!-- This is LINUXDOC.DTD, a hacked version of QWERTZ.DTD v1.3
-      by Matt Welsh, Greg Hankins, Eric Raymond, Marc Baudoin
-      and Tristan Debeaupuis;
-      modified from QWERTZ.DTD by Tom Gordon -->
+<!-- This is a DTD, but will be read as -*- sgml -*-   -->
+<!-- ================================================= -->
+<!-- $Id$ 
+
+     This is LINUXDOC96 DTD for SGML-Tools.
+
+     This was LINUXDOC.DTD,
+     a hacked version of QWERTZ.DTD v1.3 by Matt Welsh,
+     Greg Hankins, Eric Raymond, Marc Baudoin and
+     Tristan Debeaupuis; modified from QWERTZ.DTD by
+     Tom Gordon.
+
+     $Log$
+     Revision 1.3  1998-01-09 19:34:23  braam
+     changes for sgml-tools versus linuxdoc.sgml
+
+     Revision 1.5  1997/11/23 21:04:37  cg
+     * Added <file> tag to all DTDs and documented it (ESR)
+
+     * Added <idx> and <cdx> to linuxdoc97 and sgmltool DTDs (ESR)
+
+     * Arrange for <htmlurl> to call \url in the LaTeX back end (ESR)
+
+     Revision 1.4  1997/11/21 22:58:13  cg
+     * Allow [ and ] to be used inside <tag></tag>. (ESR)
+
+     Revision 1.3  1997/11/12 21:47:24  cg
+     * Manually modified the Log entry in linuxdoc96.dtd. It contained SGML
+       comments, and nested comments won't go... (CdG)
+
+     Revision 1.2  1997/11/11 20:50:22  cg
+     * First pass at conditionals.  This version is implemented with magic comments
+       <!- if -> and <!- unless ->. (ESR)
+
+     * The generic options processing now includes the -D option to pass in an
+       attribute/value pair for conditionals.  This meant the -D option in
+       sgml2html had to be changed, it's now -h. (ESR)
+
+     Revision 1.1  1997/07/09 13:27:19  cg
+     * Completely new DTD setup by Bernd (BK).
+
+
+                                                       -->
+<!-- ================================================= -->
+<!-- Revision Comments                                 -->
+
+<!-- ESR/97/11/17: Added file tag.                     -->
+<!-- ESR/97/11/11: Removed the crude and undocumented
+     conditionalization features in this DTD.  They
+     weren't in the original linuxdoc 1.3 DTD, and are
+     superseded by the new if/unless facility.         -->
+<!-- BK/97/05/09: this is the original Linuxdoc DTD,
+     as of SGML Tools 0.99.0. It is not longer 
+     supported. Use only if in dire need, for backwards
+     compabitlity. Backend support for undocumented
+     QWERTZ leftovers not in the strict Linuxdoc DTD's
+     is not guaranteed.                                -->
+<!-- BK/97/06/06: finally applied changes proposed by
+     Ken MacLeod to dtd/catalog (PUBLIC). Removed
+     the duplicated linuxdoc96 element name.           -->
+<!-- BK/97/06/22: replaced entire content with DTD
+     from 0.99.12 release - I am not going to maintain
+     any changes to this, just replacing.              -->
+<!-- ================================================= -->
 
 <!entity % emph 
 	" em|it|bf|sf|sl|tt|cparam " >
@@ -13,7 +73,7 @@
 	" label|ref|pageref|cite|url|htmlurl|ncite " >
 
 <!entity % inline 
-	" (#pcdata | f| x| %emph; |sq| %xref | %index )* " >
+	" (#pcdata | f| x| %emph; |sq| %xref | %index | file )* " >
 
 <!entity % list 
         " list | itemize | enum | descrip " >
@@ -35,8 +95,16 @@
         (sect | chapt | article | report | 
 	 book | letter | telefax | slides | notes | manpage ) >
 
-<!entity % general system -- general purpose characters -- >
-%general;
+<!-- `general' entity replaced with ISO entities - kwm -->
+<!entity % isoent system>
+%isoent;
+
+<!entity urlnam sdata "urlnam" >
+<!entity refnam sdata "refnam" >
+<!entity tm     sdata "[trade ]" >
+<!entity dquot  sdata "[quot  ]" >
+<!entity ero    sdata "[amp   ]" >
+<!entity etago '</' >
 <!entity   Ae  '&Auml;' >
 <!entity   ae  '&auml;' >
 <!entity   Oe  '&Ouml;' >
@@ -53,7 +121,7 @@
 	"&#RS;B&#RE;" psplit
 	"&#RS;&#RE;" psplit
 --	'"' qtag  --
-      	"[" ftag
+      	"[" lsqb
       	"~" nbsp
       	"_" lowbar
       	"#" num
@@ -79,7 +147,7 @@
 <!shortref sqmap 
       "&#RS;B" null
 --      '"' qendtag  --
-      "[" ftag
+      "[" lsqb
       "~" nbsp
       "_" lowbar
       "#" num
@@ -123,6 +191,8 @@
 <!element item o o ((%inline; | %sectpar;)*, p*) >
 
 <!element tag - o (%inline)>
+<!usemap desmap tag>
+
 <!usemap global (list,itemize,enum)>
 <!entity space " ">
 <!entity null "">
@@ -132,7 +202,7 @@
      "&#RS;B&#RE;" ptag
      "&#RS;&#RE;" ptag
       '"' qtag 
-      "[" ftag
+      "[" lsqb
       "~" nbsp
       "_" lowbar
       "#" num
@@ -143,9 +213,10 @@
       "|" verbar>
 -->
 
-<!element figure - - ((eps | ph ), caption?)>
+<!element figure - - ((eps | ph ), img*, caption?)>
 <!attlist figure
-	loc cdata "tbp">
+	loc cdata "tbp"
+	caption cdata "Caption">
 
 <!-- eps attributes added by mb and td  -->
 <!element eps - o empty  >
@@ -157,6 +228,10 @@
 <!element ph - o empty >
 <!attlist ph
         vspace cdata #required>
+
+<!element img - o empty>
+<!attlist img
+	src cdata #required>
 
 <!element caption - o (%inline)>
 
@@ -180,7 +255,7 @@
 
 <!entity % tabrow "(%inline, (colsep, %inline)*)" >
 <!element tabular - - 
-	(%tabrow, (rowsep, hline?, %tabrow)*, caption?) >
+       (hline?, %tabrow, (rowsep, hline?, %tabrow)*, caption?) >
 
 <!attlist tabular
 	ca cdata #required>
@@ -255,7 +330,7 @@
       "&#RS;&#RE;" null
       "_" thinsp
       "~" nbsp
-      "]" fendtag
+      "]" rsqb
       "#" num
       "%" percnt
       "^" circ
@@ -272,7 +347,7 @@
      "&#RE;" space
       "_" thinsp
       "~" nbsp
-      "]" fendtag
+      "]" rsqb
       "#" num
       "%" percnt
       "^" circ
@@ -458,6 +533,7 @@
         id cdata #required
 	note cdata #required>
 
+<!element file - - (#pcdata)>
 
 <!element idx - - (#pcdata)>
 <!element cdx - - (#pcdata)>
@@ -516,8 +592,8 @@
 <!element notes - - (title?, p+) >
 <!attlist notes
 	opts cdata "null" >
-<!element manpage - - ( (mansect | sect1)*,sect2*) 
-	-( f | %mathpar | figure | tabular | 
+<!element manpage - - ((mansect | sect1)*) 
+	-(sect2 | f | %mathpar | figure | tabular | 
           table | %xref | %thrm )>
 
 <!element mansect - o (%sect)>
@@ -540,4 +616,11 @@
       "|" verbar>
 
 <!usemap manpage  manpage >
-<!-- end of linuxdoc dtd -->
+
+<!-- ================================================= -->
+<!-- end of LINUXDOC DTD                               -->
+<!--
+     Local Variables:
+     mode: sgml
+     End:                                              -->                 
+<!-- ================================================= -->
