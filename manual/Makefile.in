@@ -1,0 +1,12 @@
+
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+SUBDIRS=
+PSDOCS=manual.ps
+HTMLDOCS=manual.html
+
+
+include ../Makerules
