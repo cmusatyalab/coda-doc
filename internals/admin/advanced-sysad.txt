@@ -1,0 +1,151 @@
+Coda System Administration and Debugging.
+
+
+Reinits:
+========
+1. RESOLUTION reinit
+2. Norton reinit (to defragment RVM or clean RVM)
+3. Total reinit from backups (in the Coda User & Sysad Manual).
+4. Resizing RVM. 
+
+1.Server Re-initialization instructions: RESOLUTION 
+=================================================
+
+1. on the server in question log in as root
+
+2. run the script /afs/cs/usr/raiff/source/partial-reinit.sh  This creates
+a shell script in /tmp/reinit_script.  Move this to a safe
+location. The /tmp/reinit_script  will contain creation commands for
+all rw volumes found.
+
+3. use rvmutl and rdsinit to reinitialize rvm. The details are stored in
+/afs/cs/usr/raiff/serverinfo (all parameters ready for cut and paste).
+
+4. Check which non-backup volumes are not being re-created:
+grep -v backup /tmp/not_created. This will be the read-only volumes
+and non replicated volumes. 
+
+5. start the server; wait until salvaging is complete (tail -f
+/vice/srv/SrvLog). Salvaging wipes out all old inodes since RVM has
+been emptied. 
+
+6. log in to the backup server (debussy). Locate the backup of the volumes
+found in step 4. For each run on debussy:
+
+volutil -h target.server restore volume_backup.filename <partition-name>
+[<volname> [<volid>]]
+
+7. on the server to be re-inited run the reinit-script (which re-creates
+all the other volumes).
+
+8. touch all files in all volumes on that server with the volmunge perl
+script and watch the resolution. This should repopulate the server. 
+
+2. Compacting Server RVM data: Norton reinit
+=========================================
+
+1) get norton-reinit, reinit (and norton if you wish) to /vice/bin
+2) disconnect the server from the world.
+3) purge the backup volumes, to avoid having complication with copy on
+write for such volumes. This can be done as follows: 
+grep backup VolumeList | awk '{ print $1, $2 }' > /tmp/bu
+   vi /tmp/bu
+   cat /tmp/bu | while read name id ; do echo $name ; volutil purge $id $name ; done >& /tmp/out
+   search for errors
+4) purge read only clones (this is NOT restored volumes, which are
+read only). 
+5) check SrvLogs for non attached volumes and for successfully attached
+volumes.
+
+6) shut down the server
+
+7) /vice/bin/reinit
+	MAKE SURE YOU SUPPLY non attached VOLUMES FOUND IN step 5 WHEN ASKED 
+        WHAT YOU DON'T WANT TO RESTORE.
+
+	****** THESE VOLUMES WILL BE LOST ********
+   answer YES when asked if you want to skip volumes in skipsalvage. 
+
+  Check with a specialist if anything went wrong. 
+ 
+This will take a while and: 
+     a) dump rvm state to disk
+     b) reinitialize rvm
+     c) reload rvm state. 
+Warning: restarting the server after b) before c) removes all inodes. 
+
+8)  remove /vice/vol/skipsalvage
+
+9)  If this ends successfully restart the server 
+
+10) realise that directories will shrink in size. 
+
+3. Reinitializing from backups
+==============================
+Described in the Coda manual. 
+
+4. Resizing RVM data files
+==========================
+This proceeds as in 2.  However, you must the modify the script reinit
+(used in 7) to reinitialize rvm with different paramaters.
+
+
+
+Resizing resolution logs
+========================
+
+> What was the way to resize the resolution log of a server volume?
+
+volutil setlog parms <volid> reson 4 logsize <newsize>
+
+
+Repairing directories
+=====================
+
+repair -allowfilerepair (allows to repair files -- may not exist anymore)
+
+repair -allowclear: this allows the comman "clear" to be entered which
+blindly clears the inconsistency flag. Maybe this needs to be done
+while connected to just a single server.  After doing so, connecting to a
+single server will show a consistent file/directory which can be
+modified, for example, to change directory sizes. 
+
+Another way to force certain things is "volutil setvv" (first do
+volutil showvnode to get the data you need to re-enter).  The last
+field is the inconsistency flag (which might be one for a bad dir) and
+should be set to 0. 
+
+
+Review of initializing passwords & adding users
+===============================================
+
+Initial setup:
+pwd2pdb -g groups.coda -p user.coda > vice.pdb
+pcfgen vice
+vice.pdb and vice.pcf are now moved to /vice/db
+(this is all the server uses). 
+
+
+initpw -k "drsuess " passwd.init > auth.pw
+goes to /vice/db too. 
+
+This should establish an initial set of users with passwords. 
+
+Adding a user:
+1) edit user.coda, groups.coda to add the user.
+2) repeat pwd2pdb and pcfgen
+Copy the results to /vice/db
+
+Don't repeat initpw because you'll wipe out password changes made
+after it was first run.
+
+From a client run au nu as in the manual. 
+
+
+System Administration
+=====================
+
+For administrative issues you can send email to:
+
+admin@coda.cs.cmu.edu
+
