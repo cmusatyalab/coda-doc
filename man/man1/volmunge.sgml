@@ -1,7 +1,7 @@
 <manpage TITLE="volmunge" SECTNUM=1>
 
 <mansect>NAME 
-<bf>volmunge</bf> - manipulate objects within Coda.
+<bf>volmunge</bf> - manipulates objects within Coda.
 
 <mansect>SYNOPSIS
 <bf>volmunge</bf> <-adfmov> dir
@@ -10,32 +10,32 @@
 <descrip>
 
 <tag/<bf>-a</bf>/
-Print out everything but do not cross volume boundaries.
+Prints out everything but does not cross volume boundaries.
 <tag/<bf>-d</bf>/
 Prints out UNIX directories, but not volume mount points.
 <tag/<bf>-f</bf>/
-print out all objects which are not volume mount points (eg
-UNIX Files and UNIX Directories); this preforms a stat()
-call on all non-volume objects  which is  ideal for forcing resolution 
+Prints out all objects which are not volume mount points (eg
+UNIX files and UNIX directories); this preforms a stat()
+call on all non-volume objects which is ideal for forcing resolution 
 on a volume.
 <tag/<bf>-m</bf>/
-Print out those objects which are volume mount points.
+Prints out those objects which are volume mount points.
 <tag/<bf>-o</bf>/
-Print out those objects which are UNIX files and preform an  open() call 
+Prints out those objects which are UNIX files and preforms an open() call 
 on the file.
 <tag/<bf>-v</bf>/
-Print out the volume name of a volume's mount point.
+Prints out the volume name of a volume's mount point.
 </descrip>
 
 <mansect>DESCRIPTION<P>
 <p>
-<bf>volmunge</bf> is ideal for identifying Coda Objects versus
+<bf>volmunge</bf>: is ideal for identifying Coda objects versus
 regular UNIX files (including UNIX directories) stored within the
 Coda filesystem.  It will work recursively.
 <p>
-Because the <bf>-f</bf> and <bf>-o</bf> call the stat(), and open()
+Because the, <bf>-f</bf> and <bf>-o</bf>, call the stat(), and open()
 functions respectively, resolution many be forced with volmunge
-if one is re-constituting a replicated Coda volume or group of volumes
+if one is reconstituting a replicated Coda volume or group of volumes
 mounted on top of each other.
 
 <mansect>SEE ALSO<P>
