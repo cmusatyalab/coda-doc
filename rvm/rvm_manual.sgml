@@ -41,6 +41,7 @@
 <!entity mrdsprea SYSTEM "man/man3/rds_prealloc.sgml">
 <!entity mrdsstat SYSTEM "man/man3/rds_statistics.sgml">
 <!entity mrdsinit SYSTEM "man/man1/rdsinit.sgml">
+<!entity mrvmutl  SYSTEM "man/man1/rvmutl.sgml">
 
 <!entity % latex "INCLUDE">
 <!entity % html  "IGNORE">

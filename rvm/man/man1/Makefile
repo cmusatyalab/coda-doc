@@ -1,10 +1,7 @@
 
 create_container = ../../../scripts/create_container
 
-MANPAGEFILES = rdsinit.man
-
-# MANPAGEFILES = rdsinit.man \
-#                rvmutl.man
+MANPAGEFILES = rdsinit.man rvmutl.man 
 
 all: $(MANPAGEFILES)
 
