@@ -1,0 +1,59 @@
+Welcome to the Coda SGMML documentation tree. 
+=============================================
+
+1. To use this tree:
+   a) make sure your CVSROOT points to /afs/cs/project/coda-src/cvs
+      (setenv CVSROOT /afs/cs/project/coda-src/cvs or 
+       export CVSROOT=/afs/cs/project/coda-src/cvs)
+   b) cvs checkout doc will produce your workspace in a subdirectory
+      doc which cvs creates (watch it!!!)
+   c) do your work: make sure the formatting works before checking
+      in. 
+   d) commit the work with cvs commit . in the doc directory.
+
+2. For formatting, use a Linux box such as lesbos which has the
+linuxdoc-sgml package installed.  In principle:
+   a) making HTML: sgml2html filename
+   b) making a dvi file: sgml2latex -d manual.sgml
+   c) making a man page: sgml2txt -man cfs.sgml
+
+3. We have scripts in the scripts directory which can make all manual
+pages.  Please be very careful in modifying the perl scripts.
+
+
+
+Things to do:
+=============
+
+Roy, Josh:
+----------
+ - finish off the Coda User Manual.  It's 95% there, but needs proofreading and
+some minor modifications to the sgml files 
+ - include the internals/admin/advanced-sysad.txt into the manual
+
+Peter & Roy:
+------------
+ - Find a mechanism to add the man pages to manuals as well as having
+them standalone.
+ - Deal with bibliographies
+
+Clement:
+--------
+ - Finish off the RVM manual: Like the above but its' only 80% there
+ - Add your internals documentation component to this (and add
+yourself to the list of authors). 
+
+Peter:
+------
+ - Set up Makefiles
+ - Edit Lily & my write back document and add it.
+ - Add more internals documents
+ - Improve DTD and filters.
+ - Get the stuff on the WWW
+ - Collect useful resources on the Coda WWW pages.
+
+Josh
+----
+ - Add the backup design documents to the tree under internals/backup.
+
+9/1/97
