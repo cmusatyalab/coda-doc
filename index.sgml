@@ -27,6 +27,7 @@ documents.
 <item> <url url="index.html"  name="This document">
 <item> <url url="manual.html"  name="The Coda Administration and User Manual">
 <item> <url url="rvm_manual.html"  name="The RVM Manual">
+<item> <url url="rpc2_manual.html"  name="The RPC2 Manual (preliminary)">
 <item> <url url="admin.html"  name="Some short scribbles about the volume databases">
 <item> <url url="sec.html"  name="Notes and explanations about Coda securtiy.">
 <item> <url url="kernel-venus-protocol.html"  name="A detailed document about hthe kernel Venus interaction.">

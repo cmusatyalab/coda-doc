@@ -14,6 +14,7 @@ rvm/man/Makefile
 rvm/man/man1/Makefile
 rvm/man/man3/Makefile
 manual/Makefile
+rpc2/Makefile
 internals/Makefile
 internals/admin/Makefile
 internals/backup/Makefile

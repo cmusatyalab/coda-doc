@@ -8,7 +8,7 @@ VPATH = @srcdir@
 PSDOCS=index.ps
 HTMLDOCS=index.html
 
-SUBDIRS=man rvm manual internals
+SUBDIRS=man rvm manual internals rpc2
 
 
 include Makerules
