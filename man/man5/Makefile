@@ -1,7 +1,7 @@
 
 create_container = ../../scripts/create_container2
 
-MANPAGEFILES = backup.man \
+MANPAGEFILES = backuplogs.man \
  	       dumpfile.man \
  	       dumplist.man \
 	       passwd_coda.man \
@@ -15,7 +15,8 @@ MANPAGEFILES = backup.man \
  	       vrdb.man \
  	       vrlist.man \
  	       vsgdb.man \
- 	       vstab.man 
+ 	       vstab.man \
+               vicetab.man
 
 all: $(MANPAGEFILES)
 

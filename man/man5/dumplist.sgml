@@ -6,27 +6,16 @@
 
 
 <mansect>DESCRIPTION<P>
-The dumplist file contains information for the <bf>backup</bf>(8) program. It
-contains two lists. The first is a list of partitions which will hold the
-dumpfiles from the backup process. The second is a list of volumes to be
-archived. 
+The dumplist file contains information for the <bf>backup</bf>(8) program. It consists of a list of volumes to be archived. 
 
-The first is a list of directories in 
-which to store dump files. This list is preceeded by a line consisting of the 
-keyword <bf>Partitions</bf>. It allows the administrator to evenly spread the dump files
-over many paritions on the backup coordinator, allowing the collective dumped state
-to be larger than a single Unix partition (2 Gigabytes). 
-
-The second list contains the volumes to be backed up. The first line (which also
-terminates the first list) contains the keyword <bf>Volumes</bf>. Each entry in the list
+Each entry in the list
 contains three tab separated fields: the volumeId (groupId), the schedule for full
 and incremental dumps, and a comment used to facilitate reading the output of the
 <bf>backup</bf> program. The schedule contains a number of "F" and "I" characters. Each
 character represents what form of dump to take for that day in the schedule. The length
 of the period is the number of characters in the schedule. For instance, "FIIIIII"
 means take one full dump followed by 6 incrementals, whereas "F" means take a full
-dump every day. For convenience, the first character in a 7 day schedule refers
-to Sunday.
+dump every day. For convenience, the first character in a 7 day schedule refers to Sunday.
 
 
 
@@ -36,10 +25,6 @@ The following does a full backup of <em>coda_root</em>, <em>coda&lowbar;root.i38
 <em>coda_root.project</em> and <em>coda&lowbar;root.usr</em> on Wednesday.  It uses
 <em>/vicepa/backup</em> and <em>/usr/codabackup/backup</em> to store the dump files.
 <tscreen><verb>
-Partitions
-/vicepa/backup
-/usr/codabackup/backup
-Volumes
 7F000000        IFIIIII         coda_root
 7F000001        IFIIIII         coda_root.i386
 7F000002        IIIFIII         coda_root.project
@@ -49,13 +34,20 @@ Volumes
 </verb></tscreen>
 
 
+<mansect>NOTES<P>
+In prior release of coda, the key words "Partition" and "Volumes" were
+used to distinguish between seperate sections of the dump file needed
+by <tt>backup</tt>.  <tt>dumplist</tt> should now only include the
+Volume backup information and does not need the key word Volume.  Nor
+is the keyword Partitions needed any more as <tt>backup</tt> reads
+vicetab for backup partition information.
 
 <mansect>SEE ALSO<P>
-backup (8), creatvol (8), createvol_rep (8)
+backup (8), creatvol (8), createvol_rep (8), vicetab (5)
 
 
 <mansect>AUTHOR<P>
 David C. Steere, 1991, Created
-
+updated 1998, hmp
 
 </manpage>
