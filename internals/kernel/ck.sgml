@@ -86,7 +86,7 @@ First and foremost the VFS must be able to make all necessary calls to
 the Coda FS layer, so the Coda FS driver must expose the VFS interface
 as applicable in the operating system. These differ very significantly
 among operating systems, but share features such as facilities to
-read/write and create and remove object.  The Coda FS layer services
+read/write and create and remove objects.  The Coda FS layer services
 such VFS requests in by invoking on or more well defined services
 offered by the cache manager Venus.  When the replies from Venus have
 come back to the FS driver, servicing of the VFS call continues and
@@ -94,7 +94,7 @@ finishes with a reply to the kernels VFS. Finally the VFS layer
 returns to the process. 
 
 As a result of this design a basic interface exposed by the FS driver
-must allow Venus to handle manage message traffic.  In particular
+must allow Venus to manage message traffic.  In particular
 Venus must be able to retrieve and place messages and to be notified
 of the arrival of a new message. The notification must be through a
 mechanism which does not block Venus since Venus must attend to
@@ -102,7 +102,7 @@ other tasks even when no messages are waiting or being processed.
 
 <figure>
   <eps file="interfaces" height="7cm">
-  <caption><label id="fig_overview">Interfaces of Coda FS Driver
+  <caption><label id="fig_overview">Interfaces of the Coda FS Driver
 </figure>
 
 Furthermore the FS layer provides for a special path of communication
@@ -130,7 +130,7 @@ requirements of the message exchange mechanism.
 &newpage;<sect> The message layer <p>  
 
 At the lowest level the communication between Venus and the FS driver
-proceeds through messages.  The synchronization of between processes
+proceeds through messages.  The synchronization between processes
 requesting Coda file service and Venus relies on blocking and waking
 up processes.  The Coda FS driver processes VFS- and pioctl-requests
 on behalf of a process P, creates messages for Venus, awaits replies
@@ -190,7 +190,7 @@ reply from Venus.
 
 <item> The message is a <em>downcall</em>.  A downcall is a request
 from Venus to the FS Driver. The FS driver processes the request
-immediately (usually a cach eviction or replacement) and when finishes
+immediately (usually a cache eviction or replacement) and when finishes
 <tt/sendmsg_to_kernel/ returns.
 </itemize>
 
@@ -349,7 +349,7 @@ struct coda_vattr {
 
 <sect1> The pioctl interface <p>
 
-Coda specific requests can be made by application through a pioctl
+Coda specific requests can be made by application through the pioctl
 interface. The pioctl is implemented as an ordinary ioctl on a
 ficticious file <tt>/coda/.CONTROL</tt>.  The piocl call opens this
 file, gets a file handle and makes the ioctl call. Finally it closes
@@ -531,7 +531,7 @@ may be inaccessible, or permission may not be granted by Venus.
 </descrip>
 
 <bf/Description/ Verify if access to the object identified by <tt/VFid/ for
-operetions described by <tt/flags/ is permitted.  The result indicates
+operations described by <tt/flags/ is permitted.  The result indicates
 if access will be granted.  It is important to remember that Coda uses
 ACL's to enforce protection and that ultimately the servers, not the
 clients enforce the security of the system.  The result of this call
@@ -655,7 +655,7 @@ Only the return value is relevant.  It indicates success or the type
 of failure.
 
 <bf/Errors/ The usual errors can occur.
-&newpage;<sect1>synlink<p>
+&newpage;<sect1>symlink<p>
 
 <bf/Summary/ create a symbolic link
 
@@ -676,7 +676,7 @@ of failure.
 <bf/Description/ Create a symbolic link. The link is to be placed in
 the directory identified by <tt/VFid/ and named <tt/tname/.  It should
 point to the pathname <tt/srcname/.  The attributes of the newly
-creaeted object are to be set to <tt/attr/.
+created object are to be set to <tt/attr/.
 
 <bf/Errors/
 
@@ -930,9 +930,9 @@ about to take place.
 <descrip>
 <tag/in/
 <verb>
-	struct cfs_fsync_in {
+	struct cfs_vget_in {
 	    ViceFid VFid;
-	} cfs_fsync;
+	} cfs_vget;
 </verb>
 <tag/out/
 <verb>
@@ -1151,7 +1151,7 @@ that cached entries must be flushed or renamed.
 The kernel code generally has to maintain a structure which links the
 internal file handles (called vnodes in BSD, inodes in Linux and
 FileHandles in Windows) with the ViceFid's which Venus maintains.
-Ther reason is that frequent translations back and forth are needed in
+The reason is that frequent translations back and forth are needed in
 order to make upcalls and use the results of upcalls.  Such linking
 objects are called <bf/cnodes/.
 
@@ -1167,7 +1167,7 @@ the following:
 The <tt/lookup/ call in the Coda FS Driver may request the cnode of
 the desired object from the cache, by passing it's name, directory and
 the CodaCred's of the caller.  The cache will return the cnode or
-indicate and it cannot be found.  The Coda FS Driver must be careful
+indicate that it cannot be found.  The Coda FS Driver must be careful
 to invalidate cache entries when it modifies or removes objects.
 
 When Venus obtains information that indicates that cache entries are
@@ -1232,7 +1232,7 @@ does not implement the invalidation of attributes correctly.
 
 <bf/Description/ Remove all entries in the cache lying in a directory
 <tt/CodaFid/, and all children of this directory. This call is issed
-when Venus receives a callback on the this directory.
+when Venus receives a callback on the directory.
 
 <sect1>ZAPVNODE<p>
 
