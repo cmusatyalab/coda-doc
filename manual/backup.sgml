@@ -25,19 +25,22 @@ maintaining a snapshot to backup.  Once the cloning phase has been completed,
 normal read-write services can be resumed without fear of data corruption
 due to mutating operations on an active file system.
 <P>
-<em>dumping to local disk</em><P>
-The dumping phase consists of converting the read-only volume clones to disk
-images stored as regular disk files.  A dump can either be full, in which all
-files are dumped; or incremental, in which only those files or directories
-which have changed since the last successful backup are included in the dump.
-This allows for a system in which only a subset of volumes need a full backup
-at anyone time (with incrementals done between full backups), thus reducing
-the amount of offline storage and network bandwidth needed at any one time. 
-However, it allows the re-creation of data a granularity of 24 hours when
-combined with incremental dumps.  Incremental dumps, however, are only
-supported for replicated volumes.  Since there is little need for
-non-replicated volumes, only full dumps are supported for non-replicated
-volumes.
+<em>dumping to diskfiles on a backup spool machine</em><P>
+
+The dumping phase consists of converting the read-only volume clones
+to disk images stored as regular disk files, on a spool machine.  A
+dump can either be full, in which all files are dumped; or
+incremental, in which only those files or directories which have
+changed since the last successful backup are included in the dump.
+This allows for a system in which only a subset of volumes need a full
+backup at anyone time (with incrementals done between full backups),
+thus reducing the amount of offline storage and network bandwidth
+needed at any one time.  However, it allows the re-creation of data a
+granularity of 24 hours when combined with incremental dumps.
+Incremental dumps, however, are only supported for replicated volumes.
+Since there is little need for non-replicated volumes, only full dumps
+are supported for non-replicated volumes.
+
 <P>
 <em>saving to media</em><P>
 The last phase consists of writing all the dump files from the backed up
@@ -46,7 +49,9 @@ standard backup system can be used for this phase.  At CMU, we use the BSD
 dump and restore utilities to write and retrieve the disk images of Coda
 volumes to tape.
 <P>
-Practically, this system has been implemented as series of tasks: 
+Practically, this system has been implemented as series of tasks The first two tasks are carried out by the backup program the latter
+by a Coda independent perl script (tape.pl).
+
 <P>
 <itemize>
 <item>Saving:
@@ -57,8 +62,8 @@ Practically, this system has been implemented as series of tasks:
 </enum>
 <item>Restoring:
 <enum>
-<item>Retriving appropriate full and incremental dumps from the archive media.<P>
-<item>integrating the full and incremental dumps to the time line of restoration.<P>
+<item>Retrieving appropriate full and incremental dumps from the archive media.<P>
+<item>Merging the full and incremental dumps to the time line of restoration.<P>
 <item>restoring the fully intregrated backup to the Coda file system.<P> 
 </enum><P>
 </itemize>

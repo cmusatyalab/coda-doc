@@ -7,32 +7,59 @@
 
 <title> The Coda Dir Package
 <author> Peter J. Braam
-<date> Jan 24, 1998
+<date> Aug 31, 1998
 
-<abstract>  This document describes the driectory package used in Coda. Our aim is to describe the interface offered by the dir library, as well as typical usage in Venus and Vice. Areas of improvement are also pointed out. This system is currently being implemented and tested.
+<abstract> This document describes the directory package used in
+Coda. Our aim is to describe the interface offered by the dir library,
+as well as typical usage in Venus and Vice. Areas of improvement are
+also pointed out. This system is currently being implemented and
+tested.
 </abstract>
 
 <toc> 
 
 <sect> Introduction<p>
 
-<sect1><bf>Directory Entires</bf><p>
+<sect1><bf>Directory Entries</bf><p>
 
-Unix directories are files containing lists of filenames and file identifiers. In Coda the directory entries consist of a name and a DirFed, a pair of a vnode number and uniqifier. The volume to which a directory belongs can be found back through its vnode.
+Unix directories are files containing lists of filenames and file
+identifiers. In Coda the directory entries consist of a name and a
+DirFed, a pair of a vnode number and uniqifier. The volume to which a
+directory belongs can be found back through its vnode.
 
-Directories are transported over the net, hence the storage format of all data is in network order. Therefore two variants of the Dir Fid structure exist, DirFid's for use on the host,and Dir NFid's which hold the identifiers innetwork order.
+Directories are transported over the net, hence the storage format of
+all data is in network order. Therefore two variants of the Dir Fid
+structure exist, DirFid's for use on the host,and Dir NFid's which
+hold the identifiers innetwork order.
 
-The size of a directory entry is always a multiple of 32 bytes. The first entry contains the fid, the blob number of the next entry on the hash chain and a tag indicating it is the first entry. Subsequent entries contain the remainder of a potentially long name.
+The size of a directory entry is always a multiple of 32 bytes. The
+first entry contains the fid, the blob number of the next entry on the
+hash chain and a tag indicating it is the first entry. Subsequent
+entries contain the remainder of a potentially long name.
 
 <sect1><bf>Directory Format</bf><p>
 
-The Coda directory format is inherited from AFS 2 and is somewhat elaborate. Directories have sizes equal to an integral multiple of the directory page size (2048 bytes). They are always continguously allocated (this was changed in 1998). Pages are then subdivided in 64 blobs. Each page in the directory has a PageHeader and a directory has a DirHeader.
+The Coda directory format is inherited from AFS 2 and is somewhat
+elaborate. Directories have sizes equal to an integral multiple of the
+directory page size (2048 bytes). They are always continguously
+allocated (this was changed in 1998). Pages are then subdivided in 64
+blobs. Each page in the directory has a PageHeader and a directory has
+a DirHeader.
 
-The first blob contains the PageHeader, the next 12 blobs in the first page contain the directory header and the remaining blobs are for directory entries. The pageheader contains a bitmap to manage the allocation of blobs, and a free count to indicate how many blobs are still free. The DirHeader contains an allocation map (allomap), which also indicates for each possible page in the direcotry how many blobs are available. It also contains a hastable. Has values are coputed for names and indicate the first blob used by entries of that name.
+The first blob contains the PageHeader, the next 12 blobs in the first
+page contain the directory header and the remaining blobs are for
+directory entries. The pageheader contains a bitmap to manage the
+allocation of blobs, and a free count to indicate how many blobs are
+still free. The DirHeader contains an allocation map (allomap), which
+also indicates for each possible page in the direcotry how many blobs
+are available. It also contains a hastable. Has values are coputed for
+names and indicate the first blob used by entries of that name.
 
-<sect1><bf>Storage Location of Directories</bf><p>
+<sect1>Persistent Storage for Directories</bf><p>
 
 Ultimately, clients and servers hold directory data in RVM. 
+
+<sect2> Directories on the client <p>
 
 Venus will store directory data as a contiguous blob of memory and
 expand such a region when a directory needs to grow. A Venus fso
@@ -53,27 +80,27 @@ For a directory Venus has:
 
 <verb>
 struct VenusDirData {
-	/* Vice format directory in VM/RVM. */
-	struct DirHandle dh;
-	/* Unix format directory in UFS. */
-	/*T*/unsigned udcfvalid : 1;
-	/*T*/CacheFile *udcf;
-	/*T*/int padding;
+	struct DirHandle dh; /* contains pointer to Coda format directory */
+	unsigned udcfvalid : 1; /*T*/	/* Unix format directory in UFS. */
+	CacheFile *udcf;   /*T*/
+	int padding;       /*T*/
 };
 </verb>
 
-The server makes a copy of the direcotry data in VM, operates on that
-and copies the entire directory back to RVM when finished. The server
-stores the directory in pages in RVM, but never does directory
-operations on the pages.  A directory inode contains the page map for
-the directory.
+Venus will at appropriate times write a Unix style directory into a
+container file, so that the kernel can perform its readdir operations
+directly on the container.
 
-Since directory contents on the server are copy on write, a directory
-handle is needed to count the references to the directory while it is
-in use.  These handles are held in a hash table in the server.
+<sect2> Server directory storage <P>
 
-The <bf/VnodeDiskObjectStruct/ in RVM contains a pointer <bf/Inode/ to a
-directory inode structure:
+Server directory vnodes point to directory inodes.  Such inodes
+contain the pages of the directories.  Since directories and directory
+inodes are copy-on-write objects with respect to cloning volumes,
+several vnodes (in different volumes) can point to a single directory
+inode.
+
+The <bf/VnodeDiskObjectStruct/ in RVM contains a pointer <bf/Inode/ to
+a directory inode structure:
 
 <verb>
 struct DirInode {
@@ -81,6 +108,21 @@ struct DirInode {
 	int  di_refcount;             /* for copy on write */
 };
 </verb>
+
+The server stores the directory in pages in RVM, but never does
+directory operations on the RVM pages.  A directory inode contains the
+page map <tt/di_pages/ for the directory. The array contains pointers
+to RVM storage for the individual pages of the directory.  When
+concatenated into a single buffer they are the objects Venus fetches
+from the server.
+
+The server makes a copy of the directory data in VM, operates on that
+copy and copies the entire directory back to RVM when finished. 
+
+Since directory contents on the server are copy on write, a directory
+handle is needed to count the references to the directory while it is
+in use.  These handles are held in a hash table in the server.
+
 
 These arrange for RVM storage of directories.  
 
