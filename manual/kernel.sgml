@@ -1,31 +1,130 @@
-<chapt> Kernels for use with Coda <p>
+<chapt> Configuring Kernels for use with Coda <p>		
+<label id="KernelsforCoda">
 
-Currently, Coda clients and servers, can only be run on Mach kernels. The servers
-can be run on vanilla Mach kernels, but the clients require some Coda-specific
-changes to be made to the kernel. The Mach X126 release includes the coda
-kernel changes under the EXP configuration flag.  Thus running a facilities
-kernel named X126.STD+WS+EXP (or something similar with the +EXP suffix) should
-allow you to run a Coda Venus.
+Currently, Coda clients and servers are supported under Red Hat Linux,
+FreeBSD and NetBSD.  
+
+The Coda servers may be run on unmodified kernels.  The Coda <tt>srv</tt> 
+process is user-level code that uses existing kernel services.  The Venus 
+client, however, requires some Coda-specific changes be made to the kernel.   
+The kernel specific changes add Coda specific definitions to
+the Vnode layer in the kernel which are needed to satisfy the 
+requirements of the Coda file system to the vfs layer in the kernel.
 
 <sect>Vnode Interface<p>
-In Unix systems, the piece of code which translates user-generated system calls
-into file system requests is called the Vnode Interface. To integrate with this
-interface, a file system must provide a driver for the routines in the interface.
-For Coda, this driver is called the <em>MiniCache.</em>
 
-Since Venus is a user-level process, frequent interaction
-between Venus and the Vnode Interface would severely reduce the
-performance of Coda.  In order to reduce this load, there is a cache,
-called the <em>MiniCache</em>, between Venus and the Vnode Interface.  The
-MiniCache improves Codas performance by reducing the need to interact
-with the Vnoce Interface.
+In Unix systems, the code which translates user-generated system calls
+into file system requests is called the VFS Interface.  
+Coda satisfies the VFS Interface by providing the necessary
+Vnode definitions for systems calls such as creat(), open(), stat(), etc.
+(site Bach or Tannebaum)
+This in turn, allows communication between Venus and the queued Vnode requests
+to occur through the special Coda device <tt>/dev/cfs0</tt>
+which provides Venus access to the vsf<->vnode kernel interface.
 
-Communication between Venus and the MiniCache is obtained through a Unix
-special device. On Coda machines, this device is called /dev/cfs0. This file
-must be created as part of the client installation.
+<bf>ADD COMMENT ABOUT MINI-CACHE</bf>
 
-<sect>Device Driver for Hardware Clock<p>
+The device file <tt>/dev/cfs0</tt> is created automatically by
+venus-setup.  Please see
+<ref id="ClientInstall" name="Installing and Configuring a Coda Client"> 
+for the major and minor device numbers specific to a supported platform.  
 
-<sect>Installing the Coda kernel<p>
-The Mach kernel with Coda changes only needs to be installed on client machines.
-See the section on client installation for this procedure.
+The rest of this chapter will focus on integrating the Coda code
+that satisfies the Vnode interface into the kernels of supported 
+platforms.
+
+<sect>Configuring A Kernel<p>
+
+<sect1>Configuring a Linux kernel<p>
+Coda may be configured as a module or hard-coded in a ``monolithic'' kernel.
+However, modules are distributed that will work with the default kernels
+provided by current versions of Red Hat Linux.  Compiling a module will only
+be necessary if you are not using a Red Hat distribution kernel.
+
+<bf>PROCEEDURES TO BE ADDED</bf>
+
+<sect1>Configuring a FreeBSD kernel<p>
+At this time, loadable module support for Coda is not available, and thus,
+Venus support must compiled into the kernel.  
+
+The Coda Development Group also releases a pre-built GENERIC FreeBSD kernel 
+with Coda Venus support built in.  The only difference between
+the GENERIC kernel provided by the FreeBSD and the CODA kernel
+provided is the addition of Coda Filesystem information added to the
+Vnode layer and the enabling of the kernel debugger.
+<p>
+For those that wish to compile their own kernel, the following files
+need to be obtained from
+<htmlurl url="ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd" 
+   name="ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd">/&lt;OS-VERSION&gt;/i386/
+<tscreen><verb>
+kernel-patch.FreeBSD-2.2.5-4.3.14.gz
+coda-4.3.13.tgz
+</verb></tscreen>.  
+You must also have the FreeBSD kernel sources installed and available as well.
+<p>
+Once these files have been obtained, you need to collect them into the same
+area, set this area up, unpack sources, patch the kernel source tree,
+and then make any changes to the configuration file CODA you need.
+<p>
+The following outline should work and is used by one of our CMU staff members:
+Collect the three Coda files above in to a common place such
+as <tt>/usr/src/coda/</tt>.  Then make a <tt>sys/</tt> directory
+to make a copy of the FreeBSD kernel tree.  The Coda source directory
+will be created when the Coda sources are untar'red under 
+<tt>/usr/src/coda/</tt>Of course, another location may be used 
+if you desire.  However, this example assumes <tt>/usr/src/coda</tt>
+as the base.  To setup your work area and make a copy of the kernel
+source tree, do:
+<tscreen><verb>
+# mkdir /usr/src/coda                     # for collecting coda specific files
+# mkdir /usr/src/coda/sys                 # for a copy of the kernel source
+# cd /usr/src/sys
+# tar cfv - . | (cd /usr/src/coda/sys; tar xfv -)  # makes a copy of the kernel
+# mv kernel-patch.freebsd-<OS_RELEASE>-<coda_release>.gz /usr/src/coda
+# mv coda-<coda_release>.tgz /usr/src/coda
+</verb></tscreen>
+Once all the necessary components are assembled, the following will
+unpack the Coda sources under <tt>/usr/src/coda</tt>:
+<tscreen><verb>
+# cd /usr/src/coda
+# tar zxfv coda-<coda_release>.tgz
+</verb></tscreen>
+The last steps will copy the necessary files from the Coda source tree 
+<tt>/usr/src/coda/coda-&lt;coda_release&gt;/</tt> into
+the copy of the kernel source tree
+(<tt>/usr/src/coda/sys/</tt>)
+and patch the kernel source tree to be configurable for Coda Vnode support:
+<tscreen><verb>
+# mkdir /usr/src/coda/sys/cfs
+# mkdir /usr/src/coda/sys/ufs/ifs
+# cd /usr/coda/src/coda/coda-<coda_release>/kernel-src/vfs/bsd44/cfs
+# cp -rp cfs /usr/src/coda/sys/cfs
+# cd ../ufs/ifs
+# cp -p ifs /usr/src/coda/sys/ufs/ifs
+# cd /usr/src/coda
+# gunzip kernel-patch.freebsd-<OS_RELEASE>-<coda_release>.gz
+# patch -p5 < kernel-patch.freebsd-<OS_RELEASE>-<coda_release>
+</verb></tscreen>
+Once these steps have been completed successfully, you have a FreeBSD kernel
+patch with the Coda Venus extensions.  In <tt>/usr/src/coda/sys/i386/conf</tt>
+you will find <tt>CODA</tt> which is identical to the FreeBSD provided
+<tt>GENERIC</tt> configuration file plus the Coda extensions which consist of:
+<tscreen><verb>
+options               CFS                     #Coda File System
+pseudo-device vcfs    4       # coda minicache <-> venus comm.
+</verb></tscreen>
+You may change the kernel configuration file CODA as you would change 
+the <tt>GENERIC</tt> file for local machine needs.  Then follow the 
+FreeBSD instructions for compiling a kernel.  If you already have your own
+configuration file, please include the above lines from CODA to enable
+Venus support.
+<p>
+Don't forget to check <tt>INSTALL.freebsd</tt> and <tt>README.kernel</tt>
+for any last minute changes that may not have found their way into the Coda
+manual.  Also, remember you only need a modified kernel for the client
+side of Coda, not the server side.
+
+<sect1>Configuring a NetBSD kernel<p>
+
+<bf>PROCEEDURES AND COMMENTS TO BE MODIFIED FROM FREEBSD SECTION</bf>

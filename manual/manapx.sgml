@@ -2,17 +2,20 @@
 <p>							<!-- Appendix VI -->
 
 <!-- man(1) pages -->
-&newpage;<sect> cfs(1) <P>	&cfs;
-&newpage;<sect> clog(1) <P>	&clog
-&newpage;<sect> cmon(1) <P>	&cmon
-&newpage;<sect> cpasswd(1) <p>  &cpwd
-&newpage;<sect> ctokens(1) <P>	&ctokens
-&newpage;<sect> cunlog(1) <P>	&cunlog
-&newpage;<sect> filcon(1) <P>   &filcon
-&newpage;<sect> hoard(1) <P>	&hoard
-&newpage;<sect> mvdb(1) <P>	&mvdb
-&newpage;<sect> repair(1) <P>	&repair
-&newpage;<sect> spy(1) <P>	&spy
+&newpage;<sect> cfs(1) <P>		&cfs;
+&newpage;<sect> clog(1) <P>		&clog
+&newpage;<sect> cmon(1) <P>		&cmon
+&newpage;<sect> cpasswd(1) <p>  	&cpwd
+&newpage;<sect> ctokens(1) <P>		&ctokens
+&newpage;<sect> cunlog(1) <P>		&cunlog
+&newpage;<sect> filcon(1) <P>   	&filcon
+&newpage;<sect> hoard(1) <P>		&hoard
+&newpage;<sect> mvdb(1) <P>		&mvdb
+&newpage;<sect> repair(1) <P>		&repair
+&newpage;<sect> spy(1) <P>		&spy
+&newpage;<sect> venussetup(1) <P>       &venussetup
+&newpage;<sect> vicesetup(1) <P>	&vicesetup
+&newpage;<sect> volmunge(1) <P>       	&volmunge
 
 <!-- man(3) pages -->
 &newpage;<sect> histo(3) <P>	&histo		

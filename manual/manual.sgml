@@ -35,7 +35,8 @@
 <!entity spy		SYSTEM "../man/man1/spy.sgml">
 <!entity ttyfcon	SYSTEM "../man/man1/ttyfcon.sgml">
 <!entity venussetup     SYSTEM "../man/man1/venussetup.sgml">
-<!entity vicesetup     SYSTEM "../man/man1/vicesetup.sgml">
+<!entity vicesetup      SYSTEM "../man/man1/vicesetup.sgml">
+<!entity volmunge       SYSTEM "./man/man1/volmunge.sgml">
 
 <!entity histo		SYSTEM "../man/man3/histo.sgml">
 <!entity timing		SYSTEM "../man/man3/timing.sgml">

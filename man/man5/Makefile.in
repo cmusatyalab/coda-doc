@@ -16,6 +16,7 @@ MANPAGEFILES = backuplogs.5 \
 	multicastagents.5 \
 	multicastgroups.5 \
 	servers.5 \
+	srvconf.5 \
 	user_coda.5 \
 	volumelist.5 \
 	vrdb.5 \
