@@ -1,48 +1,206 @@
 <chapt> The Backup System				<label id="Backup">
 <p>
 
-<sect>Design of the Backup Subsystem<p>
+<sect>Introduction: Design of the Coda Backup Subsystem<p>
 
-As use of the Coda file system increased, the need for larger storage capacity
-grew and the need for reliable data storage also became apparent.
-Because the volume of data in Coda and the time to access it made backing up all
-of the  data in one operation infeasible, we designed a volume by volume
-backup mechanism.  This fits in nicely with the AFS concept of a volume being the
-unit of management and administration within the file system.
-
-Backing up a volume occurs in three phases: <em>cloning</em>, <em>dumping</em>, and <em>saving</em>.
+As the use of the Coda file system increased, the need for a reliable
+backup storage system with a large capacity and a mininal loss of service
+became apparent.  A one operation backup system was determined to be
+infeasible given the volume of data in Coda, the nature of a
+distributed filesystem, and the long downtime that would normaly be required
+to backup the system in one operation.
+<P>
+In order to meet the goals of high availability and reliability inherient in Coda
+design and to make efficient use of backup hardware and materials, the volume
+was chosen as the unit of data, and 24 hours was choosen as the time unit
+for system management and administration.  The result of these design 
+considerations is a volume by volume backup mechanism that occurs in
+three phases:
+<P>
+<em>cloning</em><P>
 The cloning phase consists of freezing the (replicated) volume, creating a
 readonly clone of each of the replicas, and then unfreezing the volume.
-This allows mutating operations on the replicated volume while
-maintaining a snapshot to backup.  The dumping phase creates a disk image
-of a readonly clone, which can later be restored via the <bf>volutil</bf> facility.
-A dump can either be full, in which all files are dumped; or incremental, in
-which only those files or directories which have changed since the
-last successful backup are 
-included in the dump.  The last phase consists of writing all the dump files from
-the backed up volumes to archival media such as tape.
+This allows mutating operations on the replicated volume to occur while
+maintaining a snapshot to backup.  Once the cloning phase has been completed,
+normal read-write services can be resumed without fear of data corruption
+due to mutating operations on an active file system.
+<P>
+<em>dumping to local disk</em><P>
+The dumping phase consists of converting the read-only volume clones to disk
+images stored as regular disk files.  A dump can either be full, in which all
+files are dumped; or incremental, in which only those files or directories
+which have changed since the last successful backup are included in the dump.
+This allows for a system in which only a subset of volumes need a full backup
+at anyone time (with incrementals done between full backups), thus reducing
+the amount of offline storage and network bandwidth needed at any one time. 
+However, it allows the re-creation of data a granularity of 24 hours when
+combined with incremental dumps.  Incremental dumps, however, are only
+supported for replicated volumes.  Since there is little need for
+non-replicated volumes, only full dumps are supported for non-replicated
+volumes.
+<P>
+<em>saving to media</em><P>
+The last phase consists of writing all the dump files from the backed up
+volumes dumped on local partitions to an archival media such as tape.  Any
+standard backup system can be used for this phase.  At CMU, we use the BSD
+dump and restore utilities to write and retrieve the disk images of Coda
+volumes to tape.
+<P>
+Practically, this system has been implemented as series of tasks: 
+<P>
+<itemize>
+<item>Saving:
+<enum>
+<item>create a readonly clone<P>
+<item>dumping the readonly clone to a local disk<P>
+<item>backing up the dumped data to a suitable archive media<P>
+</enum><P>
+<item>Restoring:
+<P>
+<enum>
+<item>Retriving appropriate full and incremental dumps from the archive media.<P>
+<item>integrating the full and incremental dumps to the time line of restoration.<P>
+<item>restoring the fully intregrated backup to the Coda file system.<P> 
+</enum><P>
+</itemize>
+<P>
+[Remeber, in practice, many restores are a result of a user accidently
+deleting or corrupting thier own files.  In this case, users may use
+the the <tt>cfs</tt> mechanism to retrive files for the last 24 hour
+time line.  For example:
+<P><tt>
+cfs mkmount OldFiles u.hmpierce.0.backup
+</tt><P>
+will mount the hmpierce's user backup volume from replica 0 to the
+OldFiles mount point.  The file can then be copied out (backup volumes
+are read-only). Only if restoration needs are older than 24-hours or some
+chatastrophic event outside of the users control occurs do restores
+from tape normally need be done]
+<P>
+Several tools have been developed to help in the creation, analysis, and
+restoration of data backups.  Some of these tools have been developed by
+the Coda team (those tools concerning Coda FS to local disk conversion) such
+as <tt>backup</tt> and <tt>tape.pl</tt> (used to coordinate the efforts
+of <tt>backup</tt>, <tt>dump</tt>, etc),
+others employ off-the-shelf software such as the traditional UNIX
+<bf>dump</bf> or <bf>tar</bf> to tranfer the disk images created from
+the dump
+phase to the backup media.  Coda, however, provides a perl script frontend
+to <bf>dump</bf>.
 
-The idea behind incremental dumps is to reduce the bandwidth requirements of the
-backup mechanism by only making full dumps periodically (like once a week) and
-making incrementals on the other days.  Thus the longest period of data loss
-should be one day.  However, in the current implementation, there is no
-sure way of detecting change between versions of files in non-replicated volumes.
-Since there is little need for non-replicated volumes, we only support
-full dumps on non-replicated volumes.
+<sect>Installing a Coda Backup Coordinator Machine<p>
 
-Several programs exist to help in the creation, analysis, and restoration of
-dumps.  The first of these, <bf>backup</bf>, performs the clone and dump phases.
-It takes as input the name of a dumplist file (see dumplist.5).  Optionally
-one can also specify a directory in which <bf>backup</bf> will put information
-generated during the backup.
+The Coda Backup coordinator should be a trusted machine.  It should be able
+get all the files that exist in the <tt>/vice</tt> subtree on the servers,
+although it is not necessary to run a fileserver on the backup coordinator
+(nor is it recommended that the backup machine be a fileserver).
+<P>
+Assuming the Backup Coodinator has been setup with an appropriate
+operating system, the steps are as follows:
+<P>
+[NEEDS SECTION RECOMMENDING DATA/LOCAL DISK SPACE RATIO]
+<itemize>
+<enum>On the Coda File Server designated as the SCM, create a file called <tt>/vice/db/dumplist</tt>.  The dumplist contains three fields:
+volume id# specified as its hex value, the full/incremental backup schedule,
+and a comment which is generally the human readable volume name.  
+For example:
+<P>
+<verb>
+7f000001        IFIIIII         s:coda
+7f000002        IIIIIFI         u:satya
+</verb>
+<P>
+The first column specifies the volume id # to be backup, the second
+column specifies the backup schedule by the day of the week begining
+Sunday, and the third column is a comment, ussually the volume name
+in human readable form.  So, the volume id #7f000001 is scheduled for a 
+Full backup every Monday, and incrementals Tuesday through Sunday and
+from the comment, we know this is a system volume called "coda".  Likewise,
+the second volume #7f000002 is scheduled for a Full backup on Friday with
+incrementals being done Saturday through Thursday and is a user volume
+called "satya".
+<P>
+<enum> On the SCM, modify <tt>/vice/db/vicetab</tt> to indicate
+which host is acting as the backup coordinator and which partitions 
+on the backup server are to be used by the backup coordinator to store
+the dump files.  On a tripily replicated system, <tt>vicetab</tt> might
+look like this:
+<P>
+<code>
+tye             /vicepa         ftree  width=8,depth=5
+taverner        /vicepa         ftree  width=8,depth=5
+tallis          /vicepa         ftree  width=8,depth=5
+dvorak          /backup1        backup
+dvorak          /backup2        backup
+dvorak          /backup3        backup
+</code>
+<P>
+<tt>vicetab</tt>, in addition to listing information on the servers providing
+replicated data, must also include information on the backup coordinator with 
+backup coordinator's name in the first column, the backup partitions in the
+second column, and the designation "backup" in the third column.  The 4th
+column is not used for the backup sub-system.  Please see the <em>vicetab (5)</em> man page for additional information.
+<P>
+[Note: that the number of partitions available for dumping may be
+controlled by the system administrator.  Because the volume of data
+may be both large and variable, the <bf>backup</bf> program intelligently
+decides where to store individual dump files based on size accross the
+specified backup partitions.  The directories in the sample <bf>vicetab</bf>,
+are assumed to be seperate local disk partitions.  An organized central
+symbolic link tree is created by the backup.sh script in the directory
+<tt>/backup</tt> that points to the actual files scattered accross the
+<tt>/backup1, /backup2, and /backup3</tt> given in this example.]
 
-Since the amount of data which is being handled
-could be huge (many GB), the dumplist file allows the administrator
-to specify directories on which to scatter all the dump files.  If any such
-directories are specified, the dump subtree will contain symbolic links to the
-actual dump files, which will be placed into one of the scatter directories,
-choosing the one on the partition
-that is emptiest at the time of the dump.
+<enum>
+<item>On the Backup Coordinator, the backup binaries and shell scripts need
+to be installed.  The following directories should be have been created
+under <tt>/vice</tt> upon the installation of the Coda backup package:
+</enum>
+
+<code>
+/backup
+/vice/backup
+/vice/backuplogs
+/vice/db
+/vice/vol    
+/vice/lib
+/vice/bin
+/vice/spool
+/vice/srv
+</code>
+<P>
+In addition, the file <tt>/vice/UpdateMonitor</tt> should be created once
+the update monitor is run for the first time.  The primary binaries
+that should be installed under /vice/bin to get started are:
+<P>
+<code>
+backup
+backup.sh
+bldvldb.sh
+merge
+updateclnt
+updatemon
+updatesrv
+updfetch
+tape.pl
+</code>
+<P>
+Once it has been verified that the backup system is installed, the files
+<P>
+<code>
+/vice/db/hosts 
+/vice/db/files
+</code>
+<P>
+on the SCM should be manually copied to the same location on 
+the Backup Coordinator.  These are needed the first time
+by the <tt>updateclt</tt> daemon the when it runs.  Also, Coda currently relies
+on the BSD dump and restore command to manipulate the tapes.  A copy of dump
+package should be installed on the backup coordinator.  BSD dump is available
+for all UNIX and UNIX like operating systems we have sucesfully run Coda on.
+Please check with your OS Vendor if you need help obtaining a copy.
+
+===============================
 Upon completion <bf>backup</bf> will print which
 volumes were successfully backed up, the volumes on which backup failed,
 and those volumes which were not specified for backup.
@@ -238,26 +396,4 @@ dump file for the volume.
 
 <sect>Installing a Coda Backup Coordinator Machine
 <p>
-The Coda Backup coordinator should be a trusted machine.  It should get all the
-files that exist in the <tt>/vice</tt> subtree on the servers, although
-it is not necessary to run a fileserver on the backup coordinator.
-
-
-Create a <tt>/vice/db/dumplist</tt> file on the SCM.  The dumplist
-contains a list of the directories in which dumpfiles should be placed when
-they are created during the dump process.  It also contains a list of the
-volumes to be backed up, the schedule for the backup, and a comment.
-Here is an example file:
-
-<code>
-Partitions
-/vicepa/backup
-/usr/codabackup/backup
-Volumes
-7f000001        FIIIIII         coda&lowbar;root.i386&lowbar;mach.rep<P>
-7f000002        FIIIIII         coda&lowbar;root.nonrep.rep<P>
-</code>
-
-The "Partitions" and "Volumes" keywords are necessary, and should be on
-their own lines.  The "FIIIII" is a schedule of full and incremental dumps.
-See <bf>dumplist</bf>(5) for more details.
+.
