@@ -1,0 +1,14 @@
+			Index
+
+00README		- This file
+README			- What's Coda all about -- Project Goals
+
+Announcement		- What's exciting about this release
+ChangeLog		- Nitty gritty details about changes in this release
+
+WARNING			- Generic problems
+WARNING.NetBSD		- Platform specific issues/problems
+
+INSTALL			- How to install Coda
+RUN			- Quick start guide for Coda
+BUILD			- How to build Coda

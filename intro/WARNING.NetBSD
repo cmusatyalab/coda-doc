@@ -1,0 +1,11 @@
+	This is release 4.6.5 of the Coda FileSystem.
+
+NOTE:
+	We run mostly NetBSD 1.3 locally and not 1.3H.  There might be
+differences between 1.3 and -current that will materially effect Coda;
+we do not stress Coda heavily with 1.3H.
+
+IMPORTANT:
+	The package system is broken in -current and won't pkg_add
+either the server pkg or client pkg provided.  We have supplied a
+1.3 pkg_add which does work.

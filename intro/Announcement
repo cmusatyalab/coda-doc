@@ -1,0 +1,89 @@
+This is to announce Coda 4.6.5.  
+--------------------------------
+
+Coda is a distributed filesystem with novel features such as disconnected
+operation and server replication.  For many details about Coda see
+http://www.coda.cs.cmu.edu. 
+
+Coda currently runs on FreeBSD(i386), Linux(i386,sparc) and NetBSD(i386).
+Ports to Windows are in progress.
+
+What happened since Coda 4.6.1 our previous "public" release?
+
+- we got official IANA port numbers.  We are using these now in
+conjunction with the portmapper to run Coda on decent ports.  This
+by itself makes Coda 4.6.5 incompatible will all previous versions.
+
+- we have started to look at bandwidth issues.  Much of the bulk transfer
+retry code was reviewed in the group and improved by Jan Harkes with
+better constants and decisions.  Jan will pursue further connectivity
+issues during the coming year.
+
+- Kerberos authentication is now supported. This is work of Robert Watson
+and Peter Braam. 
+
+- Some updates to the documentation were made by Henry Pierce, who has
+left our group.  Peter also updated the doc package with instructions how
+to fix up sgml-tools to work for the documentation.
+
+- Minor changes to Linux 2.1 kernel code. Get the new linux-coda-4.7.0.tgz
+from the pub/coda/src directory. 
+
+All in all this version is MUCH better than 4.6.1, try it.
+
+It has been released in binary form for Linux i386, FreeBSD 2.2.5 (i386),
+NetBSD 1.3(i386).
+
+It can be found at: 
+ftp://ftp.coda.cs.cmu.edu/pub/coda/[your platform]
+
+Documention in cpio and rpm format:
+ftp://ftp.coda.cs.cmu.edu/pub/coda/doc
+
+-------------------------------------------------------------------------
+
+On the WWW is a new shortcut to the bugslist - this hasn't been previously
+shown on the WWW and Jan and I have sorted the bugs by category.  
+
+We have not yet gone through the mailinglist (linux-coda) to check what is
+still an outstanding bug on that list. Don't get depressed. Jan's
+Jitterbug installation should cheer you up.
+
+--------------------------------------------------------------------------
+What's next?  
+
+Bob Baron is just about to announce his work on kernel support in FreeBSD
+current and NetBSD current - yes, it's in the official kernels now - but
+ELF issues and the like give some compilation headaches in user land.  
+This will probably come out as 4.6.? as well as be included in our
+unstable 4.7 release - see below.
+
+Jan has made some nice graphical tools - we just forgot to package them.
+They indicate bandwidth and the size of the client CML. Look in
+coda-src/scripts.  Next time, they'll be in. 
+
+Peter has just created chaos by checking in changes to give Coda a new
+directory handling layer.  This is our development version 4.7 for which
+we will release a source snapshot really soon.  It sort of works (client
+is good - server does something).
+
+Marc Schnieder is new to the group and has come to participate heavily in
+the completion of the Windows 95 and NT stuff.  His patches, changes as
+well as work Peter and Michael are doing will enter the 4.7 tree in the
+near future.  It's unclear when this will lead to an easily manageable
+Coda release for NT and 95 but of course this is our target.
+
+Troy Benjegerdes and Anthony Johnston have ported Coda to MkLinux and
+PPCLinux - this will get into 4.7 soon.  Phil Nelson is working on NetBSD
+ARM (Hey Corel,  where are your boxes? :)). 
+
+---------------------------------------------------------------------
+
+Have fun!
+
+The Coda Group. 
+
+Contacts:
+Peter Braam, braam@cs.cmu.edu
+Jan Harkes, jaharkes@cs.cmu.edu
+
