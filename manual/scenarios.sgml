@@ -216,8 +216,6 @@ over the phone and change the files in your hoard database.
    First delete the old routes:
 
 <code>
-;\1;p`))
-
 % set slipaddr = 128.2.254.129 # address of ts2.srv.cs.cmu.edu
 % set gwaddr = 128.2.254.36    # address of gw.cs.cmu.edu
 
@@ -225,8 +223,7 @@ over the phone and change the files in your hoard database.
 % /etc/route delete net 128.2 $hostaddr
 % /etc/route -f delete $hostaddr $hostaddr
 </code>
-and config the slip interface up with the new routes.
-
+and config the slip interface up with the new routes:
 <code>
 % /etc/ifconfig sl0 $hostaddr $slipaddr -trailers up
 % /etc/route add net 128.2 $slipaddr 0
