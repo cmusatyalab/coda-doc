@@ -12,7 +12,7 @@ cfs - Coda File System Interface Program
 <bf>cfs checkservers</bf><P>
 <bf>cfs checkvolumes</bf><P>
 <bf>cfs clearpriorities</bf><P>
-<bf>cfs &lsqb;@cpu&verbar;@sys&rsqb;</bf>
+<bf>cfs &lsqb;@cpu&verbar;@sys&rsqb;</bf><P>
 <bf>cfs endrepair</bf> &lt;file&gt;<P>
 <bf>cfs examineclosure</bf><P>
 <bf>cfs flushcache</bf><P>
