@@ -7,9 +7,9 @@
 <bf>vice-setup</bf><P>
 
 <mansect>DESCRIPTION<P>
-<bf>vice-setup</bf> user front-end to a family of scripts designed to setup
-a Coda server based on question-answer responses.  This avoids an otherwise
-tedius and error prone manual method.  The most critical
+<bf>vice-setup</bf> is the user front-end to a family of scripts designed 
+to setup a Coda server based on question-answer responses.  This avoids 
+an otherwise tedius and error prone manual method.  The most critical
 question asked for the vice-setup family of scripts to work 
 properly is:
 <p>
