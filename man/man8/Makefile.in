@@ -8,6 +8,7 @@ VPATH = @srcdir@
 
 CH=8
 MANPAGEFILES = au.8 \
+               pdbtool.8\
                auth2.8 \
                backup.8 \
                bldvldb.8 \
@@ -18,10 +19,8 @@ MANPAGEFILES = au.8 \
 	       makeftree.8 \
                merge.8 \
                norton.8 \
-               pcfgen.8 \
                purgevol.8 \
                purgevol_rep.8 \
-               pwd2pdb.8 \
                readdump.8 \
                replay.8 \
                codasrv.8 \
