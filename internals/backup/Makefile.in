@@ -1,0 +1,12 @@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+PSDOCS=codaback.ps
+HTMLDOCS=codaback.html 
+
+PPTDOCS=
+
+include ../../Makerules
+

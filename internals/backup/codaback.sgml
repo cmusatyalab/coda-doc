@@ -1,0 +1,190 @@
+<!doctype linuxdoc system [
+]>
+
+<article>
+<title>Coda Backup System
+<author> Peter J. Braam
+<date> March 1998
+<abstract>
+This is a short descritpion of the backup system from a technical perspective.
+</abstract
+
+<sect>
+Introduction<p>
+
+The Coda backup system falls into two components:
+
+<itemize>
+<item>The backup.cc program, which clones and dumps volumes. It works over the network and full and incremental dumps are supported.
+<item>Writing and retrieving such dumps to and from tapes.
+<item>Merging incremental and full dumps.
+<item>Restoring dumps.
+</itemize>
+
+
+<sect>Backup Program<p>
+
+This program takes involved important parameters and configurates data:
+
+<itemize>
+<item>A dumplist file.
+<item>A dump directory dumpdir.
+<item>Spool directories.
+</itemize>
+
+
+<sect1>The Dumplist File<p>
+
+The records in the dumplist are of the following form:
+<tt>Partitions
+/vicepb/backup
+/vicepc/backup
+/vicepa/backup
+/usr/codabackup/backup
+Volumes
+</tt>
+
+<tscreen><verb>
+7F000401        IFIIIII         v:p.c.rel.linux
+7F000402        IFIIIII         v:p.c.rel.nbsd
+7F000403        IFIIIII         v:p.c.rel.fbsd
+7F000404        IFIIIII         v:p.c.rel.win32
+7F000405        IFIIIII         v:p.c.rel.dpmi
+7F000406        IIIIIFI         v:s.public.net
+7F000407        IFIIIII         f:u.jcl
+7F00040B        IFIIIII         v:b.life
+7F00040F        IIIIIFI         v:u.rb.more.space
+7F000412        IFIIIII         f:ur.rvb
+7F000414        IIIIIFI         ver:alpha.source
+7F000415        IFIIIII         f:p.c.src
+7F000416        IFIIIII         f:p.c.sysad
+</verb></tscreen>
+
+Note that volume group ids, a weekday bitvector and volume names are present.
+
+The configuration information for the dump partitions used to be stored at 
+the top of the "dumplist" file.  However, that is now an obsolete method  
+to provide dump partition information to <tt>backup</tt>.<tt> Backup</tt>
+now looks for dump partition configuration information in <tt>/vice/db/vicetab</tt> on the backup coordinator machine.  A sample of <tt>vicetab</tt> is:
+
+<tscreen><verb>
+bcm          /backup1        backup
+bcm          /backup2        backup
+bcm          /backup3        backup
+</verb></tscreen>
+
+The first column is the name of the backup coordinator machine, the second 
+column specifies the name(s) of the spool directory where the dump files
+are stored.
+
+The dump directory is assumed to be <tt>/backup</tt> and is used to install 
+symbolic links in the following manner:
+
+<tt>dumpdir/date/host/groupid.volid -> spooldir/date/host-groupid.volid.</tt>
+
+If a full dump of a volume takes place, a file, <tt>dumpdir/date/FULLDUMP</tt> 
+will be left as an indicator. It produces good output for further processing 
+of the backups.
+
+The third column in, <tt>vicetab</tt>, designates the spool directories  
+used to store Coda dumps. Please see <tt>vicetab(5)</tt> for more 
+information on <tt>vicetab</tt>'s layout.
+
+<sect>Dumping the Volumes<P>
+
+The dumplist is parsed by the backup program. For each line, it consults the
+ VRDB to find the individual replicas. For each replica, the VLDB is consulted and the server number is filled in.
+
+A new thread is started to handle <it>WriteDump</it> requests. Another thread is created for polling servers. The main thread continues to go through the list of volumes and request cloning. The RPC responsible for cloning is: <tt> S_VolMakeBackups</tt>.  This can only be done for read/write volumes. This is a 
+fairly complicated operation described in, <tt> vol-backup.cc.</tt> It can either consist of making a fresh read/only clone or the modifying of an existing one. This process finishes by recording the time of cloning in the volume information in RVM.
+
+Backup now proceeds another time through its list of volumes and contacts servers for a dump or incremental dump if the cloning has succeeded. It writes the dumpfile and installs the symbolic link in the <tt>backup/host</tt> directory. 
+For incremental dumps, the server uses files in the <tt>/vice/backup</tt> directory named, <it>ancient</it>, listing previously dumped Vnodes.
+
+
+<tscreen><verb>
+Full dump of backup vol e20000a9(1458) for R/W vol. e20000a8, backup at Fri Nov 21 00:07:18 1997. 
+Start of Large list, 92 Vnodes, 384 lists.
+
+1.1 (2.2.2.0.0.0.0.0) (0.3474a706)
+7.2 (61.61.61.0.0.0.0.0) (0.3474a870)
+13.3 (2.2.2.0.0.0.0.0) (0.3474a75c)
+19.4 (5.5.5.0.0.0.0.0) (0.3474a767)
+25.5 (37.37.37.0.0.0.0.0 (0.3474a9e7)
+31.6 (132.132.132.0.0.0.0.0) (0.3474a992)
+37.7 (3.3.3.0.0.0.0.0) (0.3474a8ac)
+43.8 (6.6.6.0.0.0.0.0) (0.3474a776)
+49.9 (95.95.95.0.0.0.0.0) (0.3474aa95)
+55.10 (15.15.15.0.0.0.0.0) (0.3474aab3)
+61.11 (81.81.81.0.0.0.0.0) (0.3474a3b)
+67.12 (16.16.16.0.0.0.0.0) (0.3474ab57)
+73.13 (31.31.31.0.0.0.0.0) (0.3474a7d0)
+79.14 (3.3.3.0.0.0.0.0) (0.3474a80f)
+85.15 (12.12.12.0.0.0.0.0) (0.3474ab6d)
+91.16 (33.33.4.0.0.0.0.0) (8002b948.347349f0)
+
+</verb></tscreen>
+
+********************************
+
+
+
+As the dump proceeds through the Vnode lists, it writes out a, <tt>7f0003f3.e20000a8.newlist</tt>, file to record the VV the moment that the volume was dumped.
+
+Doing an incremental dump proceeds by comparing the vvlist found in the ancient file with that in RVM, and dumping Vnodes and then marking them for deletion as appropriate. A smartftp RPC call is made to the backup program to dump the volume.
+
+Finally, the server is asked to mark the volume as "ancient." This is handled by <tt>S_VolMarkAsAncient</tt> and simply moves the "*.newlist" file to the "*.ancient" file.
+
+Another try is made to get missed dumps before exiting.
+
+The program now prints the results of its actions. If a genuine full dump took place (i.e. a full dump which is not the consequence of the creation of a new volume), then a FULLDUMP file will be left behind.
+
+
+
+<sect>The Backup.sh Script<P>
+
+There was very messy interaction between the <tt> backup.cc</tt> program and the <tt>backup.sh</tt> and <tt>writetotape</tt> shell scripts. The <tt> backup.sh</tt> script has been eliminated by letting<tt> backup.cc</tt> create its dumpdir, asking the tape program to copy the databases and clean up after itself.
+
+<sect>Spooling to Tape<P>
+
+The spooling to tape does the following:
+
+<itemize
+<item>Copy all relevant databases to the <tt>dumpdir.</tt>
+<item>Dump <tt>dumpdir</tt> and all <tt>spooldirs</tt> to the tape.
+<item>Verify the tape.
+<item>Email logs.
+</itemize>
+
+
+Unfortunately, the program is mostly involved in notifying operators, waiting and testing to see if tapes have been loaded, and verifying that the correct tape was loaded.
+
+
+
+<sect>Tape Management<P>
+At tape management, two levels of dumps occur: <tt>FULL dumps</tt> and <tt>Incremental dumps</tt>. Incremental tapes are labeled as: <tt>Coda I WEEKDAY</tt>, and are recycled weekly. Full dumps are labeled as: <tt>CODA F tapenumber date</tt>, and are "never" recycled.
+
+The new scheme will write a <it>dump</it> format file to tape for the dump directory and each of the spool directories. The log will contain sufficient information to locate the correct dumpfile for a given volume.
+
+
+
+<sect>Improvements<P>
+<sect1> Features<P>
+Currently the backup system is so primitive that it may deter people from using Coda for two reasons:  first an unreasonable amount of spooling space is needed, and secondly, too many tapes are to be retained. This needs to be addressed urgently, but it is easy!
+
+<itemize>
+<item> Spooling is vital. Currently the backup server needs a lot of disk space to hold all of the volumes.
+
+<item>Multilevel backups are important.
+</itemize>
+Both features are easy to implement. Spooling is perhaps best controlled by the backup program invoking the tape program each time it has filled its spooling areas. It is already fully aware of available space in the partitions.
+
+Since explicit text files record the <tt>vv</tt> information at the time of dumping the read/only clones, it will be straight forward to label such files with a dump level.
+
+<sect>Understanding<P>
+The Coda backup system hands the final stage of the backup to the user by creating a read/only volume. This is definitely a bonus. However, many volumes might be filled with 1000's of files automatically and we do need to understand what "restoration" really is.
+
+Additionally, the BSD Unix dump program gets away making dumps by merely recording the dates of previous dumpss (a date for each level). The role of text files with version vector information for each Vnode needs understanding.
+
+
+</article>
