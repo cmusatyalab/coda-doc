@@ -78,7 +78,7 @@ download the whole package <url url="ftp://ftp.coda.cs.cmu.edu/pub/coda/doc"  na
 <itemize>
 <item> <url url="../ppt/sysad1.ppt"  name="Slides about system administration">
 <item> <url url="../ppt/rpc2.ppt"  name="Internals of RPC2 (in progress)">
-<item> <url url="../ppt/rdsseg.ppt"  name="Rds internals">
+<item> <url url="../ppt/rdsseg40.ppt"  name="Rds internals">
 <item> <url url="../ppt/server.ppt"  name="Server internals">
 <item> <url url="../ppt/directories.ppt"  name="Summary of the new directory system.">
 </itemize>

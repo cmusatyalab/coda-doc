@@ -134,8 +134,9 @@ purgevol-rep(8))
 
 <descrip>
 <tag><bf>restore</bf> <em>&lt;file-name&gt;</em> 
-<em>&lt;partition-path&gt;</em> &lsqb;<em>&lt;volume-ID&gt;</em> 
-<em>&lt;volume-name&gt;</em>&rsqb;</tag> Create a new volume on the partition
+<em>&lt;partition-path&gt;</em> &lsqb;<em>&lt;volume-name&gt;</em>
+&lsqb;<em>&lt;volume-ID&gt;</em> &rsqb; &rsqb;</tag>
+Create a new volume on the partition
 named by <em>&lt;partition-path&gt;</em> and read in the contents from a dump
 in file <em>&lt;file-name&gt;</em>. The new volume will be given the name and
 ID specified on the command line. If either is unspecified, or if the Volume

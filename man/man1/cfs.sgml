@@ -7,7 +7,6 @@ cfs - Coda File System Interface Program
 <mansect>SYNOPSIS
 <P>
 <bf>cfs &lsqb;adaptive&verbar;strong&rsqb;</bf><P>
-<bf>cfs strong</bf><P>
 <bf>cfs checkpointml</bf><P>
 <bf>cfs checkservers</bf><P>
 <bf>cfs checkvolumes</bf><P>
