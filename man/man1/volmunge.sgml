@@ -30,7 +30,7 @@ Print out the volume name of a volume's mount point.
 <mansect>DESCRIPTION<P>
 <p>
 <bf>volmunge</bf> is ideal for identifying Coda Objects versus
-regular UNIX files (including UNIX directories) store within the
+regular UNIX files (including UNIX directories) stored within the
 Coda filesystem.  It will work recursively.
 <p>
 Because the <bf>-f</bf> and <bf>-o</bf> call the stat(), and open()
