@@ -51,8 +51,12 @@
 <!entity servers	SYSTEM "../man/man5/servers.sgml">
 <!entity serconf	SYSTEM "../man/man5/srvconf.sgml">
 <!entity usrcoda	SYSTEM "../man/man5/user_coda.sgml">
+<<<<<<< manual.sgml
+<!entity pwdcoda	SYSTEM "../man/man5/passwd_coda.sgml">
+=======
 <!entity pwdcoda        SYSTEM "../man/man5/passwd_coda.sgml">
 <!entity vicetab        SYSTEM "../man/man5/vicetab.sgml">
+>>>>>>> 1.7
 <!entity volulist	SYSTEM "../man/man5/volumelist.sgml">
 <!entity vrdb		SYSTEM "../man/man5/vrdb.sgml">
 <!entity vrlist		SYSTEM "../man/man5/vrlist.sgml">
