@@ -45,7 +45,6 @@ make DOCDIR=/usr/doc/coda-doc-@VERSION@ install
 /usr/man/man3/timing.3
 
 /usr/man/man5/passwd.coda.5
-/usr/man/man5/user.coda.5
 /usr/man/man5/vsgdb.5
 /usr/man/man5/maxgroupid.5
 /usr/man/man5/backuplogs.5
@@ -54,7 +53,6 @@ make DOCDIR=/usr/doc/coda-doc-@VERSION@ install
 /usr/man/man5/dumplist.5
 /usr/man/man5/servers.5
 /usr/man/man5/vrdb.5
-/usr/man/man5/group.coda.5
 /usr/man/man5/volumelist.5
 /usr/man/man5/dumpfile.5
 /usr/man/man5/multicastagents.5
@@ -63,16 +61,14 @@ make DOCDIR=/usr/doc/coda-doc-@VERSION@ install
 
 /usr/man/man8/updatesrv.8
 /usr/man/man8/createvol.8
-/usr/man/man8/srv.8
+/usr/man/man8/codasrv.8
 /usr/man/man8/updateclnt.8
 /usr/man/man8/startserver.8
-/usr/man/man8/pwd2pdb.8
+/usr/man/man8/pdbtool.8
 /usr/man/man8/venus.8
 /usr/man/man8/merge.8
 /usr/man/man8/replay.8
-/usr/man/man8/authmon.8
 /usr/man/man8/auth2.8
-/usr/man/man8/updatemon.8
 /usr/man/man8/vutil.8
 /usr/man/man8/bldvldb.8
 /usr/man/man8/initpw.8
@@ -82,7 +78,6 @@ make DOCDIR=/usr/doc/coda-doc-@VERSION@ install
 /usr/man/man8/readdump.8
 /usr/man/man8/purgevol_rep.8
 /usr/man/man8/purgevol.8
-/usr/man/man8/pcfgen.8
 /usr/man/man8/volutil.8
 /usr/man/man8/backup.8
 
