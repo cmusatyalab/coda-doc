@@ -1,0 +1,427 @@
+		=============
+		Coda Release 
+		=============
+
+version: 4.3.14
+date: 02/26/98
+
+
+These are partial instructions how to setup, build and configure the
+Coda file system. Refer to the manual in /usr/share/doc.
+
+Currently, a package system release for FreeBSD is not supported.  It
+will be in the future.  In the meantime, we rely on standard gzip'd
+tarballs for distributing Coda.
+
+		========
+		Contents
+		========
+
+I. Configuring and Building Coda
+   1. Configuration
+   2. Usage
+   3. What gets build
+   4. Building coda
+
+II.   Building Coda.
+
+III.  Information about our Makefile setup
+
+		========
+		LICENSE:
+		======== 
+
+READ THE FILE COPYING 
+
+		========
+		WARNING: 
+		========
+
+CODA IS BARELY READY FOR PRODUCTION USE. THIS RELEASE IS JUST FOR
+THOSE INTERESTED IN EXPLORING THOSE FEATURES WHICH WORK. IT CONTAINS
+KERNEL CODE, AND SERVERS RUNNING WITH ROOT PRIVILIGES, AND COULD LEAD
+TO DATA LOSS.
+
+
+===================================================
+I. Installing and configuring Coda: first install.
+===================================================
+
+0.  There have been numerous bug fixes and other improvement
+    since the last release; read the CHANGES, BUGS, and README files
+    from the ftp area.  In particular, the kernel code has been improved.
+    There is support for FreeBSD 2.2.5-RELEASE, NetBSD 1.3 and NetBSD 1.2.
+    In the ftp area, you will find several gzip'ed files:
+		coda-client-2.2.5-4.3.14-1.tgz
+		coda-server-2.2.5-4.3.14-1.tgz
+		kernel-patch.FreeBSD-2.2.5-4.3.14.gz
+		kernel-patch.cfs-4.3.14.gz
+		kernel.gz
+		coda-doc-4.3.14.tgz
+		coda-src-4.3.14.tgz
+    We will assume that you have copied all these files to <ftp_area>/
+    on you home machine.
+
+1.  Installing the kernel:
+
+    The kernel provide in the ftp area is a GENERIC kernel with ddb and 
+    coda enabled.  If you need a special kernel at your site, you will
+    have to build one from the kernel-patch<xxx>.gz's above.  We will
+    discuss this later.
+    NOTE: The Coda client needs this special kernel while the Coda server
+    does not.
+
+    These instructions are for installing our supplied kernel.  First, you
+    need to be root.  These instructions come from a "make install" in the
+    kernel build area (this assumes an sh shell):
+
+	#!/bin/sh
+        chflags noschg /kernel
+        mv /kernel /kernel.old
+        if [ `/usr/sbin/sysctl -n kern.bootfile` = /kernel ] ; then
+                /usr/sbin/sysctl -w kern.bootfile=/kernel.old
+                mv -f /var/db/kvm_kernel.db /var/db/kvm_kernel.old.db
+        fi
+	cp -p <ftp area>/kernel /kernel
+	chmod 555 /kernel
+	chown root.wheel /kernel
+        chflags schg /kernel
+
+
+2. Installing the VENUS client software:
+
+    Cd to the <ftp_area>/ and untar the client and docs:
+
+	tar zxfv coda-client-2.2.5-4.3.14-1.tgz -C /
+	tar zxfv coda-doc-4.3.14.tgz -C /usr/share
+
+
+3. Initializing before running Venus:
+
+     The venus-setup script does all the hard work, it will
+     setup the coda control files, create /dev/cfs0 to 
+     communicate with the kernel, ...  (Note: it will edit
+     /etc/services to add some additional services.)
+
+     venus-setup <comma_separated_hosts> <cache_size_in_kb>
+
+     NOTE: the cache size should be at least 10Meg, typically
+     60-100Meg is used (ie. 60000 or 100000 on the above line).
+     DO NOT GO ABOVE 100Meg.
+
+     By default, if you leave out the server argument,  you are
+     talking to testserver.coda.cs.cmu.edu.  We strongly recommend
+     you try that first. 
+
+     NOTE: YOU MUST HAVE A KERNEL ENABLED WITH VENUS SUPPORT TO
+     PROCEED.
+
+4. Running Venus:
+
+     The following assumes you are running X-Window.  However, you
+     could run these commands from FreeBSD's virtual consoles 
+     as well, but ommitting the "xterm -e" in front of the commands
+     below.
+
+
+     Start Venus with
+
+	 venus -init &
+
+     Observe the venus log with
+
+	 xterm -e tail -f /usr/coda/etc/console
+
+     Type 
+
+	 xterm -e codacon &
+
+     in an xterm to see the communications between the kernel and Venus.
+
+
+     NOTE: Please make sure your have enough free space on the
+	   filesystem in which /usr/coda/venus.cache resides for the
+	   cachesize indicated.  That is, if you specify 20000 for 
+	   for twenty-thousand kilobytes, this means you must have at
+	   least 20MB of free on the partition containing venus.cache.
+
+     See below how to point your client at your own server.
+
+
+5. Installing the Server client software:
+
+    Cd to to the <ftp_area>/ and untar the server:
+
+	tar zxfv coda-server-2.2.5-4.3.14-1.tgz -C /
+	tar zxfv coda-doc-4.3.14.tgz -C /usr/share
+
+    You do not need to reinstall the doc's if you have done so already.
+
+
+6. Initializing before running Vice:
+
+     NOTE: that running a server seriously dips into your virtual memory.
+     Running a server _and_ a client and X11 I have needed slightly over
+     64M of available VM.  The command free gives information.
+
+
+     To set up an SCM server, you need to have the following available: 
+       1) an empty directory ( /vicepa ) where the fileserver will
+	  put files.
+       2) a raw partition for RVM metadata (you can use a file but it 
+	  will be quite slow on a decent size server). This partition
+	  must be around 4% of the total size of the files you wish 
+	  to store under /vicepa (e.g. on a 2GB server we use around
+	  80M of rvm data). Consider 10M to be the minimum. 
+       3) a LOG partition, preferrably on a disk by itself. This 
+	  needs not be large. 
+       4) two secret tokens of _exactly_ 8 characters (eg elephant).
+	  The RVM files involve the journalling/transactional aspects 
+	  of Coda.
+
+    Then run:
+
+	  vice-setup
+
+    and answer its questions.
+
+7. Running Vice:
+
+     Start the update server, client and the auth server, as well as
+     the fileserver by typing 
+
+	/etc/rc.vice start
+
+     Now observe the log:
+
+	xterm -e tail -f  /vice/srv/SrvLog & 
+
+     Determine with ps that srv, updatesrv and updateclnt are running.
+     The SrvLog should show "File Server started".  If not, you have 
+     a problem. 
+
+8: Making Volumes
+
+     Make a root volume (coda:root [below] should be the name you gave to
+     vice-setup for the root volume name): 
+
+	  createvol_rep coda:root E0000100 /vicepa
+
+     NOTE:  E0000100 is the Volume Storage Group set up for you
+	    by vice-setup . With more servers you can define other
+	    groups in /vice/db/VSGDB -- see the Coda User Manual.	
+
+     Now you are ready to point a Venus (client) at this server. 
+
+     The vice-setup program installed an administrative user on
+     the server, named admin.  It needs to have uid: 500 and has
+     been assigned password changeme.  Read section 7.7 in the 
+     Coda Manual to find out how to set up another user and 
+     password database (such users must be installed on clients too, 
+     but need not be in /etc/passwd on the servers). 
+
+     I recommend you kill all srv, authmon, and auth2 updatemon
+     processes.
+
+     You should remove the file /vice/db/passwd.coda since it 
+     contains cleartext passwords.
+
+9. Usage:
+
+     a) Normal server startup:
+
+	     startserver &
+
+	it comes up at boot time from rc.vice, unless you said "No" 
+	to automatic startup, OR if the there is a file /vice/srv/CRASH
+	exists, which indicates the fileserver crashed. Howver you need
+	the update server and client for system administration and the 
+	authserver for authentication -- see /etc/rc.vice. 
+
+     b) Re-run venus-setup and point your server to your own server.
+
+	client: (** make sure the server is up _AND_ you have
+		    made root volumes **)
+	start venus with 
+
+	     venus -init &
+	     xterm -e tail -f /usr/coda/venus.cache/venus.log
+	     xterm -e tail -f /usr/coda/etc/console
+	     xterm -e codacon
+
+	When the server is up cd to /coda and start playing.  You won't
+	run -init the next time you start venus.  This causes venus to
+	flush its cache.  This is necessary in this case since we are
+	switching the server venus is talking to.  (Currently, venus
+	does not support Cells.)
+
+
+     c) Restarting a server:
+
+	     volutil shutdown
+
+	shuts down the server.  Restart as above.
+
+     d) Restarting a client.  The official procedure is to:
+
+		vutil -shutdown
+
+	kill -9 <venus> works equally well.
+
+	If ps aux | grep venus displays a Zombie venus, reboot 
+	your machine before trying again.  (If you don't you'll
+	likely have to run fsck by hand later.)
+
+     e) Troubleshooting.
+	I) If the server crashes before you have used it through
+	   /coda, do rm -rf /vice and start all over. At the
+	   minimum you must do before you restart.
+
+	   Remember: first clean, then startserver, then make rootvolumes.
+
+	II) If venus comes up but hangs or crashes, check for zombie 
+	    venus processes. If these exist, reboot first.
+
+
+
+II BUILDING Coda 
+================
+
+1.  Building the kernel
+
+	a) You must patch your kernel sources to add Coda.  If you use
+	   the FreeBSD 2.2.5-RELEASE sources, the patches should go in
+	   cleanly.  If you have your own hacked up 2.2.5-RELEASE, there
+	   may be conflicts.  But I'll assume that if you've been hacking
+	   your kernel you can fix little conflicts.
+	   NOTE: We are porting to -current, but this source does not work
+	   on 3.0
+
+	b) The following will assume /usr/src/coda/ as your build
+	   area (this is where we build our releases on our local
+	   machine).  However, you may put the source code anywhere you
+	   wish.  Caveat: Since our binaries are build in /usr/src/coda,
+	   this makes it easy to use GDB if you wish against the CMU
+	   binaries.  Otherwise, you can use 'directory' in GBD to point
+	   it to where the source code has actually been installed.
+
+	   Let's suppose you put a copy of /usr/src/sys (or your kernel) in
+	   /usr/src/coda/sys.  cd to /usr/src/coda/sys.  We'll patch it as
+	   follows:
+
+	     zcat <ftp_area>/kernel-patch.FreeBSD-2.2.5-4.3.14.gz | patch -p6
+	     zcat <ftp_area>/kernel-patch.cfs-4.3.14.gz | patch -p4
+
+	   The first patch applies changes to the kernel source tree
+	   (mainly references to Coda specific files).
+
+	   NOTE: We provide i386/conf/CODA which is the FreeBSD GENERIC
+           kernel configuration file and we also modify i386/conf/GENERIC
+	   so that the files are identical when the patch is applied.
+	   The only things changed in the GENERIC are the addition of Coda 
+	   specific options and enabling the DDB debugger.
+
+	   The second patch adds the directory cfs to the kernel.
+
+	   NOTE: you must type the -p6 and -p4, respectively, in the above two
+	   commands.  The patches are built from cvs trees and the sys changes
+	   are pretty deep in the tree.
+
+	c) Now its time to build the kernel.  I supply a CODA configuration,
+	   which is identical to the supplied GENERIC with Coda options.  I'll
+	   go with that in the example below.
+	   (Alternatively, the real GENERIC was just patched to support CODA.)
+	   So you type
+
+		/usr/sbin/configure CODA
+
+	   Then cd to the build area and do a make and then as root type:
+
+		cd ../../compile/CODA
+		make install
+
+	   Or just copy the "kernel" to where you need it.
+
+
+2.  Building coda:
+	a) First you need several external packages to build coda:
+		gnu make
+		gdbm
+		readline
+		perl
+	   If these are installed on your system, skip to item b).
+	   Otherwise you must find and build these packages.  You can
+	   use any port/package/pkg system available.  Also, for convenience,
+	   in the misc/ directory under FreeBSD in our ftp area, we have put
+	   recent tar's of the source for these programs.
+	   NOTE: In order to RUN one experimental gui oriented feature of Coda --
+	   the advice monitor -- you also will need tcl/tk.
+
+	b) Cd to to the <ftp_area>/ and untar the source into your favorite build area:
+	   (You will need about 100Meg.)
+
+		tar zxfv coda-src-4.3.14.tgz -C /usr/coda
+
+	c) Cd to /usr/coda (I am assuming this is your build area.) and mkdir obj
+	   This is where we will build the binaries.  Now cd into obj and type:
+
+		../c4_3_14/configure
+
+	   This will use the gnu configure system to shadow the sources that were
+	   installed in /usr/coda/c4_3_14 in step b) above.
+
+	d) Now type:
+
+		gmake coda
+
+	   I am assuming you named the gnu make, gmake, not to confuse yourself and 
+	   other users of the machine.
+
+	e) To install the client suite type:
+
+		gmake client-install
+
+	   To install the server suite type:
+
+		gmake server-install
+
+	   You probably don't want to run both the client and server on the same machine.
+
+
+III. Makefile Information
+==========================
+
+		GLOBAL VARIABLES you set on the command line
+
+GFLAG=	 request debugging info on compilation (GFLAG=-g is the default)
+OPTFLAG= request optimization (OFLAG=-O is the default)
+DEPFLAG= request dependency generation (DEPFLAG= is the default)
+LIBFLAG= {G}CC options used when creating a a.out
+MYFLAGS= any old thing you want
+
+		GLOBAL VARIABLES CREATED BY configure
+
+TOPDIR	top of source tree
+srcdir	here
+SECSRC	user source area
+SHOB	shared objects
+TOPOBJ	top of build area subquently define
+
+		GLOBAL VARIABLES PROCESSED BY Makerules
+
+EXECUTABLES
+	build; install to .../bin; rm on clean
+HEADERS
+	no build;install to .../include; no clean
+LIBRARIES
+	build; install to .../lib; rm on clean
+RP2FILES
+	rp2gen these files; no install; rm *.multi.c *.client.c *.server.c
+RP2HEADERS
+	no build; no install; rm on clean
+SCRIPTS
+	no build; install to .../bin; no clean
+SUBDIRS
+	visit & install or all
+TESTS
+	build; no install ??; rm on clean
