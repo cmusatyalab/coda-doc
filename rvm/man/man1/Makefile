@@ -1,16 +1,13 @@
+# Generated automatically from Makefile.in by configure.
+SHELL = /bin/sh
+srcdir = .
+top_srcdir = ../../..
 
-create_container = ../../../scripts/create_container
+
+SUBDIRS = 
+
 
 MANPAGEFILES = rdsinit.man rvmutl.man 
 
-all: $(MANPAGEFILES)
+include ../../../Makerules
 
-%.sgml.cntr: %.sgml
-	  $(create_container) $?
-
-%.man: %.sgml.cntr
-	sgml2txt -man $?
-	mv $?".man" $@
-
-clean:
-	rm -f *.sgml.cntr *.sgml.cntr.man *.man

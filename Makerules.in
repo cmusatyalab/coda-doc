@@ -33,6 +33,8 @@ doc-install: FORCE
 	install  $(top_srcdir)/rvm/rvm_manual.ps $(top_srcdir)/install
 
 man-install: man
+	-mkdir -p $(prefix)/man
+	-mkdir -p $(prefix)/man/man1
 	install -m 644 -o root -g bin $(MANPAGEFILES) $(prefix)/man/man1
 
 clean:

@@ -1,5 +1,11 @@
+# Generated automatically from Makefile.in by configure.
 
-create_container = ../../scripts/create_container2
+SHELL = /bin/sh
+srcdir = .
+top_srcdir = ../..
+
+
+SUBDIRS = 
 
 MANPAGEFILES = cfs.man \
                clearstats.man \
@@ -12,19 +18,11 @@ MANPAGEFILES = cfs.man \
                heal.man \
                hoard.man \
                mvdb.man \
-               profoff.man \
+	       filcon.man \
                repair.man \
                spy.man \
                ttyfcon.man
 
-all: $(MANPAGEFILES)
+include ../../Makerules
 
-%.sgml.cntr: %.sgml
-	  $(create_container) $?
 
-%.man: %.sgml.cntr
-	sgml2txt -man $?
-	mv $?".man" $@
-
-clean:
-	rm -f *.sgml.cntr *.sgml.cntr.man *.man

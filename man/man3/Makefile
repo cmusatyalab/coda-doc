@@ -1,17 +1,13 @@
+# Generated automatically from Makefile.in by configure.
 
-create_container = ../../scripts/create_container2
+SHELL = /bin/sh
+srcdir = .
+top_srcdir = ../..
+
+SUBDIRS = 
 
 MANPAGEFILES = histo.man \
                timing.man 
 
-all: $(MANPAGEFILES)
 
-%.sgml.cntr: %.sgml
-	  $(create_container) $?
-
-%.man: %.sgml.cntr
-	sgml2txt -man $?
-	mv $?".man" $@
-
-clean:
-	rm -f *.sgml.cntr *.sgml.cntr.man *.man
+include ../../Makerules

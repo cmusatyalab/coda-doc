@@ -11,6 +11,10 @@
 
 
 <mansect>DESCRIPTION<P>
+<em>NOTE:</tt> This has been replaced by filcon(1).  The man page
+for filcon is not quite ready yet.
+
+<p>
 The Coda failure emulation package consists of two pieces: a library
 of routines (<em>libfail</em>) that is linked in with each client and server,
 and a user interface program (<em>ttyfcon</em>) that controls the behavior

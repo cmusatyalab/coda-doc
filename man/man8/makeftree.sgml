@@ -1,0 +1,39 @@
+
+<manpage TITLE="makeftree" SECTNUM=8>
+<mansect>NAME 
+ <P>makeftree - format a Coda Data Storage partition to use b-tree structure.
+
+
+
+<mansect>SYNOPSIS<P>
+<bf>makeftree</bf> &lt;vicetab;gt; &lt;partition_path&gt;
+
+
+<mansect>DESCRIPTION<P>
+<tt>makeftree</tt> organizes an existing UNIX directory with a mounted partition
+for use by Coda listed in vicetab with a b-tree format for fast and efficent
+file retrival.  The b-tree infromation is kepe in the file <em>FTREEDB</em> at
+the head of the partition.
+<p>
+The depth and width must be specifed in <tt>vicetab</tt>
+<p>
+<mansect>BUGS<p>
+<tt>makeftree</tt> expects the file FTREEDB to already exist before it is run.
+Before running, 
+<tscreen><verb>
+touch <partition_path>/FTREEDB
+</verb></tscree> 
+must be issued to avoid a segmentation fault.
+
+
+<mansect>SEE ALSO<P>
+vicetab (5)
+
+
+<mansect>AUTHOR<P>
+Henry M. Pierce, 1998, Created man page
+
+
+
+
+</manpage>
