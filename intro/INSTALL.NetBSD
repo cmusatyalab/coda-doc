@@ -6,9 +6,9 @@
 date: 09/14/98
 
 Instructions on how to run Coda are in a documented titled RUN.
-Instructions on how to build Coda are in a document titled BUILD.
-This release uses the package system for the client, server, and
-documentation.
+Instructions on how to build Coda are in a document titled
+BUILD.NetBSD.  This release uses the package system for the client,
+server, and documentation.
 
 If you want to get more information on Coda or get a newer release of
 the software check out:
@@ -22,7 +22,7 @@ I. Coda is:
 	precompiled packages:
 		coda-client-4.6.5.1.tgz
 		coda-doc-4.6.5.3.tgz
-		coda-intro-4.6.5.1.tgz
+		coda-intro-4.6.5.2.tgz
 		coda-server-4.6.5.1.tgz
 
 	packages:

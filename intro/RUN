@@ -6,7 +6,7 @@ date: 09/14/98
 
 These are partial instructions on how to setup and configure the Coda
 filesystem.  For further information, refer to the manual in
-/usr/share/doc/coda-doc-4.6.5
+/usr/local/share/doc/coda-doc-4.6.5
 
 I. 		========
 		LICENSE:
@@ -29,55 +29,65 @@ III.	Venus -- the client
 
 The venus-setup script does all the hard work, it will setup the coda
 control files, create /dev/cfs0 to communicate with the kernel, ...
+It also initializes a directory for cache files.  The cache size
+should be at least 10Meg, typically 60-100Meg is used (ie. 60000 or
+100000 in venus-setup [below]).  DO NOT GO ABOVE 200-300Meg.  All the
+files created will be placed under /usr/coda.  You should make sure
+that there is enough space in the file system that /usr/coda resides
+on to hold a fully populated cache.
 
 venus-setup <comma_separated_host_list> <cache_size_in_kb>
 
-We strongly recommend that you try testserver.coda.cs.cmu.edu as the
-<comma_separated_host_list> first. 
+venus-setup and venus (below) are in sbin/.  Make sure that sbin is in
+your path or that you use fully qualified pathnames.  We strongly
+recommend that you try testserver.coda.cs.cmu.edu as the
+<comma_separated_host_list> first.
 
-NOTE:
-The cache size should be at least 10Meg, typically 60-100Meg is used
-(ie. 60000 or 100000 on the above line).  DO NOT GO ABOVE 200-300Meg.
 NOTE:
 venus-setup will edit /etc/services to add some additional services.)
 NOTE:
-YOU MUST HAVE A KERNEL ENABLED WITH VENUS SUPPORT TO PROCEED.
+YOU MUST HAVE A KERNEL ENABLED WITH VENUS SUPPORT TO PROCEED.  The
+INSTALL document and the BUILD document explain how to get a
+VENUS capable kernel.
 
 2. Running Venus:
 
 The following assumes you are running X-Window.  However, you could
-run these commands from NetBSD's virtual consoles as well, but
-omitting the "xterm -e" in front of the commands below.
+run these commands from virtual consoles as well, but omitting the
+"xterm -e" in front of the commands below.
 
-Start Venus with
+Start Venus with:
 	venus &
 
-The init flag is only given the first time venus is started.  It flushes
-the local cache contents.  (Actually, the first time venus is started
-or whenever venus is connected to a different server.)
+An -init flag can be given when venus is started; it flushes the local
+cache contents.  It should be used whenever venus is connected to a
+different server.  (venus-setup essentially forces an init to happen
+when venus is first started.)
 
-Observe the venus log with
+Observe the venus log with:
 	xterm -e tail -f /usr/coda/etc/console
 It will tell you when venus has started and give status.
 
-Type 
+Type:
     xterm -e codacon &
-to see the communications between the Venus and Vice.  It is possible
-to see the upcalls from the kernel to Venus by turning up logging in
-Venus, but they are not very interesting.  (To turn on minimal debugging,
-type:
-	vutil -d 1
-and then tail .../coda.cache/venus.log.)
+to see the communications between the Venus and Vice.
 
+It is possible to see the upcalls from the kernel to Venus by turning
+up logging in Venus, but they are not very interesting.  (To turn on
+minimal debugging, type:
+	vutil -d 1
+and then tail -f /usr/coda/coda.cache/venus.log.)
 
 NOTE:
-Please make sure your have enough free space on the filesystem in
+Remember, make sure your have enough free space on the filesystem in
 which /usr/coda/venus.cache resides for the cachesize indicated.  That
 is, if you specify 20000 for for twenty-thousand kilobytes, this means
 you must have at least 20MB of free on the partition containing
 venus.cache.
 
-See below how to point your client at your own server.
+To halt venus, type:
+	vutil shutdown
+(Or you can kill -9 "venus", if you must.)
 
 IV.	Codasrv -- the server
 
