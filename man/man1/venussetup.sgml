@@ -1,0 +1,55 @@
+
+
+<manpage TITLE="venus-setup" SECTNUM=1>
+<mansect>NAME 
+ <P> <bf>venus-setup</bf> setup <bf>venus</bf> on a client
+
+<mansect>SYNOPSIS<P>
+<bf>venus-setup</bf> [comma,separated,list,of,servers] [cachesize in kb]<P>
+
+<mansect>DESCRIPTION<P>
+The <bf>venus-setup</bf> command takes a  list of servers separated
+by commas, one of which must be the SCM and a cache size given in 
+kilobytes.  <bf>venus-setup</bf> then performs the following operations:
+<itemize>
+<item>creates up the <em>/coda</em> root directory if not present.
+<item>creates <em>/usr/coda</em> if not present.
+<item>creates necessary subdirectories under <em>/usr/coda</em> if not present.
+<item>creates <em>/usr/coda/etc/vstab</em> with parameters given on the 
+command line.
+<item>creates <em>/dev/cfs0</em> if not already present.
+<item>adds Coda file-system port numbers to <em>/etc/servers</em> if not present.
+</itemize>
+<p>
+<mansect>EXAMPLE<p>
+<p>
+<tscreen><verb>
+
+venus-setup Mickey,Minnie,Goofy 10000
+</verb></tscreen>
+setups up <em>/usr/coda/etc/vstab</em> for <bf>venus</bf> to 
+contact either Mickey, Minnie or Goofy and configures venus with a 10MB 
+cache.
+
+<mansect>BUGS<P>
+The [cachesize in kb] option to venus-setup is not very smart.  In
+fact, it is quite dumb.  No abbreviations are allowed after the
+number and the number is taken literally to be kilobytes.
+<p>
+<bf>venus-setup</bf> will happily overwrite an existing 
+<em>/usr/coda/etc/vstab</em> without warning.
+
+<mansect>FILES<p>
+<em>/etc/services</em> The Internet network services list
+<em>/usr/coda/etc/vstab</em> the VenuS TABle specification file
+
+<mansect>SEE ALSO<P>
+venus (8), vstab (5), services (5)
+<p> 
+Coda Manual: ``Installing A Coda Client''
+
+
+<mansect>AUTHOR<P>
+1998, Henry M. Pierce
+
+</manpage>
