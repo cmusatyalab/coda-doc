@@ -2,13 +2,18 @@
 >,,&gt;,,&cons
 _,,&lowbar;,,&cons
 @\*,,<P>,,&cons
+# @@,,ATSIGN,,&cons
 \',,,,&cons
-@[iI]\(\/,\),<tt>\/,</tt>,&cons
+
 @[iI]\(,\),<em>,</em>,&cons
 @[iI]\[,\],<em>,</em>,&cons
 @[iI]&lt;,&gt;,<em>,</em>,&cons
+
 @[bB]\(,\),<bf>,</bf>,&cons
 @[bB]\[,\],<bf>,</bf>,&cons
+@b&lt;,&gt;,<bf>,</bf>,&cons
+
+@[Tt]\(\/,\),<tt>\/,</tt>,&cons
 {,,&lcub;,,&cons
 },,&rcub;,,&cons
 \[,,&lsqb;,,&cons
@@ -18,5 +23,10 @@ _,,&lowbar;,,&cons
 @Man\(,\),,,&cman
 @part\(,\),,,&nullit
 @option\(,\),,,&copt
+
 @BeginProse\(,\),\@BeginProse<sect1>,<P>,&cons
 @BeginProse,@EndProse\(\),,,&cons
+@comment&lcub;,&rcub;,<!--,-->,&cons
+@blankspace\(,\),<!--,-->,&cons
+# ATSIGN,,@,&cons
+enough

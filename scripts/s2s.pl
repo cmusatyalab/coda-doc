@@ -1,12 +1,10 @@
 #!/usr/bin/perl
-
-
+$TABLE="/afs/cs/project/coda-braam/codadoc/scripts/s2s";
 while ( <STDIN> ) {
     $text = $text . $_;
 }
-## print "--------->Before:***\n $text\n\n\n\n";
-
-
+# print "--------->Before:***\n $text\n\n\n\n";
+# print "****************************************************************\n";
 
 
 # Usage: s2gsub( text, sc_b, sc_e, sg_b, sg_e,  )
@@ -21,7 +19,7 @@ sub cons {
 
 sub nullit {
     ""
-    }
+}
 
 
 sub nlcons {
@@ -32,11 +30,15 @@ sub nlcons {
     $_[0] . $stuff . $_[2];
 }
 
-sub str2arg {
+# Build name/val aary for copt
+sub optstr2arg {
     my ( %vars );
-    my ( $in, $out,  @manargs );
+    my ( $in, $out,  @manargs, $prm );
 
-    @manargs = split(/\s*,\s*/,$_[0]);
+    $prm = $_[0];
+
+    $prm =~ s/,\s*(desc|name)/SEPARATOR $1/m;
+    @manargs = split(/\s*SEPARATOR\s*/,$prm);
 
     foreach ( @manargs ) { 
 	($in , $out ) = split ( /\s*=\s*/, $_);
@@ -46,9 +48,28 @@ sub str2arg {
     %vars;
 }
     
+# now for man
+sub manstr2arg {
+    my ( %vars );
+    my ( $in, $out,  @manargs, $prm );
+
+    $prm = $_[0];
+
+#    $prm =~ s/,\s*(desc|name)/SEPARATOR $1=/m;
+    @manargs = split(/\s*,\s*/,$prm);
+
+    foreach ( @manargs ) { 
+	($in , $out ) = split ( /\s*=\s*/, $_);
+	$out =~ s/\"//sg;
+	$vars{ $in } = $out;
+    }
+    %vars;
+}
+
+# Dissect Scribe preamble
 sub cman {
     my ($out, %vars, $name, $blurb, $chapter, $system);
-    %vars = str2arg($_[1]);
+    %vars = manstr2arg($_[1]);
     
     $name = $vars{"name"};
     $blurb = $vars{"blurb"};
@@ -65,15 +86,27 @@ sub cman {
 sub copt {
     my ($out, %vars, $name, $desc);
     
-    %vars = str2arg($_[1]);
+    %vars = optstr2arg($_[1]);
     $name = $vars{"name"};
     $desc = $vars{"desc"};
-#     print "--------> %vars\n";
-#     print "--------> $desc\n";
+#    print "--------> %vars\n";
+#    print "--------> $desc\n";
+#    print "**** \&copt: >str2arg: $name: \t$desc \n";
 
-    $out = "<descrip>\n<tag>$name</tag>$desc\n</descrip>";
+    $out = "<descrip>\n<tag>$name</tag>$desc\n<P></descrip>";
     $out;
 }
+
+#sub matstr {
+#    my ($out);
+#    if ($_[1]) {
+#        $out = "([^()]*(\\([^()]*\\)[^()]*)*)";
+#    }
+#    else {
+#        $out = "(.*?)";
+#    }
+#    $out;
+#}
 
 sub s2gsub {
     my ($thetext, $sc_b, $sc_e, $sg_b, $sg_e, $myfunc);
@@ -85,15 +118,19 @@ sub s2gsub {
     $sg_b = $_[3];
     $sg_e = $_[4];
     $myfunc = $_[5];
+    $matfun = $_[6];
 
+#    Match one level of optional nested parens
+#    $sc_t = "([^()]*(\\([^()]*\\)[^()]*)*)";
+#    $sc_t = "(.*?)";
 
     $in = $sc_b . "(.*?)" . $sc_e;
+#    $in = &matstr($matfun);
 
-#     print "********$in**************\n";
-#     print "********$sg_b**************\n";
-#     print "********$sg_e**************\n";
-#     print "********$myfunc(\"$sg_b\", \"$1\", \"$sg_e\");**************\n";
-    
+#    print "******** \&s2gsub: \$in: $in **************\n";
+#    print "********$sg_b**************\n";
+#    print "********$sg_e**************\n";
+#    print "********$myfunc(\"$sg_b\", \"$1\", \"$sg_e\");**************\n";
 
 # /e evaluates the replacement string twice.  Warning $1 is only assigned when 
 #    in the regexp, cannot be put in beforehand.
@@ -101,16 +138,15 @@ sub s2gsub {
 # /s helps with multiline things.
 # /m allows ^ and & to still match begin and end of line.
 
-     if ( $thetext =~ /$in/gsm ) {
+    if ( $thetext =~ /$in/gsm ) {
 # 	print "HURRAY! *$1*\n";
 #	print "$myfunc(\"$sg_b\", \"$1\", \"$sg_e\");\n"
-     }
+#	print "**** \&s2gsub: \$myfunc: $myfunc: \t$sg_b \n\t$1 \n\t$sg_e\n";
+    }
 
     $thetext =~ s/$in/"$myfunc(\"$sg_b\", '$1', \"$sg_e\");"/igsmee;
     $thetext;
 }
-
-
 
 
 # $sc_b = "\@BeginProse\\(DESCRIPTION\\)";
@@ -122,10 +158,32 @@ sub s2gsub {
 
 # $func = "\&cons";
 
-open(TABLE, "s2s") || die "Can't open s2s!";
+#   if ( $text =~ /(\s\()(.*?)\)/ ) {
+#       print "---> Yippeah:  $1 --- \n";
+#       print "--->  LEFTPAREN $2 RIGHTPAREN\n"
+#   }
+
+#  Substitute ' LEFTPAREN' for \s( and RIGTHPAREN for )
+$text =~ s/\s\(([^\)]*?)\)/ LEFTPAREN $1 RIGHTPAREN/gms;
+
+# print "P1:\n$text\n";
+# print "P1:\n$1\n";
+
+#   if ( $text =~ /([^\@]\b\w+\()(.*?)\)/ ) {
+#       print "---> Yippeah:  $1 --- $2 \n";
+#       print "---> $1 LEFTPAREN $2 RIGHTPAREN\n"
+#   }
+
+$text =~ s/([^\@]\b\w+)\((.*?)\)/$1 LEFTPAREN $2 RIGHTPAREN/gms;
+# print "P2:\n$text\n";
+
+open(TABLE, $TABLE) || die "Can't open s2s!";
 
 while (<TABLE> ) { 
     chop ;
+    if ( /^\#/ ) {
+	next;
+    }
     if ( /^enough/ ) {
 #	print "ENOUGH!\n";
 	last;
@@ -147,6 +205,11 @@ while (<TABLE> ) {
 # $newtext = &s2gsub( $text, $entry[0], $entry[1], $entry[2], $entry[3], $entry[4]);
 # print $newtext;
 }
+
+
+# restore the parenthesis
+$text =~ s/ LEFTPAREN (.*?) RIGHTPAREN/ ($1)/gms;
+
 
 $text .= "\n</manpage>\n";
 print $text;
