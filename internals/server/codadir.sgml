@@ -495,6 +495,57 @@ For every ViceFid an inode number can be computed. The routine coda_f2i does thi
 <item> The name looke dup is "." and it is contained in the root directory of a volume. In this case the value returned is the value obtained by looking up the mountpoint in the parent directory of ".".</item></enum>
 
 
+<sect>Directory handling in the server <P>
+
+
+The server has a fairly complicated directory handling system which we describe here. 
+
+<sect1> Persistent storage of directory data <p>
+
+A directory is identified by a vnode, and the vnode's data is stored
+in a VnodeDiskObject (cvnode.h).  The <tt/type/ of the vnode will be
+directory and the <tt/inodeNumber/ will be an RVM pointer to a
+<em/DirInode/.  The dir inode contains an array of page addresses and
+a reference count to identify the copy on write references to the
+directory.
+
+When the pages are placed in a contiguous buffer, the directory has
+the standard structure described in <tt/codadir.h/.
+
+<sect1> Directory handles in the server <p>
+
+A key difference between server and client handling of directories is
+that there can be more than a single vnode referencing the same
+directory inode. In the client only a single fso can point to a dir
+header. Generally the vnodes referencing the directory inode will lie
+in different volumes, one being a read only clone of another volume.
+As a result the directory data is an object which needs to be treated
+independently of the vnode.  For this we use a cache of DirHandles.
+
+The interface to the cache is extremely simple: <tt/DC_HashInit/
+initializes the hash table. <tt/DC_Get/ takes as argument a pointer to
+a DirInode and enters it in the cache if it wasn't in yet, returning
+the pointer to the <em/DirHandle/.  The cache entry has a reference
+count which indicates how many VM vnodes are referencing the directory
+inode.  The in-core copy of the vnode will have its <em/DirHandle/
+field set to the result returned by DC_Get.  When the directory data
+for a Vnode needs to be available, DC_Get is called with argument
+<tt/vnode->disk.inode./ Previously this was achieved by calling
+SetDirHandle.
+
+At this point in time a VM copy of the directory data is available for
+manipulation by the fileserver.  The routines DH_Lookup, DH_Delete,
+DH_Create etc. are available to search and modify the VM copy of the
+directory.  Such changes obtain a write lock on the DirHandle since
+the changes will be visible to other threads accessing the directory.
+
+
+
+
+
+
+
+
 
 
 

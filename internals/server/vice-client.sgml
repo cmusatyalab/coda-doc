@@ -1,0 +1,84 @@
+
+<sect> Connections with clients <p>
+
+<sect1> Establishing a new connection <p>
+
+The Client interface of the file server maintains the connections between the server and Veni on clients.  
+
+An array hostTable is maintained of structures of type HostTable:
+<verb>
+typedef struct HostTable {
+    RPC2_Handle id;			/* cid for call back connection	*/
+    unsigned int	host;		/* IP address of host		*/
+    unsigned int	port;		/* port address of host		*/
+    unsigned int	LastCall;	/* time of last call from host	*/
+    unsigned int	ActiveCall;	/* time of any call but gettime	*/
+    struct ClientEntry	*FirstClient;	/* first connection from host	*/
+    struct Lock		lock;		/* lock used for client sync	*/
+    char HostName[MAXHOSTLENGTH];	/* name of workstation		*/
+}   HostTable;
+</verb>
+
+Attach to each HostTable structure is a singly linked list of ClientEntry structures:
+<verb>
+typedef struct ClientEntry {
+    RPC2_Handle		RPCid;			/* cid for connection	*/
+    PRS_InternalCPS	*CPS;			/* cps for authentication */
+    RPC2_Integer	Id;			/* Vice ID of user	*/
+    RPC2_Integer	SecurityLevel;		/* Security level of conn */
+    int			SEType;			/* Type of side effect */
+    unsigned int	LastCall;		/* time of last call	*/
+    HostTable		*VenusId;		/* ptr to host entry	*/
+    RPC2_Integer	LastOp;			/* op code of last call */
+    int			DoUnbind;		/* true if Unbind needed */
+    struct ClientEntry	*NextClient;		/* next entry for host	*/
+    char		UserName[MAXNAMELENGTH]; /* name of user	*/
+} ClientEntry;
+</verb>
+
+When a client first connects to a Coda fileserver (userent::Connect),
+a routine <em/ViceNewConnection/ is executed in the server as a result
+of the RPC2_NewBinding coming in from the client.  This routine is
+tagged with the NEW_CONNECTION token in the vice.rpc2 file.
+
+The purpose of ViceNewConnection (srvproc2.cc) is to find the user
+name belonging to the connection.  The private pointer in the RPC2
+CEntry is retrieved, and linked to a new ClientEntry which is
+allocated in the routine CLIENT_Build.  This routine finds the user,
+instantiates the new ClientEntry. The ClientEntry is linked to an
+existing HostEntry if this is found, or a new spot in the hostEntry
+array is used.
+
+The connection is now ready for use, and the client immediately calls
+ViceNewConnectFS. During the processing of this RPC2 the server
+retrieves the ClientEntry from the RPC2 connection and proceeds to
+either establish a new Callback connection, or to make a gratuitous
+callback to the client.  If this succeeds, the routine returns success. 
+
+<sect1> Cleaning up connections <p>
+
+The routine CLIENT_CleanupHost is called to clean up a host
+entry. First the client entries are removed from the HostEntry.
+Secondly the routine <em/DeleteVenus/ is called.  DeleteVenus goes
+through the hashTable of FileEntry's. For each entry it breaks the
+callbacks. This is pretty expensive!
+
+A file entry is a structure:
+<verb>
+struct FileEntry {
+    struct FileEntry *next;
+    struct Lock cblock;
+    ViceFid theFid;
+    int users;
+    struct CallBackEntry *callBacks;
+};
+</verb>
+
+A CallBackEntry is attached to each FileEntry:
+<verb>
+struct CallBackEntry {
+    struct CallBackEntry *next;	    /* The next dude same file id. */
+    HostTable *conn;		    /* The bogon to notify. */
+};
+</verb>
+
