@@ -44,29 +44,13 @@ Thus hosts may be specified either by name or by Internet address.
 
 <sect>How RPC2 uses LWPs<p>
 Clients and servers are each assumed to be Unix processes using the
-LWP package.
-RPC2 will not work independently of the LWP package.
-The LWP package makes it possible for a single Unix process to
-contain multiple threads of control (LWPs).
-An RPC call is synchronous with respect to an individual LWP,
-but it does not block the encapsulating Unix process. 
-Although LWPs are non-preemptive, RPC2 internally yields control
-when an LWP is blocked awaiting a request or reply.  Thus more than
-one LWP can be concurrently making RPC requests.
-There is no a priori binding of RPC connections to LWPs, or LWPs to 
-subsystems within a client or server.
-Thus RPC connections, LWPs and subsystems are completely 
-orthogonal concepts.
+LWP package. RPC2 will not work independently of the LWP package.
+The LWP package makes it possible for a single Unix process to contain multiple threads of control (LWPs). An RPC call is synchronous with respect to an individual LWP, but it does not block the encapsulating Unix process. 
+Although LWPs are non-preemptive, RPC2 internally yields control when an LWP is blocked awaiting a request or reply.  Thus more than one LWP can be concurrently making RPC requests. There is no a priori binding of RPC connections to LWPs, or LWPs to subsystems within a client or server. Thus RPC connections, LWPs and subsystems are completely orthogonal concepts.
 
-Since LWPs are non-preemptive, a long-running computation by an
-LWP will prevent the RPC2 code from getting a chance to run.  This
-will typically manifest itself as a timeout by the client
-on the RPC in progress.  To avoid this, the long running computation
-should periodically invoke @IOMGR(Poll) followed by @LWP(DispatchProcess).
+Since LWPs are non-preemptive, a long-running computation by an LWP will prevent the RPC2 code from getting a chance to run.  This will typically manifest itself as a timeout by the client on the RPC in progress.  To avoid this, the long running computation should periodically invoke @IOMGR(Poll) followed by @LWP(DispatchProcess).
 
-For similar reasons, Unix system calls such as <tt>read (2)</tt>, <tt>sleep (3)</tt>,
-and <tt>select (2)</tt> that may block for a long time should be avoided.
-Instead, use IOMGR&lowbar;Select.
+For similar reasons, Unix system calls such as <tt>read (2)</tt>, <tt>sleep (3)</tt>, and <tt>select (2)</tt> that may block for a long time should be avoided. Instead, use IOMGR&lowbar;Select.
 
 
 <sect>Side Effects<p>
@@ -153,7 +137,7 @@ This is done by calling the @LWP(Init) and @RPC2(Init) calls respectively.
 It is necessary that the LWP package be initialized before the RPC2 package.
 
 The client, after initialization, binds to the server by calling
-@RPC2(NewBinding).  The parameters to this call include the identity
+RPC2_NewBinding.  The parameters to this call include the identity
 of the server, the subsytem etc.
 A connection id is returned to the client.
 The client is now ready to make RPC calls on this connection.

@@ -16,7 +16,6 @@
 <!entity cover SYSTEM "cover.sgml">
 <!entity preface SYSTEM "preface.sgml">
 
-
 <!entity rpc2exam SYSTEM "rpc2_examples.sgml">
        <!entity rtimerpc SYSTEM "rtime_rpc.sgml">
        <!entity rtimecl  SYSTEM "rtime_clnt.c.sgml">
@@ -30,7 +29,6 @@
 <!entity rp2gusr SYSTEM "rp2gen_user.sgml">
 
 <!entity rpc2runt SYSTEM "rpc2_runtime.sgml">
-
 <!entity sftpuser SYSTEM "sftp_user.sgml">
 
 <!entity multiRPC SYSTEM "multi_user.sgml">
@@ -73,7 +71,6 @@
 <!entity timerh SYSTEM "timer.h.sgml">
 <!entity preempth SYSTEM "preempt.h.sgml">
 
-
 ]>
 <book>
 
@@ -86,15 +83,10 @@
 <bf>RPC2 User Reference</bf><P>
 &rpc2exam;
 &rp2gusr;
-<!--
-&rpc2runt;
--->
-   
+&rpc2runt;  
 &sftpusr;
-
 &multiRPC;
-
- &lwpusr;
+&lwpusr;
 
  &rpc2int; 
      

@@ -16,9 +16,9 @@ obey these representation standards.
 
 <sect>Usage<P>
 RP2GEN is invoked as follows:
-
+<tscreen>
 	rp2gen <em>file</em>
-
+</tscreen>
 
 
 <em>File</em> is the file containing the description of the interface.  Normally,
@@ -27,21 +27,21 @@ named: <em>base</em>.client.c; <em>base</em>.server.c; and <em>base</em>.h,
 where <em>base</em> is the name of the file without the extension and the
 pathname prefix.
 Thus:
-
+<tscreen>
             rp2gen <em>samoan.rpc2</em>
-
+</tscreen>
 would yield the files: <em>samoan</em>.client.c; <em> samoan</em>.server.c; and <em>samoan</em>.h.
 
 A person wanting to provide a package remotely writes his package with
 a normal interface.  The client programmer writes his code to make normal
 calls on the interface.  Then the client program is linked with:
-
-            <bf> ld ... base.client.o /usr/andrew/lib/librpc2.a ...</bf>
-
+<tscreen>
+            ld ... base.client.o /usr/andrew/lib/librpc2.a ...
+</tscreen>
 and the server program with
-
-             <bf>ld ... base.server.o /usr/andrew/lib/librpc2.a ...</bf>
-
+<tscreen>
+             ld ... base.server.o /usr/andrew/lib/librpc2.a ...
+</tscreen>
 
 The server module provides a routine, the <em>ExecuteRequest </em>routine,
 that will decode the parameters of the request and make an appropriate
@@ -56,7 +56,6 @@ may be included by any other module that needs access to these types.
 <sect>Format of the Description File<P>
 In the syntax of a description file below, non-terminals are represented
 by <em>italic</em> names and literals are represented by <bf>bold</bf> strings.
-
 
 <tabular ca=ll>
 file ::= | prefixes header&lowbar;line default&lowbar;timeout decl&lowbar;or&lowbar;proc&lowbar;list
@@ -85,12 +84,7 @@ typedef ::= | <bf>typedef</bf> rpc2&lowbar;type identifier array&lowbar;spec <bf
 @
 rpc2&lowbar;type ::= | type&lowbar;name &verbar; rpc2&lowbar;struct &verbar; rpc2&lowbar;enum
 @
-type&lowbar;name ::@!= <bf>RPC2&lowbar;Integer)
-</bf> &verbar; <bf>RPC2&lowbar;Unsigned </bf> &verbar; <bf>RPC2&lowbar;Byte </bf>
-@
-@/&verbar; <bf>RPC2&lowbar;String </bf> &verbar; <bf>RPC2&lowbar;CountedBS </bf> &verbar; <bf>RPC2&lowbar;BoundedBS </bf>
-@
-@/&verbar; <bf>SE&lowbar;</bf>Descriptor <bf>RPC2&lowbar;EncryptionKey </bf> &verbar; identifier
+type&lowbar;name ::= | <bf>RPC2&lowbar;Integer </bf> &verbar; <bf>RPC2&lowbar;Unsigned </bf> &verbar; <bf>RPC2&lowbar;Byte </bf> &verbar; <bf>RPC2&lowbar;String </bf> &verbar; <bf>RPC2&lowbar;CountedBS </bf> &verbar; <bf>RPC2&lowbar;BoundedBS </bf> &verbar; <bf>SE&lowbar;Descriptor</bf> &verbar <bf>RPC2&lowbar;EncryptionKey </bf> &verbar; identifier
 @
 rpc2&lowbar;struct ::= | <bf>RPC2&lowbar;Struct  &lcub;</bf> field&lowbar;list <bf>&rcub;</bf>
 @
@@ -106,15 +100,12 @@ enum&lowbar;list ::= | enum <bf>,</bf> enum&lowbar;list &verbar; enum
 @
 enum ::= | identifier <bf>=</bf> number
 @
-array&lowbar;spec ::= | empty &verbar; <bf>&lsqb;</bf> id&lowbar;number @b
+array&lowbar;spec ::= | empty &verbar; <bf>&lsqb;</bf> id&lowbar;number<bf>&rsqb</bf>
 @
 id&lowbar;number ::= | number &verbar; identifier
 @
-@Hinge
-@
-procedure&lowbar;description ::= | @!proc&lowbar;name <bf>(</bf> formal&lowbar;list <bf> </bf>
-@
-@/timeout&lowbar;override new&lowbar;connection <bf>;</bf>
+procedure&lowbar;description ::= | proc&lowbar;name <bf>(</bf> formal&lowbar;list <bf>)</bf>
+@|timeout&lowbar;override new&lowbar;connection <bf>;</bf>
 @
 proc&lowbar;name ::= | identifier
 @
@@ -126,12 +117,11 @@ usage ::= |  <bf>IN</bf> &verbar; <bf>OUT</bf> &verbar; <bf>IN OUT</bf>
 @
 parameter&lowbar;name ::= | identifier
 @
-timeout&lowbar;override ::= | <bf>Timeout</bf> <bf>(</bf> id&lowbar;number <bf> </bf> &verbar; empty
+timeout&lowbar;override ::= | <bf>Timeout</bf> <bf>(</bf> id&lowbar;number<bf>)</bf> &verbar; empty
 @
-new&lowbar;connection ::= | <bf>NEW&lowbar;</bf>CONNECTION &verbar; empty
+new&lowbar;connection ::= | <bf>NEW&lowbar;CONNECTION</bf> &verbar; empty
 @
 empty ::= |
-
 </tabular>
 
 In addition to the syntax above, text enclosed in /* and */
@@ -145,7 +135,7 @@ begin an identifier. (Note that a particular language interface defines
 what identifiers may actually be used in various contexts.)
 
 The following are reserved words in RP2GEN: <bf>server</bf>, <bf>client</bf>,
-<bf>prefix</bf>, <bf>subsystem</bf>, <bf>timeout</bf>, <bf>typedef</bf>, <bf>rpc2&lowbar;</bf>struct, <bf>rpc2&lowbar;</bf>enum,
+<bf>prefix</bf>, <bf>subsystem</bf>, <bf>timeout</bf>, <bf>typedef</bf>, <bf>rpc2&lowbar;struct</bf>, <bf>rpc2&lowbar;enum</bf>,
 <bf>in</bf> and <bf>out</bf>.  Case is ignored for reserved words, so that, for
 example, <bf>subsystem</bf> may be spelled as <bf>SubSystem</bf> if desired. 
 Case is not ignored, however, for identifiers.  Note that the predefined
@@ -155,43 +145,43 @@ be written exactly as given above.
 The <em>prefixes</em> may be used to cause the names of the procedures in
 the interface to be prefixed with a unique character string.  The line:
 
-<itemize>
+<tscreen>
               Server Prefix "test";
-</itemize>
+</tscreen>
 
 will cause the server file to assume that the name of the server interface
 procedure <em>name</em> is test&lowbar;<em>name</em>.  Likewise, the statement:
 
-<itemize>  
+<tscreen>  
              Client Prefix "real";
-</itemize>
+</tscreen>
 
 affects the client interface.  This feature is useful in case it is
 necessary to link the client and server interfaces together.  Without
 this feature, name conflicts would occur.
 
-The <em>header&lowbar;</em>line defines the name of this subsystem.  The subsystem
+The <em>header&lowbar;line</em> defines the name of this subsystem.  The subsystem
 name is used in generating a unique for the <em>execute request</em> routine.
 
-The <em>default&lowbar;</em>timeout is used in both the server and client stubs. 
+The <em>default&lowbar;timeout</em> is used in both the server and client stubs. 
 Both are specified in seconds.  Zero is interpreted as an infinite timeout
 value.  The value specifies the timeout value used on RPC2&lowbar;MakeRPC ()
 and RPC2&lowbar;SendResponse () calls in the client and server stubs respectively. 
 The timeout parameter may be overriden for individual procedures by
-specifying a <em>timeout&lowbar;</em>override.  Note that the timeouts apply to
+specifying a <em>timeout&lowbar;override</em>.  Note that the timeouts apply to
 each individual Unix blocking system call, not to the entire RPC2 procedure.
 
-The <em>new&lowbar;</em>connection is used to designate at most one server procedure
+The <em>new&lowbar;connection</em> is used to designate at most one server procedure
 that will be called when the subsystem receives the initial RPC2 connection. 
 The new connection procedure must have 4 arguments in the following
 order with the following usages and types:
-<itemize>
+<tscreen><verb>
 
-(IN RPC2_Integer: SideEffectType
-(IN RPC2_Integer: SecurityLevel 
-(IN RPC2_Integer: EncryptionType
-(IN RPC2_CountedBS: ClientIdent 
-</itemize>
+(IN RPC2_Integer: SideEffectType,
+ IN RPC2_Integer: SecurityLevel,
+ IN RPC2_Integer: EncryptionType,
+ IN RPC2_CountedBS: ClientIdent,
+</verb></tscreen>
 
 
 where <tt> SideEffectType, SecurityLevel, EncryptionType,</tt> and <tt> ClientIdent</tt> have the values
@@ -201,22 +191,22 @@ If no new connection procedure is specified, then the call to the <em>execute
 request</em> routine with the initial connection request will return RPC2&lowbar;FAIL.
 
 The <em>usage</em> tells whether the data for the parameter is to be copied
-in, copied out, or copied in both directions.  The <em>usage</em> and <em>type&lowbar;</em>name
+in, copied out, or copied in both directions.  The <em>usage</em> and <em>type&lowbar;name</em>
 specifications together tell how the programmer should declare the parameters
 in the server code.
 
 
 
-<sect>Example 1: Common Definitions for Coda File System<P>
+<sect1>Example 1: Common Definitions for Coda File System<P>
 <Tscreen><verb>
 /*
  * Include file common to callback.rpc2, vice.rpc2 and res.rpc2
  */
 
-typedef RPC2&lowbar;Unsigned   VolumeId;
+typedef RPC2_Unsigned   VolumeId;
 typedef VolumeId	       VolId;
-typedef RPC2&lowbar;Unsigned	VnodeId;
-typedef RPC2&lowbar;Unsigned	Unique;
+typedef RPC2_;Unsigned	VnodeId;
+typedef RPC2_;Unsigned	Unique;
 
 typedef RPC2&lowbar;Struct 
 	&lcub;
@@ -225,37 +215,37 @@ typedef RPC2&lowbar;Struct
 	Unique		Unique;
 	&rcub; ViceFid;
 
-typedef RPC2&lowbar;Struct
+typedef RPC2_Struct
 	&lcub;
-	RPC2&lowbar;Unsigned	Host;
-	RPC2&lowbar;Unsigned	Uniquifier;
+	RPC2_Unsigned	Host;
+	RPC2_Unsigned	Uniquifier;
 	&rcub; ViceStoreId;
 
-typedef RPC2&lowbar;Struct
+typedef RPC2_Struct
 	&lcub;
-	RPC2&lowbar;Integer	Site0;
-	RPC2&lowbar;Integer	Site1;
-	RPC2&lowbar;Integer	Site2;
-	RPC2&lowbar;Integer	Site3;
-	RPC2&lowbar;Integer	Site4;
-	RPC2&lowbar;Integer	Site5;
-	RPC2&lowbar;Integer	Site6;
-	RPC2&lowbar;Integer	Site7;
+	RPC2_Integer	Site0;
+	RPC2_Integer	Site1;
+	RPC2_Integer	Site2;
+	RPC2_Integer	Site3;
+	RPC2_Integer	Site4;
+	RPC2_Integer	Site5;
+	RPC2_Integer	Site6;
+	RPC2_Integer	Site7;
 	&rcub; ViceVersionArray;
 
-typedef RPC2&lowbar;Struct
+typedef RPC2_Struct
 	&lcub;
 	ViceVersionArray	Versions;
 	ViceStoreId	StoreId;
-	RPC2&lowbar;Unsigned	Flags;
+	RPC2_Unsigned	Flags;
 	&rcub; ViceVersionVector;
 
-typedef RPC2&lowbar;Unsigned	UserId;
-typedef RPC2&lowbar;Unsigned	FileVersion;
-typedef RPC2&lowbar;Unsigned	Date;
-typedef RPC2&lowbar;Integer	Rights;
+typedef RPC2_Unsigned	UserId;
+typedef RPC2_Unsigned	FileVersion;
+typedef RPC2_Unsigned	Date;
+typedef RPC2_Integer	Rights;
 
-typedef	RPC2&lowbar;Enum 
+typedef	RPC2_Enum 
 	&lcub; 
 	Invalid = 0,
 	File = 1, 
@@ -263,7 +253,7 @@ typedef	RPC2&lowbar;Enum
 	SymbolicLink = 3 
 	&rcub; ViceDataType;
 
-typedef RPC2&lowbar;Enum
+typedef RPC2_Enum
 	&lcub;
 	NoCallBack = 0,
 	CallBackSet = 1,
@@ -271,12 +261,12 @@ typedef RPC2&lowbar;Enum
 	&rcub; CallBackStatus;
 
 
-typedef RPC2&lowbar;Struct
+typedef RPC2_Struct
 	&lcub;
-	RPC2&lowbar;Unsigned	InterfaceVersion;
+	RPC2_Unsigned	InterfaceVersion;
 	ViceDataType	VnodeType;
-	RPC2&lowbar;Integer	LinkCount;
-	RPC2&lowbar;Unsigned	Length;
+	RPC2_Integer	LinkCount;
+	RPC2_Unsigned	Length;
 	FileVersion	DataVersion;
 	ViceVersionVector	VV;
 	Date		Date;
@@ -285,7 +275,7 @@ typedef RPC2&lowbar;Struct
 	CallBackStatus	CallBack;
 	Rights		MyAccess;
 	Rights		AnyAccess;
-	RPC2&lowbar;Unsigned	Mode;
+	RPC2_Unsigned	Mode;
 	VnodeId		vparent;
 	Unique		uparent;
 	&rcub; ViceStatus;
@@ -293,7 +283,7 @@ typedef RPC2&lowbar;Struct
 
 
 
-<sect>Example 2: The Coda Resolution Subsystem Interface<p>
+<sect1>Example 2: The Coda Resolution Subsystem Interface<p>
 <Tscreen><verb>
 /* res.rpc2 
  * Defines the resolution subsystem interface
@@ -311,36 +301,36 @@ Subsystem "resolution";
 /* 
 Return codes from the servers on resolution subsystem
 */
-#define RES&lowbar;FAILURE	-512
-#define	RES&lowbar;SUCCESS	0
-#define RES&lowbar;TIMEDOUT	-513
-#define RES&lowbar;NOTRUNT	-514
-#define RES&lowbar;BADOPLIST	-515
+#define RES_FAILURE	-512
+#define	RES_SUCCESS	0
+#define RES_TIMEDOUT	-513
+#define RES_NOTRUNT	-514
+#define RES_BADOPLIST	-515
 
 #include "vcrcommon.rpc2"
 
-typedef RPC2&lowbar;Struct
+typedef RPC2_Struct
 	&lcub;
-	RPC2&lowbar;Integer	status;
-	RPC2&lowbar;Unsigned	Author;
-	RPC2&lowbar;Unsigned	Owner;
-	RPC2&lowbar;Unsigned	Date;
-	RPC2&lowbar;Unsigned 	Mode;
+	RPC2_Integer	status;
+	RPC2_Unsigned	Author;
+	RPC2_Unsigned	Owner;
+	RPC2_Unsigned	Date;
+	RPC2_Unsigned 	Mode;
 	&rcub; ResStatus;
 
-typedef RPC2&lowbar;Struct
+typedef RPC2_Struct
 	&lcub;
-	RPC2&lowbar;Integer		LogSize;
+	RPC2_Integer		LogSize;
 	ViceVersionVector 	VV;
 	&rcub; ResVolParm;
 
-typedef RPC2&lowbar;Enum
+typedef RPC2_Enum
 	&lcub;
 	FetchStatus = 0,
 	FetchSData = 1
 	&rcub; ResFetchType;
 
-typedef RPC2&lowbar;Enum
+typedef RPC2_Enum
 	&lcub;
 	ResStoreStatus = 0,
 	ResStoreData = 1
@@ -349,70 +339,80 @@ typedef RPC2&lowbar;Enum
 COP2	 (IN ViceStoreId StoreId,
 		 IN ViceVersionVector UpdateSet);
 
-NewConnection (IN RPC2&lowbar;Integer SideEffectType,
-		 IN RPC2&lowbar;Integer SecurityLevel,
-		 IN RPC2&lowbar;Integer EncryptionType,
-		 IN RPC2&lowbar;CountedBS ClientIdent)
-                 NEW&lowbar;CONNECTION;
+NewConnection (IN RPC2_Integer SideEffectType,
+		 IN RPC2_Integer SecurityLevel,
+		 IN RPC2_Integer EncryptionType,
+		 IN RPC2_CountedBS ClientIdent)
+                 NEW_CONNECTION;
 
 ForceFile    (IN ViceFid Fid,
 		 IN ResStoreType Request,
-		 IN RPC2&lowbar;Integer Length,
+		 IN RPC2_Integer Length,
 		 IN ViceVersionVector VV,
 		 IN ResStatus Status,
-		 IN OUT SE&lowbar;Descriptor BD);
+		 IN OUT SE_Descriptor BD);
 
 LockAndFetch (IN ViceFid Fid, 
 		 IN ResFetchType Request, 
 		 OUT ViceVersionVector VV,
-		 OUT RPC2&lowbar;Integer logsize);
+		 OUT RPC2_Integer logsize);
 
 UnlockVol    (IN VolumeId Vid);
 
 MarkInc      (IN ViceFid Fid);
 
 FetchFile (IN ViceFid Fid, 
-		 IN RPC2&lowbar;Unsigned PrimaryHost,
+		 IN RPC2_Unsigned PrimaryHost,
 		 OUT ResStatus Status,
-		 IN OUT SE&lowbar;Descriptor BD);
+		 IN OUT SE_Descriptor BD);
 
 ForceDirVV (IN ViceFid Fid,
 		 IN ViceVersionVector VV);
 
 DoForceDirOps (IN ViceFid Fid,
 		 IN ViceStatus status,
-		 IN OUT RPC2&lowbar;CountedBS AccessList,
-		 OUT RPC2&lowbar;Integer rstatus,
-		 IN OUT SE&lowbar;Descriptor sed);
+		 IN OUT RPC2_CountedBS AccessList,
+		 OUT RPC2_Integer rstatus,
+		 IN OUT SE_Descriptor sed);
 
 GetForceDirOps  (IN ViceFid Fid,
 		 OUT ViceStatus status, 
-		 IN OUT RPC2&lowbar;CountedBS AccessList,
-		 IN OUT SE&lowbar;Descriptor sed);
+		 IN OUT RPC2_CountedBS AccessList,
+		 IN OUT SE_Descriptor sed);
 
 FetchLog (IN ViceFid Fid,
-		 OUT RPC2&lowbar;Integer logsize,
-		 IN OUT SE&lowbar;Descriptor sed);
+		 OUT RPC2_Integer logsize,
+		 IN OUT SE_Descriptor sed);
 
 DirResPhase2 (IN ViceFid Fid,
 		 IN ViceStoreId logid,
 		 OUT ViceStatus status,
-		 IN RPC2&lowbar;BoundedBS pbinc);
+		 IN RPC2_BoundedBS pbinc);
 
 DirResPhase1 (IN ViceFid Fid, 
-		 IN RPC2&lowbar;Integer size,
+		 IN RPC2_Integer size,
 		 IN OUT ViceStatus status,
-		 IN OUT RPC2&lowbar;BoundedBS piggyinc,
-		 IN OUT SE&lowbar;Descriptor sed);
+		 IN OUT RPC2_BoundedBS piggyinc,
+		 IN OUT SE_Descriptor sed);
 
 DirResPhase3 (IN ViceFid Fid,
 		 IN ViceVersionVector UpdateSet,
-		 IN OUT SE&lowbar;Descriptor sed);
+		 IN OUT SE_Descriptor sed);
 
 </verb></Tscreen>
 
 
-
+<sect>Command Line Parameters<p>
+In addition, several command line flags are available to modify the behavior of rp2gen :
+<descrip>
+  <tag>-c <tt>file</tt></tag> Specify the name of the client .c file.
+  <tag>-s <tt>file</tt></tag> Specify the name of the server .c file. 
+  <tag>-h <tt>file</tt></tag> Specify the name of the header file.
+  <tag>-m <tt>file</tt></tag> Specify the name of the MultiRPC stub file.
+  <tag>-I <tt>path</tt></tag> Additional path to look for included files.
+  <tag/-e,-neterrors/ Translate system-specfic error codes to caller's system-specfic codes.
+  <tag/-cplusplus/ Generate C++ compatible code in .cc files.
+</descrip>
 
 <sect>The C Interface<P>
 This section describes the <bf>C interface</bf> generated by RP2GEN.  The following
@@ -440,9 +440,8 @@ RP2Gen representation of parameters
 </table>
 
 
-
 In all cases it is the caller's responsibility to allocate storage for
-all parameters.  This means that for <tt> IN </tt>and<tt>  IN OUT </tt>parameters of a non-fixed
+all parameters.  This means that for <tt> IN </tt>and<tt> IN OUT </tt>parameters of a non-fixed
 type, it is the callee's responsibility to ensure that the value to
 be copied back to the caller does not exceed the storage allocated by
 the callee.
@@ -456,15 +455,15 @@ Upon invocation, this argument will be bound to the address of a handle
 that indicates the address of the caller.
 
 RP2GEN also generates a routine that serves to decode an RPC2 request.
-The name of this routine is "<em>subsystem&lowbar;</em>name&lowbar;ExecuteRequest",
+The name of this routine is "<em>subsystem&lowbar;name&lowbar;ExecuteRequest</em>",
 and it is invoked as follows:
 
-<itemize>
-int <em>subsystem&lowbar;</em>name&lowbar;ExecuteRequest (cid, Request, bd)
+<tscreen>
+int <em>subsystem&lowbar;name&lowbar;ExecuteRequest</em>(cid, Request, bd)
     RPC2&lowbar;Handle cid;
     RPC2&lowbar;PacketBuffer *Request;
     SE&lowbar;Descriptor *bd;
-</itemize>
+</tscreen>
 
 
 
@@ -488,18 +487,18 @@ bytes are read and written such that byte <em>m</em> always precedes byte
 
 
 <descrip>
-<tag/RPC2&lowbar;Integer./ An RPC2&lowbar;Integer  is a 32-bit item that encodes an integer represented
+<tag/RPC2&lowbar;Integer/ An RPC2&lowbar;Integer  is a 32-bit item that encodes an integer represented
 in twos complement notation.  The most significant byte of the integer
 is 0, and the least significant byte is 3.
 
-<tag/RPC2&lowbar;Unsigned./  An RPC2&lowbar;Unsigned  is a 32-bit item that encodes an unsigned integer. 
+<tag/RPC2&lowbar;Unsigned/  An RPC2&lowbar;Unsigned  is a 32-bit item that encodes an unsigned integer. 
 The most significant byte of the integer is 0, the least significant
 byte is 3.
 
-<tag/RPC2&lowbar;Byte./  An RPC2&lowbar;Byte  is transmitted as a single byte followed by three padding
+<tag/RPC2&lowbar;Byte/  An RPC2&lowbar;Byte  is transmitted as a single byte followed by three padding
 bytes.
 
-<tag/RPC2&lowbar;String./  An RPC2&lowbar;String  is a C-style null-terminated character string.  It is
+<tag/RPC2&lowbar;String/  An RPC2&lowbar;String  is a C-style null-terminated character string.  It is
 sent as an RPC2&lowbar;Integer  indicating the number of characters to follow,
 not counting the null byte, which is, however, sent.  This is followed
 by bytes representing the characters (padded to a multiple of 4), where
@@ -507,13 +506,13 @@ the first character (i.e., farthest from the null byte) is byte 0.
 An RPC2&lowbar;String  of length 0 is representing by sending an RPC2&lowbar;Integer 
 with value 0, followed by a 0 byte and three padding bytes.
 
-<tag/RPC2&lowbar;CountedBS./  An RPC2&lowbar;CountedBS  is used to represent a byte string of arbitrary
+<tag/RPC2&lowbar;CountedBS/  An RPC2&lowbar;CountedBS  is used to represent a byte string of arbitrary
 length.  The byte string is not terminated by a null byte.  An RPC2&lowbar;CountedBS 
 is sent as an RPC2&lowbar;Integer  representing the number of bytes, followed
 by the bytes themselves (padded to a multiple of 4 .  The byte with
 the lowest address is sent as byte 0.
 
-<tag/RPC2&lowbar;BoundedBS./  An RPC2&lowbar;BoundedBS  is intended to allow you to remotely play the game
+<tag/RPC2&lowbar;BoundedBS/  An RPC2&lowbar;BoundedBS  is intended to allow you to remotely play the game
 that C programmers play: allocate a large buffer, fill in some bytes,
 then call a procedure that takes this buffer as a parameter and replaces
 its contents by a possibly longer sequence of bytes.  An RPC2&lowbar;BoundedBS 
@@ -522,23 +521,23 @@ lengths of the byte strings.  This is followed by the  bytes representing
 the contents of the buffer (padded to a multiple of 4).  The byte with
 the lowest address is byte 0.
 
-<tag/RPC2&lowbar;EncryptionKey./  An RPC2&lowbar;EncryptionKey  is used to transmit an encryption key (surprise!). 
+<tag/RPC2&lowbar;EncryptionKey/  An RPC2&lowbar;EncryptionKey  is used to transmit an encryption key (surprise!). 
 A key is sent as a sequence of RPC2&lowbar;KEYSIZE  bytes, padded to a multiple
 of 4.  Element 0 of the array is byte 0.
 
-@SE(Descriptor)@\Objects of type @SE(Descriptor) are never transmitted.
+<tag/SE(Descriptor)/Objects of type @SE(Descriptor) are never transmitted.
 
-<tag/RPC2&lowbar;Struct./  An RPC2&lowbar;Struct  is transmitted as a sequence of items representing its
+<tag/RPC2&lowbar;Struct/  An RPC2&lowbar;Struct  is transmitted as a sequence of items representing its
 fields.  The fields are sent in textual order of declaration (i.e.,
 from left to right and top to bottom).  Each field is sent using, recursively,
 its RPC2 representation.
 
-<tag/RPC2&lowbar;Enum./  An RPC2&lowbar;Enum  has the same representation has an RPC2&lowbar;Integer , and the
+<tag/RPC2&lowbar;Enum/  An RPC2&lowbar;Enum  has the same representation has an RPC2&lowbar;Integer , and the
 underlying integer used by the compiler is transmitted as the value
 of an RPC2&lowbar;Enum.  (Note that in C, this underlying value may be specified
 by the user.  This is recommended practice.)
 
-<tag/Array./  The total number of bytes transmitted for an array must be
+<tag/Array/  The total number of bytes transmitted for an array must be
 a multiple of 4.
 However, the number of bytes sent for each element depends on the type of
 the element.

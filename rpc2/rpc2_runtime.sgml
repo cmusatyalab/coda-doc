@@ -36,50 +36,47 @@ are pertinent to all users of RPC2.
 
 <sect>Client-related Calls<p>
 
-<sect1>ROC2_NewBinding -- Create a new connection<P>
+<sect1>ROC2_NewBinding -- <em/Create a new connection/<P>
+<sect2>Call:<p>
+  <em>int RPC2_NewBinding</em>(<bf>in</bf> RPC2_HostIdent*Host;<bf> in</bf> RPC2_PortalIdent *Portal;<bf> in</bf> RPC2_SussysIdent *Subsys;<bf> in</bf> RPC2_BindParms *Bparms;<bf> out</bf> RPC2_Handle *ConnHandle).
+<sect2>Parameters:<p>
 <descrip>
-<tag/Call:./  int RPC2_NewBinding (<bf>in</bf> RPC2_HostIdent*Host;<bf> in</bf> RPC2_PortalIdent *Portal;<bf> in</bf> RPC2_SussysIdent *Subsys;<bf> in</bf> RPC2_BindParms *Bparms;<bf> out</bf> RPC2_Handle *ConnHandle).
-</descrip>
+<tag/Host/    The identity of the remote host on which the server to be contacted is located.  This may be specified as a string name or as an Internet address.  In the former case the RPC runtime system will do the necessary name resolution.
 
-<bf>Parameters:</bf>
-<descrip>
-<tag/Host./    The identity of the remote host on which the server to be contacted is located.  This may be specified as a string name or as an Internet address.  In the former case the RPC runtime system will do the necessary name resolution.
+<tag/Portal/    An identification of the server process to be contacted at the remote site. Portals are unique on a given host.  A portal  may be specified as a string name or as an Internet port value.  In the former case the RPC runtime system will do the necessary name to port number conversion.  Support for other kinds of portals (such as Unix domain) may be available in future.
 
-<tag/Portal./    An identification of the server process to be contacted at the remote site. Portals are unique on a given host.  A portal  may be specified as a string name or as an Internet port value.  In the former case the RPC runtime system will do the necessary name to port number conversion.  Support for other kinds of portals (such as Unix domain) may be available in future.
+<tag/Subsys/    Which of the potentially many subsystems supported by the remote server is desired.  May be specified as a number or as a name.  In the latter case, the RPC runtime system will do the translation from name to number.
 
-<tag/Subsys./    Which of the potentially many subsystems supported by the remote server is desired.  May be specified as a number or as a name.  In the latter case, the RPC runtime system will do the translation from name to number.
+<tag/Bparms/         Type RPC2_BindParms is a struct containing 5 fields. The first field SecurityLevel is one of the constants RPC2_OPENKIMONO, RPC2_ONLYAUTHENTICATE, RPC2_HEADERSONLY or RPC2_SECURE. The second field, EncryptionType, describes what kind of encryption to be used on this connection.  For example, RPC2_XOR, RPC2_DES, etc. is ignored if, SecurityLevel, is RPC2_OPENKIMONO.  The bind will fail if the remote site does not support the requested type of encryption. The third field, SharedSecret, is an encryption key known by the callback procedure on the server side to be uniquely associated with, ClientIdent. Used by the RPC runtime system in the authentication handshakes.  May be NULL if, SecurityLevel, is RPC2_OPENKIMONO. The fourth field, ClientIdent, provides the information for the server to uniquely identify this client and to obtain, SharedKey. Not interpreted by the RPC runtime system. Only the GetKeys callback procedure on the server side need understand the format of ClientIdent.  May be NULL if SecurityLevel is RPC2_OPENKIMONO. The fifth field, SideEffectType, describes what kind of side effects are to be associated with this connection.  The only side effects intially supported are bulk-transfers of files, identified by type, SMARTFTP. May be 0 if no side effects are ever to be attempted on this connection.
 
-<tag/Bparms./         Type RPC2_BindParms is a struct containing 5 fields. The first field SecurityLevel is one of the constants RPC2_OPENKIMONO, RPC2_ONLYAUTHENTICATE, RPC2_HEADERSONLY or RPC2_SECURE. The second field, EncryptionType, describes what kind of encryption to be used on this connection.  For example, RPC2_XOR, RPC2_DES, etc. is ignored if, SecurityLevel, is RPC2_OPENKIMONO.  The bind will fail if the remote site does not support the requested type of encryption. The third field, SharedSecret, is an encryption key known by the callback procedure on the server side to be uniquely associated with, ClientIdent. Used by the RPC runtime system in the authentication handshakes.  May be NULL if, SecurityLevel, is RPC2_OPENKIMONO. The fourth field, ClientIdent, provides the information for the server to uniquely identify this client and to obtain, SharedKey. Not interpreted by the RPC runtime system. Only the GetKeys callback procedure on the server side need understand the format of ClientIdent.  May be NULL if SecurityLevel is RPC2_OPENKIMONO. The fifth field, SideEffectType, describes what kind of side effects are to be associated with this connection.  The only side effects intially supported are bulk-transfers of files, identified by type, SMARTFTP. May be 0 if no side effects are ever to be attempted on this connection.
-
-<tag/ConnHandle./  An unique integer returned by the call, identifying this connection. This is not necessarily a small-valued integer.
-</descrip>
-
-
-<bf>Completion Codes:</bf>
-<descrip>
-<tag/RPC2_SUCCESS./    All went well.
-<tag/RPC2_NOBINDING./   The specified host, server or subsystem could not be contacted.
-<tag/RPC2_WRONGVERSION./    The client and server runtime systems are  incompatible.  Note that extreme incompatibilty may result in the server being unable to respond even with this error code.  In such a case, the server will appear to be down, resulting in an RPC_NOBINDING return code.
-<tag/RPC2_OLDVERSION./   This is a warning.  The, RPC2_VERSION, values on client and server sides are different.  Normal operation is still possible, but one of you is running an obsolete version of the runtime system.  You should obtain the latest copy of the RPC runtime system and recompile your code.
-<tag/RPC2_NOTAUTHENTICATED./   A SecurityLevel other than, RPC2_OPENKIMONO, was specified, and the server did not accept your credentials.
-<tag/RPC2_SEFAIL1./     The associated side effect routine indicated a minor failure.  The connection is established, and usable.
-<tag/RPC2_SEFAIL2./        The associated side effect routine indicated a serious failure.  The connection is not established.
-<tag/RPC2_FAIL./           Some other mishap occurred.
+<tag/ConnHandle/  An unique integer returned by the call, identifying this connection. This is not necessarily a small-valued integer.
 </descrip>
 
 
-<bf>Description:</bf>
+<sect2>Completion Codes:<p>
 <descrip>
-<tag/Creates a new connection and binds to a remote server on a 
+<tag/RPC2_SUCCESS/    All went well.
+<tag/RPC2_NOBINDING/   The specified host, server or subsystem could not be contacted.
+<tag/RPC2_WRONGVERSION/    The client and server runtime systems are  incompatible.  Note that extreme incompatibilty may result in the server being unable to respond even with this error code.  In such a case, the server will appear to be down, resulting in an RPC_NOBINDING return code.
+<tag/RPC2_OLDVERSION/   This is a warning.  The, RPC2_VERSION, values on client and server sides are different.  Normal operation is still possible, but one of you is running an obsolete version of the runtime system.  You should obtain the latest copy of the RPC runtime system and recompile your code.
+<tag/RPC2_NOTAUTHENTICATED/   A SecurityLevel other than, RPC2_OPENKIMONO, was specified, and the server did not accept your credentials.
+<tag/RPC2_SEFAIL1/     The associated side effect routine indicated a minor failure.  The connection is established, and usable.
+<tag/RPC2_SEFAIL2/        The associated side effect routine indicated a serious failure.  The connection is not established.
+<tag/RPC2_FAIL/           Some other mishap occurred.
+</descrip>
+
+
+<sect2>Description:<p>
+Creates a new connection and binds to a remote server on a 
 remote host.  The subsystem information is passed on to that server to alert it to the kind of remote procedure calls that it may expect on this connection../
 		
-<tag/A client/server version check is performed to ensure that
+A client-server version check is performed to ensure that
 the runtime systems are compatible.  Note that there are really two version checks.         One is for the RPC network protocol
 and packet formats, and this must succeed.  The other check reports a warning if you have a different RPC runtime system
 from the server.  You may also wish to do a higher-level check, to ensure that the client and server application code are compatible../
 	
 
-<tag/The SecurityLevel parameter determines the degree to which you can
+The SecurityLevel parameter determines the degree to which you can
 	trust this connection.  If RPC2_OPENKIMONO is specified, the 
 	connection is not authenticated and no encryption is done on future
 	requests and responses.  If RPC2_ONLYAUTHENTICATE is specified, an
@@ -96,34 +93,43 @@ from the server.  You may also wish to do a higher-level check, to ensure that t
 	an RPC2_GetRequest with an EncryptionTypeMask that includes this encryption type.
 	
 
-	RPC2_Bind Obsolete: use RPC2_NewBinding
-<bf>in</bf> long SecurityLevel,  <bf>in</bf> long EncryptionType, <bf>in</bf> RPC2_HostIdent *Host, <bf>in</bf> RPC2_PortalIdent *Portal, <bf>in</bf> RPC2_SubsysIdent *Subsys,  <bf>in</bf> long SideEffectType, <bf>in</bf> RPC2_CountedBS *ClientIdent, <bf>in</bf> RPC2_EncryptionKey *SharedSecret, <bf>out</bf> RPC2_Handle *ConnHandle.
+<sect1>RPC2_Bind -- <em/Obsolete: use RPC2_NewBinding/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_Bind</em>(<bf>in</bf> long SecurityLevel,  <bf>in</bf> long EncryptionType, <bf>in</bf> RPC2_HostIdent *Host, <bf>in</bf> RPC2_PortalIdent *Portal, <bf>in</bf> RPC2_SubsysIdent *Subsys,  <bf>in</bf> long SideEffectType, <bf>in</bf> RPC2_CountedBS *ClientIdent, <bf>in</bf> RPC2_EncryptionKey *SharedSecret, <bf>out</bf> RPC2_Handle *ConnHandle.
+  <sect2>Parameters:<p>
+    <em>N/A</em>
+  <sect2>Completion Codes:<p>
+    <em>None.</em>
+  <sect2>Description:<p>
+    Obsolete.
 
-	
-	
-***********************************
-		
-
-
-	<tag/RPC2_MakeRPC./ Make a remote procedure call (with possible side-effect,
-	<bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf>  RPC2_PacketBuffer *Request, <bf>in</bf> Descriptor *SDesc, <bf>out</bf>  RPC2_PacketBuffer **Reply, <bf>in</bf> struct timeval *Patience, <bf>in</bf> long EnqueueRequest.
-	<tag/ConnHandle./ Identifies the connection on which the call is to be made
-	<tag/Request./ A properly formatted request buffer.
-	<tag/SDesc./ A side effect descriptor with local fields filled in.  May be NULL if no side effects will occur as a result of this call.
-	<tag/Reply./ On return, it will point to a response buffer
+<sect1> RPC2_MakeRPC -- <em/Make a remote procedure call (with possible side-effect)/<P>
+  <sect2>Call:<p>
+    <em>int RPC2_MakeRPC</em>(<bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf>  RPC2_PacketBuffer *Request, <bf>in</bf> Descriptor *SDesc, <bf>out</bf>  RPC2_PacketBuffer **Reply, <bf>in</bf> struct timeval *Patience, <bf>in</bf> long EnqueueRequest.
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/ConnHandle/ Identifies the connection on which the call is to be made
+	<tag/Request/ A properly formatted request buffer.
+	<tag/SDesc/ A side effect descriptor with local fields filled in.  May be NULL if no side effects will occur as a result of this call.
+	<tag/Reply/ On return, it will point to a response buffer
 			holding the response from the server.  You should free this buffer when you are done with it.
-	<tag/Patience./ Maximum time to wait for remote site to 
+	<tag/Patience/ Maximum time to wait for remote site to 
 			respond.  A NULL pointer indicates infinite patience.
 	<tag/EnqueueRequest./ Specifies whether the caller should be blocked if ConnHandle is already servicing an RPC request from some other lwp.  If this variable is 1 the caller is blocked.  Otherwise a return code of RPC2_CONNBUSY is returned.
-	<em>RPC2_SUCCESS./ All went well. 
-	<em>RPC2_NOCONNECTION./ ConnHandle does not refer to a valid connection.
-	<em>RPC2_TIMEOUT./ A response was not received soon enough. Occurs only if the Patience parameter was non-NULL.
-	<em>RPC2_SEFAIL1./ The associated side effect resulted in a minor failure.  Future calls on this connection will still work.
-	<em>RPC2_SEFAIL2./ The associated side effect resulted in a serious failure.  Future calls on this connection will fail.
-	<em>RPC2_DEAD./ The remote site has been deemed dead or unreachable.  Note that this is orthogonal to an RPC2_TIMEOUT return code.
-	<em>RPC2_NAKED./ The remote site sent an explicit negative acknowledgement.  This can happen if that site thought you were dead, or if someone at that site unbound your connection.
-	<em>RPC2_CONNBUSY./ EnqueueRequest specified 0 and ConnHandle is currently servicing a call. Try again later. .
-	<em>RPC2_FAIL./ <em>Other assorted calamities, such as attempting to use a connection already declared broken.
+</descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ All went well. 
+	<tag/RPC2_NOCONNECTION/ ConnHandle does not refer to a valid connection.
+	<tag/RPC2_TIMEOUT/ A response was not received soon enough. Occurs only if the Patience parameter was non-NULL.
+	<tag/RPC2_SEFAIL1/ The associated side effect resulted in a minor failure.  Future calls on this connection will still work.
+	<tag/RPC2_SEFAIL/ The associated side effect resulted in a serious failure.  Future calls on this connection will fail.
+	<tag/RPC2_DEAD/ The remote site has been deemed dead or unreachable.  Note that this is orthogonal to an RPC2_TIMEOUT return code.
+	<tag/RPC2_NAKED/ The remote site sent an explicit negative acknowledgement.  This can happen if that site thought you were dead, or if someone at that site unbound your connection.
+	<tag/RPC2_CONNBUSY/ EnqueueRequest specified 0 and ConnHandle is currently servicing a call. Try again later. .
+	<tag/RPC2_FAIL/Other assorted calamities, such as attempting to use a connection already declared broken.
+    </descrip>
+  <sect2>Description:<p>
 	The workhorse routine, used to make remote calls after establishing a connection.
 		The call is sequential and the calling lwp is blocked until the call completes.
 		The associated side effect, if any, is finished before the call completes.
@@ -135,29 +141,33 @@ from the server.  You may also wish to do a higher-level check, to ensure that t
 		the call must complete within that time.
 	
 
-
-
-MultiRPC.
-	RPC2_MultiRPC./ Make a collection of remote procedure calls.
-	<bf>in</bf> int HowMany, <bf>in</bf> RPC2_Handle ConnHandleList&lsqb; &rsqb;, <bf>out</bf> RPC2_Integer *RCList, <bf>in out</bf> RPC2_Multicast *MCast, <bf>in</bf> RPC2_PacketBuffer *Request, <bf>in</bf> Descriptor SDescList&lsqb; &rsqb;, <bf>in</bf> long (*UnpackMulti (), <bf>in out</bf> ARG(INFO) *ArgInfo, <bf>in</bf> struct timeval *Patience.
-	<tag/HowMany./ How many servers to contact.
+<sect1>RPC2_MultiRPC -- <em/Make a collection of remote procedure calls/<p>
+  <sect2>Calls:<p>
+    <em>int RPC2_MultiRPC</em>(<bf>in</bf> int HowMany, <bf>in</bf> RPC2_Handle ConnHandleList&lsqb; &rsqb;, <bf>out</bf> RPC2_Integer *RCList, <bf>in out</bf> RPC2_Multicast *MCast, <bf>in</bf> RPC2_PacketBuffer *Request, <bf>in</bf> Descriptor SDescList&lsqb; &rsqb;, <bf>in</bf> long (*UnpackMulti (), <bf>in out</bf> ARG(INFO) *ArgInfo, <bf>in</bf> struct timeval *Patience.
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/HowMany/ How many servers to contact.
 	<tag/ConnHandleList./ Array of length HowMany, containing the handles of the connections on which calls are to be made.
-	<tag/Request./ A properly formatted request buffer.
-	<tag/RCList./ Array of length HowMany, into which RPC2 will place return codes for each of the connections specified in ConnHanleList.  May be specified as NULL if return codes will not be examined.
-	<tag/MCast./ Pointer to multicast sturcture.  Set to NULL for now.
-	<tag/SDescList./ Array of length HowMany, containing side effect descriptors for each of the connections specified in ConnHandleList.
-	<tag/UnpackMulti./ Pointer to unpacking routine called by RPC2
+	<tag/Request/ A properly formatted request buffer.
+	<tag/RCList/ Array of length HowMany, into which RPC2 will place return codes for each of the connections specified in ConnHanleList.  May be specified as NULL if return codes will not be examined.
+	<tag/MCast/ Pointer to multicast sturcture.  Set to NULL for now.
+	<tag/SDescList/ Array of length HowMany, containing side effect descriptors for each of the connections specified in ConnHandleList.
+	<tag/UnpackMulti/ Pointer to unpacking routine called by RPC2
 when each server response as received. If RP2Gen is used, this will be
 supplied by MRPC(MakeMulti. Otherwise, it must be supplied by the client.
-	P8=ArgInfo./ A pointer to a structure containing argument information. This
-structure is not examined by RPC2; it is passed untouched to 
+	<tag/ArgInfo/ A pointer to a structure containing argument information. This structure is not examined by RPC2; it is passed untouched to 
  UnpackMulti. If RP2Gen is used, this structure will be supplied by
 MRPC(MakeMulti. Otherwise, it can be used to pass any structure desired by the
 client or supplied as NULL.
-	P9=Patience./ Maximum time to wait for remote sites to respond. A NULL pointer indicates infinite patience as long as RPC2 believes that the server is alive. Note that this timeout value is orthogonal to the RPC2 internal timeout for determining connection death.
-	<em>RPC2_SUCCESS./ All servers returned successfully, or all servers until client-initiated abort returned successfully. Individual server response information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.
-	<em>RPC2_TIMEOUT./ The user specified timeout expired before all the servers responded.
-	<em>RPC2_FAIL./ Something other than SUCCESS or TIMEOUT occurred. More detailed information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.
+	<tag/Patience/ Maximum time to wait for remote sites to respond. A NULL pointer indicates infinite patience as long as RPC2 believes that the server is alive. Note that this timeout value is orthogonal to the RPC2 internal timeout for determining connection death.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS./ All servers returned successfully, or all servers until client-initiated abort returned successfully. Individual server response information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.
+	<tag/RPC2_TIMEOUT./ The user specified timeout expired before all the servers responded.
+	<tag/RPC2_FAIL./ Something other than SUCCESS or TIMEOUT occurred. More detailed information is supplied via UnpackMulti to the user handler routine supplied in the ArgInfo structure.
+  </descrip>
+  <sect2>Description:<p>
 	Logically identical to iterating through ConnHandleList and making RPC2_MakeRPC calls to each specified
 	connection using Request as the request block, but this call will be considerably faster than explicit
 	iteration. The calling lightweight process
@@ -185,69 +195,79 @@ connection specific information such as unique file names in the
 
 
 <sect>Server-related RPC Calls<p>
-Export.
-	RPC2_Export./ Indicate willingness to accept calls for a subsystem.
-	<bf>in</bf> RPC2_SubsysIdent *Subsys,
-	<tag/Subsys./ Specifies a subsystem that will be henceforth recognized by this server.  This is either an integer or a symbolic name that can be translated to the unique integer identifying this subsystem.
-	<em>RPC2_SUCCESS./ All went well.
-	<em>RPC2_DUPLICATESERVER./ Your have already exported Subsys.
-	<em>RPC2_BADSERVER./ Subsys is invalid.
-	<em>RPC2_FAIL./ Something else went wrong.
-	 Sets up	internal tables so that when a remote client performs an RPC2_Bind( operation 
-		specifying this host-portal-subsystem triple, the RPC runtime system will accept it.
-		A server may declare itself to be serving more than one subsystem by making more than one
-		 RPC2_Export calls.
+  <sect1>RPC2_Export -- <em/Indicate willingness to accept calls for a subsystem/<p>
+    <bf/Call:/
+    <descrip>
+      <em/int RPC2_Export/(<bf>in</bf> <em/RPC2_SubsysIdent *Subsys/)
+    </descrip>
+    <bf/Parameters:/ 
+    <descrip>
+      <tag/Subsys/ Specifies a subsystem that will be henceforth recognized by this server.  This is either an integer or a symbolic name that can be translated to the unique integer identifying this subsystem.
+</descrip>
+    <bf/Completion Codes:/
+    <descrip>
+        <tag/RPC2_SUCCESS/ All went well.
+        <tag/RPC2_DUPLICATESERVER/ Your have already exported Subsys.
+	<tag/RPC2_BADSERVER/ Subsys is invalid.
+	<tag/RPC2_FAIL/ Something else went wrong.
+    </descrip>
+    <bf/Description:/
+	 Sets up internal tables so that when a remote client performs an RPC2_Bind( operation specifying this host-portal-subsystem triple, the RPC runtime system will accept it. A server may declare itself to be serving more than one subsystem by making more than one RPC2_Export calls.
 	
 	
-
-DeExport.
-	RPC2_DeExport./ Stop accepting new connections for one or all subsystems.
-	<bf>in</bf> RPC2_SubsysIdent *Subsys,
+<sect1>RPC2_DeExport -- <em/Stop accepting new connections for one or all subsystems/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_Export</em>(<bf>in</bf> RPC2_SubsysIdent *Subsys)
+  <sect2>Parameters:<p> 
+    <descrip> 
 	<tag/Subsys./ Specifies the subsystem  to be deexported. This is either an integer or a symbolic name that can be translated to the unique integer identifying this subsystem. A value of NULL deexports all subsystems.
-	<em>RPC2_SUCCESS./ All went well.
-	<em>RPC2_BADSERVER./ Subsys is not a valid subsystem, or has not been previously exported.
-	<em>RPC2_FAIL./ Something else went wrong.
-	After this call, no new connections for subsystem Subsys will be accepted.  The subsystem may, however, be exported
-		again at a later time.  Note that existing connections are not broken by this call.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ All went well.
+	<tag/RPC2_BADSERVER/ Subsys is not a valid subsystem, or has not been previously exported.
+	<tag/RPC2_FAIL/ Something else went wrong.
+    </descrip>
+  <sect2>Description:<p>
+  After this call, no new connections for subsystem Subsys will be accepted.  The subsystem may, however, be exported again at a later time.  Note that existing connections are not broken by this call.
 	
 
- 
-GetRequest.
-	RPC2_GetRequest./ Wait for an RPC request or a new connection,
-	<bf>in</bf> RPC2_RequestFilter *Filter, <bf>out</bf> RPC2_Handle *ConnHandle, <bf>out</bf>  RPC2_PacketBuffer **Request, <bf>in</bf> struct timeval *Patience, <bf>in</bf> long (*GetKeys) (), <bf>in</bf> long EncryptionTypeMask, <bf>in</bf> long (*AuthFail) ().
-	<tag/Filter./ A filter specifying which requests are acceptable.  See description below.
-	<tag/ConnHandle./ Specifies the connection on which the request was received.
-	<tag/Request./ Value ignored on entry. On return, it will point to a buffer
+<sect1>RPC2_GetRequest --  <em/Wait for an RPC request or a new connection/<p>
+<sect2>Call:<p>
+    <em>int RPC2_GetRequest</em>(<bf>in</bf>RPC2_RequestFilter *Filter, <bf>out</bf> RPC2_Handle *ConnHandle, <bf>out</bf>  RPC2_PacketBuffer **Request, <bf>in</bf> struct timeval *Patience, <bf>in</bf> long (*GetKeys) (), <bf>in</bf> long EncryptionTypeMask, <bf>in</bf> long (*AuthFail) ()) 
+  <sect2>Parameters:<P>
+ <descrip>
+	<tag/Filter/ A filter specifying which requests are acceptable.  See description below.
+	<tag/ConnHandle/ Specifies the connection on which the request was received.
+	<tag/Request/ Value ignored on entry. On return, it will point to a buffer
 			holding the  response from the client.  Free this buffer after you are done with it.
-	<tag/Patience./ A timeout interval specifying how long to wait for a request. 
+	<tag/Patience/ A timeout interval specifying how long to wait for a request. 
 		 If NULL, infinite patience is assumed.
-	<tag/GetKeys./ Pointer to a callback procedure to obtain authentication and session keys. See description below.
+	<tag/GetKeys/ Pointer to a callback procedure to obtain authentication and session keys. See description below.
 May be NULL if no secure bindings to this server are to be accepted.
-	<tag/EncryptionTypeMask./ A bit mask specifying which types of encryption is supported. Binds from clients who request an encryption type not specified in this mask will fail.
-	<tag/AuthFail./ Pointer to a callback procedure to be called when an authentication failure occurs. See description below.  May be NULL if server does not care to note such failures.
-	<em>RPC2_SUCCESS./ I have a request for you in Request.  New connections result in a fake request.
-	<em>RPC2_TIMEOUT./ Specified time interval expired.
-	<em>RPC2_BADFILTER./ A nonexistent connection or subsystem was specified in Filter.
-	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a minor failure.  Future calls on this connection will still work.
-	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
-	<em>RPC2_DEAD./ You were waiting for requests on a specific connection and that site has been deemed dead or unreachable.
-	<em>RPC2_FAIL./ Something irrecoverable happened.
-	 The call blocks the calling lightweight process until a request is available, a new connection is made,
-or until the specified timeout period has elapsed.  The Filter parameter allows a great deal of flexibility in selecting
-precisely which calls are acceptable.  New connections result in a fake request with a body of type RPC2_NewConnection. Do not try
-to do a RPC2_SendResponse to this call.  All other RPC2_GetRequest calls should be eventually matched with a corresponding
-RPC2_SendResponse call.
+	<tag/EncryptionTypeMask/ A bit mask specifying which types of encryption is supported. Binds from clients who request an encryption type not specified in this mask will fail.
+	<tag/AuthFail/ Pointer to a callback procedure to be called when an authentication failure occurs. See description below.  May be NULL if server does not care to note such failures.
+  </descrip>
+  <sect2>Completion Codes:<P> <descrip>
+	<tag/RPC2_SUCCESS/ I have a request for you in Request.  New connections result in a fake request.
+	<tag/RPC2_TIMEOUT/ Specified time interval expired.
+	<tag/RPC2_BADFILTER/ A nonexistent connection or subsystem was specified in Filter.
+	<tag/RPC2_SEFAIL1/ The associated side effect routine indicated a minor failure.  Future calls on this connection will still work.
+	<tag/RPC2_SEFAIL2/ The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
+	<tag/RPC2_DEAD/ You were waiting for requests on a specific connection and that site has been deemed dead or unreachable.
+	<tag/RPC2_FAIL/ Something irrecoverable happened.
+  </descrip>
+  <sect2>Description:<P>
+	 The call blocks the calling lightweight process until a request is available, a new connection is made, or until the specified timeout period has elapsed.  The Filter parameter allows a great deal of flexibility in selecting precisely which calls are acceptable.  New connections result in a fake request with a body of type RPC2_NewConnection. Do not try to do a RPC2_SendResponse to this call.  All other RPC2_GetRequest calls should be eventually matched with a corresponding RPC2_SendResponse call.
 
-The fields of RPC2_NewConnection are self-explanatory.  Note that you must invoke RPC2_Enable() after you have
-handled the new connection packet for further requests to be visible.  If you are using RP2Gen, this is done
-for you automatically by the generated code that deals with new connections. 
+The fields of RPC2_NewConnection are self-explanatory.  Note that you must invoke RPC2_Enable() after you have handled the new connection packet for further requests to be visible.  If you are using RP2Gen, this is done for you automatically by the generated code that deals with new connections. 
 
-The callback procedure for key lookup should be defined as follows
-begin(Format, LeftMargin +2cm, Indent -1cm, break around, FaceCode i
-long GetKeys (<bf>in</bf> RPC2_CoundedBS *ClientIdent.
-	<bf>out</bf> RPC2_EncryptionKey *IdentKey.
-	<bf>out</bf> RPC2_EncryptionKey *SessionKey
-end(Format
+The callback procedure for key lookup should be defined as follows 
+<tscreen><em>
+long GetKeys (<bf>in</bf> RPC2_CoundedBS *ClientIdent,
+	<bf>out</bf> RPC2_EncryptionKey *IdentKey,
+	<bf>out</bf> RPC2_EncryptionKey *SessionKey)
+</em></tscreen>
 
 GetKeys ( will be called at some point in the 
 authentication handshake.  It should return 0 if 
@@ -258,14 +278,14 @@ with an arbitrary key to be used for the duration of this
 connection.  You may, of course, make SessionKey the same as IdentKey.
 
 The callback procedure for noting authentication failure should be defined as follows:
-begin(Format, LeftMargin +2cm, Indent -1cm, break around, Facecode i
-long AuthFail (<bf>in</bf> RPC2_CoundedBS *ClientIdent.
-	<bf>in</bf> RPC2_Integer EncryType.
-	<bf>in</bf> RPC2_HostIdent *PeerHost.
-	<bf>in</bf> RPC2_PortalIdent *PeerPortal
-end(Format
+<tscreen><em>
+long AuthFail (<bf>in</bf> RPC2_CoundedBS *ClientIdent,
+	<bf>in</bf> RPC2_Integer EncryType,
+	<bf>in</bf> RPC2_HostIdent *PeerHost,
+	<bf>in</bf> RPC2_PortalIdent *PeerPortal)
+</em></tscreen>
 
-AuthFail ( will be called after an RPC2_NOTAUTHENTICATED packet 
+AuthFail ()will be called after an RPC2_NOTAUTHENTICATED packet 
 has been sent to the client. The parameters give information about
 the client who was trying to authenticate himself, the type of encryption
 requested, and the site from which the RPC2_Bind( was attempted.
@@ -273,69 +293,87 @@ The callback procedure will typically record this in a log file somewhere.
 	
 
 
-Enable.
-	RPC2_Enable./ Allow servicing of requests on a new connection,
-	<bf>in</bf> RPC2_Handle ConnHandle.
+<sect1>RPC2_Enable -- <em/Allow servicing of requests on a new connection/<p>
+  <sect2>Call:<p>
+    <em>int32_t RPC2_Enable(<bf>in</bf> RPC2_Handle ConnHandle)</em>
+  <sect2>Parameters:<p>
+  <descrip>
 	<tag/ConnHandle./ Which connection is to be enabled.
-	<em>RPC2_SUCCESS./ Enabled the connection.
-	<em>RPC2_NOCONNECTION./ A bogus connection was specified.
-	Typically invoked  by the user at the end of his NewConnection routine, after setting up his
-		higher-level data structures appropriately.  Until a connection is enabled, RPC2 guarantees
-		that no requests on that connection will be returned in a RPC2_GetRequest call.
-		Such a request from a client will, however, be held and responded to with RPC2_BUSY signals
-		until the connection is enabled.  This call is present primarily to avoid race hazards in
-		higher-level connection establishment.  Note that RP2Gen automatically generates this call at 
-		after a NewConnection routine.
-
+  </descrip>
+  <sect2>Completion Codes:<p>
+  <descrip>
+	<tag/RPC2_SUCCESS/ Enabled the connection.
+	<tag/RPC2_NOCONNECTION/ A bogus connection was specified.
+  </descrip>
+  <sect2>Description:<p>
+	Typically invoked  by the user at the end of his NewConnection routine, after setting up his higher-level data structures appropriately.  Until a connection is enabled, RPC2 guarantees that no requests on that connection will be returned in a RPC2_GetRequest call. Such a request from a client will, however, be held and responded to with RPC2_BUSY signals until the connection is enabled.  This call is present primarily to avoid race hazards in higher-level connection establishment.  Note that RP2Gen automatically generates this call after a NewConnection routine.
 	
 
-
-SendResponse.
-	RPC2_SendResponse./ Respond to a request from my client,
-	<bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf>  RPC2_PacketBuffer *Reply,
-	<tag/ConnHandle, Which connection the response is to be sent on.,
-	<tag/Reply./ A filled-in buffer containing the reply to be sent to the client.
-	<em>RPC2_SUCCESS./ I sent your response.
-	<em>RPC2_NOTWORKER./ You were not given a request to service.
-	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a minor failure.  Future calls on this connection will still work.
-	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
-	<em>RPC2_FAIL./ Some irrecoverable failure happened.
+<sect1>RPC2_SendResponse -- <em/Respond to a request from my client/<p>
+  <sect2>Call:<p>
+	<em>int32_t RPC2_SendResponse</em>(<bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf>  RPC2_PacketBuffer *Reply)
+  <sect2>Parameters:<p>
+  <descrip>
+	<tag/ConnHandle/ hich connection the response is to be sent on.,
+	<tag/Reply/ A filled-in buffer containing the reply to be sent to the client.
+  </descrip>
+  <sect2>Completion Codes:<p>
+  <descrip>
+	<tag/RPC2_SUCCESS/ I sent your response.
+	<tag/RPC2_NOTWORKER/ You were not given a request to service.
+	<tag/RPC2_SEFAIL1/ The associated side effect routine indicated a minor failure.  Future calls on this connection will still work.
+	<tag/RPC2_SEFAIL2/The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
+	<tag/RPC2_FAIL/ Some irrecoverable failure happened.
+  </descrip>
+  <sect2>Description:<p>
 	Sends the specified reply to the caller.  Any outstanding side effects are completed before Reply is sent.
 	Encryption, if any, is done in place and will clobber the Reply buffer.  Note that this call returns immediately after sending the reply; it does not wait for an acknowledgement from the client.
 
-	
 
-
-InitSideEffect.
-	RPC2_InitSideEffect./ Initiate side effect,
-	<bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf>  *SDesc,
-	<tag/ConnHandle./ The connection on which the side effect is to be initiated.,
-	<tag/SDesc./ A filled-in side effect descriptor.
-	<em>RPC2_SUCCESS./ The side effect has been initiated.
-	<em>RPC2_NOTSERVER./ Only one side effect is allowed per RPC call. This has to be initiated between the GetRequest and SendResponse of that call.  You are violating one of these restrictions.
-	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a nonfatal failure.  Future calls on this connection will work.
-	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
-	<em>RPC2_FAIL./ Other assorted calamities,
+<sect1>RPC2_InitSideEffect -- <em/Initiate side effect/<p>
+  <sect2>Call:<p>
+     <em>int32_t RPC2_InitSideEffect<bf>in</bf> RPC2_Handle ConnHandle, <bf>in</bf>  *SDesc)</em>
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/ConnHandle/ The connection on which the side effect is to be initiated.,
+	<tag/SDesc/ A filled-in side effect descriptor.
+  </descrip>
+  <sect2>Completion Codes:<p>
+  <descrip>
+	<tag/RPC2_SUCCESS/ The side effect has been initiated.
+	<tag/RPC2_NOTSERVER/ Only one side effect is allowed per RPC call. This has to be initiated between the GetRequest and SendResponse of that call.  You are violating one of these restrictions.
+	<tag/RPC2_SEFAIL1/ The associated side effect routine indicated a nonfatal failure.  Future calls on this connection will work.
+	<tag/RPC2_SEFAIL2/ The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
+	<tag/RPC2_FAIL/ Other assorted calamities,
+  </descrip>
+  <sect2>Description:<p>
 	Initiates the side effect specified by SDesc on ConnHandle.  The call does not wait for the completion of the side effect.
 	    If you need to know what happened to the side effect, do a RPC2_CheckSideEffect call with appropriate flags.
 	
 
 
-CheckSideEffect.
-	RPC2_CheckSideEffect./ Check progress of side effect,
-	<bf>in</bf> RPC2_Handle ConnHandle, <bf>inout</bf>  *SDesc, <bf>in</bf> long Flags.
-	<tag/ConnHandle, The connection on which the side effect has been initiated.
-	<tag/SDesc./ The side effect descriptor as it was returned by the previous RPC2_InitSideEffect
+<sect1>RPC2_CheckSideEffect -- <em/Check progress of side effect/<p>
+  <sect2>Call:
+	<em>int32_t RPC2_CheckSideEffect</em>(<bf>in</bf> RPC2_Handle ConnHandle, <bf>inout</bf>  *SDesc, <bf>in</bf> long Flags)
+  <sect2>Parameters:<p>
+  <descrip>
+	<tag/ConnHandle/ The connection on which the side effect has been initiated.
+	<tag/SDesc/ The side effect descriptor as it was returned by the previous RPC2_InitSideEffect
 		or RPC2_CheckSideEffect call on ConnHandle.  On output, the status fields are filled in.
 	<tag/Flags./ Specifies what status is desired.  This call will block until the requested status is available.
 		This is a bit mask, with RPC2_GETLOCALSTATUS and RPC2_GETREMOTESTATUS bits indicating local and remote status.
 		A Flags value of 0 specifies a polling status check: no blocking will occur and the currently known local
 		and remote status will be returned.
-	<em>RPC2_SUCCESS./ The requested status fields have been made available.
-	<em>RPC2_NOTSERVER./ No side effect is ongoing on ConnHandle.
-	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a nonfatal failure.  Future calls on this connection will work.
-	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
-	<em>RPC2_FAIL./ Other assorted calamities.
+  </descrip>
+  <sect2>Completion Codes:<p>
+  <descrip>
+	<tag/RPC2_SUCCESS/ The requested status fields have been made available.
+	<tag/RPC2_NOTSERVER/ No side effect is ongoing on ConnHandle.
+	<tag/RPC2_SEFAIL1/ The associated side effect routine indicated a nonfatal failure.  Future calls on this connection will work.
+	<tag/RPC2_SEFAIL2/ The associated side effect routine indicated a serious failure.  Future calls on this connection will fail too.
+	<tag/RPC2_FAIL/ Other assorted calamities.
+    </descrip>
+    <sect2>Description:<p>
 	Checks the status of a previously initiated side effect.
 			This is a (potentially) blocking call, depending on the specified flags.
 	
@@ -343,36 +381,34 @@ CheckSideEffect.
 
 
 <sect>Miscellaneous Calls<p>
-Init.
-	RPC2&lt;Init./ Perform runtime system initialization,
-	 <bf>in</bf> char *VersionId, <bf>in</bf> long Options, <bf>in</bf> RPC2_PortalIdent *PortalList&lsqb;&rsqb;, <bf>in</bf> long HowManyPortals,  <bf>in</bf> long RetryCount, <bf>in</bf> struct timeval *KeepAliveInterval.
-	<tag/VersionId./ Set this to the constant RPC2_VERSION.  The current value of this string  constant must be identical to the value at the time the client runtime system was compiled.
-	<tag/Options./ Right now there are no options.
-	<tag/PortalList./ An array of unique network addresses within this machine, on which requests can be listened for, and to which responses to
+<sect1>	RPC2_Init -- <em/Perform runtime system initialization/<p>
+  <sect2>Call:<p>
+    <em/int RPC2_Init/(<bf>in</bf> char *VersionId, <bf>in</bf> long Options, <bf>in</bf> RPC2_PortalIdent *PortalList&lsqb;&rsqb;, <bf>in</bf> long HowManyPortals,  <bf>in</bf> long RetryCount, <bf>in</bf> struct timeval *KeepAliveInterval)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/VersionId/ Set this to the constant RPC2_VERSION.  The current value of this string  constant must be identical to the value at the time the client runtime system was compiled.
+	<tag/Options/ Right now there are no options.
+	<tag/PortalList/ An array of unique network addresses within this machine, on which requests can be listened for, and to which responses to
 	outgoing calls can be made.  In the Internet domain this translates into a port number or a symbolic name
 	that can be mapped to a port number.   You need to specify this parameter even if you are only going to be a
 	client and not export any subsystems.  A value of NULL will cause RPC2 to select an arbitrary, nonassigned portal.
-	<tag/HowManyPortals./ Specifies the number of elements in the array PortalList.
-	<tag/RetryCount./ How many times to retransmit a packet before giving up all hope of receiving acknowledgement of its receipt.  Should be in the range 1 to 30. Use a value of -1 to obtain the  default.
-	<tag/KeepAliveInterval./ How often to probe a peer during a long RPC call.  This value is also used to calculate the retransmission intervals when packet loss is suspected by the RPC runtime system.  Use NULL to obtain the default.
-	<em>RPC2_SUCCESS./ All went well, 
-	<em>RPC2_FAIL./ Unable to initialize client. Check for bogus parameter values.
-	<em>RPC2_WRONGVERSION./ The header file and the library have different versions.  This should never happen in a properly administered system.
-	<em>RPC2_LWPNOTINIT./ The LWP package has not been properly initialized.  Be sure to call LWP(Init( before calling RPC2_Init(.
-	<em>RPC2_BADSERVER./ The PortalList field specifies an invalid address.
-	<em>RPC2_DUPLICATESERVER./ An entry in PortalList specifies an address which is already in use on this machine.
-	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a minor failure.
-	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.
-	Initializes the RPC runtime system in this process.  This call should be made before any other call in this 
-		package is made.  It should be preceded by an initialization call to the LWP package and a call to 
-		SE(SetDefaults) with InitialValues as argument.
-		If you get a wrong version indication, obtain a consistent version of the header files and the RPC 
-		runtime library and recompile your code. Note that this call incorporates a call to initialize IOMGR.
-
-		RetryCount and KeepAliveInterval together define what it means for a remote site to be dead or
-		unreachable.  Packets are retransmitted at most RetryCount times until positive acknowledgement of their
-		receipt is received.  This is usually piggy-packed with useful communication, such as the reply to a 
-		request.  The KeepAliveInterval is used for two purposes: to determine how often to check a remote site
+	<tag/HowManyPortals/ Specifies the number of elements in the array PortalList.
+	<tag/RetryCount/ How many times to retransmit a packet before giving up all hope of receiving acknowledgement of its receipt.  Should be in the range 1 to 30. Use a value of -1 to obtain the  default.
+	<tag/KeepAliveInterval/ How often to probe a peer during a long RPC call.  This value is also used to calculate the retransmission intervals when packet loss is suspected by the RPC runtime system.  Use NULL to obtain the default.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ All went well, 
+	<tag/RPC2_FAIL/ Unable to initialize client. Check for bogus parameter values.
+	<tag/RPC2_WRONGVERSION/ The header file and the library have different versions.  This should never happen in a properly administered system.
+	<tag/RPC2_LWPNOTINIT/ The LWP package has not been properly initialized.  Be sure to call LWP(Init( before calling RPC2_Init(.
+	<tag/RPC2_BADSERVER/ The PortalList field specifies an invalid address.
+	<tag/RPC2_DUPLICATESERVER/ An entry in PortalList specifies an address which is already in use on this machine.
+	<tag/RPC2_SEFAIL1/ The associated side effect routine indicated a minor failure.
+	<tag/RPC2_SEFAIL2/ The associated side effect routine indicated a serious failure.
+    </descrip>
+  <sect2>Description:<p>
+	Initializes the RPC runtime system in this process.  This call should be made before any other call in this package is made.  It should be preceded by an initialization call to the LWP package and a call to SE(SetDefaults) with InitialValues as argument. If you get a wrong version indication, obtain a consistent version of the header files and the RPC runtime library and recompile your code. Note that this call incorporates a call to initialize IOMGR. RetryCount and KeepAliveInterval together define what it means for a remote site to be dead or unreachable.  Packets are retransmitted at most RetryCount times until positive acknowledgement of their receipt is received.  This is usually piggy-packed with useful communication, such as the reply to a request.  The KeepAliveInterval is used for two purposes: to determine how often to check a remote site
 		during a long RPC call, and to calculate the intervals between the RetryCount retransmissions of a packet.
 		The RPC runtime system guarantees detection of remote site failure or network partition within a time
 		period in the range  KeepAliveInterval to twice KeepAliveInterval.  See Chapter <ref id="RetryChapter" name="XXX"> for further information on the retry algorithm.
@@ -383,102 +419,144 @@ Init.
 		You may get a warning about SOux&lsqb; &rsqb;GREEDY being undefined, if your kernel does not have an ITC bug fix.  RPC2 will still work but may be slower and more likely to drop connections during bulk transfer.  This is because of insufficient default packet buffer space  within the Unix kernel.
 	
 
-
-Unbind.
-	RPC2_Unbind, Terminate a connection by client or server,
-	<bf>in</bf> RPC2_Handle ConnHandle.
-	<tag/ConnHandle./ identifies the connection to be terminated,
-	<em>RPC2_SUCCESS./ All went well.
-	<em>RPC2_NOCONNECTION./ ConnHandle is bogus.
-	<em>RPC2_SEFAIL1./ The associated side effect routine indicated a minor failure.
-	<em>RPC2_SEFAIL2./ The associated side effect routine indicated a serious failure.
-	<em>RPC2_FAIL./ Other assorted calamities,
+<sect1>RPC2_Unbind -- <em/Terminate a connection by client or server/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_Unbind</em>(<bf>in</bf> RPC2_Handle ConnHandle)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/ConnHandle/ identifies the connection to be terminated,
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ All went well.
+	<tag/RPC2_NOCONNECTION/ ConnHandle is bogus.
+	<tag/RPC2_SEFAIL1/ The associated side effect routine indicated a minor failure.
+	<tag/RPC2_SEFAIL2/ The associated side effect routine indicated a serious failure.
+	<tag/RPC2_FAIL/ Other assorted calamities.
+    </descrip>
+  <sect2>Description<p>
 	Removes the binding associated with the specified connection.  Normally
 		a higher-level  disconnection should be done by an RPC just prior to
 		this call.  Note that this call may be used both by a server and a client, and that
 		no client/server communication occurs: the unbinding is unilateral.
 	
 
-AllocBuffer.
-	RPC2_AllocBuffer./ Allocate a packet buffer,
-	<bf>in</bf> long MinBodySize, <bf>out</bf> RPC2_PacketBuffer **Buff,
-	<tag/MinBodySize./ Minimum acceptable body size for the packet buffer.
-	<tag/Buff./ Pointer to the allocated buffer.
-	<em>RPC2_SUCCESS./ Buffer has been allocated and *Buff points to it.
-	<em>RPC2_FAIL./ Could not allocate a buffer of requested size.
+<sect1>RPC2_AllocBuffer -- <em/Allocate a packet buffer/<p>
+  <sect2>Call:<p>
+     <em>int RPC2_AllocBuffer</em>(<bf>in</bf> long MinBodySize, <bf>out</bf> RPC2_PacketBuffer **Buff)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/MinBodySize/ Minimum acceptable body size for the packet buffer.
+	<tag/Buff/ Pointer to the allocated buffer.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ Buffer has been allocated and *Buff points to it.
+	<tag/RPC2_FAIL/ Could not allocate a buffer of requested size.
+    </descrip>
+  <sect2>Description:<p>
 	Allocates a packet buffer of at least the requested size.  The BodyLength field in the header of the
 		 allocated packet is set to MinBodySize.  The RPC runtime system maintains its own free list of buffers.
 		 Use this call in preference to malloc ().
 	
-
-FreeBuffer,
-	RPC2_FreeBuffer, Free a packet buffer,
-	<bf>inout</bf> RPC2_PacketBuffer **Buff.
-	<tag/Buff. Pointer to the buffer to be freed. Set to NULL by the call.
-	<em>RPC2_SUCCESS./ Buffer has been freed. *Buff has been set to NULL.
-	<em>RPC2_FAIL./ Could not free buffer.
+<sect1>RPC2_FreeBuffer -- <em/Free a packet buffer/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_FreeBuffer</em>(<bf>inout</bf> RPC2_PacketBuffer **Buff)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/Buff/ Pointer to the buffer to be freed. Set to NULL by the call.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ Buffer has been freed. *Buff has been set to NULL.
+	<tag/RPC2_FAIL/ Could not free buffer.
+    </descrip>
+  <sect2>Description:<p>
 	Returns a packet buffer to the internal free list.  Buff is set to NULL specifically
 		to simplify locating bugs in buffer usage.
 	
 
-
-GetPrivate.
-	RPC2_GetPrivatePointer, Obtain private data mapping for a connection.
-	<bf>in</bf> RPC2_Handle WhichConn, <bf>out</bf> char **PrivatePtr.
-	<tag/WhichConn./ Connection whose private data pointer is desired.
-	<tag/PrivatePtr./ Set to point to private data.
-	<em>RPC2_SUCCESS./ *PrivatePtr now points to the private data associated with this connection.
-	<em>RPC2_FAIL./ Bogus connection specified.
+<sect1>RPC2_GetPrivatePointer -- <em/Obtain private data mapping for a connection/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_GetPrivatePointer</em>(<bf>in</bf> RPC2_Handle WhichConn, <bf>out</bf> char **PrivatePtr)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/WhichConn/ Connection whose private data pointer is desired.
+	<tag/PrivatePtr/ Set to point to private data.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ *PrivatePtr now points to the private data associated with this connection.
+	<tag/RPC2_FAIL/ Bogus connection specified.
+    </descrip>
+  <sect2>Description:<p>
 	Returns a pointer to the private data associated with a connection.  No attempt is made to validate
 		this pointer.
 	
-
-SetPrivate.
-	RPC2_SetPrivatePointer, Set private data mapping for a connection.
-	<bf>in</bf> RPC2_Handle WhichConn, <bf>in</bf> char *PrivatePtr.
-	<tag/WhichConn./ Connection whose private data pointer is to be set.
-	<tag/PrivatePtr./ Pointer to private data.
-	<em>RPC2_SUCCESS./ Private pointer set for this connection.
-	<em>RPC2_FAIL, Bogus connection specified.
-	Sets the private data pointer associated with a connection.  No attempt is made to validate
-		this pointer.
+<sect1>RPC2_SetPrivatePointer -- <em/Set private data mapping for a connection/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_SetPrivatePointer</em>(<bf>in</bf> RPC2_Handle WhichConn, <bf>in</bf> char *PrivatePtr)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/WhichConn/ Connection whose private data pointer is to be set.
+	<tag/PrivatePtr/ Pointer to private data.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<em/RPC2_SUCCESS/ Private pointer set for this connection.
+	<em/RPC2_FAIL/, Bogus connection specified.
+    </descrip>
+  <sect2>Description:<p>
+	Sets the private data pointer associated with a connection.  No attempt is made to validate this pointer.
+	
+<sect1>RPC2_GetSEPointer -- <em/Obtain per-connection side-effect information/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_GetSEPointer</em>(<bf>in</bf> RPC2_Handle WhichConn, <bf>out</bf> char **SEPtr)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/WhichConn/ Connection whose side-effect data pointer is desired.
+	<tag/SEPtr/ Set to point to side-effect data.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ *SEPtr now points to the side effect data associated with this connection.
+	<tag/RPC2_FAIL/ Bogus connection specified.
+    </descrip>
+  <sect2>Description<p>
+	Returns a pointer to the side effect data associated with a connection.  No attempt is made to validate this pointer.  This call is should only by the side effect routines, not by clients.
 	
 
-GetSideEffect.
-	RPC2_GetSEPointer, Obtain per-connection side-effect information..
-	<bf>in</bf> RPC2_Handle WhichConn, <bf>out</bf> char **SEPtr.
-	<tag/WhichConn./ Connection whose side-effect data pointer is desired.
-	<tag/SEPtr./ Set to point to side-effect data.
-	<em>RPC2_SUCCESS./ *SEPtr now points to the side effect data associated with this connection.
-	<em>RPC2_FAIL./ Bogus connection specified.
-	Returns a pointer to the side effect data associated with a connection.  No attempt is made to validate
-		this pointer.  This call is should only by the side effect routines, not by clients.
+<sect1>RPC2_SetSEPointer -- <em/Set per-connection side-effect connection/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_SetSEPointer</em>(<bf>in</bf> RPC2_Handle WhichConn, <bf>in</bf> char *SEPtr)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/WhichConn/ Connection whose side effect pointer is to be set.
+	<tag/SEPtr/ Pointer to side effect data.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ Side effect pointer set for this connection.
+	<tag/RPC2_FAIL/ Bogus connection specified.
+    </descrip>
+  <sect2>Description:<p>
+	Sets the side effect data pointer associated with a connection.  No attempt is made to validate this pointer.  This call should only be used by the side effect routines, not by clients.
 	
-
-SetSideEffect.
-	RPC2_SetSEPointer, Set per-connection side-effect connection.
-	<bf>in</bf> RPC2_Handle WhichConn, <bf>in</bf> char *SEPtr.
-	<tag/WhichConn./ Connection whose side effect pointer is to be set.
-	<tag/SEPtr./ Pointer to side effect data.
-	<em>RPC2_SUCCESS./ Side effect pointer set for this connection.
-	<em>RPC2_FAIL./ Bogus connection specified.
-	Sets the side effect data pointer associated with a connection.  No attempt is made to validate
-		this pointer.  This call should only be used by the side effect routines, not by clients.
-	
-
-GetPeerInfo.
-	RPC2_GetPeerInfo, Obtain miscellaneous connection information.
-	<bf>in</bf> RPC2_Handle WhichConn, <bf>out</bf> RPC2_PeerInfo *PeerInfo.
-	<tag/WhichConn./ Connection whose peer you wish to know about.
-	<tag/PeerInfo./ Data structure to be filled.
-	<em>RPC2_SUCCESS./ Peer information has been obtained for this connection.
-	<em>RPC2_FAIL./ Bogus connection specified.
-	Returns the peer information for a connection.  Also returns other miscellaneous
-	    connection-related information, such as the securrity level in use.
-	    This information may be used by side-effect routines or high-level
-	    server code to perform RPC bindings in the opposite direction.
-	    The RemoteHandle and Uniquefier  information are  useful
-	    as end-to-end identification between client code and server code.
+<sect1>RPC2_GetPeerInfo -- <em/Obtain miscellaneous connection information/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_GetPeerInfo</em>(<bf>in</bf> RPC2_Handle WhichConn, <bf>out</bf> RPC2_PeerInfo *PeerInfo)
+  <sect2>Parameters:<p>
+      <descrip>
+	<tag/WhichConn/ Connection whose peer you wish to know about.
+	<tag/PeerInfo/ Data structure to be filled.
+      </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ Peer information has been obtained for this connection.
+	<tag/RPC2_FAIL/ Bogus connection specified.
+    </descrip>
+  <sect2>Description:<p>
+	Returns the peer information for a connection.  Also returns other miscellaneous connection-related information, such as the securrity level in use. This information may be used by side-effect routines or high-level server code to perform RPC bindings in the opposite direction. The RemoteHandle and Uniquefier  information are  useful as end-to-end identification between client code and server code.
 	
 
 LamportTime.
@@ -491,98 +569,150 @@ LamportTime.
 	for generating unique timestamps in a distributed system.
 	
 
-DumpState.
-	RPC2_DumpState, Dump internal RPC state.
-	<bf>in</bf> FILE *OutFile, <bf>in</bf> long Verbosity.
-	<tag/OutFile./ File on which the trace is to be produced.  A value of NULL implies stdout.
-	<tag/Verbosity./ Controls the amount of information dumped.  Right now two values 0 and 1 are meaningfull.
-	<em>RPC2_SUCCESS./ The dump has been produced.
-	You should typically call this routine after calling RPC(DumpTrace).
-	
+<sect1>RPC2_DumpState -- <em/Dump internal RPC state/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_DumpState</em>(<bf>in</bf> FILE *OutFile, <bf>in</bf> long Verbosity)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/OutFile/ File on which the trace is to be produced.  A value of NULL implies stdout.
+	<tag/Verbosity/ Controls the amount of information dumped.  Right now two values 0 and 1 are meaningfull.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ The dump has been produced.
+    </descrip>
+ <sect2>Description:<p>
+   You should typically call this routine after calling RPC(DumpTrace).
 
-InitTraceBuffer.
-	RPC2_InitTraceBuffer, Set trace buffer size.
-	<bf>in</bf> long HowMany.
-	<tag/HowMany./ How many entries the trace buffer should have.  Set it to zero to delete trace buffer.
-	<em>RPC2_SUCCESS./ The trace buffer has been adjusted appropriately.
+<sect1>RPC2_InitTraceBuffer -- <em/Set trace buffer size/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_InitTraceBuffer</em>(<bf>in</bf> long HowMany)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/HowMany/ How many entries the trace buffer should have.  Set it to zero to delete trace buffer.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ The trace buffer has been adjusted appropriately.
+    </descrip>
+  <sect2>Description:<p>
 	Allows you to create and change the trace buffer at runtime.  All existing trace entries are lost.
 	
-
-DumpTrace.
-	RPC2_DumpTrace, Print a trace of recent RPC calls and packets received.
-	<bf>in</bf> FILE *OutFile, <bf>in</bf> long HowMany.
-	<tag/OutFile./ File on which the trace is to be produced.  A value of NULL implies stdout.
-	<tag/HowMany./ The HowMany most recent trace entries are printed.  A value of NULL implies as many trace entries
+<sect1>RPC2_DumpTrace -- <em/Print a trace of recent RPC calls and packets received/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_DumpTrace</em>(<bf>in</bf> FILE *OutFile, <bf>in</bf> long HowMany)
+   <sect2>Parameters:<p>
+     <descrip>
+	<tag/OutFile/ File on which the trace is to be produced.  A value of NULL implies stdout.
+	<tag/HowMany/ The HowMany most recent trace entries are printed.  A value of NULL implies as many trace entries
 			as possible.  Values larger than TraceBufferLength specifed in RPC2_Init are meaningless.
-	<em>RPC2_SUCCESS./ The requested trace has been produced.
-	<em>RPC2_FAIL./ The trace buffer had no entries.
-	Note that it is not necessary for RPC2_Trace to be currently set.  You can collect a trace and defer calling
-		RPC2_DumpTrace until a convenient time.  This call does not alter the current value of RPC2_Trace.
+     </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ The requested trace has been produced.
+	<tag/RPC2_FAIL/ The trace buffer had no entries.
+    </descrip>
+  <sect2>Description:<p>
+	Note that it is not necessary for RPC2_Trace to be currently set.  You can collect a trace and defer calling RPC2_DumpTrace until a convenient time.  This call does not alter the current value of RPC2_Trace.
 	
+<sect1>RPC2_SetLog -- <em/Set the logfile and debug level to use/<p>
+  <sect2>Call:<p>
+     <em>void RPC2_SetLog</em>(<bf>in</bf> FILE * file, <bf/int level/)
+  <sect2>Parameters:<p>
+     <descrip>
+        <tag/file/ File to send trace dumps and log entries to.
+        <tag/level/ Value to set the debug level to.
+     </descrip>
+  <sect2>Completion Codes:<p>
+     <em>None.</em>
+  <sect2>Description:<p>
+     The debug level defines the verbosity of trace and log entries that will be written by a RPC2_DumpTrace.
 
 
-SetDefaults.
-	XXX()SetDefaults. Set an SE initializer to its default values.
-	<bf>out</bf> XXX()Initializer *Initializer.
-	<tag/Initializer, Initializer for side effect XXX which you wish to set to default values.
-	<em>RPC2_SUCCESS./ .	
-	  Each side effect type, XXX,  defines an initialization structure type, XXX()Initializer,
-		and an initialization routine, XXX()SetDefaults ().
+<sect1>XXX_SetDefaults -- <em/Set an SE initializer to its default values/<p>
+  <sect2>Call:<p>
+    <em>int XXX_SetDefaults</em>(<bf>out</bf> XXX_Initializer *Initializer)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/Initializer/, Initializer for side effect XXX which you wish to set to default values.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/Initialization Succeeded.
+    </descrip>
+  <sect2>Description:<p>
+	  Each side effect type, XXX,  defines an initialization structure type, XXX()Initializer,and an initialization routine, XXX()SetDefaults ().<p>
 
-		A typical initialization sequence consists of the following: for each side effect, XXX, that you
-		care about,
-		begin(format
-	 (1) declare a local variable of type XXX()Initializer.
-	 (2) call XXX()SetDefaults () with this local variable as argument.
-	 (3) selectively modify those initial values you care about in the local variable, and
-	 (4) call XXX()Activate () with this local variable as argument.
+  A typical initialization sequence consists of the following: for each side effect, XXX, that you care about,
+    <enum>	
+	 <item> declare a local variable of type XXX()Initializer.
+	 <item> call XXX_SetDefaults () with this local variable as argument.
+	 <item> selectively modify those initial values you care about in the local variable, and
+	 <item> call XXX_Activate () with this local variable as argument.
 		end(format
-		
-		Finally call RPC2_Init.
+    </enum>	
+		Finally call RPC2_Init.<p>
 
-		This allows you to selectively set parameters of XXX without having to know the  proper values
-		for all of the possible parameters.  
-		Alas, if only C allowed initialization in type declarations  this routine would be unnecessary.
+		This allows you to selectively set parameters of XXX without having to know the  proper values for all of the possible parameters. Alas, if only C allowed initialization in type declarations  this routine would be unnecessary.
 	
 
-
-Activate.
-	XXX()Activate, Activates a side effect type and initializes it.
-	<bf>in</bf> XXX()Initializer *Initializer.
-	<tag/Initializer./ Initializer for side effect XXX.
-	<em>RPC2_SUCCESS./ .	
-	Activates side effect XXX.  Code corresponding to this side effect will not be linked in
-	    otherwise. See comment for XXX()SetDefaults () for further details.
+<sect1>XXX_Activate -- <em/Activates a side effect type and initializes it/<p>
+  <sect2>Call:<p>
+    <em>int XXX_Activate</em>(<bf>in</bf> XXX_Initializer *Initializer)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/Initializer/ Initializer for side effect XXX.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/Activation Succeeded.	
+    </descrip>
+  <sect2>Description:<p>
+	Activates side effect XXX.  Code corresponding to this side effect will not be linked in otherwise. See comment for XXX()SetDefaults () for further details.
 	
-
-ErrorMsg,
-        Type = char *,
-	RPC2_ErrorMsg, Describe RPC2 error code,
-	<bf>in</bf> long ReturnCode,
-	<tag/ReturnCode./ Error code returned by any RPC2 call.,
-	<em>. .	
+<sect1>RPC2_ErrorMsg -- <em/Describe RPC2 error code/<p>
+  <sect2>Call:<p>
+    <em>char * RPC2_ErrorMsg</em>(<bf>in</bf> long ReturnCode)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/ReturnCode/ Error code returned by any RPC2 call.,
+    </descrip>
+  <sect2>Description:<p>
 	Converts ReturnCode into a string that can be used for printing error messages.  Note that this is the only RPC2 call that returns a non-integer value.
 	
 
 
-SetColor.
-	RPC2_SetColor, Set the color of a connection,
-	<bf>in</bf> RPC2_Handle *Conn, <bf>in</bf> RPC2_Integer NewColor,
-	<tag/Conn./ Connection whose color is to be changed.
-	<tag/NewColor./ The lowest-order byte of this value is used as the new color for this connection.
-	<em>RPC2_SUCCESS./ The connection has been colored as requested.
-	<em>RPC2_NOCONNECTION./ Connection specified is bogus.
+<sect1>RPC2_SetColor -- <em/Set the color of a connection/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_SetColor</em>(<bf>in</bf> RPC2_Handle *Conn, <bf>in</bf> RPC2_Integer NewColor)
+  <sect2>Parameters:<p>
+    <descrip>
+	<tag/Conn/ Connection whose color is to be changed.
+	<tag/NewColor/ The lowest-order byte of this value is used as the new color for this connection.
+    </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS/ The connection has been colored as requested.
+	<tag/RPC2_NOCONNECTION/ Connection specified is bogus.
+   </descrip>
+  <sect2>Description:<p>
 	A color is an integer between 0 and 255 that is associated with a connection.  When a packet is sent out on a connection, it acquires this color.  Colors have no implicit significance to RPC2.  But they can be used by other packages such as the Coda failure emulator package cite&lsqb;CodaManual&rsqb; to selectively induce failures.  For example, in debugging an implementation of a two-phase commit protocol, one needs to test the situation where a failure occurs between the two phases. This situation can be detected by the failure emulator by using packets of different colors for the different phases.  A change in color of a connection takes effect with the next packet that is sent out.
 	
 
-
-GetColor.
-	RPC2_GetColor, Obtain current color of a connection,
-	<bf>in</bf> RPC2_Handle *Conn, <bf>out</bf> RPC2_Integer *Color.
+<sect1>RPC2_GetColor -- <em/Obtain current color of a connection/<p>
+  <sect2>Call:<p>
+    <em>int RPC2_GetColor</em>(<bf>in</bf> RPC2_Handle *Conn, <bf>out</bf> RPC2_Integer *Color)
+   <sect2>Parameters:<p>
+     <descrip>
 	<tag/Conn./ Connection whose color is to be obtained.
 	<tag/Color,/ Current color of connection./
-	<em>RPC2_SUCCESS./ Color obtained.
-	<em>RPC2_NOCONNECTION./ Conn is bogus.
+     </descrip>
+  <sect2>Completion Codes:<p>
+    <descrip>
+	<tag/RPC2_SUCCESS./ Color obtained.
+	<tag/RPC2_NOCONNECTION./ Conn is bogus.
+    </descrip>
+  <sect2>Description:<p>
 	Useful if a package using RPC2 wants to save current color, set new color, then restore original color.
 	
 
