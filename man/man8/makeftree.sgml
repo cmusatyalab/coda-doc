@@ -11,19 +11,17 @@
 
 <mansect>DESCRIPTION<P>
 <tt>makeftree</tt> organizes an existing UNIX directory with a mounted partition
-for use by Coda listed in vicetab with a b-tree format for fast and efficent
-file retrival.  The b-tree infromation is kepe in the file <em>FTREEDB</em> at
+for use by Coda listed in vicetab with an ftree format for fast and efficent
+file retrival.  The ftree infromation is kepe in the file <em>FTREEDB</em> at
 the head of the partition.
 <p>
 The depth and width must be specifed in <tt>vicetab</tt>
 <p>
 <mansect>BUGS<p>
 <tt>makeftree</tt> expects the file FTREEDB to already exist before it is run.
-Before running, 
-<tscreen><verb>
-touch <partition_path>/FTREEDB
-</verb></tscree> 
-must be issued to avoid a segmentation fault.
+Before running <tscreen><verb> touch /<partition_path>/FTREEDB.
+</verb></tscreen> 
+must be issued to avoid an abort.
 
 
 <mansect>SEE ALSO<P>

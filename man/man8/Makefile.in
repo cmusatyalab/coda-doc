@@ -10,10 +10,8 @@ VPATH = @srcdir@
 MANPAGEFILES = au.man \
                auth2.man \
                authmon.man \
-               autobackup.man \
                backup.man \
                bldvldb.man \
-               clone.man \
                createvol.man \
                createvol_rep.man \
                fsck-coda.man \

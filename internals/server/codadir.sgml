@@ -9,7 +9,7 @@
 <author> Peter J. Braam
 <date> Jan 24, 1998
 
-<abstract>  This document describes the driectory package used in Coda. Our aim is to describe the interface offered by the dir library, as well as typical usage in Venus and Vice. Areas of improvement are also pointed out.
+<abstract>  This document describes the driectory package used in Coda. Our aim is to describe the interface offered by the dir library, as well as typical usage in Venus and Vice. Areas of improvement are also pointed out. This system is currently being implemented and tested.
 </abstract>
 
 <toc> 

@@ -4,6 +4,11 @@ Parts:
 	packet handling
 
 
+Sockets
+-------
+
+
+
 
 PacketBuffer
 ------------ 
@@ -284,10 +289,49 @@ clogged up)
 Now we find the recipient.  This is a match of the packets'
 Filter against the RequestFilter found in the rpc2_SLReqList
 
-Increment sequence numberfor the connection. 
+Increment sequence number for the connection. 
 
 
+Better packet decoding
+======================
 
+socket    
+------
+
+Xmit Packet
+Rcv  Packet
+        -------- solely involved with PacketBuffers and the
+                 global variables describing THE socket
+                 It deciphers ("returns") the HEntry (host)
+                 in case of a receive and uses it as a
+                 parameter in the case of a send.
+
+There can be more than one socket in the case of side effects, and these
+have their own listeners, i.e. in many ways they are independent
+protocols.
+
+packet
+------
+1. decode CEntry (connection) from remote handle -------> ce
+
+
+        
+2. if ce = 0 analyze opcode: either do INIT1 or BOGUS  
+   if ce # 0 decrcypt
+             analyze opcode: lots of possibilities
+
+3. this is the level at which the SL Entries become important I think.
+
+
+--------------------------------------------------------------------------
+The routine DecodePacket is morally wrong since it first decodes by Opcode
+and then does a test "if (ce==0) BOGUS(pb)"; a hundred times or more.
+
+The routine right in the beginning of ProcessPacket is confusing: it looks
+at the LocalHandle (== -1 test), then finds a ce, and if it is not NULL,
+it drops the SL_Entry for the packet (totally un authenticated, this can
+wreak havoc...).  If ce NULL, it's again BOGUS.  However, this (sh)could
+be crypted (if you look at how the outgoing packet is constructed)  and
 
 
 

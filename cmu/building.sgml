@@ -9,7 +9,7 @@
 <abstract> Introduction.
 This document is on the Web as<url url="http://www.coda.cs.cmu.edu/cmu/building.html">www.coda.cs.cmu.edu/cmu/building.html.
 The building system was set up by Bob Baron, Peter Braam and Josh Raiff.
-Talk to us if you have questions.</abstract>
+Send email to <braam@cs.cmu.edu> if you have questions.</abstract>
 
 <sect>Coda Building Environment
 
@@ -19,33 +19,37 @@ Talk to us if you have questions.</abstract>
 <P>
 <Bf>Basic Case</Bf>
 <P>
-We aim to provide a standard GNU&nbsp;building environment. At CMU, we
-want to share source code and objects, and provisions have been made for
-this. However, the most basic case of building Coda is to start with a 
-tarball with Coda source.
+
+We aim to provide a standard GNU&nbsp;building environment, and we are
+slowly getting to that point. At CMU, we want to share source code and
+objects, and provisions have been made for this. However, the most
+basic case of building Coda is to start with a tarball with Coda
+source.
 
 <itemize>
 <item><tt> tar zxvf coda-4.0.1.tgz</tt>
 <item><tt> cd coda-4.0.1 </tt>
-<item> <tt> configure --enable-platform=your_platform, your_platform </tt>
- is one of:
-     <descrip>
-     <tag/i386_linux/<p>
-     <tag/i386_nbsd1/<p>
-     <tag/i386_mach/<p>
-     <tag/pmax_mach/<p>
-     </descrip>
-<item>Make coda (or <It>cmake</It> on Mach, and gmake on NetBSD machines).
-<item>Make reconfigure re-runs configure with the flags currently set.
+<item> <tt> configure </tt>
+<item>Make coda 
+<item>the shell scripts config.status recreates the files created by configure with the same settings.
 </itemize>
 
-
-
+This works for Linux (but see below to be well prepared with your
+kernel code), FreeBSD and NetBSD. 
 
 
 <sect>Notes<P>
 
 <itemize>
+<bf/Linux> On Linux the build instructions given above will build a kernel module too.  The kernel code is in <tt>kernel-src/vfs/linux</tt> and picks up headers from <tt>/usr/src/linux</tt>.  It builds a module which has version information. 
+
+To build Coda kernel code on a fresh RedHat system, install the kernel-source rpm and the kernel-headers rpm.  Then in <tt> /usr/src/linux </tt> type
+<itemize> 
+<item> <tt> make oldconfig</tt>
+<item> <tt> make dep</tt>
+</itemize>.
+
+<item> 
 Configure rewrites Makefile.in to produce Makefile and processes other
 .in files in the source similarly. Changes to Makefiles should be made
 in<BF> Makefile.in</BF>.

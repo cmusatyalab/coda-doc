@@ -10,7 +10,6 @@ top_srcdir = ../..
 MANPAGEFILES = au.man \
                auth2.man \
                authmon.man \
-               autobackup.man \
                backup.man \
                bldvldb.man \
                clone.man \

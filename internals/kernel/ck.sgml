@@ -13,7 +13,7 @@
 
 <title> The Venus kernel interface
 <author> Peter J. Braam
-<date>v1.0, Nov 9, 1997
+<date>v1.2, Mar 18, 1998
 
 <abstract> This document describes the communication between Venus and
 kernel level file system code needed for the operation of the Coda
@@ -239,28 +239,93 @@ waiting on a KernelEvent object in NT and a semaphore in Windows 95.
 
 &newpage;<sect> The interface at the call level <p>
 
-This section describes the upcalls a Coda FS driver can make to
-Venus.  Each of these upcalls make use of two structures: <tt>
-inputArgs</tt> and <tt/outputArgs/.   In pseudo BNF form the
-structures take the following form:
+This section describes the upcalls a Coda FS driver can make to Venus.
+Each of these upcalls make use of three structures: <tt>
+inputArgs</tt> for communication from kernel to Venus, and
+<tt/outputArgs/ back from Venus to the kernel and finally downcalls
+which are calls from Venus to the kernel initiated by Venus.  
 
 <verb>
-struct inputArgs {
-    u_long opcode;
-    u_long unique;     /* Keep multiple outstanding msgs distinct */
-    u_short pid;		 /* Common to all */
-    u_short pgid;		 /* Common to all */
-    struct CodaCred cred;	 /* Common to all */
-    
-    <union "in" of call dependent parts of inputArgs>
+union inputArgs {
+    struct cfs_in_hdr ih;	/* NB: every struct below begins with an ih */
+    struct cfs_open_in cfs_open;
+    struct cfs_close_in cfs_close;
+    struct cfs_ioctl_in cfs_ioctl;
+    struct cfs_getattr_in cfs_getattr;
+    struct cfs_setattr_in cfs_setattr;
+    struct cfs_access_in cfs_access;
+    struct cfs_lookup_in cfs_lookup;
+    struct cfs_create_in cfs_create;
+    struct cfs_remove_in cfs_remove;
+    struct cfs_link_in cfs_link;
+    struct cfs_rename_in cfs_rename;
+    struct cfs_mkdir_in cfs_mkdir;
+    struct cfs_rmdir_in cfs_rmdir;
+    struct cfs_readdir_in cfs_readdir;
+    struct cfs_symlink_in cfs_symlink;
+    struct cfs_readlink_in cfs_readlink;
+    struct cfs_fsync_in cfs_fsync;
+    struct cfs_inactive_in cfs_inactive;
+    struct cfs_vget_in cfs_vget;
+    struct cfs_rdwr_in cfs_rdwr;
+    struct cfs_open_by_path_in cfs_open_by_path;
+};
+</verb>
+
+<verb>
+union outputArgs {
+    struct cfs_out_hdr oh; /* NB: every struct below begins with an oh */
+    struct cfs_root_out cfs_root;
+    struct cfs_open_out cfs_open;
+    struct cfs_ioctl_out cfs_ioctl;
+    struct cfs_getattr_out cfs_getattr;
+    struct cfs_lookup_out cfs_lookup;
+    struct cfs_create_out cfs_create;
+    struct cfs_mkdir_out cfs_mkdir;
+    struct cfs_readdir_out cfs_readdir;
+    struct cfs_readlink_out cfs_readlink;
+    struct cfs_vget_out cfs_vget;
+    struct cfs_purgeuser_out cfs_purgeuser;
+    struct cfs_zapfile_out cfs_zapfile;
+    struct cfs_zapdir_out cfs_zapdir;
+    struct cfs_zapvnode_out cfs_zapvnode;
+    struct cfs_purgefid_out cfs_purgefid;
+    struct cfs_rdwr_out cfs_rdwr;
+    struct cfs_replace_out cfs_replace;
+    struct cfs_open_by_path_out cfs_open_by_path;
+};
+</verb>
+
+<verb>
+union cfs_downcalls {
+    /* CFS_FLUSH  is also a down call */
+    struct cfs_purgeuser_out purgeuser;
+    struct cfs_zapfile_out zapfile;
+    struct cfs_zapdir_out zapdir;
+    struct cfs_zapvnode_out zapvnode;
+    struct cfs_purgefid_out purgefid;
+    struct cfs_replace_out replace;
 };
 
-struct outputArgs {
-    u_long opcode;
-    u_long unique;	 /* Keep multiple outstanding msgs distinct */
-    u_long result;
+</verb>
 
-    <union "out" of call dependent parts of inputArgs>
+The headers are common to all calls and contain process, authentication and opcode information:
+
+<verb>
+struct cfs_in_hdr {
+    unsigned long opcode;
+    unsigned long unique;    /* Keep multiple outstanding msgs distinct */
+    u_short pid;		  /* Common to all */
+    u_short pgid;		  /* Common to all */
+    u_short sid;                  /* to become the PAG */
+    struct coda_cred cred;	  /* to become a PAG */
+};
+
+/* Really important that opcode and unique are 1st two fields! */
+struct cfs_out_hdr {
+    unsigned long opcode;
+    unsigned long unique;	
+    unsigned long result;
 };
 </verb>
 
@@ -444,7 +509,9 @@ CFS_MAXNAMLEN, currently set to 256 (including a 0 terminator.)
 
 It is extremely important to realize that Venus bitwise or's the field
 <tt/cfs_lookup.vtype/ with <tt/CFS_NOCACHE/ to indicate that the
-object should not be put in the kernel name cache. 
+object should not be put in the kernel name cache. Files in conflict or 
+uncovered mountpoints should never be cached by the kernel and each lookup
+should make it to Venus.
 
 <bf/NOTE/ The type of the vtype is currently wrong.  It should be
 <tt/coda_vtype/. Linux does not take note of <tt/CFS_NOCACHE/.  It
@@ -1354,5 +1421,27 @@ attempting to mount.
 <bf/NOTE/  NetBSD in particular but also Linux have not implemented
 the above requirements fully.  For smooth operation this needs to be
 corrected. 
+
+&newpage;<sect> Inode numbers <p>
+
+The Unix stat system call returns inode numbers for files.  These
+should be correct for Coda files for library calls like getwd and tar
+to function correctly.
+
+The mount points of volumes complicate the values which Venus assigns to the inode numbers in the statbuf structure.  The rules are as follows:
+
+<enum>
+<item> A fid is converted to an integer (vol<<20) + (vnode<<10) + (uniq).
+<item> If a fid is the root of a volume, then it is assigned the inode number of the symlink which is its mountpoint. 
+</enum>
+
+The kernel should never cache the symlink mountpoints but may see them
+in case they cannot be covered. Also downcalls are made to purge the
+symlink fid from the cache, despite the fact that the kernel has never
+seen the mountpoint fid before.
+
+Kernel code for Coda will need to implement a lookup mechanism to find
+vnodes (BSD) inodes (Linux) or FileHandles (Win) based on Fid, and it
+will need to be careful to get things right for volume roots.
 
 </article>
