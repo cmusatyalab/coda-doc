@@ -10,6 +10,19 @@ This file specifies initial cleartext passwords for Coda users.  The format of t
 <tscreen><verb>
 uid<TAB>acutal cleartext password<TAB>any desired info
 </verb></tscreen>
+Where:
+
+<descrip>
+<tag><bf>&lt;ViceId&gt;</bf></tag>is a Coda user id.
+<P></descrip>
+<descrip>
+<tag><bf>&lt;Clear Password&gt;</bf></tag>is the password to use for
+<em>ViceId</em>.
+<P></descrip>
+<descrip>
+<tag><bf>&lt;Other user info&gt;</bf></tag>is other information about
+the user you want to include in the <em>auth2</em> password database.
+<P></descrip>
 
 WARNING this file must be owned by root and not be readable by any other user.
 

@@ -12,36 +12,38 @@ the user and mount it at the appropriate place in the Coda name space
 
 <sect1>Constructing new protection database files<p>
 
-Add a line for each new user to the <tt>user.coda</tt> file
-using the userId from the new users Unix account.
-@Foot(If you are at Carnegie Mellon and the user you intend 
-to add does not have a CMU-CS account, STOP!  The user <bf>must</bf> get a CMU-CS
-account before you may continue.  To determine the CMU-CS UID, <bf>grep</bf>
-for the login name in <tt>/etc/passwds</tt>.)  You may copy the entry in 
-<tt>/etc/passwds</tt> for this user if you wish.  Note that only the login name (the
-first field) and the uid (the third field) are relevant and that you may delete the 
-other fields as long as you leave all the "<bf>:</bf>" characters intact.
+Add a line for each new user to the <tt>user.coda</tt> file using the
+userId from the new users Unix account.  @Foot(If you are at Carnegie
+Mellon and the user you intend to add does not have a CMU-CS account,
+STOP!  The user <bf>must</bf> get a CMU-CS account before you may
+continue.  To determine the UID, <bf>grep</bf> for the login name in
+<tt>/etc/passwds</tt>.)  You may copy the user's entry in
+<tt>/etc/passwds</tt> to the user.coda file for this purpose if you
+wish.  Note that only the login name (the first field) and the uid
+(the third field) are relevant and that you may delete the other
+fields as long as you leave all the "<bf>:</bf>" characters intact.
 
-Now, add the users name to the appropriate group in the file <tt>groups.coda</tt>.  
-Note that Coda groups are totally separate from AFS groups and CS unix groups.  
-Adding a user to group <bf>system:administrators</bf> is about the equivalent of giving 
-that user the <bf>root</bf> password.  Only hard core Coda developers should be in this group.
-Add all Coda developers (hard and soft core) to the <bf>system:coda</bf> group.  Add casual
-Coda users to the <bf>system:guests</bf> group.
+Now, add the users name to the appropriate group in the file
+<tt>groups.coda</tt>.  Note that Coda groups are totally separate from
+Unix groups.  Adding a user to group <bf>System:Administrators</bf> is
+about the equivalent of giving that user root privileges.  Only System
+Administrators should be in this group.  As an example, we add all Coda developers (hard
+and soft core) to the <bf>system:coda</bf> group.  Add other Coda
+users to groups as appropriate.
 
 Execute 
-<tt>% /usr/coda/bin/pwd2pdb -p user.coda -g groups.coda &gt; vice.pdb</tt>
+<tt>% pwd2pdb -p /vice/db/user.coda -g /vice/db/groups.coda &gt; /vice/db/vice.pdb</tt>
 
 to generate a Coda protection database.
 
 Finally, execute 
-<tt>% /usr/coda/bin/pcfgen vice</tt>
-to generate thefile <tt>vice.pcf</tt>.
+<tt>pcfgen /vice/db/vice.pdb</tt>
+to generate the file <tt>vice.pcf</tt>.
 
 <sect1>Installing the protection database files<p>
 
-Now that you have generated the new protection database files, you must install
-these files.  Follow these steps:
+Now that you have generated the new protection database files, you
+must install these files.  Follow these steps:
 
 <enum>
 <item>
@@ -56,9 +58,9 @@ is the name of the directory containing the new vice.pdb and vice.pcf.
 <sect1>Modifying the authentication database
 <p>
 User accounts are added to the authentication database with the
-<bf>/usr/coda/bin/au</bf> program, which can also delete and modify user 
+<bf>au</bf> program, which can also delete and modify user 
 accounts, change passwords, and get tokens.  To add a user, run 
-<tt>	% /usr/coda/bin/au -h &lt;SCM&gt; nu</tt>
+<tt>	au -h &lt;SCM&gt; nu</tt>
 on a Coda client workstation, giving the System Control Machine's name
 in &lt;SCM&gt;.  
 
@@ -71,7 +73,7 @@ the user "guest" to the authentication database.  Note that the new password
 will echo to the screen.
 
 <tscreen><verb>
-% /usr/coda/bin/au -h scarlatti nu
+au -h your-scm.host nu
 Your Vice name: raiff
 Your password:
 RPC2&lowbar;Bind () --&gt; RPC2&lowbar;SUCCESS

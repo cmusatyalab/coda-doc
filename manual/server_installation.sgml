@@ -322,47 +322,49 @@ authentication database. Make sure you add at least one user to the
 
 <itemize>
 <item>
-Create or modify an appropriate passwd file in the Vice format 
-<bf>passwd.coda (5)</bf>.  An example of <tt>passwd.coda</tt> can be 
-found in the directory <tt>&dollar;INSTALLATION_DIR/vice/db</tt> as 
+Create or modify an appropriate user file in the Vice format 
+<bf>user_coda (5)</bf>.  An example of <tt>user.coda</tt> can be 
+found in the directory <tt>/vice/db</tt> as 
 well as in Appendix <ref id="ExampleFiles" name="XXX">.
 <item>
-Create or modify an appropriate groups file in the Vice format 
-<bf>groups.coda (5)</bf>.  It is vital that you add at least one user
-from the <tt>passwd.coda</tt> file to the group
+Create or modify an appropriate groups.coda file in the Vice format 
+<bf>groups_coda (5)</bf>.  It is vital that you add at least one user
+from the <tt>user.coda</tt> file to the group
 <tt>System:Administrators</tt>.  An example of <tt>groups.coda</tt> can be 
-found in the directory <tt>&dollar;INSTALLATION_DIR/vice/db</tt> as 
+found in the directory <tt>/vice/db</tt> as 
 well as in Appendix <ref id="ExampleFiles" name="XXX">.  
 <item>
 
-<tt>/vice/bin/pwd2pdb -p passwd.coda -g groups.coda > vice.pdb</tt>
+<tt>/vice/bin/pwd2pdb -u user.coda -g groups.coda > vice.pdb</tt>
 <item>
 <tt>/vice/bin/pcfgen vice.pdb) (will create vice.pcf) as a side affect</tt>
 <item>
-Create a file with the initial users in the passwd file (be sure to
-include at least one administrator).  The format of the file should be
-as follows: 
+Create a file /vice/db/passwd.coda, owned by root, readable only by root,
+with the initial passwords for 
+users in the Vice passwd file format (passwd_coda (5)).  The format of
+the passwd.coda file should be as follows: 
 
-<tt>uid&lt;TAB&gt;actual password&lt;TAB&gt;any desired info</tt>.
+<tt>uid&lt;TAB&gt;actual cleartext password&lt;TAB&gt;any desired info</tt>.
 
-The password has not been encrypted and should be changed as soon as
-possible by the user.  The information might be the full name of the
-user.  This file may be named anything you wish, but for future
-reference call it <tt>users.file</tt>.  Choose a password that will be 
-used to encrypt the user passwords.  It is helpful to hardwire this password 
-into the Authentication server (auth2.c) as <bf>DefKey</bf>; otherwise it must
-be supplied on the command line with the -k switch.  (If you do hardwire the 
-password, recompile the Authentication server, then run the command 
+  The information field could be the full name of the
+user. Name this file  <tt>/vice/db/passwd.coda</tt>.  Then run the command 
 
-<tt>/vice/bin/initpw -k "&lt;password&gt;" &lt;users.file&gt; auth2.pw</tt>
+<tt>initpw -k "drseuss " &lt;/vice/db/passwd.coda &gt; /vice/db/auth2.pw</tt>
+
 
 This command produces the file <tt>auth2.pw</tt> in the format: 
 
+
 <tt>uid&lt;TAB&gt;encrypted password&lt;TAB&gt;Desired info</tt>.  
 
-Note that all future changes of the password must be changed
-in both the Authentication server, via either hardwiring or the
-command line, as well as this command.  New passwords must be 8
+Note: "drseuss " is an encryption key to prevent accidental disclosure
+of the passwords to the system administrators. In future versions of
+coda we will store a sites specific encryption key in a configuration file.
+
+Note that all future changes of the password must be made through the
+au(1) program, and not by repeating this procedure since that would
+overwrite any passwords changed by users after initialization.
+ New passwords must be 8
 characters long.  To add additional users, please see Section
 <ref id="AddUsers" name="XXX">. 
 <item>

@@ -29,13 +29,13 @@ There should only be one master server in the system.
 
 <descrip>
 <tag><bf>-x</bf> <em>debuglevel</em></tag>Sets the server debug
-level.  This level control the amount of debugging information printed
+level.  This level controls the amount of debugging information printed
 by the server.
 <P></descrip>
 
 <descrip>
 <tag><bf>-p</bf> <em>pwfile</em></tag>Used to tell <bf>auth2</bf> where
-its password file is.
+its password file is. Typically this file is /vice/db/auth2.pw.
 <P></descrip>
 
 <descrip>
