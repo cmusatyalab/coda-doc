@@ -1,3 +1,5 @@
+<tscreen>
+<verb>
 #ifndef _BLURB_
 #define _BLURB_
 /*
@@ -43,7 +45,7 @@ char *argv[];
   cid = connect_to_machine(argv[1]);
 
 /* client makes a remote procedure call to get the time on the server machine */
-  rc = GetRTime(cid, &tv_sec, &tv_usec) ;
+  rc = GetRTime(cid, &amp;tv_sec, &amp;tv_usec) ;
   if (rc != RPC2_SUCCESS) {
       sprintf(msg, "%s\nGet remote time on machine %s failed", 
 	      RPC2_ErrorMsg(rc),argv[1]);
@@ -72,7 +74,7 @@ Init_RPC()
   PROCESS mylpid;
   int rc ;
 
-  if (LWP_Init(LWP_VERSION, LWP_NORMAL_PRIORITY, &mylpid) != LWP_SUCCESS)
+  if (LWP_Init(LWP_VERSION, LWP_NORMAL_PRIORITY, &amp;mylpid) != LWP_SUCCESS)
       error_report("Can't Initialize LWP");   /* Initialize LWP package */
  
   rc = RPC2_Init(RPC2_VERSION, NULL, NULL, 0, -1, NULL) ;         
@@ -109,7 +111,7 @@ char *machine_name;
   bp.SideEffectType = NULL;
   bp.ClientIdent = NULL;
   bp.SharedSecret = NULL;
-  rc = RPC2_NewBinding(&hid, &pid, &sid, &bp, &cid);
+  rc = RPC2_NewBinding(&amp;hid, &amp;pid, &amp;sid, &amp;bp, &amp;cid);
   if (rc != RPC2_SUCCESS) {
       sprintf(msg, "%s\nCan't connect to machine %s", RPC2_ErrorMsg(rc),
 	      machine_name);
@@ -118,3 +120,5 @@ char *machine_name;
   return cid;
 } ;
 
+</verb>
+</tscreen>

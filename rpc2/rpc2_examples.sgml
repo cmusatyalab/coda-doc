@@ -1,4 +1,4 @@
-@Chapter(Overview and Examples)
+<chapt>Overview and Examples<P>
 <label id="Intro">
 <em>Remote Procedure Call (RPC)</em> is a paradigm of communication between a
 client and a server.
@@ -8,7 +8,7 @@ Each request consists of an <em>Operation</em> and a set of <em>Parameters</em>.
 A reply consists of a <em>Return Code</em> and a set of result  parameters.
 Site and communication failures are synchronously detected.
 
-<sect1>Components<p>
+<sect>Components<p>
 RPC2 consists of two relatively independent components:
 a Unix-based run time library written in C, and a stub generator RP2Gen.
 The run-time system is self contained and usable in the absence of RP2Gen.
@@ -27,7 +27,7 @@ written in C, they have been successfully used by programs used in
 C++.
 
 
-<sect1>Client-Server Model and Binding<p>
+<sect>Client-Server Model and Binding<p>
 The concepts of ``server and ``client are quite general.
 A server may be the client of one or more other servers.
 A server may have one more <em>Subsystems</em> associated with it,
@@ -42,7 +42,7 @@ to allow a multiplicity of representations.
 Thus hosts may be specified either by name or by Internet address.
 
 
-<sect1>How RPC2 uses LWPs<p>
+<sect>How RPC2 uses LWPs<p>
 Clients and servers are each assumed to be Unix processes using the
 LWP package.
 RPC2 will not work independently of the LWP package.
@@ -69,7 +69,7 @@ and <tt>select (2)</tt> that may block for a long time should be avoided.
 Instead, use @IOMGR(Select).
 
 
-<sect1>Side Effects<p>
+<sect>Side Effects<p>
 RPC connections may be associated with <em>Side-Effects</em>
 to allow application-specific network optimizations to be performed.
 An example is the use of a specialized protocol for bulk transfer
@@ -90,7 +90,7 @@ where side-effect routines will be called.
 Global tables contain pointers to  these side effect routines.
 The basic RPC code itself knows nothing about these side-effect routines.
 
-<sect1>Security<p>
+<sect>Security<p>
 A <em>Security Level</em> is associated with each connection between a client and
 a server.  Currently four levels of security are supported:
 @begin(itemize)
@@ -127,7 +127,7 @@ functionality may be used.
 
 
 
-<sect1>Examples<p>
+<sect>Examples<p>
 <label id="Examples">
 In  this section we walk the reader through examples of increasing
 complexity, thereby demonstrating the use of RPC2.
@@ -138,14 +138,14 @@ There is a Makefile for both these examples in Section <ref id="MAKEFILE" name="
 Neither example uses side effects.  
 An example using side effects can be found in Chapter <ref id="SFTPChapter" name="XXX">.
 
-<sect2>Example 1: Getting Time of Day<p>
+<sect1>Example 1: Getting Time of Day<p>
 <label id="Example-rtime">
 This is a very simple example that has only one subsystem telling the client  
 the time of the day in seconds and micro seconds on the server machine.
 
 The interface is defined in the <tt>rtime.rpc</tt> file.
 This file is used as input to RP2Gen to generate
-the client and server stubs <tt>rtime.client.c</tt> and <tt>rtime.server.c.</tt>
+the client and server stubs <tt>rtime.client.c</tt> and <tt>rtime_server.c.sgml</tt>
 
 The first step at both the client and the server is initialization of
 the LWP and the RPC2 package.
@@ -170,22 +170,20 @@ calls the server code for <tt>GetRTime</tt> routine
 and sends the response to the client.
 The server then goes back to waiting for more requests.
 
-@paragraph&lsqb;Interface Specification (<em>in file rtime.rpc</em>)&rsqb;
-@begin(program)
-@include(rtime.rpc.mss)
-@end(program)
 
-@paragraph&lsqb;Client Code (<em>in file rtime&lowbar;clnt.c</em>)&rsqb;
-@begin(program)
-@include(rtime&lowbar;clnt.c.mss)
-@end(program)
 
-@paragraph&lsqb;Server Code (<em>in file rtime&lowbar;srv.c</em>)&rsqb;
-@begin(program)
-@include(rtime&lowbar;srv.c.mss)
-@end(program)
+<sect2>Interface Specification (<em>in file rtime_rpc.sgml</em>)<P>
+&rtimerpc;
 
-<sect2>Example 2: Authentication and Computation Subsystems<p>
+<sect2>Client Code (<em>in file rtime_clnt.c.sgml</em>)<P>
+&rtimeclntc;
+
+<sect2>Server Code (<em>in file rtime_srv.c.sgml</em>)<P>
+&rtimesrvc;
+
+
+
+<sect1>Example 2: Authentication and Computation Subsystems<p>
 <label id="Example-authcomp">
 In this example there are two subsystems: an authentication subsystem
 and a computation subsystem.  Each subsystem services a different
@@ -197,32 +195,22 @@ An alternative would have been for a single LWP to service calls
 for both subsystems or for a collection of LWPs to service calls
 for any subsystems.
 
-@paragraph&lsqb;Interface Specifications for Auth Subsystem (<em>in file auth.rpc</em>)&rsqb;
-@begin(program)
-@include(auth.rpc.mss)
-@end(program)
-
-@paragraph&lsqb;Interface Specifications for Comp Subsystem (<em>in file comp.rpc</em>)&rsqb;
-@begin(program)
-@include(comp.rpc.mss)
-@end(program)
-
-@paragraph&lsqb;Client Code (<em>in file authcomp&lowbar;clnt.c</em>)&rsqb;
-@begin(program)
-@include(authcomp&lowbar;clnt.c.mss)
-@end(program)
-
-@paragraph&lsqb;Server Code (<em>in file authcomp&lowbar;srv.c</em>)&rsqb;
-@begin(program)
-@include(authcomp&lowbar;srv.c.mss)
-@end(program)
-
-@subsection&lsqb;Makefile for All Examples&rsqb;
-<label id="MAKEFILE">
-@begin(program)
-@include(Makefile.example)
-@end(program)
 
 
+<sect2>Interface Specifications for Auth Subsystem<P>
+&authrpc;
 
-</manpage>
+<sect2>Interface Specifications for Comp Subsystem<P>
+&comprpc;
+
+<sect2>Client Code<P>
+&authcompclntc;
+
+<sect2>Server Code<P>
+&authcompsrvc;
+
+<sect1>Makefile for All Examples<P>
+&Makefileexample;
+
+
+In the next chapter we will see how the stub generator can create such files.

@@ -1,4 +1,4 @@
-@Chapter(Implementation of MultiRPC)
+<Chapt>Implementation of MultiRPC<P>
 <label id="MultiInt">
 
 Support for MultiRPC exists both at the language level and at the runtime level.
@@ -37,7 +37,7 @@ used both for providing individual server return codes to the client and for giv
 continuation or termination of the MultiRPC call. The handler routine is discussed in greater detail in the
 following section, and its interface is described in Section <ref id="HandleResult" name="XXX">.
 
-<sect1>The Client Handler<p>
+<sect>The Client Handler<p>
 <label id="handler">
 
 The client handler routine is intended to give the client control and flexibility
@@ -100,7 +100,7 @@ It should also be noted that the use of the abort facility of the client handler
 carries with it some risks. These are discussed in more detail in Section
 <ref id="errors" name="XXX">.
 
-<sect1>Flow of Control in MultiRPC<p>
+<sect>Flow of Control in MultiRPC<p>
 
 The flow of control in MultiRPC is much the same as for  RPC2
 except for the iterative calling of the client handler. The client initiates
@@ -137,9 +137,9 @@ the connection, extending the side effect mechanism to MultiRPC
 requires nothing more than supplying a unique <bf>@SE&lsqb;Descriptor&rsqb;</bf> for each
 connection.
 
-<sect1>MultiRPC Related Calls<p>
+<sect>MultiRPC Related Calls<p>
 
-<sect2>@RPC2&lsqb;MultiRPC&rsqb;<p>
+<sect1>@RPC2&lsqb;MultiRPC&rsqb;<p>
 <label id="MultiRPCInfo">
 
 @RPC2(MultiRPC) is the RPC2 runtime routine responsible for setting up the
@@ -159,7 +159,7 @@ RP2Gen interface is not used, the client is responsible for supplying a
 pointer to a routine matching the UnpackMulti specification (see
  Section @ref&lsqb;UnpackMulti&rsqb;).
 
-<sect2>@MRPC&lsqb;MakeMulti&rsqb;<p>
+<sect1>@MRPC&lsqb;MakeMulti&rsqb;<p>
 <label id="MakeMultiInfo">
 
 @MRPC(MakeMulti) is the library routine which provides the parameter packing 
@@ -183,7 +183,7 @@ the number of servers designated by the client. For IN@ux&lsqb;@#&rsqb;OUT param
 only necessary to actually fill in a value for the first element of the
 array, although storage must be properly allocated for  all of the elements.
 
-<sect2>@MRPC&lsqb;UnpackMulti&rsqb;<p>
+<sect1>@MRPC&lsqb;UnpackMulti&rsqb;<p>
 <label id="UnpackMultiInfo">
 
 @MRPC(UnpackMulti) is a RPC2 library routine which functions as the other half of @MRPC(MakeMulti). 
@@ -193,7 +193,7 @@ with the return code supplied by the client handler routine. If the RP2Gen
 interface is not used, the client must supply a pointer to a routine with
 the specified interface (see Section @ref&lsqb;UnpackMulti&rsqb;) to @RPC2(MultiRPC).
 
-<sect2>HandleResult<p>
+<sect1>HandleResult<p>
 <label id="HandleResultInfo">
 
 HandleResult is a place holder used to refer to the client-supplied
@@ -203,7 +203,7 @@ deems necessary, and controls the continuation or termination of the MultiRPC
 call with its return code. The argument specifications of this routine  
 are explained in detail in Section @ref&lsqb;HandleResult&rsqb;.
 
-<sect1>Error Cases and Abnormal Behavior<p>
+<sect>Error Cases and Abnormal Behavior<p>
 <label id="errors">
 
 The semantics for errors in the MultiRPC case are somewhat different from
@@ -267,4 +267,3 @@ the connection and act accordingly.
 
 
 
-</manpage>

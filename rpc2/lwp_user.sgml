@@ -1,7 +1,7 @@
 <label id="LWPPart">
 
-@Chapter(The Basic LWP Package)
-<label id="LWPReference">
+<chapt>Chapter(The Basic LWP Package)<P>
+<label id="LWPReference"><p>
 The LWP package implements primitive functions providing basic
 facilities that enable procedures written in C, to proceed in an
 unsynchronized fashion.  These separate threads of control may
@@ -92,7 +92,7 @@ lightweight process):
 The symbol LWP&lowbar;NORMAL&lowbar;PRIORITY provides a good default value to
 use for process priorities.
 
-<sect1>A word about initialization<p>
+<sect>A word about initialization<p>
 The LWP, IOMGR, Fast Time, and RPC2 packages have routines that
 perform global initialization for the package.  Each of these routines
 may be called more than once, and only the parameters from the first
@@ -118,7 +118,7 @@ initialization calls to these packages is that calls to @TM(Init) must
 follow your call to @FT(Init), if you have one.
 
 
-
+<tscreen><verb>
 
 <sect1>A Simple Example<p>
 @begin(program)
@@ -154,16 +154,32 @@ main (argc, argv)
 &lcub;
     PROCESS *id;
 
-    LWP&lowbar;Init (LWP&lowbar;VERSION, 0, &id);
+    LWP&lowbar;Init (LWP&lowbar;VERSION, 0, &amp;id);
     /* Now create readers */
     for (i=0; i&lt; nreaders; i++)
-	LWP&lowbar;CreateProcess (read&lowbar;process, STACK&lowbar;SIZE, 0, i, "Reader", &readers&lsqb;i&rsqb;);
-    LWP&lowbar;CreateProcess (write&lowbar;process, STACK&lowbar;SIZE, 1, 0, "Writer", &writer);
+	LWP&lowbar;CreateProcess (read&lowbar;process, STACK&lowbar;SIZE, 0, i, "Reader", &amp;readers&lsqb;i&rsqb;);
+    LWP&lowbar;CreateProcess (write&lowbar;process, STACK&lowbar;SIZE, 1, 0, "Writer", &amp;writer);
     /* Wait for processes to terminate */
-    LWP&lowbar;WaitProcess (&done);
+    LWP&lowbar;WaitProcess (&amp;done);
     for (i=nreaders-1; i&gt;=0; i--) LWP&lowbar;DestroyProcess (readers&lsqb;i&rsqb;);
 &rcub;
 @end(program)
+main (argc, argv)
+   int argc; char **argv;
+&lcub;
+    PROCESS *id;
+
+    LWP&lowbar;Init (LWP&lowbar;VERSION, 0, &amp;id);
+    /* Now create readers */
+    for (i=0; i&lt; nreaders; i++)
+	LWP&lowbar;CreateProcess (read&lowbar;process, STACK&lowbar;SIZE, 0, i, "Reader", &amp;readers&lsqb;i&rsqb;);
+    LWP&lowbar;CreateProcess (write&lowbar;process, STACK&lowbar;SIZE, 1, 0, "Writer", &amp;writer);
+    /* Wait for processes to terminate */
+    LWP&lowbar;WaitProcess (&amp;done);
+    for (i=nreaders-1; i&gt;=0; i--) LWP&lowbar;DestroyProcess (readers&lsqb;i&rsqb;);
+&rcub;
+@end(program)
+</verb></tscreen>
 
 <sect1>LWP Runtime Calls<p>
 @PasCall(Tag=&lt;LWPInit&gt;,
@@ -426,7 +442,7 @@ main (argc, argv)
 	Text=`Recovers information hidden by a LWP&lowbar;NewRock call.
 )
 
-@Chapter(The Lock Package)
+<Chapt>The Lock Package<P>
 <label id="LockPackage">
 
 The lock package contains a number of routines and macros that allow C
@@ -453,7 +469,7 @@ In addition, it is illegal for a process to request a particular lock more
 than once, without first releasing it.
 Failure to obey this restriction may cause deadlock.
 
-<sect1>Key Design Choices<p>
+<sect>Key Design Choices<p>
 @Begin(Itemize)
 The package must be simple and @u&lsqb;fast&rsqb;: in the case that a lock can be
 obtained immediately, it should require a minimum of instructions;
@@ -485,9 +501,9 @@ struct Vnode *get&lowbar;vnode (name, how)
 
     v = lookup (name);
     if (how == READ)
-	ObtainReadLock (&v-&gt; lock);
+	ObtainReadLock (&amp;v-&gt; lock);
     else
-	ObtainWriteLock (&v-&gt; lock);
+	ObtainWriteLock (&amp;v-&gt; lock);
 &rcub;
 @End(program)
 
@@ -573,7 +589,7 @@ struct Vnode *get&lowbar;vnode (name, how)
 	      is a side-effect producing expression.
 )
 
-@Chapter(The IOMGR Package)
+<Chapt>The IOMGR Package<P>
 <label id="IOMGRPrimitives">
 
 The IOMGR package allows light-weight processes to wait on various Unix
@@ -592,7 +608,7 @@ the signal delivery to a global data structure.  The next time that the
 IOMGR process runs, it delivers the signal to any waiting light-weight
 processes.
 
-<sect1>Key Design Choices<p>
+<sect>Key Design Choices<p>
 @Begin(Itemize)
 The meanings of the parameters to @IOMGR(Select), both before and after
 the call, should be identical to those of the Unix <tt>select</tt>;
@@ -611,7 +627,7 @@ void rpc2&lowbar;SocketListener ()
 	. . .
 	ExceptfdMask = ReadfdMask = (1 &lt;&lt; rpc2&lowbar;RequestSocket);
 	WritefdMask = 0;
-	rc = IOMGR&lowbar;Select (8*sizeof(int), &ReadfdMask, &WritefdMask, &ExceptfdMask, tvp);
+	rc = IOMGR&lowbar;Select (8*sizeof(int), &amp;ReadfdMask, &amp;WritefdMask, &amp;ExceptfdMask, tvp);
 
 	switch (rc) &lcub;
 	    case 0:	/* timeout */
@@ -733,7 +749,7 @@ void rpc2&lowbar;SocketListener ()
 	     corresponding call to LWP&lowbar;Signal.
 )
 
-@Chapter(The Timer Package)
+<Chapt>The Timer Package<P>
 <label id="TMPackage">
 
 The timer package contains a number of routines that assist in manipulating
@@ -752,14 +768,14 @@ into a structure.
 After inserting the desired timeout value the structure is inserted into a
 list, by means of its timer field.
 
-<sect1>A Simple Example<p>
+<sect>A Simple Example<p>
 
 @Begin(program)
 static struct TM&lowbar;Elem *requests;
 
 . . .
 
-    TM&lowbar;Init (&requests);        /* Initialize timer list */
+    TM&lowbar;Init (&amp;requests);        /* Initialize timer list */
     . . .
     for (;;) &lcub;
         TM&lowbar;Rescan (requests);   /* Update the timers */
@@ -865,7 +881,7 @@ static struct TM&lowbar;Elem *requests;
 	Text=`This routine returns 0 if and only if <em>t1</em> and <em>t2</em> are not equal.
 )
 
-@Chapter(The Preemption Package)
+<chapt>The Preemption Package <p>
 The preemption package provides a mechanism by which control can pass
 between light-weight processes without the need for explicit calls to
 @LWP(DispatchProcess).
@@ -885,7 +901,7 @@ In particular, note that stdio (3) is not re-entrant in general, and
 hence light-weight processes performing I/O on the same FILE structure
 may function incorrectly.
 
-<sect1>Key Design Choices<p>
+<sect>Key Design Choices<p>
 @Begin(Itemize)
 The package should not affect the nonpreemptive scheduling behaviour
 of processes which do not use it;
@@ -898,7 +914,7 @@ Processes using the package are assumed to be <em>co-operating</em>.
 @End(Itemize)
 
 
-<sect1>A Simple Example<p>
+<sect>A Simple Example<p>
 @Begin(program)
 #include &lt;sys/time.h&gt;
 #include "preempt.h"
@@ -910,7 +926,7 @@ Processes using the package are assumed to be <em>co-operating</em>.
 	LWP&lowbar;Init (LWP&lowbar;VERSION, ... );
 	tv.tv&lowbar;sec = 10;
 	tv.tv&lowbar;usec = 0;
-	PRE&lowbar;InitPreempt (&tv);
+	PRE&lowbar;InitPreempt (&amp;tv);
 	PRE&lowbar;PreemptMe ();
 
 	...
@@ -927,7 +943,7 @@ Processes using the package are assumed to be <em>co-operating</em>.
 @End(program)
 
 
-<sect1>Preemption Primitives<p>
+<sect>Preemption Primitives<p>
 @Pascall(Tag=&lt;PREInitPreempt&gt;,
 	CallName=`PRE&lowbar;InitPreempt,
 	Type="int ",
@@ -999,7 +1015,7 @@ Processes using the package are assumed to be <em>co-operating</em>.
 
 
 
-@Chapter(The Fast Time Package)
+<chapt>The Fast Time Package <p>
 The Fast Time package allows the caller to find out the current time of day
 without incurring the expense of a kernel call.  It works by mapping the
 page of the kernel that has the kernels time-of-day variable and
@@ -1013,7 +1029,8 @@ runs for only a short time, you may wish to call @FT(Init) with the
 is useful if you are using another package that uses Fast Time (such as
 RPC2).
 
-<sect1>Fast Time Primitives<p>
+
+<sect>Fast Time Primitives<p>
 @Pascall(Tag=&lt;FTInit&gt;,
 	CallName=`FT&lowbar;Init,
 	Abstract=`Initialize the Fast Time package,
@@ -1052,4 +1069,3 @@ RPC2).
 
 
 
-</manpage>

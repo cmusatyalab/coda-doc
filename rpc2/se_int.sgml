@@ -1,4 +1,4 @@
-@Chapter(Adding New Kinds of Side Effects)
+<Chapt>Adding New Kinds of Side Effects<P>
 <label id="SideEffects">
 
 This chapter is not intended for the average user.  
@@ -18,7 +18,7 @@ deal with @SE(Initializer) structures.
 @end(enumerate)
 
 
-<sect1>Usage Notes<p>
+<sect>Usage Notes<p>
 @begin(enumerate)
 You will modify two RPC2 files (se.h and se.c), and add one more file
 containing the code implementing your new side effect.
@@ -57,7 +57,7 @@ Future RPC calls on this connection will still work.
 
 @end(enumerate)
 
-<sect1>Entry Point Templates<p>
+<sect>Entry Point Templates<p>
 <label id="SETemplates">
 
 @PasCall(Tag=&lt;SEInit&gt;,
@@ -296,4 +296,3 @@ Future RPC calls on this connection will still work.
 
 
 
-</manpage>

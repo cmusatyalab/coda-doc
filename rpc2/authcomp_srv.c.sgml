@@ -1,26 +1,5 @@
-#ifndef _BLURB_
-#define _BLURB_
-/*
-                           CODA FILE SYSTEM
-                      School of Computer Science
-                      Carnegie Mellon University
-                          Copyright 1987-92
+<tscreen><verb>
 
-Past and present contributors to Coda include M. Satyanarayanan, James
-Kistler, Puneet Kumar, David  Steere,  Maria  Okasaki,  Lily  Mummert,
-Ellen  Siegel,  Brian  Noble, Anders Klemets, Masashi Kudo, and Walter
-Smith.  The use of Coda outside Carnegie Mellon University requires  a
-license.  Contact the Coda project coordinator for licensing details.
-*/
-
-
-static char *rcsid = "$Header$";
-#endif _BLURB_
-
-/*
-exserver.c -- Trivial server to demonstrate basic RPC2 functionality
-Exports two subsystems: auth and comp, each with a dedicated LWP.
-*/
 
 #include <stdio.h>
 #include <strings.h>
@@ -57,8 +36,8 @@ main()
     signal(SIGIOT, DebugOff);
 
     InitRPC();
-    LWP_CreateProcess(AuthLWP, 4096, LWP_NORMAL_PRIORITY, "AuthLWP", NULL, &mypid);
-    LWP_CreateProcess(CompLWP, 4096, LWP_NORMAL_PRIORITY, "CompLWP", NULL, &mypid);
+    LWP_CreateProcess(AuthLWP, 4096, LWP_NORMAL_PRIORITY, "AuthLWP", NULL, &amp;mypid);
+    LWP_CreateProcess(CompLWP, 4096, LWP_NORMAL_PRIORITY, "CompLWP", NULL, &amp;mypid);
     LWP_WaitProcess(main);	/* sleep here forever; no one will ever wake me up */
     }
 
@@ -79,12 +58,12 @@ AuthLWP(p)
     while(1)
 	{
 	cid = 0;
-	rc = RPC2_GetRequest(&reqfilter, &cid, &reqbuffer, NULL, NULL, NULL, NULL);
+	rc = RPC2_GetRequest(&amp;reqfilter, &amp;cid, &amp;reqbuffer, NULL, NULL, NULL, NULL);
 	if (rc < RPC2_WLIMIT)  HandleRPCError(rc, cid);
 	rc = auth_ExecuteRequest(cid, reqbuffer);
 	if (rc < RPC2_WLIMIT)  HandleRPCError(rc, cid);
 	pp = NULL;
-	if (RPC2_GetPrivatePointer(cid, &pp) != RPC2_SUCCESS || pp == NULL)
+	if (RPC2_GetPrivatePointer(cid, &amp;pp) != RPC2_SUCCESS || pp == NULL)
 	    RPC2_Unbind(cid);	/* This was almost certainly an AuthQuit() call */
 	}
     }
@@ -106,14 +85,14 @@ CompLWP(p)
     while(1)
 	{
 	cid = 0;
-	rc = RPC2_GetRequest(&reqfilter, &cid, &reqbuffer, NULL, NULL, NULL, NULL);
+	rc = RPC2_GetRequest(&amp;reqfilter, &amp;cid, &amp;reqbuffer, NULL, NULL, NULL, NULL);
 	if (rc < RPC2_WLIMIT) HandleRPCError(rc, cid);
 
 	rc = comp_ExecuteRequest(cid, reqbuffer);
 	if (rc < RPC2_WLIMIT) HandleRPCError(rc, cid);
 
 	pp = NULL;
-	if (RPC2_GetPrivatePointer(cid, &pp) != RPC2_SUCCESS || pp == NULL)
+	if (RPC2_GetPrivatePointer(cid, &amp;pp) != RPC2_SUCCESS || pp == NULL)
 	    RPC2_Unbind(cid);	/* This was almost certainly an CompQuit() call */
 	}
     
@@ -145,7 +124,7 @@ Get rid of user state; note that we do not do RPC2_Unbind() here, because this
 */
     {
     struct UserInfo *p;
-    RPC2_GetPrivatePointer(cid, &p);
+    RPC2_GetPrivatePointer(cid, &amp;p);
     assert(p != NULL); /* we have a bug then */
     free(p);
     RPC2_SetPrivatePointer(cid, NULL);
@@ -212,7 +191,7 @@ Get rid of user state; note that we do not do RPC2_Unbind() here, because this
 */
     {
     struct UserInfo *p;
-    RPC2_GetPrivatePointer(cid, &p);
+    RPC2_GetPrivatePointer(cid, &amp;p);
     assert(p != NULL);	/* we have a bug then */
     free(p);
     RPC2_SetPrivatePointer(cid, NULL);
@@ -238,7 +217,7 @@ S_CompAge(cid, x)
     int x;
     {
     struct UserInfo *p;
-    assert(RPC2_GetPrivatePointer(cid, &p) == RPC2_SUCCESS);
+    assert(RPC2_GetPrivatePointer(cid, &amp;p) == RPC2_SUCCESS);
     return(time(0) - p->Creation);
     }
 
@@ -258,11 +237,11 @@ InitRPC()
     RPC2_SubsysIdent subsysid;
     long rc;
 
-    assert(LWP_Init(LWP_VERSION, LWP_NORMAL_PRIORITY, &mylpid) == LWP_SUCCESS);
+    assert(LWP_Init(LWP_VERSION, LWP_NORMAL_PRIORITY, &amp;mylpid) == LWP_SUCCESS);
 
     portalid.Tag = RPC2_PORTALBYINETNUMBER;
     portalid.Value.InetPortNumber = htons(AUTHPORTAL);
-    portallist[0] = &portalid;
+    portallist[0] = &amp;portalid;
     rc = RPC2_Init(RPC2_VERSION, 0, portallist, 1, -1, NULL);
     if (rc != RPC2_SUCCESS) {
 	fprintf(stderr, "RPC2_Init: failed with %ld\n", rc);
@@ -270,9 +249,9 @@ InitRPC()
     }
     subsysid.Tag = RPC2_SUBSYSBYID;
     subsysid.Value.SubsysId = AUTHSUBSYSID;
-    assert(RPC2_Export(&subsysid) == RPC2_SUCCESS);
+    assert(RPC2_Export(&amp;subsysid) == RPC2_SUCCESS);
     subsysid.Value.SubsysId = COMPSUBSYSID;
-    assert(RPC2_Export(&subsysid) == RPC2_SUCCESS);
+    assert(RPC2_Export(&amp;subsysid) == RPC2_SUCCESS);
     }
 
 
@@ -281,7 +260,7 @@ HandleRPCError(rCode, connId)
     RPC2_Handle connId;
     {
     fprintf(stderr, "exserver: %s\n", RPC2_ErrorMsg(rCode));
-    if (rCode < RPC2_FLIMIT && connId != 0) RPC2_Unbind(connId);
+    if (rCode < RPC2_FLIMIT &amp;&amp; connId != 0) RPC2_Unbind(connId);
     }
 
 void DebugOn()
@@ -293,3 +272,4 @@ void DebugOff()
     {
     RPC2_DebugLevel = 0;
     }
+</verb></tscreen>

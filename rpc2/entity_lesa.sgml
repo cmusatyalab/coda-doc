@@ -1,0 +1,18 @@
+Listed below are the entity tags for manual:  RPC2 USER GUIDE
+
+<! -- CHAPTER 1 -->
+
+<!entity rtimerpc SYSTEM "rtime_rpc.sgml">
+
+<!entity rtimeclntc  SYSTEM "rtime_clnt.c.sgml">
+
+<!entity rtimesrvc SYSTEM "rtime_srv.c.sgml">
+
+<!entity authrpcmss SYSTEM "auth_rpc.sgml">
+
+<!entity comprpcmss SYSTEM "comp_rpc.sgml">
+
+<!entity authcompclntcmss SYSTEM "authcomp_clnt.sgml">
+
+<!entity Makefileexample SYSTEM "Makefile_exam.sgml">
+

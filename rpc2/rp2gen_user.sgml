@@ -1,6 +1,7 @@
-@Chapter(The RP2Gen Stub Generator)
+<chapt>The RP2Gen Stub Generator<p>
 <label id="RP2GenChapter">
-@Section&lsqb;Introduction&rsqb;
+
+<sect>Introduction<P>
 RP2GEN takes a description of a procedure call interface and generates
 stubs to use the RPC2 package, making the interface available on remote
 hosts.  RP2GEN is designed to work with a number of different languages (C, FORTRAN 77, PASCAL), however, only the C interface is currently
@@ -12,7 +13,7 @@ section entitled <bf>External Data Representations.</bf>  Any program wishing
 to communicate with a remote program using the RP2GEN semantics must
 obey these representation standards.
 
-@Section&lsqb;Usage&rsqb;
+<sect>Usage<P>
 RP2GEN is invoked as follows:
 @begin(verbatim, centered)
 	rp2gen <em>file</em>
@@ -51,7 +52,7 @@ the input file, and definitions for the op-codes used by RP2GEN.  This
 file, which is automatically included in the server and client files,
 may be included by any other module that needs access to these types.
 
-@Section&lsqb;Format of the description file&rsqb;
+<sect>Format of the description file<P>
 In the syntax of a description file below, non-terminals are represented
 by <em>italic</em> names and literals are represented by <bf>bold</bf> strings.
 
@@ -171,6 +172,8 @@ in the server code.
 @subsection&lsqb;Example 1: Common definitions for Coda File System&rsqb;
 @Begin(Program)
 
+
+<Tscreen><verb>
 /*
  * Include file common to  callback.rpc2, vice.rpc2 and res.rpc2
  */
@@ -252,7 +255,9 @@ typedef RPC2&lowbar;Struct
 	Unique		uparent;
 	&rcub; ViceStatus;
 @End(Program)
+</verb></Tscreen>
 
+<Tscreen><verb>
 <sect2>Example 2: The Coda Resolution Subsystem Interface<p>
 @begin(program)
 %&lcub;
@@ -391,6 +396,9 @@ DirResPhase3 (IN ViceFid Fid,
 		 IN OUT SE&lowbar;Descriptor sed);
 
 @end(program)
+
+
+</verb></Tscreen>
 
 
 
@@ -535,4 +543,3 @@ with array element <em>n-1</em> preceding element <em>n</em>.
 @end(multiple)
 @end(description)
 
-</manpage>

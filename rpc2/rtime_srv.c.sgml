@@ -1,21 +1,4 @@
-#ifndef _BLURB_
-#define _BLURB_
-/*
-                           CODA FILE SYSTEM
-                      School of Computer Science
-                      Carnegie Mellon University
-                          Copyright 1987-92
-
-Past and present contributors to Coda include M. Satyanarayanan, James
-Kistler, Puneet Kumar, David  Steere,  Maria  Okasaki,  Lily  Mummert,
-Ellen  Siegel,  Brian  Noble, Anders Klemets, Masashi Kudo, and Walter
-Smith.  The use of Coda outside Carnegie Mellon University requires  a
-license.  Contact the Coda project coordinator for licensing details.
-*/
-
-
-static char *rcsid = "$Header$";
-#endif _BLURB_
+<tscreen><Verb>
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -42,7 +25,7 @@ main()
 
   /* loop forever, wait for the client to call for service */
   for ( ; ; ) {
-      rc = RPC2_GetRequest(&reqfilter, &cid, &reqbuffer, NULL, NULL, NULL) ;
+      rc = RPC2_GetRequest(&amp;reqfilter, &amp;cid, &amp;reqbuffer, NULL, NULL, NULL) ;
       if (rc != RPC2_SUCCESS) 
 	  fprintf(stderr, RPC2_ErrorMsg(rc));
       rc = rtime_ExecuteRequest(cid, reqbuffer);
@@ -68,14 +51,14 @@ Init_RPC()
   char msg[100];
 
   /* Initialize LWP package */
-  if (LWP_Init(LWP_VERSION, LWP_NORMAL_PRIORITY, &mylpid) != LWP_SUCCESS)
+  if (LWP_Init(LWP_VERSION, LWP_NORMAL_PRIORITY, &amp;mylpid) != LWP_SUCCESS)
       error_report("Can't Initialize LWP") ;
 
   /* Initialize RPC2 package */
-  pids = &pid;
+  pids = &amp;pid;
   pid.Tag = RPC2_PORTALBYINETNUMBER;
   pid.Value.InetPortNumber = htons(RTIMEPORTAL);
-  rc = RPC2_Init(RPC2_VERSION, NULL, &pids, 1, -1, NULL);
+  rc = RPC2_Init(RPC2_VERSION, NULL, &amp;pids, 1, -1, NULL);
   if (rc != RPC2_SUCCESS) {
       sprintf(msg, "%s\nCan't Initialize RPC2", RPC2_ErrorMsg(rc));
       error_report(msg);
@@ -83,7 +66,7 @@ Init_RPC()
 
   sid.Tag = RPC2_SUBSYSBYID;
   sid.Value.SubsysId = RTIMESUBSYSID;
-  rc = RPC2_Export(&sid) != RPC2_SUCCESS ;
+  rc = RPC2_Export(&amp;sid) != RPC2_SUCCESS ;
   if (rc != RPC2_SUCCESS) {
       sprintf(msg, "%s\nCan't export the rtime subsystem");
       error_report(msg);
@@ -98,9 +81,10 @@ int *tv_usec;
   struct timeval tp;
   struct timezone tzp;
 
-  gettimeofday(&tp, &tzp);
+  gettimeofday(&amp;tp, &amp;tzp);
   *tv_sec = tp.tv_sec;
   *tv_usec = tp.tv_usec; 
   return RPC2_SUCCESS;
 }
 
+</Verb></tscreen>

@@ -1,6 +1,8 @@
-@Chapter(RPC2 Internals)
+
+
+<chapt>RPC2 Internals<P>
 <label id="RPC2Int">
-<sect1>Background<p>
+<sect>Background<p>
 
 This chapter describes the internal structure of RPC2.
 It describes the most relevant data structures and routines used in RPC2.
@@ -31,8 +33,8 @@ control and other LWPs can make concurrent RPC requests.
 Hence multiple RPCs can be in progress simultaneously.
 This becomes particularly important when long running side effects occur.
 
-<sect1>The LWP package<p>
-<sect2>Basic Routines<p>
+<sect>The LWP package<p>
+<sect1>Basic Routines<p>
 The LWP routines that are most relevant to RPC2 are the following.
 
 @begin(itemize)
@@ -50,7 +52,7 @@ specified priority.
 Both the RPC2 and the LWP package are entirely outside the Unix Kernel, and depend only on the 4.3 BSD interface.
 At present RPC2 runs on the DARPA IP/UDP protocol via Unix sockets.
 
-<sect2>IOMGR routines<p>
+<sect1>IOMGR Routines<p>
 Routines in the IOMGR package allows LWPs to wait on various Unix events.
 When the package is initialized, an IOMGR thread is created.
 This thread runs at the lowest priority.
@@ -76,7 +78,7 @@ wakes up,  coaleses all the LWPs blocked by a select performs a single
 <em>select</em> and wakes up all processes affected by the result.
 
 
-<sect2>TM routines<p>
+<sect1>TM Routines<p>
 The Timer package is used to create and maintain timers for different events associated with RPC2 calls (for instance timeouts).  This package contains a number of routines that
 assist in manipulating lists of timers.  The timers are assigned a timeout value by the user
 and inserted in a list that is maintained by the package. There are routines to check for expired timers, to update timers etc.  The TM package routines that are relevant to RPC2 are the following.
@@ -97,15 +99,21 @@ Chapter <ref id="Intro" name="XXX"> of this manual contains two examples of RPC2
 We consider the example in Section <ref id="Example-rtime" name="XXX">.
 For this example, RP2Gen generates the server and client stubs shown below.
 
+
+<tscreen><verb>
 <sect2>Client Stub for Example <ref id="Example-rtime<p>" name="XXX">
 @begin(program)
 @include(rtime.client.c.mss)
 @end(program)
+</verb></tscreen>
 
+
+<tscreen><verb>
 <sect2>Server Stub for Example <ref id="Example-rtime<p>" name="XXX">
 @begin(program)
 @include(rtime.server.c.mss)
 @end(program)
+</verb></tscreen>
 
 
 <sect1>Initialization and Thread Creation<p>
@@ -182,7 +190,7 @@ Chapter <ref id="RetryChapter" name="XXX">.
 
 
 
-<sect2>Data Structures used in RPC2<p>
+<sect1>Data Structures used in RPC2<p>
 A number of data structures are used in RPC2, the most important of which
 are the Connection Entry (CEntry)  the RPC2&lowbar;PacketBuffer, and the
 SocketListener Entry (SLEntry).  We consider each one of these in turn.
@@ -283,7 +291,7 @@ respective FreeList.
 
 
 
-<sect2>Binding<p>
+<sect1>Binding<p>
 In order for the client to communicate with the server, it is first necessary to establish a logical connection between them. These connections are established using the RPC2&lowbar;Bind primitive.
 
 
@@ -314,7 +322,7 @@ All calls associated with the server will be discussed later.
 At the client end, the SocketListener thread detects a packet,  receives and processes it.  Processing involves sanity checking and decoding the packet.  This packet is decoded as the response to the Bind packet, and the connection identifier sent by the server is entered into the CEntrys field PeerHandle.  Now the connection has been set up.
 
 
-<sect2>Client related RPC calls<p>
+<sect1>Clien-Related RPC Calls<p>
 
 
 A client wishing to make a remote procedure call on this connection makes
@@ -387,7 +395,7 @@ In all cases the SLEntry is freed and control is transferred back to the client 
 
 
 
-<sect2>Server related RPC calls<p>
+<sect1>Server Related RPC Calls<p>
 
 The server program is given in Section 2.1.2. After initialization, in order for the client to bind to a server, the server must first export the subsytem.  This is done using the <em>RPC2&lowbar;Export</em> primitive.  The server  now ready to receive requests, makes a call to <em>RPC2&lowbar;GetRequest</em>.
 
@@ -465,7 +473,7 @@ Using <em>TM&lowbar;Rescan</em>, it updates the TimeLeft fields on all the timer
 @end(itemize)
 
 
-<sect2>SocketListener<p>
+<sect1>SocketListener<p>
 
 An integral part of the RPC2 code is the  SocketListener.  As previously mentioned, the SocketListener thread monitors the IP Socket through which packets are sent and received.  A SocketListener thread is created at the  client and the server  when RPC2 is initialized.   Although the functionality of the SocketListener at the client and at the server are similar, some differences do exist.  We first discuss the section of the code that is common to both.  
 
@@ -560,4 +568,3 @@ control to the client thread.
 
 
 
-</manpage>

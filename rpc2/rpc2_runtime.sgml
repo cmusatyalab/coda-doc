@@ -1,4 +1,4 @@
-@Chapter(RPC2 Runtime System)
+<chapt>RPC2 Runtime System<p>
 <label id="RuntimeSystem">
 
 The purpose of this section is to describe the calls provided by the
@@ -31,7 +31,7 @@ are pertinent to all users of RPC2.
 
 
 
-<sect1>Client-related Calls<p>
+<sect>Client-related Calls<p>
 
 
 @PasCall(Tag=&lt;NewBinding&gt;,
@@ -164,7 +164,7 @@ connection specific information such as unique file names in the
  <bf>@SE&lsqb;Descriptor&rsqb;</bf>.
 )
 
-<sect1>Server-related RPC Calls<p>
+<sect>Server-related RPC Calls<p>
 @PasCall(Tag=&lt;Export&gt;,
 	CallName=`@RPC2(Export), Abstract=`Indicate willingness to accept calls for a subsystem,
 	ParmList=`@w&lt;<bf>in</bf> @RPC2(SubsysIdent) *Subsys&gt;,
@@ -322,7 +322,7 @@ The callback procedure will typically record this in a log file somewhere.
 
 
 
-<sect1>Miscellaneous Calls<p>
+<sect>Miscellaneous Calls<p>
 @PasCall(Tag=&lt;Init&gt;,
 	CallName=`@RPC2&lt;Init&gt;, Abstract=`Perform runtime system initialization,
 	ParmList = `@w&lt;<bf>in</bf> char *VersionId&gt;, @w&lt;<bf>in</bf> long Options&gt;, @w&lt;<bf>in</bf> @RPC2(PortalIdent) *PortalList&lsqb;&rsqb;&gt;, @w&lt;<bf>in</bf> long HowManyPortals&gt;,  @w&lt;<bf>in</bf> long RetryCount&gt;, @w&lt;<bf>in</bf> struct timeval *KeepAliveInterval&gt;,
@@ -572,8 +572,3 @@ The callback procedure will typically record this in a log file somewhere.
 
 
 
-
-
-
-
-</manpage>

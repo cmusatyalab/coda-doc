@@ -1,4 +1,4 @@
-@Appendix(Header Files)
+<chapt>Appendix(Header Files)<P>
 <label id="HeaderFilesAppendix">
 
 @section&lt;The Header File rpc2.h&gt;
@@ -51,4 +51,3 @@
 
 
 
-</manpage>

@@ -1,3 +1,5 @@
+<tscreen>
+<verb> 
 #ifndef _BLURB_
 #define _BLURB_
 /*
@@ -78,8 +80,8 @@ NewConn()
     pident.Tag = RPC2_PORTALBYINETNUMBER;
     pident.Value.InetPortNumber = htons(AUTHPORTAL);
     				/* same as COMPPORTAL */
-    rc = RPC2_Bind(RPC2_OPENKIMONO, NULL, &hident, &pident, &sident, 
-    					NULL, NULL, NULL, &newcid);
+    rc = RPC2_Bind(RPC2_OPENKIMONO, NULL, &amp;hident, &amp;pident, &amp;sident, 
+    					NULL, NULL, NULL, &amp;newcid);
     if (rc == RPC2_SUCCESS)
 	printf("Binding succeeded, this connection id is %d\n", newcid);
     else
@@ -107,7 +109,7 @@ Auth()
 	case 1:
 	    printf("Name? ");
 	    gets(name);
-	    rc = AuthUserId(cid, name, &uid);
+	    rc = AuthUserId(cid, name, &amp;uid);
 	    if (rc == AUTHSUCCESS) printf("Id = %d\n", uid);
 	    else
 		if (rc == AUTHFAILED) printf("Bogus user name\n");
@@ -121,7 +123,7 @@ Auth()
 	    bbs.MaxSeqLen = sizeof(name);
 	    bbs.SeqLen = 0;
 	    bbs.SeqBody =  (RPC2_ByteSeq) name;
-	    rc = AuthUserName(cid, uid, &bbs);
+	    rc = AuthUserName(cid, uid, &amp;bbs);
 	    if (rc == AUTHSUCCESS) printf("Name = %s\n", bbs.SeqBody);
 	    else
 		if (rc == AUTHFAILED) printf("Bogus user id\n");
@@ -132,7 +134,7 @@ Auth()
 	    printf("Id? ");
 	    gets(buf);
 	    uid = atoi(buf);
-	    rc = AuthUserInfo(cid, uid, &ainfo);
+	    rc = AuthUserInfo(cid, uid, &amp;ainfo);
 	    if (rc == AUTHSUCCESS) printf("Group = %d   Home = %s\n", ainfo.GroupId, ainfo.HomeDir);
 	    else
 		if (rc == AUTHFAILED) printf("Bogus user id\n");
@@ -210,10 +212,12 @@ InitRPC()
     {
     int mylpid = -1;
 
-    assert(LWP_Init(LWP_VERSION, LWP_NORMAL_PRIORITY, &mylpid) == LWP_SUCCESS);
+    assert(LWP_Init(LWP_VERSION, LWP_NORMAL_PRIORITY, &amp;mylpid) == LWP_SUCCESS);
     assert (RPC2_Init(RPC2_VERSION, 0, NULL, 1,  -1, NULL) == RPC2_SUCCESS);
     }
 
 
 
 iopen(){}
+</verb>
+</tscreen>

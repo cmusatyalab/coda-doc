@@ -1,7 +1,7 @@
-@Chapter(SFTP Internals)
+<Chapt>SFTP Internals<P>
 <label id="SFTPInternals">
 
-<sect1>Background<p>
+<sect>Background<p>
 
 An SFTP file transfer can take place from either an RPC2 server or a
 RPC2 client. To avoid confusion we will refer to the
@@ -39,13 +39,13 @@ an acknowledgement to arrive. If the sink does not receive more data
 packets after a predetermined period of time, it will conclude that
 acknowledgement was lost in transit and retransmit it.
 
-<sect1>SFTP Code Structure<p>
+<sect>SFTP Code Structure<p>
 In this section we describe the SFTP code structure.  
 Our description assumes that the reader is already familiar with the
 description of basic RPC2 internals in Chapter <ref id="RPC2Int" name="XXX">.
 
 
-<sect2>Thread creation and Initialization<p>
+<sect1>Thread creation and Initialization<p>
 In the base RPC2, the RPC2 client and server communicate via Internet Sockets.
 Both at the client and at the server, the socket is created during
 initialization by calling RPC2&lowbar;Init.  A SocketListener thread is present at
@@ -70,14 +70,14 @@ The code however is not symmetric; i.e., the code executed when
 a client is the sink is slightly different from the code executed
 when a server is the sink.  We describe both cases below.
 
-<sect2>Data Structures used in SFTP<p>
+<sect1>Data Structures used in SFTP<p>
 In addition to the data structures used in RPC2 (on the RPC2 channel), SFTP uses a data 
 structure called SFTP&lowbar;Entry which is given in sftp.h.  It contains fields  relevant to the sftp
 channel such as the LocalHandle.  Other fields include the state of the file transfer,
 the packet size, the window size and a number of others.  It is created by the call
 sftp&lowbar;AllocSEntry.
 
-<sect2>File transfer from server to client<p>
+<sect1>File transfer from server to client<p>
 This is the case in which the server is the source and the client is the sink.
 The client makes a request for the file by doing a <em>RPC2&lowbar;MakeRPC</em>
 on the RPC2 channel. 
@@ -126,7 +126,7 @@ the appropriate SEntry.  It then does an <em>IOMGR&lowbar;Select</em>,
 and yields control.  Control is then transferred to the LWP waiting
 on this packet, and the cycle continues.
 
-<sect2>File transfer from client to server<p>
+<sect1>File transfer from client to server<p>
 This is the case in which the server is the sink and the client is the
 source.  As in previous case, the client makes a request for the file
 by doing a <em>RPC2&lowbar;MakeRPC</em> on the RPC2 channel. This is received by
@@ -174,7 +174,7 @@ Note that the role of the sftp&lowbar;listener is different at the client end an
 At the client end, the whole sftp transfer is handled by the sftp&lowbar;listener.  At the server
 end the sftp&lowbar;listener receives and decodes the packet.  Most of the sftp transfer is handled by the LWP thread.
 
-<sect1>Packet formats<p>
+<sect>Packet formats<p>
 
 All packets carry 32 bit sequence numbers. Data packets and control
 packets have independent sequence numbers. The sequence number series
@@ -213,7 +213,7 @@ been received. The bitmask indicates which of the data packets with
 sequence numbers greater than <em>GotEmAll</em> that have been received.
 Each bit in the bitmask represents a single packet.
 
-<sect2>Protocol details<p>
+<sect1>Protocol details<p>
 
 If the source is an RPC2 client it must first wait for permission from
 the sink (s) before it can transmit. This permission is granted by a
@@ -274,7 +274,7 @@ transmit window size. Whenever the sum of the number of packets in the
 various sets is greater than the transmit window size, only the first
 packet in the <em>Worried</em> set will be sent.
 
-<sect2>Sink side operation<p>
+<sect1>Sink side operation<p>
 
 The sink keeps two counters, <em>RecvLastContig</em> and <em>RecvMostRecent</em>, which
 are similar to their counterparts at the source side. <em>RecvLastContig</em>
@@ -299,7 +299,7 @@ have arrived since the last time an <em>ACK</em> was sent. If that number
 exceed <em>DupThreshold</em>, the sink will send an <em>ACK</em> in an attempt
 to inform the source about the situation.
 
-<sect2>Client and server invariants<p>
+<sect1>Client and server invariants<p>
 
 The state of the counters at the source and sink can be summarized
 by the following invariant relations, where
@@ -325,7 +325,7 @@ RecvLastContig (at sink) = RecvMostRecent (at sink)
 SendLastContig (at source) = RecvLastContig (at sink)
 @end(enumerate)
 
-<sect1>Adjusting the Retransmission Interval<p>
+<sect>Adjusting the Retransmission Interval<p>
 
 SFTP uses the retranmission interval to determine when it should be
 worried about packets for which it has not received an <em>ACK</em>.
@@ -424,7 +424,7 @@ supplied by RPC2. On the server, it is initialized in
 <em>SFTP&lowbar;GetRequest</em>, using the same BindTime shipped to the server on
 the first request on the connection.
 
-<sect1>Performance<p>
+<sect>Performance<p>
 
 RPC2 and SFTP perform well over a wide range of network speeds.
 Figure <ref id="RPC2Table" name="XXX"> compares the performance of SFTP and TCP over
@@ -467,4 +467,3 @@ Each result is the mean of five trials.  Numbers in parenthesis are standard dev
 
 
 
-</manpage>

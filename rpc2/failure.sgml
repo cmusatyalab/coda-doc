@@ -1,10 +1,10 @@
-@Chapter(Failure Detection)
+<Chapt>Failure Detection<P>
 <label id="RetryChapter">
 
 Three hazards face the user of an RPC package:
 @begin(Enumerate)
 The communication medium may fail.
-
+ 
 The peer process at a remote site may crash.
 @end(Enumerate)
 
@@ -21,7 +21,7 @@ should be detected as soon as possible, so that suitable recovery actions can be
 The following paragraphs show this goal is achieved in RPC2.
 
 
-<sect1>Retransmission Algorithm<p>
+<sect>Retransmission Algorithm<p>
 
 When the RPC2 runtime system receives a retry packet for a
 request it is already working on, it responds with a <bf>Busy</bf> packet.
@@ -186,4 +186,4 @@ the reply.
 
 
 
-</manpage>
+

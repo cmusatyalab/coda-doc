@@ -1,6 +1,6 @@
-@Chapter(MultiRPC)
+<Chapt>MultiRPC<P>
 <label id="MultiChapter">
-<sect1>Design Issues<p>
+<sect>Design Issues<p>
 
 The MultiRPC facility@cite&lsqb;Satyanarayanan90x&rsqb; is an extension to RPC2 that
  provides a parallel RPC capability
@@ -269,13 +269,13 @@ specified here in writing the routine.
 	)
 
 
-@Chapter(Multicast)
+<chapt> Multicast <p>
 <label id="Multicast">
 
-<sect1>General Usage<p>
+<sect>General Usage<p>
 @center(<em>Not written yet</em>)
 
-<sect1>Runtime Calls<p>
+<sect>Runtime Calls<p>
 @PasCall(Tag=&lt;CreateMgrp&gt;,
 	CallName=`@RPC2&lt;CreateMgrp&gt;, Abstract=`Create a new RPC2 mgroup ID,
 	ParmList=`@w&lt;<bf>out</bf> @RPC2(Handle) *MgroupHandle&gt;, @w&lt;<bf>in</bf> @RPC2(McastIdent) *McastAddr&gt;, @w&lt;<bf>in</bf> @RPC2(PortalIdent) *McastPortal&gt;, @w&lt;<bf>in</bf> @RPC2(SubsysIdent) *Subsys&gt;, @w&lt;<bf>in</bf> @RPC2(Integer) SecurityLevel&gt;, @w&lt;<bf>in</bf> @RPC2(EncryptionKey) SessionKey&gt;, @w&lt;<bf>in</bf> @RPC2(Integer) EncryptionType&gt;, @w&lt;<bf>in</bf> long SideEffectType&gt;,
@@ -344,4 +344,4 @@ and side effect type of the connection being added must match that specified whe
 
 
 
-</manpage>
+

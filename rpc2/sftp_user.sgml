@@ -1,7 +1,7 @@
-@Chapter(SFTP: A Side Effect for Bulk Data Transfer)
+<Chapt>SFTP: A Side Effect for Bulk Data Transfer
 <label id="SFTPChapter">
 
-<sect1>General Usage<p>
+<sect>General Usage<p>
 SFTP is a protocol that allows a byte stream to be transferred efficiently 
 from point A to point B, using optimizations such as streaming for large files
 and piggybacking for small files.
@@ -128,4 +128,3 @@ Make the RPC.
 
 
 
-</manpage>

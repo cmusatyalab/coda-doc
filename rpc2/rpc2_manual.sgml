@@ -1,0 +1,201 @@
+<!doctype linuxdoc SYSTEM [
+
+<!-- Changes from codadoc.dtd, to become separate file -->
+  <!-- <!element chapt - o (%sect, (sect | manpage)*) +(footnote)>	-->
+  <!-- <!element manpage - - ((mansect | sect1)*)			-->
+  <!-- <!element mansect - o (%sect)>					-->
+
+<!-- Clement? hacks for HTML & Latex newlines -->
+<!entity % latex "INCLUDE">
+<!entity % html  "IGNORE">
+<![ %latex; [ <!entity newpage PI "\newpage"> ]]>
+<![ %html; [ <!entity newpage PI "<HR>"> ]]>
+<!entity newpage PI "">
+
+<!-- Component files -->
+<!entity cover SYSTEM "cover.sgml">
+<!entity preface SYSTEM "preface.sgml">
+
+
+       <!entity rpc2examples SYSTEM "rpc2_examples.sgml">
+       <!entity rtimeclntc  SYSTEM "rtime_clnt.c.sgml">
+       <!entity rtimesrvc SYSTEM "rtime_srv.c.sgml">
+
+       <!entity authrpc SYSTEM "auth_rpc.c.sgml">
+       <!entity comprpc SYSTEM "comp_rpc.c.sgml">
+       <!entity authcompsrvc SYSTEM "authcomp_srv.c.sgml">
+       <!entity authcompclntc SYSTEM "authcomp_clnt.c.sgml">
+
+       <!entity Makefileexample SYSTEM "Makefile_exam.sgml">
+
+     <!entity sftpuser SYSTEM "sftp_user.sgml">
+     <!entity rcatrpc SYSTEM "rcat_rpc.c.sgml">
+     <!entity rcatsrv SYSTEM "rcat_srv.c.sgml">
+     <!entity rcatclient SYSTEM "rcat_clnt.c.sgml">
+
+     <!entity multiRPC SYSTEM "multi_user.sgml">
+     <!entity multirtime SYSTEM "multi_rtime_clnt.c.sgml">
+     <!entity multircat SYSTEM "multi_rcat__clnt.c.sgml">
+    
+<!entity rpc2int SYSTEM "rpc2_int.sgml">
+<!entity rtimerpc SYSTEM "rtime_rpc.sgml">
+
+
+
+
+
+
+<!entity rp2gusr SYSTEM "rp2gen_user.sgml">
+<!entity rpc2runtime SYSTEM "rpc2_runtime.sgml">
+<!entity sftpusr SYSTEM "sftp_user.sgml">
+
+
+<!entity lwpusr SYSTEM "lwp_user.sgml">
+
+<!entity rpc2int SYSTEM "rpc2_int.sgml">
+<!entity failure SYSTEM "failure.sgml">
+
+
+<!entity sftpint SYSTEM "sftp_int.sgml">
+<!entity seint SYSTEM "se_int.sgml">
+<!entity multint SYSTEM "multi_int.sgml">
+
+<!entity UsgNts SYSTEM "usagenotes.sgml">
+<!entity hdrfls SYSTEM "headerfiles.sgml">
+<!entity rtimerpc SYSTEM "rtime.rpc.sgml">
+
+
+
+<!entity rpc2h SYSTEM "rpc2.h.sgml">
+<!entity rpc2privh SYSTEM "rpc2.private.h.sgml">
+<!entity seh SYSTEM "se.h.sgml">
+<!entity sftph SYSTEM "sftp.h.sgml">
+<!entity lwph SYSTEM "lwp.h.sgml">
+<!entity lockh SYSTEM "lock.h.sgml">
+<!entity timerh SYSTEM "timer.h.sgml">
+<!entity preempth SYSTEM "preempt.h.sgml">
+
+
+]>
+<book>
+&cover;
+
+<toc>
+
+&preface;
+
+<!-- PART I:  RPC2User Reference  done by lesa -->
+<bf>RPC2 User Reference</bf><P>
+
+
+
+<!-- CHAPTER 1 OVERVIEW & EXAMPLES  done by lesa -->
+
+       
+ &rpc2examples;
+      
+
+<!-- CHAPTER 2 RP2GEN STUB GEN  done by lesa -->
+
+     &rp2gusr;
+
+<!-- CHAPTER 3 RPC2 RUNTIME SYS  done by lesa -->
+
+     &rpc2runtime;
+
+<!-- CHAPTER 4 SFTP:Side Effect  done by lesa -->
+   
+     &sftpusr;
+    
+
+<!-- CHAPTER 5 MULTIRPC done by lesa -->
+ 
+
+      &multiRPC;
+
+
+    
+<!-- CHAPTER 6 MULTICAST done by lesa -->
+
+
+
+
+     <!-- PART II:  LWP User Reference done by lesa -->
+
+
+
+<!-- CHAPTER 7 THE BASIC LWP PKG done by lesa -->
+ &lwpusr;
+
+<!-- CHAPTER 8 THE LOCK PKG done by lesa -->
+
+<!-- CHAPTER 9 THE IOMGR PKG done by lesa -->
+
+<!-- CHAPTER 10 THE TIMER PKG done by lesa -->
+
+<!-- CHAPTER 11 THE PREEMPTION PKG done by lesa -->
+
+<!-- CHAPTER 12 THE FAST TIME PKG done by lesa -->
+
+
+     <!-- PART III: RPC2 Internals done by lesa -->
+
+<!-- CHAPTER 13 RPC2 INTERNALS done by lesa -->
+ &rpc2int; 
+     
+
+<!-- CHAPTER 14 FAILURE DETECTION done by lesa -->
+ &failure;
+
+<!-- CHAPTER 15 SFTP INTERNALS done by lesa -->
+ &sftpint;
+
+<!-- CHAPTER 16 ADDING NEW SIDE EFFECTS done by lesa -->
+ 
+ &seint; 
+<!-- CHAPTER 17 IMPLEMENTATION OF MULTIRPC done by lesa -->
+ &multint;
+
+     <!-- PART IV:  Appendices done by lesa -->
+ appendix
+
+     <!-- App A: Usage & Implementation Notes done by lesa -->
+ &UsgNts;
+
+     <!-- App B: Header Files   done by lesa -->
+<!-- &hdrfls;  -->
+<!-- &rpc2.h;  -->
+<!-- &rpc2.private.h;  -->
+<!-- &se.h; -->
+<!-- &stfp.h;  -->
+<!-- &lwp.h; -->
+<!-- &lock.h; -->
+<!-- &timer.h; -->
+<!-- &preempt.h;  -->
+
+
+     <!-- Table of Contents   done by lesa -->
+
+
+
+     <!-- biblio style="alpha" files="manual" -->
+
+</book>
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
