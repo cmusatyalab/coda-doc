@@ -94,9 +94,7 @@ with the new version of <tt>rvmutl</tt>:
 This release contains a more complete verion of the manual and
 corrects a bug in <tt>rvm_basher</tt>
 that caused reports of virtual memory not matching the disk.  The
-problem was in the test program itself, not the RVM library, so those
-who have been using RVM for development can be confident of their
-persistent data.
+problem was in the test program itself, not the RVM library.
 
 Other changes are addition of error checking in the segment loader
 and RDS initialization functions.  Also, the utility <tt>rdsinit</tt> has
@@ -342,12 +340,14 @@ correct operation.  It will report correct operation.  Any other
 termination is an indication of trouble.
 
 rvm_basher is a much more thorough test and should be run for several
-hours.  The program requires that a data segment be built as well as a
-log file.  The tests will randomly allocate, modify, and deallocate
-recoverable memory, periodically stopping to check virtual memory
-against the data segment.  Any discrepancy will be reported and the
-program will stop.  Otherwise it will run until you stop it, given the
-parameters supplied in this distribution.
+hours (we have fixed bugs that would only show up after running it for
+many days on Pentium 90 computers!).  The program requires that a data
+segment be built as well as a log file.  The tests will randomly
+allocate, modify, and deallocate recoverable memory, periodically
+stopping to check virtual memory against the data segment.  Any
+discrepancy will be reported and the program will stop.  Otherwise it
+will run until you stop it, given the parameters supplied in this
+distribution.
 
 rvm_basher can also be used a a sample RVM application since it uses
 most of the RVM library and also the dynamic allocator, RDS, and
@@ -396,14 +396,16 @@ only the minimum.)
 .../RVM1.3/bin/rdsinit basher_log basher_data
 Enter the length of the file/device basher_data: 1000000
    <rdsinit will zero the file and initialize RVM>
-starting address of rvm: <break point from above>
+starting address of rvm: <something much above the break point>
 heap len: 0xf0000
 static len: <static len>
 nlists: 100
 chunksize: 128
 </verb>
 
-You are now prepared to run the basher:
+<bf/NOTE:/ On Linux Sparc, you must give page size 8192, not 4096.
+
+You are now ready to run the basher:
 
 <verb>
 .../RVM1.3/bin/rvm_basher < .../RVM1.3/tests/basher_parms
