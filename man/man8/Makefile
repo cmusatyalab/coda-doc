@@ -22,6 +22,7 @@ MANPAGEFILES = addserver.man \
                installclient.man \
                installserver.man \
                list.man \
+	       makeftree.man \
                mdd.man \
                merge.man \
                movevol.man \

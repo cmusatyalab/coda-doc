@@ -1,5 +1,3 @@
-
-
 <manpage TITLE="backup" SECTNUM=8>
 <mansect>NAME 
  <P>backup - Volume by volume backup of the Coda File System
@@ -12,14 +10,12 @@
 
 <mansect>DESCRIPTION<P>
 <bf>backup</bf> performs the clone and dump phases of the Coda backup mechanism.
-<em>dumplist</em> is a file as described in <em>dumplist</em>(5)
+<em>dumplist</em> is a file as described in <em>dumplist</em>(5).  It also
+reads <em>vicetab</em> which is described in <em>vicetab</em>(5) to know
+where to place dump files.
 
 The backup program creates many lines of information as the phases progress. It
-is a good idea to redirect standard output to a log file. After both phases are
-completed, it prints out a list of volumes in several groupings, and some
-histograms detailing size and speed of the dumpfiles transferred. The first
-group are the volumes that were successfully backed up on all servers in their
-VSG. The second group contains volumes that were successful on some, but not
+is a good idea to redirect standard output to a log file. A sample of this log file  <em>backuplogs</em>(5).  After both phases are completed, it prints out a list of volumes in several groupings, and some histograms detailing size and speed of the dumpfiles transferred. The first group are the volumes that were successfully backed up on all servers in their VSG. The second group contains volumes that were successful on some, but not
 all of their VSGs. The third group contains volumes that were complete failures.
 The last group contains volumes that are in the VLDB or VRDB but not in the
 <em>dumplist</em>.
@@ -45,11 +41,11 @@ sleep between polls a servers that <bf>backup</bf> thinks are down.
 
 
 <mansect>SEE ALSO<P>
-backup.sh (8), volutil (8), dumplist (5), Backup chapter of the Coda Manual.
+volutil (8), dumplist (5), backuplogs (5), Backup chapter of the Coda Manual.
 
 
 <mansect>AUTHOR<P>
 David C. Steere, 1991, Created
-
+updated 1998, -hmp
 
 </manpage>
