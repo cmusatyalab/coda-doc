@@ -28,7 +28,7 @@
 <para>Remove unnecessary entries</para>
 </step>
 <step>
-<para> On each line add <literal>a</> at the beginning and a priority at the end</para>
+<para>On each line add <literal>a</> at the beginning and a priority at the end</para>
 </step>
 </procedure>
 
@@ -95,15 +95,37 @@ a /coda/misc/gnu-emacs/i386_mach/omega/lisp/x-mouse.elc 600
 <sect1 id="HoardDB">
 <title>Hoarding for a Weekend</>
 
-<para>One of the most common uses of a Coda laptop is to take it home overnight or for the weekend.  Naturally, you want to be sure that all of the files that you need  over the weekend are in the cache; otherwise, there is little point in bringing the laptop home. The <citerefentry><refentrytitle>hoard</><manvolnum>1</></citerefentry> program helps you do this.  Create a hoard file, as described in Section <xref linkend="ConstructHoard">, for each project you want to work on.  You may also want hoard files for your personal files, such as your home directory if its in Coda,  and other tools that you plan on using.  It is best to clear the hoard database, whenever you switch projects to make sure you have enough space in your cache.  You might consider having <command>clear</> as the first command in your personal hoard file.  If you do, make sure you always run hoard with this file before any other files.  Once youve built hoard files for all of your tools and projects, its simply a matter of running hoard to build the hoard database you want.  When you run <command>hoard</>, you must be logged onto the machines console, (dont run X).  About fifteen minutes before you are ready to leave, force a hoard walk with the following command: <command>hoard</> <option>walk</>.  </para>
+<para>One of the most common uses of a Coda laptop is to take it home
+overnight or for the weekend.  Naturally, you want to be sure that all of the
+files that you need  over the weekend are in the cache; otherwise, there is
+little point in bringing the laptop home. The
+<citerefentry><refentrytitle>hoard</><manvolnum>1</></citerefentry> program
+helps you do this.  Create a hoard file, as described in Section <xref
+linkend="ConstructHoard">, for each project you want to work on.  You may also
+want hoard files for your personal files, such as your home directory if its
+in Coda,  and other tools that you plan on using.  It is best to clear the
+hoard database, whenever you switch projects to make sure you have enough
+space in your cache.  You might consider having <command>clear</> as the first
+command in your personal hoard file.  If you do, make sure you always run
+hoard with this file before any other files.  Once you've built hoard files for
+all of your tools and projects, its simply a matter of running hoard to build
+the hoard database you want.  About fifteen minutes before you are ready to
+leave, force a hoard walk with the following command: <command>hoard</>
+<option>walk</>.  </para>
 
 <para>This will cause <application>venus</> to attempt to cache all of the files in the hoard database.  <emphasis>Wait until the hoard command completes</>. You are now ready to disconnect from the network.  You are encouraged to try all of the commands you intend on using after you disconnect.  If you are missing some files, it will be easy to reconnect and hoard them.  </para>
 </sect1>
 
 <sect1 id="reintegration">
-<title>Re-integrating After a Disconnected Session</title>
+<title>Re-integrating After Disconnection</title>
 
-<para>When you reconnect to the network after a disconnected session, Coda will automatically try to reintegrate your changes with the Coda servers.  You must be authenticated before reintegration occurs. Watch the file <filename>/usr/coda/etc/console</> with the <command>codacon</> command or by running: <command>tail</> <option>-f</> <filename>/usr/coda/etc/console</>.  The reintegration status will be written to this file.  </para>
+<para>When you reconnect to the network after a disconnected session, Coda
+will automatically try to reintegrate your changes with the Coda servers.  You
+must be authenticated before reintegration occurs. Watch the file
+<filename>/usr/coda/etc/console</> by
+running: <command>tail</> <option>-f</> <filename>/usr/coda/etc/console</> or
+look at more detailed progress using the <command>codacon</> command.
+The reintegration status will be written to this file.  </para>
 
 <informalexample>
 <para>If the reintegration was successful, the log entries would look like:  </para>
@@ -128,7 +150,15 @@ coda:   delta_vm = 1000, old stats = [0, 0, 1, 0, 0] ( 13:27:10 )
 coda:   new stats = [   0,   0.0,     0.0,    1,   0.2], [   0,   0.0, 0.0,   0,   0.0] ( 13:27:10 )
 </screen>
 
-<para>Notice that the <firstterm>change modify log</> (<acronym>CML</>) was check-pointed to <filename>/usr/coda/spool/2534/u.raiff@@%coda%usr%raiff</>.  This file is a tar file containing the changes that were made on during the disconnected session.  The files in the tar file are relative to the root of <literal>u.raiff</>.  The <command>cfs</> <option>examineclosure</> and <command>cfs</> <option>replayclosure</> will show which files were not reintegrated and force a reintegration respectively.  </para>
+<para>Notice that the <firstterm>change modify log</> (<acronym>CML</>) was
+check-pointed to <filename>/usr/coda/spool/2534/u.raiff@@%coda%usr%raiff</>.
+This file is a tar file containing the changes that were made on during the
+disconnected session.  The files in the tar file are relative to the root of
+<literal>u.raiff</>. </para>
+
+<para>The file which failed to reintegrate will be <emphasis>in conflict</>
+and will need to be repaired with the <command>repair</> tool as discussed in
+<xref linkend="Inconsistent">. </para>
 </informalexample>
 </sect1>
 
@@ -137,7 +167,11 @@ coda:   new stats = [   0,   0.0,     0.0,    1,   0.2], [   0,   0.0, 0.0,   0,
 
 <para>When the network is acting up, you can use Coda to help isolate yourself from the networking problems.  Set up your hoard database so that Venus will hoard the files you are working on.  Then, disconnect from the Coda servers with the <command>cfs</> <option>disconnect</> command. To Coda, this is equivalent to physically disconnecting from the network.  </para>
 
-<para>Once the network becomes stable, you can use <command>cfs</> <option>reconnect</> to reconnect yourself to the Coda servers and re-integrate your work. Do not forget to clear your hoard database with <command>hoard</> <option>clear</> once you are done working on the set of files that you hoarded.  </para>
+<para>Once the network becomes stable, you can use <command>cfs</>
+<option>reconnect</> followed by <command>cfs</> <option>checkservers</> to
+reconnect yourself to the Coda servers and re-integrate your work. Do not
+forget to clear your hoard database with <command>hoard</> <option>clear</>
+once you are done working on the set of files that you hoarded.  </para>
 
 <sect1>
 <title>Re-integrating Over the Phone Line</>
@@ -153,7 +187,9 @@ coda:   new stats = [   0,   0.0,     0.0,    1,   0.2], [   0,   0.0, 0.0,   0,
 </step>
 </procedure>
 
-<important><para>You can trigger immediate reintegration of specified directory by issuing <command>cfs</> <option>forcereintegrate</> <option><replaceable>dir</></option> command.</para></important>
+<important><para>You can trigger immediate reintegration of a specific volume
+by issuing <command>cfs</> <option>forcereintegrate</>
+<option><replaceable>dir</></option> command.</para></important>
 </sect1>
 
 <sect1 id="Inconsistent">

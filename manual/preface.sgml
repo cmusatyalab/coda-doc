@@ -1,7 +1,15 @@
 <preface id="Preface">
 <title>Preface</>
 
-<para> Welcome to Coda!  Whether you are at Carnegie Mellon or elsewhere, we hope that this manual will help you make effective use of the Coda File System.  The manual is written from two different perspectives: end user and system administrator. If your organization is already running Coda, and you need to learn how to use it - <xref linkend="GettingStarted"> and <xref linkend="CommonScenarios"> should fully answer your questions. For more adventurous among you, who wan't to maintain your own Coda client, please read <xref linkend="SysOvr"> through <xref linkend="ClientInstall">. The rest of the book is dedicated specifics of system administration.</para>
+<para> Welcome to Coda!  Whether you are at Carnegie Mellon or elsewhere, we
+hope that this manual will help you make effective use of the Coda File
+System.  The manual is written from two different perspectives: end user and
+system administrator. If your organization is already running Coda, and you
+need to learn how to use it - <xref linkend="GettingStarted"> and <xref
+linkend="CommonScenarios"> should fully answer your questions. For more
+adventurous among you, who wan't to maintain your own Coda cell, please read
+<xref linkend="SysOvr"> through <xref linkend="ClientInstall">. The rest of
+the book is dedicated specifics of system administration.</para>
 
 <para>In writing this manual, we have assumed that you are an experienced Unix user, familiar with the broad concepts of distributed file systems.  If you are a system administrator, we assume that you are familiar with administering Unix systems.  You will find Coda especially easy to use if you are already fluent in using <acronym>AFS</>.  </para>
 
@@ -9,7 +17,8 @@
 
 <para>Since Coda is an experimental system and not a commercial product, you will inevitably encounter rough edges.  Within the limits of our resources, we will do our best to fix these problems and to improve the system over time.  But we do ask that you try to characterize the problem as accurately as possible, and to try and obtain a repeatable and concise instance of it.  </para>
 
-<para>After you have taken the time to learn the system well, please give us your feedback.  We would like to improve the system and this manual.</para>
+<para>After you have taken the time to learn the system well, please give us
+your feedback.  We would like to improve both the system and this manual.</para>
 
 <sect1>
 <title>Further Reading</>

@@ -11,7 +11,7 @@ servers. Coda has some features that make it stand out: it supports
 <firstterm>disconnected operation</>, i.e. full access to a cached section of
 the file space during voluntary or involuntary network or server
 outages. Coda will automatically reintegrate the changes made on
-disconnected clients when reconnecting.  Further Coda has read-write,
+disconnected clients when reconnecting.  Furthermore, Coda has read-write,
 failover server replication, meaning that data is stored and fetch
 from any of a group of servers and Coda will continue to operate when
 only a subset of all servers is available.  If server differences
@@ -57,8 +57,14 @@ from <acronym>NFS</> and Windows/Samba shares.  Coda does have many similarities
 
 <formalpara>
 <title>Data storage</title>
-<para> The servers do not store and export volumes as directories in the local disk filesystem, like <acronym>NFS</> and Samba.  Coda needs much more meta data to support server replication and disconnected operation and it has complex recovery which is hard to do within a local disk filesystem.  Coda servers store files identified by a number typically all under a directory <filename>/vicepa</filename>.  The
-meta data (owners, access control lists, version vectors) and directory contents is stored in an RVM data file which would often be a raw disk partition.  </para>
+<para> The servers do not store and export volumes as directories in the local
+disk filesystem, like <acronym>NFS</> and Samba.  Coda needs much more meta
+data to support server replication and disconnected operation and it has
+complex recovery which is hard to do within a local disk filesystem.  Coda
+servers store files identified by a number typically all in a directory tree
+in <filename>/vicepa</filename>.  The meta data (owners, access control lists,
+version vectors) is stored in an RVM data file which would often be a raw disk
+partition.  </para>
 </formalpara>
 
 <formalpara>
@@ -78,7 +84,12 @@ meta data (owners, access control lists, version vectors) and directory contents
 
 <formalpara>
 <title>Authentication</title>
-<para>Coda manages authentication and authorization through a token. Similar (the details are very different) to using a Windows share, Coda requires users to log in.  During the log in process, the client acquires a session key, or token in exchange for a correct password. The token is associated with a user identity, at present this Coda identity is the uid of the user performing the log in.  </para>
+<para>Coda manages authentication and authorization through a token. Similar
+(the details are very different) to using a Windows share, Coda requires users
+to log in.  During the log in process, the client acquires a session key, or
+token in exchange for a correct password. The token is associated with a user
+identity, at present this Coda identity is the uid of the user performing the
+log in. </para>
 </formalpara>
 
 <formalpara>
@@ -99,13 +110,18 @@ meta data (owners, access control lists, version vectors) and directory contents
 
 <sect2>
 <title>Utilities</title>
-<para>To manipulate ACL's, the cache, volume mountpoints and possibly the network behaviour of a Coda client a variety of small utilities is provided. The most important one is the <command>cfs</command>.  </para>
+<para>To manipulate ACL's, the cache, volume mountpoints and possibly the
+network behaviour of a Coda client a variety of small utilities is provided.
+The most important one is <command>cfs</command>.  </para>
 
-<para>There is also a <application>clog</application> to authenticate to the Coda authentication server.  The <application>codacon</application> allows one to monitor the operatoin of the cache manager, and <application>cmon</application> gives summary information about a list of servers.  </para>
+<para>There is also a <command>clog</command> to authenticate to the Coda
+authentication server.  The <command>codacon</command> allows one to monitor
+the operatoin of the cache manager, and <command>cmon</command> gives summary
+information about a list of servers.  </para>
 </sect2>
 
 <sect1>
-<title>The server organization</title>
+<title>Server organization</title>
 <para>The main program is the Coda fileserver <application>codasrv</application>.  It is responsible for doing all file operations, as well as volume location service.  </para>
 <para>The Coda authentication server <application>auth2</application> handles requests from <application>clog</application> for tokens, and changes of password from <application>au</application> and <application>cpasswd</application>.  Only the the <application>auth2</> process on the SCM will modify the password database.  </para>
 
@@ -250,12 +266,15 @@ Password changed, it will be in effect in about 1 hour
 
 <para>When you are in disconnected mode, you may want to checkpoint the modify log that Coda keeps of which directories have changed.  Use <command>cfs checkpointml</> to do this.  </para>
 
-<para>Checkpointing the modify log will ensure that changes you have made will not be lost  if the cache manager crashes severely.  Coda uses this modify log when it re-integrates with the servers.  </para>
+<para>Checkpointing the modify log will ensure that changes you have made will
+not be lost  if the cache manager crashes severely.  The checkpointed log
+files are an identical copy of the in-memory logs that Coda uses when it
+re-integrates with the servers.  </para>
 
-<para>Coda adapts easily to low bandwidth connactions like (<acronym>PPP</> or <acronym>SLIP</> modem links).  You can use this to periodically reintegrate and cache new files when you are on a trip.  </para>
+<para>Coda adapts easily to low bandwidth connections like (<acronym>PPP</> or <acronym>SLIP</> modem links).  You can use this to periodically reintegrate and cache new files when you are on a trip.  </para>
 
-<para>When you reintegrate after operating in disconnected mode, watch your
-<application>codacon</application> or run the command:
+<para>When you reintegrate after operating in disconnected mode, keep an eye
+on your <application>codacon</application> output or run the command:
 <informalexample>
 <screen>
 <prompt>%</> <userinput>tail -f /usr/coda/etc/console</>

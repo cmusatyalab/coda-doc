@@ -8,7 +8,9 @@
 <para>A Coda cell is a set of servers which all believe one member of the set
 to be the master, or SCM server.  All modifications to important Coda databases
 should be made on the SCM, otherwise the SCM plays the role of an ordinary
-Coda server.  The <application>updateclnt</application>/<application>updatesrv</application> daemons will then propagate changes from the SCM to the other servers.  
+Coda server.  The <application>updateclnt</application> and
+<application>updatesrv</application> daemons will then propagate changes from
+the SCM to the other servers.  
 </para>
 
 <para>The first server setup must be the SCM.  This chapter is divided into
@@ -183,7 +185,7 @@ into the following directories: </para>
 <itemizedlist mark="dash">
 <listitem><para> user applications - <filename>/usr/bin</filename>;</para></listitem>
 <listitem><para> system binaries  - <filename>/usr/sbin</filename>;</para></listitem>
-<listitem><para> other files - <filename>/etc</filename>.</para></listitem>
+<listitem><para> configuration files - <filename>/etc/coda</filename>.</para></listitem>
 </itemizedlist>
 </para>
 </formalpara>
@@ -193,7 +195,7 @@ into the following directories: </para>
 <itemizedlist mark="dash">
 <listitem><para> user applications - <filename>/usr/local/bin</filename>;</para></listitem>
 <listitem><para> system binaries  - <filename>/usr/local/sbin</filename>;</para></listitem>
-<listitem><para> other files - <filename>/usr/local/etc</filename>.</para></listitem>
+<listitem><para> configuration files - <filename>/usr/local/etc/coda</filename>.</para></listitem>
 </itemizedlist>
 </para>
 </formalpara>
@@ -201,9 +203,9 @@ into the following directories: </para>
 <formalpara><title>NetBSD</title>
 <para>
 <itemizedlist mark="dash">
-<listitem><para> user applications - <filename>/usr/local/bin</filename>;</para></listitem>
-<listitem><para> system binaries  - <filename>/usr/local/sbin</filename>;</para></listitem>
-<listitem><para> other files - <filename>/usr/local/etc</filename>.</para></listitem>
+<listitem><para> user applications - <filename>/usr/pkg/bin</filename>;</para></listitem>
+<listitem><para> system binaries  - <filename>/usr/pkg/sbin</filename>;</para></listitem>
+<listitem><para> configuration files - <filename>/usr/pkg/etc/coda</filename>.</para></listitem>
 </itemizedlist>
 </para>
 </formalpara>
@@ -332,11 +334,16 @@ service in a multiple-machine cell site.  However, is extremely important to
 only have one SCM.  
 </para>
 
-<note><para>running a server seriously dips into system virtual memory.  Running a Coda server, a Coda client <emphasis>and</emphasis> X11, the Coda Group as observed  that a slightly over 64MB of available VM is needed.  The <command>top</command> gives information on memory, CPU and process usage.  Therefore, we do not recommend running a Coda client on a Coda server and only run X, when performing server maintenance, if X is convenient to use.  
+<note><para>running a server seriously dips into system virtual memory.
+Running a Coda server, a Coda client <emphasis>and</emphasis> X11, we have
+observed  that slightly over 64MB of available VM is needed.  The
+<command>top</command> command gives information on memory, CPU and process
+usage. Therefore, we do not recommend running a Coda client on a Coda server
+and only run X, when performing server maintenance, if X is convenient to use.  
 </para></note>
 
 <para>Whether setting up an SCM Coda server or adding a server to an existing
-Coda Cell, make sure the following items are taken care before running the
+Coda cell, make sure the following items are taken care before running the
 setup script:
 </para>
 
@@ -371,12 +378,14 @@ communications.
 <informalexample>
 
 <screen>
-<prompt>Enter a random token for auth2 authentication :</prompt>
+<prompt>Enter a random password for auth2 authentication :</prompt>
 <lineannotation>This must be up to eight characters in length.</lineannotation>
 
-<prompt>Enter a random token for volutil authentication :</prompt>
-<lineannotation>This must be up eight characters in length and different
-that the auth2 token.</lineannotation>
+<prompt>Enter a random password for volutil authentication :</prompt>
+<lineannotation>This must be up eight characters in length and different from the auth2 password.</lineannotation>
+
+<prompt>Enter a random password for update authentication :</prompt>
+<lineannotation>There are no length limitations, preferable it is different from the auth2 and volutil passwords.</lineannotation>
 
 <prompt>Do you want to start the server at boot time? (y/n)</prompt> 
 </screen>
@@ -490,7 +499,11 @@ An initial administrative user <replaceable>username</replaceable> (id <replacea
 </screen>
 
 <para>This specifies the the size of the RVM data partition.  It must
-be typed exactly as <literal>22M</literal>, <literal>44M</literal> , <literal>90M</literal> , or <literal>130M</literal> .  These are associated with default parameters that must be feed to <application>codasrv</application> when it is started.  The following table provides the log size to total data storage conversion:
+be typed exactly as <literal>22M</literal>, <literal>44M</literal> ,
+<literal>90M</literal> , or <literal>130M</literal> .  These are associated
+with default parameters that must be feed to
+<application>codasrv</application> when it is started.  The following table
+provides an approximate RVM data size to total data storage conversion:
 <itemizedlist>
 <listitem><para><literal>22M</literal> is good for up to 500MB;</para></listitem>
 <listitem><para><literal>44M</literal> is good for up to 1.0GB;</para></listitem>
@@ -498,7 +511,8 @@ be typed exactly as <literal>22M</literal>, <literal>44M</literal> , <literal>90
 <listitem><para><literal>130M</literal> is good for up to 3.3GB.</para></listitem>
 </itemizedlist>
 
-For a detailed explanation of the trade off between different Data log sizes vs.  Data Storage Space, please see <xref linkend="RVMLogpartition">.
+For a detailed explanation of the trade off between different RVM data sizes
+vs. data storage space, please see <xref linkend="RVMLogpartition">.
 </para>
 
 <screen>
@@ -512,7 +526,10 @@ Enter <literal>y</> to commit or <literal>N</> to abort.
 <prompt>Where shall we store your data [/vicepa]?</prompt>
 </screen>
 
-<para>Older development versions of coda require <filename>/vicepa</filename> to be present.  This version does not.  You give a name other than the default we suggest.  However, we strongly advise not calling it <filename>/coda</filename> as that can be confused with venus.
+<para>Older development versions of coda require <filename>/vicepa</filename>
+to be present.  This version does not.  You give a name other than the
+default.  However, we strongly advise not calling it
+<filename>/coda</filename> as that can be confused with venus.
 </para>
 
 <para>Once you successfully complete <application>vice-setup</application> you can start your Coda file-server.
@@ -609,7 +626,7 @@ To facilitate automatic setup procedure and easy changes of configuration we pro
 <tbody>
 <row><entry>File Server</><entry><filename>/vice/srv/SrvLog</></entry></row>
 <row><entry>Authentication</><entry><filename>/vice/auth2/AuthLog</></entry></row>
-<row><entry>Update</><entry><filename>/vice/srv/UpdateLog</></entry></row>
+<row><entry>Update</><entry><filename>/vice/misc/UpdatexxxLog</></entry></row>
 </informaltable>
 
 <para>The processes append new log entries to the end of the log file.  To control the growth of the log files over extended periods of operation, the files should be removed periodically. <filename>SrvLog</> may be removed by the <option>swaplog</> option of the <command>volutil</>; this will move the current <filename>SrvLog</> to <filename>SrvLog-1</> and begin a new log.  Swaplog also keep the last 6 log files, by removing, <filename>SrvLog-7</> and renaming the remaining log files.  a swaplog is also performed during file-server startup.  The log files of the other processes should be removed only when their respective processes are not running.  </para>
@@ -620,7 +637,10 @@ To facilitate automatic setup procedure and easy changes of configuration we pro
 
 <para>If the <application>codasrv</application> process started correctly, you should see <computeroutput>File Server started</computeroutput> in the SrvLog, othervise you will need to look at the error messages in <filename>SrvLog</filename> and <filename>SrvErr</filename> to determine what went wrong.  If the messages are not helpful, you should restart the server with higher debugging level.  Consult <xref linkend="Troubleshooting"> about problem solving.  </para>
 
-<note><para>In case of trouble, it is worth first to check with <command>ps</command> whenever <application>auth2</application>, <application>rpc2portmap</application>, <application>updatesrv</application> and <application>updateclnt</application> are running.</para></note>
+<note><para>In case of trouble, it is worth to first check with
+<command>ps</command> whether <application>auth2</application>,
+<application>rpc2portmap</application>, <application>updatesrv</application>
+and <application>updateclnt</application> are running.</para></note>
 
 <sidebar>
 <title>Changing debugging level of Coda server</title>
@@ -788,6 +808,7 @@ servers
 prot_users.db
 prot_index.db
 volutil.tk
+update.tk
 VRDB
 files
 VSGDB
@@ -803,7 +824,7 @@ dumplist
 </para>
 
 <para>On servers other than the SCM, the <application>Update</application> monitor will ensure that the proper database files are propagated from the SCM.
-However, you must copy the file <filename>/vice/db/volutil.tk</filename> to the new server for the <application>Update</application> monitor to work.
+However, you must copy the file <filename>/vice/db/update.tk</filename> to the new server for the <application>Update</application> monitor to work.
 </para>
 </sect2>
 </sect1>

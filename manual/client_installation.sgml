@@ -115,13 +115,33 @@ into the following directories: </para>
 <para>The <application>venus-setup</> script does all the hard work, it will setup the coda control files, create <filename>/dev/cfs0</> to communicate with the
 kernel, ...  It also initializes a directory for cache files.  In your first Coda run we recommend a small cache, say 20MB. The cache size should be at least 10Meg, typically 60-200Meg is used.  Do not go above 300Meg.  All the files created will be placed under <filename>/usr/coda</>.  You should make sure that there is enough space in the file system on which <filename>/usr/coda</> resides to hold a fully populated cache.  </para
 
-<para>For example, <command>venus-setup</> <option>micky,minnie,goofy</> <option>40000</> will setup up <application>venus</application> to look for the set of servers <systemitem class="systemname">micky</>, <systemitem class="systemname">minnie</> and <systemitem class="systemname">goofy</> and configure it to use 40MB of disk space for caching.  This information is kept in <filename>/usr/coda/etc/vstab</>.  We strongly recommend that you initially try your client against <systemitem class="systemname">testserver.coda.cs.cmu.edu</> first, and keep the cache size to 20000.  </para>
+<para>For example, <command>venus-setup</> <option>micky,minnie,goofy</>
+<option>40000</> will setup up <application>venus</application> to look for
+the set of servers <systemitem class="systemname">micky</>, <systemitem
+class="systemname">minnie</> and <systemitem class="systemname">goofy</> and
+configure it to use 40MB of disk space for caching.  This information is kept
+in <filename>/etc/coda/venus.conf</>.  We strongly recommend that you
+initially try your client against <systemitem
+class="systemname">testserver.coda.cs.cmu.edu</> first, and keep the cache
+size to 20000.  </para>
 
-<para>Start venus with <command>venus &amp;</command>.  An <option>-init</> flag can be given when <application>venus</> is started to flush the local cache contents.  Installation procedure performed by <application>venus-setup</> forces <application>venus</> to inititialize cache upon first startup.  The <option>-init</> flag can be given if Coda cannot recover it's cache after a crash or after re-editing the <filename>vstab</> file manually.  </para>
+<para>Start venus with <command>venus &amp;</command>.  An <option>-init</>
+flag can be given when <application>venus</> is started to flush the local
+cache contents.  Installation procedure performed by
+<application>venus-setup</> forces <application>venus</> to inititialize cache
+upon first startup.  The <option>-init</> flag can be given if Coda cannot
+recover it's cache after a crash or after re-editing the
+<filename>venus.conf</> file manually.  </para>
 
-<para>Observe the venus log with <command>tail -f /usr/coda/etc/console</>, it will tell you when <application>venus</> has started and give status.  Type <command>codacon</> to see the communications between the <application>venus</> and <application>vice</>.  </para>
+<para>Observe the venus log with <command>tail -f /usr/coda/etc/console</>, it
+will tell you when <application>venus</> has started.  Use <command>codacon</>
+to see the actions of the client in more detail, such as the communication
+between <application>venus</> and the <application>codaservers</>.  </para>
 
-<para>It is possible to see the upcalls from the kernel to <application>venus</> by turning up logging, but they are not very interesting.  (To turn on minimal debugging, type <command>vutil -d 1</> and then <command>tail -f /usr/coda/coda.cache/venus.log</>.)  </para>
+<para>It is possible to see the upcalls from the kernel to
+<application>venus</> by turning up logging, but they are not very
+interesting.  (To turn on minimal debugging, type <command>vutil -d 1</> and
+then <command>tail -f /usr/coda/coda.cache/venus.log</>.)  </para>
 
 <para>To halt venus, type:
 <informalexample>
@@ -159,7 +179,7 @@ Or you can kill -9 venus, if you must.
 
 <para>When you start venus for the first time, or you want to reinitialize its cache, tick the <guimenuitem>Init venus</> check box. This will start venus with the <option>-init</> and <option>-cf 1500</> flag set. To add or override flags use the <guibutton>Configure</> button.  Start venus by clicking the left <guibutton>Start</> button. The 'Status' message will tell you 'Running' when <application>venus</> starts.  </para>
 
-<para>Coda will be mounted automatically on the drive specified in the <filename>C:\usr\coda\etc\vstab</> file. <filename>Vstab</> is created by the installer.  </para>
+<para>Coda will be mounted automatically on the drive specified in the <filename>C:\usr\coda\etc\vstab</> file. <filename>vstab</> is created by the installer.  </para>
 
 <para>To unmount, type <command>cfs uk</> in a DOS window. This will cleanly shut down venus as well.  </para>
 
@@ -187,11 +207,17 @@ The <option>-init</> flag is used to re-initialize the <filename>/usr/coda/venus
 <sect1>
 <title>Configuration changes made by venus-setup</title>
 
-<para>This section describes the changes that must be made to various configuration files.  Samples of the files are contained in <xref linkend="ExampleFiles">.  </para>
+<para>This section describes the changes that must be made to various
+configuration files.
+<!-- Samples of the files are contained in <xref linkend="ExampleFiles">. -->
+</para>
 
 <formalpara>
-<title>/usr/coda/etc/vstab</title>
-<para>Create a <filename>vstab</> in <filename>/usr/coda/etc</> to contain the Coda file system table information.  The contents of this file are explained in the man page <citerefentry><refentrytitle>vstab</><manvolnum>5</></citerefentry>.  </para>
+<title>/etc/coda/venus.conf</title>
+<para>The Coda client configuration file <filename>venus.conf</> in
+<filename>/etc/coda</> is copied from <filename>/etc/coda/venus.conf.ex</> if
+it doesn't yet exist. All configurable options in this file are extensively
+documented by comments in the file itself. </para>
 </formalpara>
 
 <formalpara>
@@ -199,14 +225,15 @@ The <option>-init</> flag is used to re-initialize the <filename>/usr/coda/venus
 <para>To automatically start venus at boot time, the script <application>rc.venus</application> is provided in <filename>/usr/local/etc</> for FreeBSD systems and <filename>/usr/pkg/etc</> for NetBSD. <application>venus.init</application> is provided for RedHat Linux in <filename>/etc/rc.d/init.d</>.  </para>
 </formalpara>
 
-<para>Linux users should create the following symbolic link if it doesn't already exist:
+<para>RedHat Linux users should create the following symbolic link if it doesn't already exist:
 <informalexample>
 <screen>
-<prompt>#</> <userinput>ln -sf /etc/rc.d/init.d/venus.init /etc/rc.d/</>
+<prompt>#</> <userinput>ln -sf /etc/rc.d/init.d/venus.init /etc/rc.d/rc3.d/S97venus.init</>
 </screen>
 </informalexample>  
-This will allow <application>init</application> to process the file and start venus at boot time on Red Hat Linux systems.  </para>
-<!-- this should be fixed by propper port -->
+This will allow <application>init</application> to process the file and start
+venus at boot time. </para>
+<!-- this should be fixed by proper port -->
 <formalpara><title>FreeBSD</title>
 <para>FreeBSD system users should create <filename>/usr/local/etc/rc.d/venus.sh</> (with <literal>rwxr-xr-x</> permitions), containing:  
 <literallayout>
@@ -287,7 +314,8 @@ Please be sure to check the <application>INSTALL.<replaceable>platform</replacea
 <filename>/usr/coda/venus.cache</> Cached copies of Coda files.
 </para></listitem>
 <listitem><para>
-<filename>/usr/coda/spool</> Save CMLs from aborted reintegration.
+<filename>/usr/coda/spool</> Saved CMLs from automatic or manual checkpointing
+and aborted reintegration.
 </para></listitem>
 <listitem><para><filename>/usr/coda/tmp</> Temporary hoard related files.
 </para></listitem>

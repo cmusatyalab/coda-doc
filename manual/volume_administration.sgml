@@ -9,13 +9,14 @@ and files, system administrators view the Coda file system as a hierarchy of vol
 
 <para>All system administration tasks are performed relative to a volume or a set of volumes.  So, adding new users requires creating new volumes for their files and directories;  quotas are enforced on volumes; and backups are performed on a per-volume basis.  The volume abstraction greatly simplifies the administration of large systems.  </para>
 
-<note><para>Quotas have not been implemented yet.  </para></note>
-
 <para>The Coda file system provides four different types of volumes.  The simplest of these is the <firstterm>non-replicated volume</>.  Non-replicated volumes reside on a single server and are in the custody of the Coda file server they reside on.  The Coda servers work with the <application>venus</> processes on client workstations to provide a single, seamless view of the file system.  However, if a custodian crashes or is otherwise inaccessible, its non-replicated volumes are inaccessible as well.  </para>
 
-<para>To partially solve this availability problem, Coda provides <firstterm>>replicated, read-only volumes</>.  This type of volume has exactly one read-write copy, but may have any number of read-only copies controlled by other servers.  Changes to such a volume are made on the custodians read-write copy and then distributed to all servers with read-only copies.  Read-only replication provides higher availability for volumes containing frequently-requested but infrequently-updated objects, like system binaries.  In addition, read-only replication is used in performing backups on volumes.  </para>
-
-<para>Unfortunately, read-only replicas cannot provide high availability for all types of volumes, e.g. user volumes.  Thus, Coda also provides <firstterm>read-write, replicated volumes</>.  Read-write, replicated volumes are logical volumes which group together multiple read-write, non-replicated volumes.  Coda provides protocols which allow read-write, replicated volumes to reside on a number of servers and to be accessed even when some servers are inaccessible.  Although read-write replication provides everything read-only replication provides, its protocols are more expensive.  Thus, read-only replication, rather than read-write replication, should be used for volumes which change slowly but are accessed frequently.  Look at <xref linkend="VolTypes">, which illustrates the differences between the volume types.  </para>
+<para>Thus, the main volume type that is used in typical Coda environments are
+the <firstterm>read-write, replicated volumes</>.  Read-write, replicated
+volumes are logical volumes which group together multiple read-write,
+non-replicated volumes.  Coda provides protocols which allow read-write,
+replicated volumes to reside on a number of servers and to be accessed even
+when some servers are inaccessible. </para>
 
 <table id="VolTypes">
 <title>Coda volume types</>
@@ -36,12 +37,6 @@ and files, system administrators view the Coda file system as a hierarchy of vol
 <entry>No</entry>
 </row>
 <row>
-<entry>Read-only replicated</entry>
-<entry>Any server with replica</entry>
-<entry>Only custodian</entry>
-<entry>No</entry>
-</row>
-<row>
 <entry>Read-Write Replicated</entry>
 <entry>Any VSG Member</entry>
 <entry>Any VSG Member</entry>
@@ -56,7 +51,6 @@ and files, system administrators view the Coda file system as a hierarchy of vol
 </tbody>
 </tgroup>
 </table>
-
 
 <sect1 id="CreateVol">
 <title>Creating a Volume</title>
@@ -86,9 +80,28 @@ backup media.  </para></listitem>
 
 <para>A volume naming convention should also be used by those administrators who create volumes.  Volume names are restricted to <literal>32</> characters and should be chosen so that given a volume name, a system administrator (who knows the naming conventions) can determine its correct location in the file system hierarchy.  The convention used by the Coda project is to name volumes by their function and location.  Thus, a replicated volume named <literal>u.hbovik</> is mounted in <filename>/coda/usr/hbovik</> and contains hboviks data.  A project volume is prefixed by <literal>p.</> and a system volume is prefixed by <literal>s.</>  Similarly, volumes containing machine specific object files are prefixed by the machine type.  For instance, <literal>p.c.alpha.pmax.bin</> contains project coda binaries for our current alpha release and is mounted on <filename>/coda/project/coda/alpha/pmax_mach/bin</>.  </para>
 
-<para>Use the commands <citerefentry><refentrytitle>createvol</><manvolnum>8</></citerefentry> and <citerefentry><refentrytitle>createvol_rep</><manvolnum>8</></citerefentry> to create non-replicated and read-write replicated volumes respectively.  (Read-only replication is discussed in <xref linkend="RORep"> below). These commands are actually scripts which ultimately invoke the <citerefentry><refentrytitle>volutil</><manvolnum>8</></citerefentry> command with the create option at the appropriate server.  The volume will contain an access list initialized to <literal>System:AnyUser rlidwka</>.  Creating the volume does not mount the volume within the file system hierarchy.  Mounting the volume as well as changing the access list or the quota must be done using the <citerefentry><refentrytitle>cfs</><manvolnum>1</></citerefentry> command from a client.  A new volume may not be visible at client workstations for some time (see <xref linkend="VLDB"> below).  </para>
+<para>Use the command
+<citerefentry><refentrytitle>createvol_rep</><manvolnum>8</></citerefentry> to
+create read-write replicated volumes respectively.
+This command is actually a script which ultimately invokes the
+<citerefentry><refentrytitle>volutil</><manvolnum>8</></citerefentry> command
+with the create_rep option at the appropriate server.  The volume will contain
+an access list initialized to <literal>System:Administrators rlidwka</> and
+<literal>System:AnyUser rl</>.  Creating the volume does not mount the volume
+within the file system hierarchy. Mounting the volume as well as changing the
+access list or the quota must be done using the
+<citerefentry><refentrytitle>cfs</><manvolnum>1</></citerefentry> command from
+a client.  A new volume may not be visible at client workstations for some
+time (see <xref linkend="VLDB"> below).  </para>
 
-<para>A few concrete examples should clarify the use of some of these commands. On the SCM, the <command>createvol</> <option>u.hbovik</> <option>mahler</> <option>/vicepa</> will create a non-replicated volume named <literal>u.hbovik</> on server <systemitem class="systemname">mahler</>"s <filename>/vicepa</> partition. Similarly, the <command>createvol_rep</> <option>u.hbovik</> <option>E0000107</> <option>/vicepa</> will create a replicated volume named <literal>user.hbovik</> on each server in the Volume Server Group (VSG) identified by <literal>E0000107</>.  The file <filename>/vice/db/VSGDB</> contains the mapping between VSGs and their identifications. The names of the replicas will be <literal>user.hbovik.</><replaceable>n</>, where <replaceable>n</> is a number between <literal>0</> and <literal>|VSG| - 1</literal>.  </para>
+<para>A few concrete examples should clarify the use of some of these
+commands. On the SCM,  the <command>createvol_rep</> <option>u.hbovik</>
+<option>E0000107</> <option>/vicepa</> will create a replicated volume named
+<literal>user.hbovik</> on each server in the Volume Server Group (VSG)
+identified by <literal>E0000107</>.  The file <filename>/vice/db/VSGDB</>
+contains the mapping between VSGs and servers. The names of the replicas will
+be <literal>user.hbovik.</><replaceable>n</>, where <replaceable>n</> is a
+number between <literal>0</> and <literal>|VSG| - 1</literal>.  </para>
 </sect1>
 
 <sect1 id="MountVolume">
@@ -106,13 +119,43 @@ backup media.  </para></listitem>
 
 <para>When a volume is no longer needed, it may be purged by running the 
 <application>purgevol</application> or <application>purgevol_rep</application> scripts on the SCM.
-Before removing a volume, you should probably create a backup for offline storage (see <xref linkend="RORep"> up to the restore step).  The volume's mount point should be removed with the <citerefentry><refentrytitle>cfs</><manvolnum>1</></citerefentry> command (see the <option>rmmount</> option) before purging the volume (if possible). Note that purging the volume will not purge related backup volumes. Backup and Read-Only volumes should be purged with the <application>purgevol</application> script.
+Before removing a volume, you should probably create a backup for offline
+storage (see <xref linkend="Dumping">).  The volume's mount point should be
+removed with the
+<citerefentry><refentrytitle>cfs</><manvolnum>1</></citerefentry> command (see
+the <option>rmmount</> option) before purging the volume (if possible). Note
+that purging the volume will not purge related backup volumes. Backup and
+should be purged with the <application>purgevol</application> script or the
+<command>volutil</> <option>purge</> command.
 </sect1>
 
-<sect1>
-<title>Restoring a Volume</title>
+<sect1 id="Dumping">
+<title>Dumping and Restoring a Volume</title>
 
-<para>For complete details on the backup/restore process, see <xref linkend="Backup">. In short, one first needs to get the correct dumpfile, possibly merging incremental dumps to an older full dump to get the desired state to be restored. Once this file is obtained, use the  <citerefentry><refentrytitle>volutil</><manvolnum>8</></citerefentry> restore facility.  </para> 
+<sect2>
+<title>Creating a dump of a replicated volume</title> 
+
+<para>On the SCM, you need to clone the read-write copy of the volume.  You
+can use the command <command>volutil</> <option>clone</>
+<option><replaceable>VolumeId</></option>. This command will create a
+read-only volume with the name <literal>binaries.readonly</> (assuming that
+your volume is called <literal>binaries</>).  Next, you will need to dump this
+cloned volume to a file with the command <command>volutil</> <option>dump</>
+<option><replaceable>VolumeId</></option>
+<option><replaceable>filename</></option>. </para>
+
+<para>The next section explains how to restore a dumped volume. </para>
+</sect2>
+
+<sect2>
+<title>Restoring volume dumps</title>
+
+<para>For complete details on the backup/restore process, see <xref
+linkend="Backup">. In short, one first needs to get the correct dumpfile,
+possibly merging differential dumps to an older full dump to get the desired
+state to be restored. Once this file is obtained, use the
+<citerefentry><refentrytitle>volutil</><manvolnum>8</></citerefentry> restore
+facility.  </para> 
 
 <para>
 <cmdsynopsis>
@@ -124,32 +167,17 @@ Before removing a volume, you should probably create a backup for offline storag
       <arg choice=opt><replaceable>volid</></arg>
     </arg>
 </cmdsynopsis>
-The <replaceable>partition</> should be one of the <filename>/vicep?</filename> partitions on the server. You may optionally specify the volumeId and the volume name for the restored volume. This is useful when creating read-only replicated volumes.  Note that currently dump files are not independent of byte ordering -- so volumes cannot be dumped across architectures that differ in this respect.  </para>
-</sect1>
+The <replaceable>partition</> should be one of the
+<filename>/vicep?</filename> partitions on the server. You may optionally
+specify the volumeId and the volume name for the restored volume. This is
+useful when creating read-only replicated volumes.  Note that currently dump
+files are not independent of byte ordering -- so volumes cannot be dumped
+across architectures that differ in this respect.  </para>
 
-<sect1 id="RORep">
-<title>Read-only Replication of a Volume</> 
-
-<para>Read-only replication of a volume requires more effort on the part of the system administrator.  However, it greatly increases the availability of volumes which cannot be read-write replicated.  We provide an extended example here to show you exactly how to go about the replication and distribution process.  </para>
-
-<para>We assume that you have a non-replicated volume, called <filename>binaries</>.  If you are installing a new system, you can access this volume as <filename>/coda/bin</> by using a Coda client.  This volume should look exactly how you want the read-only replica to look.  If it doesnt, make any changes now.  Also note that any volumes that you want mounted within the read-only replicas should be mounted before continuing.  </para>
-
-<para>If you already have a read-only replicated volume but want to update it, 
-you should mount the read-write version of the volume elsewhere and make your changes to this volume.  Once you have made your changes, you will need to purge the old read-only replicas of your root volume using the <citerefentry><refentrytitle>volutil</><manvolnum>8</></citerefentry> command. Be sure that you purge the replica on each server.  Then, you will need to edit the VolumeList file in <filename>/vice/vol</filename> and remove the entry for the read-only replicated volume.  (The name of the read-only replica will probably be <literal>binaries.readonly</>.)  </para> 
-
-<para>On the SCM, you need to clone the read-write copy of the volume.  You can use the command <command>volutil</> <option>clone</> <option><replaceable>VolumeId</></option>. This command will create a read-only volume with the name <literal>binaries.readonly</> (assuming that your volume is called <literal>binaries</>).  Next, you will need to dump this cloned volume to a file with the command <command>volutil</> <option>dump</> <option><replaceable>VolumeId</></option> <option><replaceable>filename</></option>. Now, copy this file to each of the servers which will have read-only replicas of the volume and execute following command: 
-<cmdsynopsis>
-  <command>volutil</>
-    <arg choice=plain>restore</>
-    <arg choice=req><replaceable>filename</></arg>
-    <arg choice=req><replaceable>partition</></arg>
-    <arg choice=opt><replaceable>volname</>
-      <arg choice=opt><replaceable>volid</></arg>
-    </arg>
-</cmdsynopsis>
-</para>
-
-<para>Read-only replicated volumes must share the same volid and name, so take care to specify these correctly when restoring to more than one server. The final step is to build the VLDB by running the command <command>bldvldb.sh</>.  </para>
+<para>After the volume has been restored the volume location databases have to
+be updated before client can see the restored volume. This is explained in
+<xref linkend="VLDB">.
+</sect2>
 </sect1>
 
 <sect1 id="VLDB">
@@ -160,10 +188,16 @@ you should mount the read-write version of the volume elsewhere and make your ch
 <para>The <firstterm>Volume Location Data Base</>, <acronym>VLDB</>, is used to provide volume addressing information to workstations.  Copies of the VLDB reside on the servers and are updated periodically.  The VLDB lists the latest known location or locations of all on-line volumes in the system. A human readable version of the VRDB is maintained on the SCM in the file <filename>/vice/vol/VRList</filename>.  </para>
 </formalpara>
 
-<para>The VLDB is maintained on the SCM. When you wish to update it, run the <citerefentry><refentrytitle>bldvldb.sh</><manvolnum>8</></citerefentry> from <filename>/vice/bin/</> on the SCM.  The script gathers a copy of the <filename>/vice/vol/VolumeList</filename> file from all the servers, merges it into a single list, and builds a new VLDB. The <application>updateclnt</>/<application>updatesrv</> will then propagate the new VLDB to all the servers.  </para>
+<para>The VLDB is maintained on the SCM. When you wish to update it, run the
+<citerefentry><refentrytitle>bldvldb.sh</><manvolnum>8</></citerefentry> from
+<filename>/vice/bin/</> on the SCM.  The script gathers a copy of the
+<filename>/vice/vol/VolumeList</filename> file from all the servers, merges it
+into a single list, and builds a new VLDB. The <application>updateclnt</> and
+<application>updatesrv</> daemons will then propagate the new VLDB to all the
+servers.
+</para>
 
-<note><para><application>Createvol</application> and <application>purgevol</application> scripts automatically invoke <application>bldvldb.sh</application>.  </para></note>
-
+<note><para>The <application>createvol_rep</application> and <application>purgevol_rep</application> scripts automatically invoke <application>bldvldb.sh</application>.  </para></note>
 
 <formalpara>
 <title>Building the VRDB</>

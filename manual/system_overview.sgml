@@ -92,6 +92,10 @@
 <listitem>
 <para><filename>/vice/vol/remote</filename> exists only on the SCM and contains volume information for all remote servers.</para>
 </listitem>
+<listitem>
+<para><filename>/vice/misc</filename> is where the updateclnt and updatesrv
+processes live and store their logfiles.</para>
+</listitem>
 </itemizedlist>
 
 <para>A more detailed description of the files in the these directories is listed in Appendix <xref linkend="SysFiles">.  </para>

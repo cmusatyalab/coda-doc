@@ -79,10 +79,22 @@ by a Coda independent Perl script (tape.pl).  </para>
 <literallayout>
 7f000001        IFIIIII         s:coda
 7f000002        IIIIIFI         u:satya
+7f000003        0325476         u:jan
 </literallayout>
 </para>
 
-<para>The first column specifies the volume id to be backed up, the second column specifies the backup schedule by the day of the week beginning Sunday, and the third column is a comment, usually the volume name in human readable form.  So, the volume id <literal>7f000001</> is scheduled for a <emphasis>F</>ull backup every Monday, and <emphasis>I</>ncremental - Tuesday through Sunday and from the comment, we know this is a system volume called <literal>coda</>.  Likewise, the second volume <literal>7f000002</> is scheduled for a Full backup on Friday with incremental being done Saturday through Thursday and is a user volume called <literal>satya</>.  </para>
+<para>The first column specifies the volume id to be backed up, the second
+column specifies the backup schedule by the day of the week beginning Sunday,
+and the third column is a comment, usually the volume name in human readable
+form.  So, the volume id <literal>7f000001</> is scheduled for a
+<emphasis>F</>ull backup every Monday, and a level 1 <emphasis>I</>ncremental
+- Tuesday through Sunday and from the comment, we know this is a system volume
+called <literal>coda</>.  Likewise, the second volume <literal>7f000002</>
+is scheduled for a Full backup on Friday with a level 1 incremental being
+done Saturday through Thursday and is a user volume called
+<literal>satya</>. The last entry shows that it is also possible to
+numerically identify which dumplevels are to be made on each day.
+</para>
 </step>
 
 <step>
@@ -151,8 +163,20 @@ tape.pl
 
 <para>In every dump (full or incremental) produces a file containing the version vectors and <firstterm>StoreIds</> of every vnode in the volume.  These files have names of the form <filename>/vice/backup/<replaceable>groupid</>.<replaceable>volid</>.newlist</filename> for replicated volumes and <filename>/vice/backup/<replaceable>volid</>.newlist</filename> for non-replicated volumes.  When the backup coordinator is convinced that the backup of a volume has completed, the <filename>*.newlist</> file is renamed to be <filename>*.ancient</> via the <command>volutil</> <option>ancient</> call. These files are stored in a human-readable format for convenience.  </para>
 
-<para>When creating an incremental dump, the server looks for the .ancient file corresponding to the volume.  If it doesnt exist, a full dump is created.  If it does exist, it is used to determine which files have changed since the last successful backup.  The server iterates through the vnode lists for the volume and the version vector lists from the <filename>*.ancient</> file comparing the version vectors and storeIds.  A discrepancy between the two implies that the file has changed and should be included in the incremental dump. Since version vectors are not maintained for non-replicated volumes, incremental dumps are not supported by the coda backup facility. By comparing the sequence numbers in the vnodes lists, it can also be determined if a file or directory had been deleted (since the vnode is no longer in use).  Vnodes that are freed and then reallocated between dumps look like vnodes which have been modified, and so are safely included
-in the incremental dump.  </para>
+<para>When creating an incremental dump, the server looks for the .ancient
+file corresponding to the volume.  If it doesnt exist, a full dump is created.
+If it does exist, it is used to determine which files have changed since the
+last successful backup.  The server iterates through the vnode lists for the
+volume and the version vector lists from the <filename>*.ancient</> file
+comparing the version vectors and storeIds.  A discrepancy between the two
+implies that the file has changed and should be included in the incremental
+dump. Since version vectors are not maintained for non-replicated volumes,
+incremental dumps are not supported for non-replicated volumes by the coda
+backup facility. By comparing the sequence numbers in the vnodes lists, it can
+also be determined if a file or directory had been deleted (since the vnode is
+no longer in use).  Vnodes that are freed and then reallocated between dumps
+look like vnodes which have been modified, and so are safely included in the
+incremental dump.  </para>
 
 <para>It is also important to maintain an ordering on the incremental dumps.  To correctly restore to a particular day each incremental dump must be applied to the appropriate full dump.  To ensure that this happens, each dump is labeled with a uniquifier, and each incremental is labeled with the uniquifier of the dump with respect to which it is taken.  During merge, the full dumps uniquifier is compared with the uniquifier of the dump used to create the incremental.  If they do not match, the incremental should not be applied to the full dump.  </para>
 </sect1>
@@ -172,9 +196,22 @@ in the incremental dump.  </para>
 
 <para>There are three kinds of requests for restorations: users who have mistakenly trashed a file, users who lost data but didnt know it, or bugs which require us to roll back to a substantially earlier state.  The first class of restores can be typically handled by yesterdays state, which we keep on-line in the form of read-only backup clones.  Thus almost all forms of requests never reach the system administrator at all.  To give users easy access to the previous days backup, create a directory, <filename>OldFiles</>, in their <filename>coda</> directory, and mount each of the backups in the <filename>OldFiles</> directory.  </para>
 
-<para>If the user did not catch the loss of data immediately, its reasonable to expect that they will catch it before a week has passed. We keep all incremental and full backups to guarantee we can restore state from any day in the last week.  This requires 14 tapes, or two weekly sets.  One weeks worth is not sufficient, because state from later incremental relies on earlier incremental backups in order to be restored.  Thus as soon as the first incremental tape is over-written (say Mondays), the state from the remainder of the last week is lost (last Tuesdays, Wednesdays, etc).  </para>
+<para>If the user did not catch the loss of data immediately, its reasonable
+to expect that they will catch it before a week has passed. We keep all
+incremental and full backups to guarantee we can restore state from any day in
+the last week.  This requires 14 tapes, or two weekly sets.  One weeks worth
+is not sufficient, because state from later incremental relies on earlier
+incremental backups at a lower dumplevel in order to be restored.  Thus as
+soon as the first incremental tape is over-written (say Mondays), the state
+from the remainder of the last week is lost (last Tuesdays, Wednesdays, etc).
+</para>
 
-<para>The third class of data loss is either due to infrequently used files or to catastrophe.  (Weve actually been forced to rely on the backup system to restore <emphasis>all</> Coda state, while developing server software). Since its unreasonable to keep all the tapes around, we only save tapes containing full dumps.  Weekly tapes are saved for a month, and monthly tapes are saved for eternity.  </para>
+<para>The third class of data loss is either due to infrequently used files or
+to catastrophe.  (We've actually been forced to rely on the backup system to
+restore <emphasis>all</> Coda state, while developing server software). Since
+its unreasonable to keep all the tapes around, we only save tapes containing
+full dumps.  Weekly tapes are saved for a month, and monthly tapes are saved
+for eternity.  </para>
 </sect1>
 
 <sect1>
