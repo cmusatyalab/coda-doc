@@ -70,7 +70,7 @@ bcm          /backup3        backup
 </verb></tscreen>
 
 The first column is the name of the backup coordinator machine, the second 
-column contains the name of the spool directory where the dump files
+column specifies the name(s) of the spool directory where the dump files
 are stored.
 
 The dump directory is assumed to be <tt>/backup</tt> and is used to install 
