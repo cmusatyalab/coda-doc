@@ -1,0 +1,306 @@
+Parts:
+	packet format and XDR
+	binding
+	packet handling
+
+
+
+PacketBuffer
+------------ 
+
+RPC2 packets are the network packets sent and received from the
+sockets in use by RPC2 entities.  In the following discussion it is
+understood that all the fields are set by the sender of the packet and
+interpreted by the receiver.
+
+With respect to the underlying packet transport layer RPC2 assumes
+that discrete identifyable (i.e. not stream oriented) packets are
+received.  Typically such packets will be sent over UDP connections,
+on a specific port, to a specific port on another host. 
+
+RPC2 maintains logical conections above this.  These are defined by
+two connection handles, one for each endpoint of the connection.
+These are constant during the life of a connection. 
+
+On a fully established RPC2 logical connection packets are dispatched
+to RPC2 subsystems (see ...).  However, some special packets are
+handled internally by RPC2, and are not propagated to subsystems, such
+as packets for binding and acknowledgement.  The details are opaque
+XXX.
+
+
+1. Overview of packet structure
+
+Their structure consists of fixed size header and a variable
+part. Implementation may prefix a management structure which is not
+relevant to this discussion.
+
+The data in the header consists of a sequence of octets:
+    RPC2_Integer:	 a 32bit integer in network order
+    RPC2_Unsigned	 a 32bit unsigned integers in network order
+    (XXX) 
+    RPC2_Byte            an octet
+
+Currently the packet is 15 times 4 octets long, corresponding to a
+sequency of RPC2_Integers and RPC2_Unsigned constants.  
+
+Figure: 	RPC2_PacketHeader (each unit 4 octets)
+
+ProtoVersion
+RemoteHandle
+LocalHandle
+BodyLength
+SeqNumber
+Opcode
+SEFlags
+SEDataOffset
+SubsysId
+ReturnCode
+Lamport
+Uniquefier
+TimeStamp
+BindTime
+
+An entire packet is described the figure:
+
+RPC2_PacketHeader
+.
+.                    any number of octets up to
+.                    ..............
+.
+
+
+2. Fields in the header
+
+2.1 RPC2_Integer  ProtoVersion;	
+
+This packet contains a constant describing the version of RPC2 in use.
+
+2.2 RPC2_Integer  RemoteHandle;	(SenderHandle XXX) 
+
+This field identifies the logical RPC2 client entry (described
+elsewhere XX) of the sender of the packet. The receiver of the packet
+uses to field to find the RPC2 connection to which it belongs.
+
+-1 indicates unencrypted error packet
+
+2.3  RPC2_Integer  LocalHandle (ReceiverHandle XXX)
+
+This is an identifier of the logical client entry to be used in a
+reply for this packet.  The value of LocalHandle is stored at
+bindtime. 
+
+In the reply to the packet the value of the LocalHandle is verified to
+match that stored with the Client Entry corresponding to the remote
+handle. 
+
+Picture:
+
+a bind: local handle goes into CEntry
+        later: check if localHandle matches the CEntry
+
+2.4 RPC2_Integer  Flags;	
+
+XXXX We want 4 bytes here, not an integer.
+
+First high order byte is reserved for side effect use
+Second byte reserved for indicating color (see libfail documentation).
+Last two bytes reserved for RPC2 use, currently not used (XXX)
+
+SE Flags
+Color Flags
+Reserved
+Reserved
+
+2.5 RPC2_Unsigned  BodyLength;	
+
+Length of the packet body in octets.  Set by the sender. 
+
+2.6 RPC2_Unsigned  SeqNumber;	
+
+Unique identifier for this logical packet on the logical connection on
+which it arrived (identified by the handles), except during the bind
+when it will be 0.
+
+Set by sender. 
+
+2.7 RPC2_Integer  Opcode; 	
+
+This packet contains information as to the destination of the packet.
+
+
+If the packet is contains a 
+/*  Values  greater than 0 are subsystem-specific: set by client.
+					    Values less than 0 reserved: set by runtime system.
+					    Type of packet determined by Opcode value: > 0 ==> request packet.
+					    Values of RPC2_REPLY ==> reply packet, RPC2_ACK ==> ack packet, and so on */
+
+
+
+RPC2_Unsigned SEFlags;	/* Bits for use by side effect routines */
+RPC2_Unsigned SEDataOffset;	/* Offset of piggy-backed side effect data, from the start of Body */
+RPC2_Unsigned SubsysId; 	/* Subsystem identifier. Filled by runtime system. */
+RPC2_Integer  ReturnCode;	/* Set by server on replies; meaningless on request packets*/
+RPC2_Unsigned Lamport;	/* For distributed clock mechanism */
+RPC2_Integer  Uniquefier;	/* Used only in Init1 packets; truly unique random number */
+RPC2_Unsigned TimeStamp;    /* Used for rpc timing. */
+RPC2_Integer  BindTime;     /* Used to send the bind time to server. Temporary, i hope. */
+
+/* The first four fields are never encrypted */
+
+
+
+
+
+
+
+
+Implementation of packet handling from a protocol perspective
+
+A) reception level
+
+rpc2_RecvPacket:
+	- from (IP, Port)
+	- statistics
+	- failure (filtering packets)
+(implementation: packet is moved from some freelist to PBList by Gimme).	    
+
+PullPacket:
+	- prepares buffer and receives packet
+
+PoisonPacket
+	- checks that a full header fits inside the packet
+	- checks RPC2 version in the header
+
+
+B) 
+   branching on receiverhandle if -1:
+        - packet given to HandleSLPacket 
+	
+	- if there is no established SenderHandle drop it
+
+	- opcode decision: NAKED
+	       - if connection is is C_AWAITREPLY|C_AWAITINIT2
+	         inform the socket listener entry that a nak 
+	         was received, fiddle with timers. Packet is dropped.
+		 XXX security problem: nak packet has influence on sl
+		                       without authentication
+	       -  if ce is not in this state drop it.
+	- all other opcodes: drop it. 
+
+NOTE decisions based on (ReceiverHandle, SenderHandle, Opcode)
+
+C) based on SenderHandle
+   - SenderHandle == 0: new bind request continue
+   else
+   - FindOrNak:
+     If no ce is found or if ce has errror then nak the packet
+     (XX Nak does not modify CE, but no auth is required; this 
+      at the very minimum leaks information about a ce with errors.)
+
+     If good ce is found, do 
+     - rpc2_ApplyD: decrypt the packet.
+
+
+Intermezzo: connection state (note this is not shared state)
+
+S_AWAITENABLE: set somewhere during the bind
+Is is then ored with: S_AWAITREQUEST
+
+
+PacketBufferHandles -- aka as SLEntry's
+========================================
+
+SLEntry:  (see manual) -- better name would be a PacketBufferHandle
+     three types on two queues.
+     REQ: "available server SLE's
+     OTHER: ones which are currently involved in delivery of a request
+            to a server
+     REPLY: ones involved in a reply from an rpc.
+
+     The special feature or REQ sle's is that they are NOT connected
+     to a particular logical connection (see rpc2_AllocSle). 
+     This is the only location where ce->MySl is set, and it is done
+     for OTHER and REPLY sle's only: the ce and the sle are linked
+     by letting the ce point to the sle and vice versa.
+
+     rpc2_SLReqList holds Alloc'ed REQ sle's and
+     rpc2_SLList holds Alloc'ed REPLY and OTHER sle's. 
+		 (we don't known when they
+		 are taken off these lists yet). 
+     Available sle's are held on the rpc2_SLFreeList
+
+     ACTIVATING an sle means putting a timer in it and 
+     setting the sle.returncode to WAITING.  It means that the buffer
+     is in transit. 
+     DEACTIVATING sets the returncode to any value, and 
+     removing any timer from the sle.  A deactive sle is
+     one which is not considered to be in transit.  It can
+     be in a number of other states.
+	      "deactivation" takes place to rc values:
+			   ARRIVED   --- by HandleCurrentReply,
+			      HandleNewRequest, HandleInit1,2,3,4
+			   NAKED     --- by HandleNak
+			   KEPTALIVE --- by HandleBusy
+			   TIMEOUT   --- by ExpireEvents
+                           0         --- by SendReliably (upon failure)
+                                     --- by HandleNewRequest if an sle
+                                         was found in the connection
+				     --- somewhere in multi
+               "activation":
+			-- many places in multi
+			-- in SavePacket for Retry
+			-- in GetNewRequest (during "try another")
+			-- in rpc2_Cancel retry. To reset the timeout
+			in the sle if a side effect told us peer was
+			alive
+			-- in rpc2_SendReliably at several points:
+			both initial and retries (don't understand all
+			the details yet). 
+
+Held Packets:
+=============
+
+     A queue of held packets (PbHoldList) exists.  HeldReq can return
+     a pb from this list and set the value of the ce belonging to this
+     packet.  If no ce exists for it, get rid of the pb, continue down
+     the held list.  This is called by RPC2_GetRequest.
+
+     At most one packet per ce is held in the PBHoldList. These are
+     effictively held for retransmission.
+
+     When we do find a packet we set ce and return. 
+
+
+D) DecodePacket
+
+Default case jumps into HandleNewRequest.  
+
+The first is wether there is an SL_Entry in the ce.  If there is, the
+packet in the sle is dropped. (we don't quite know why yet, but it
+seems as though the existence of a SLE in the ce means things are
+clogged up)
+
+Now we find the recipient.  This is a match of the packets'
+Filter against the RequestFilter found in the rpc2_SLReqList
+
+Increment sequence numberfor the connection. 
+
+
+
+
+
+
+
+
+
+
+
+Criticims:
+- rpc2_ApplyD: was bad (took unencrypted always)
+- it doesn't seem like there is a stamp to verify that no junk has
+been sent (i.e. encryption but no signature).
+- htonl is not designed to convert signed quantities hence all
+comparison with these is architecture dependent. 
+- subsystems are sent in every pb but also held in ce why??
+
