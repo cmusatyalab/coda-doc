@@ -9,7 +9,7 @@ Robert Baron <tt/rvb@cs.cmu.edu/,
 Jan Harkes <tt/jaharkes@cs.cmu.edu/,
 Marc Schnieder <tt/smarc@cs.cmu.edu/.
 </author>
-<date>v1.00, Jan 14, 1998
+<date>v1.00, 3 March, 1999
 
 <abstract>
 This HOWTO should give you help in running Coda.  We try to cover
@@ -355,7 +355,7 @@ address offered is that of the testserver at CMU.
 
 Do all your work as administrator. 
 
-First get the Cygwin B19 kit from 
+First get the Cygwin B20.1 kit from 
 <URL
 URL="http://www.cygnus.com/misc/gnu-win32/"
 NAME="http://www.cygnus.com/misc/gnu-win32/">
@@ -366,8 +366,7 @@ URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/winnt"
 NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/winnt">. 
 
 Install these by double clicking on the installer files. (Note: these
-replace the original cygwin32.dll with a patched version. A future
-version of Coda will strive to use the default version). 
+replace the original cygwin1.dll with a newer version, dated Jan 15, 1999.)
 
 
 
@@ -582,7 +581,45 @@ messages appear in <tt>/var/log/messages</tt>
 During installation you will be prompted for the IP address of
 your client and of your Coda server(s).  Enter this as indicated.
 
-All executables can be found in the directory <tt>C:\usr\coda\bin.</tt>
+All executables can be found in the directory <tt>C:\usr\coda\bin</tt>
+
+There are two ways to play with Coda:
+
+<sect2>CodaStart<p>
+The CodaStart pogram is a Win32 windows-based application to control and
+observe the Windows 95 Coda client. It will be enhanced in the future. For now
+it provides a convenient way to start Venus.exe and to load the kernel module.
+It also displays the kernel-venus communication for debugging purposes.
+Printing the messages can be stopped by unticking the 'Monitor' check box. The
+button 'Reset' clears the display.
+
+<enum>
+<item>
+When you start Venus for the first time, or you want to reinitialize its
+cache, tick the 'Init Venus' check box. This will start Venus with the '-init'
+and '-cf 1500' flag set. To add or override flags use the 'Configure' button.
+Start Venus by clicking the left 'Start' button. The 'Status' message will
+tell you 'Running' when Venus starts. Note, Venus is still in the
+initialization process. 
+<item>
+Load the kernel module by clicking on the right 'Start' button. If everything
+is all right you will see the 'Status' message 'Running'.
+<item>
+Click the 'Mount' button to mount, when you see the first messages. When you
+disabled the 'Monitor', check the DOS box in which Venus runs. Venus must have
+printed 'Venus starting...' before you can 'Mount'.
+<item>
+To unmount, press the 'Unmount' button (the 'Mount' button changed to the
+'Unmount' button). This will unload the kernel module. If you are unable to
+unmount Coda with CodaStart try the method described in 'Starting Coda by
+hand'.
+<item>
+See 'Important Note' below, please.
+</enum>
+
+You are now ready to browse through the Coda filesystem using the explorer!
+
+<sect2>Starting Coda by hand<p>
 <enum>
 <item> Type 
 <tscreen>
@@ -591,23 +628,16 @@ relay.exe
 </verb>
 </tscreen>
 in a command Window.  This is a 32bit DOS application which you can
-also start by double clicking on the file in  explorer.  
-
-<item> If this is the first time you start Coda run 
+also start by double clicking on the file in explorer.  
+<item> Now start Venus. Type 
 <tscreen>
 <verb>
-venus.exe -child
+venus.exe -cf 1500 -init
 </verb>
 </tscreen>
 in a command window. 
-<item> Run 
-<tscreen>
-<verb>
-venus.exe -cf 500 -init
-</verb>
-</tscreen>
-(this gives up to 500 cache files, try with more if everythings works
-fine.)
+(this gives up to 1500 cache files, try with more if everythings works
+fine. Initialization will take longer the more cache file you specifiy.)
 <item> When Venus prints  "Venus starting ..." run 
 <tscreen>
 <verb>
@@ -616,11 +646,6 @@ mount.exe N:
 </tscreen>
 This maps the Coda filesystem to the <tt>N:</tt> drive.
 </enum>
-
-<bf/NOTE:/ In some installations the DPMI DOS Extender window suspends when 
-it is not active. In this case untick the window property Properties->Misc->
-Background->Always Suspend. If it is unticked, ticking and unticking it again
-might help.
 
 You are now ready to browse through the Coda filesystem using the explorer!
 
@@ -639,6 +664,13 @@ This will stop <tt>relay.exe</tt> (if it is still running)  and unload
 <tt>codadev.vxd</tt> which was loaded by <tt>relay.exe</tt>.  
 </enum> 
 
+<sect2>Important Note<p>
+<bf/NOTE:/ In some installations the DPMI DOS Extender window suspends when 
+it is not active. In this case untick the window property 'Properties->Misc->
+Background->Always Suspend'. If it is unticked, ticking and unticking it again
+might help. Also untick the 'Termination' flag, to allow Coda to automatically
+shutdown, when the system shuts down. For your convenience tick the 'Close on
+Exit' check box in the 'Program' tab.
 
 <sect1> Codasrv -- the file server <label id="codasrv"><p>
 
@@ -1550,17 +1582,8 @@ ticking and unticking it again might help.
 
 <tag/Unable to shutdown Windows95./
 
-This occurs when the device <tt>codadev.vxd</tt> couldn't be unloaded on the 
-request issued by typing <tt>unmount.exe</tt>. <tt>relay.exe</tt> printed the 
-message
-
-<tscreen><verb>
-UNLOAD RESULT 0
-UNLOAD RESULT 8
-</verb></tscreen> 
-
-when the request was successful. There is no way out of this. Just 
-reboot your machine.
+Check the DOS Windows settings of Venus and Relay. The check box
+Properties->Misc->Termination must be unticked.
 
 <tag>I cannot reboot Windows95 and I think it is due to the VXDs loaded for
 Coda.</tag>
@@ -1603,22 +1626,29 @@ Look in the file <tt>c:\vxd.log</tt>. The file system driver
 <tt>codadev.vxd</tt> prints information about all requests and answers in this
 file. Check the requestnumbers to match with those in <tt>relay.log</tt>.
 
+<tag/I hook my running machine off the network and the explorer blocks.</tag>
+
+Venus switches to disconnected mode after a short timeout. After that it
+should work fine. If it doesn't, check if you have 'network connections' set
+up in the explorer (e.g. samba drive). 'Network connections' block your
+system, when no network is available.
+
 </descrip>
 </sect2>
 
 <sect2>Restrictions<p>
 <itemize>
 <item>
-<tt>hoard</tt>.exe does not work so far.
+Most command line tools, that talk to Venus through the ioctl interface of the
+Coda kernel module seem to work even when they print error messages.
 <item>
 Handling large files (in particular executables) does not work well in a low
 bandwidth scenario.
 <item>
-<tt>cfs.exe</tt> uses absolute pathnames so far.
+<tt>cfs.exe</tt> and <tt>hoard.exe</tt> use absolute pathnames so far.
 <item>
 Long filenames are not supported under DOS environment yet. You can access
 files, but you need to use the long filenames. 
-<item> Reintegration after disconnection does not work at present.
 </itemize> 
 
 </sect2>
@@ -2090,8 +2120,8 @@ NAME="ftp://ftp.microsoft.com/developr/drg/WinSock/MS-Extensions/VXDTDI.ZIP.">
 <bf>Note:</bf>The 95DDK needs the VC2.0 linker, which is on the 95DDK in the directory MSVC20 (also get the files Link.err and DBI.DLL, that will be needed by the linker). You'll also need the latest MS assembler 6.11 which is on the 95DDK in the directory MASM611C.
  
 The sources for the VxD's you will build are in: <URL
-URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/win95-coda-5.0.0.zip"
-NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/win95-coda-5.0.0.zip."> 
+URL="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/win95-coda-5.2.0.zip"
+NAME="ftp://ftp.coda.cs.cmu.edu/pub/coda/src/win95-coda-5.2.0.zip."> 
 To build sock.vxd you'll need the header files provided by microsoft
 and can be found in VXDTDI.ZIP.  You'll have to learn how to build
 VxDs, which can be done from Developer Studio:
@@ -2110,9 +2140,7 @@ VxDs, which can be done from Developer Studio:
 </itemize>
 
 Use the Developer Studio Project "95projects". Build the VXDs one by one.
-
-(If you fancy finishing off Michael's nice codastart project, make sure to let us
- know! It is not essential for now.)
+Build CodaStart for a more convenient way to stat Coda.
 
 <sect2> Installing Coda after build <p>
 <itemize>
