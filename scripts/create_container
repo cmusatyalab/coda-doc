@@ -7,7 +7,7 @@ if [ -f ${CFILE} ]; then
 fi
 
 cat > ${CFILE} <<END
-<!doctype linuxdoc SYSTEM "../../../dtd/linuxdoc.dtd" [
+<!doctype linuxdoc SYSTEM  [
 <!entity content SYSTEM 
 END
 
