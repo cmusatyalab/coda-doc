@@ -6,22 +6,22 @@ top_srcdir = @top_srcdir@
 VPATH = @srcdir@
 
 
-
-MANPAGEFILES = backuplogs.man \
-	dumpfile.man \
-	dumplist.man \
-	passwd_coda.man \
-	groups_coda.man \
-	maxgroupid.man \
-	multicastagents.man \
-	multicastgroups.man \
-	servers.man \
-	user_coda.man \
-	volumelist.man \
-	vrdb.man \
-	vrlist.man \
-	vsgdb.man \
-	vstab.man \
-	vicetab.man
+CH=5
+MANPAGEFILES = backuplogs.5 \
+	dumpfile.5 \
+	dumplist.5 \
+	passwd_coda.5 \
+	groups_coda.5 \
+	maxgroupid.5 \
+	multicastagents.5 \
+	multicastgroups.5 \
+	servers.5 \
+	user_coda.5 \
+	volumelist.5 \
+	vrdb.5 \
+	vrlist.5 \
+	vsgdb.5 \
+	vstab.5 \
+	vicetab.5
 
 include ../../Makerules

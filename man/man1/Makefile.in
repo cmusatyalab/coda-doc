@@ -7,17 +7,18 @@ VPATH = @srcdir@
 
 SUBDIRS = 
 
-MANPAGEFILES = cfs.man \
-               clog.man \
-               cmon.man \
-               cpasswd.man \
-               ctokens.man \
-               cunlog.man \
-               hoard.man \
-               mvdb.man \
-	       filcon.man \
-               repair.man \
-               spy.man \
+CH=1
+MANPAGEFILES = cfs.1 \
+               clog.1 \
+               cmon.1 \
+               cpasswd.1 \
+               ctokens.1 \
+               cunlog.1 \
+               hoard.1 \
+               mvdb.1 \
+	       filcon.1 \
+               repair.1 \
+               spy.1 \
 
 include ../../Makerules
 

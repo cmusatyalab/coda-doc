@@ -3,16 +3,7 @@ SHELL = /bin/sh
 srcdir = @srcdir@
 VPATH = @srcdir@
 
-man:
-	$(MAKE) -C man1 man
-	$(MAKE) -C man3 man
-	$(MAKE) -C man5 man
-	$(MAKE) -C man8 man
+SUBDIRS=man1 man3 man5 man8
 
-man-install:
-	$(MAKE) -C man1 man-install
-	$(MAKE) -C man3 man-install
-	$(MAKE) -C man5 man-install
-	$(MAKE) -C man8 man-install
-
+include ../Makerules
 

@@ -7,7 +7,7 @@ VPATH = @srcdir@
 SUBDIRS = 
 
 
-MANPAGEFILES = rdsinit.man rvmutl.man 
+MANPAGEFILES = rdsinit.1 rvmutl.1
 
 include ../../../Makerules
 

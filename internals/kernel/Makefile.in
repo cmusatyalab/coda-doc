@@ -3,7 +3,9 @@ SHELL = /bin/sh
 srcdir = @srcdir@
 VPATH = @srcdir@
 
-SUBDIRS=man1 man3
+PSDOCS=kernel-venus-protocol.ps
+HTMLDOCS=kernel-venus-protocol.html
+PPTDOCS=
 
 include ../../Makerules
 

@@ -1,0 +1,61 @@
+<!doctype linuxdoc SYSTEM "dtd/linuxdoc.dtd" [
+
+<!entity % latex "INCLUDE">
+<!entity % html  "IGNORE">
+<![ %latex; [ <!entity newpage PI "\newpage"> ]]>
+<![ %html; [ <!entity newpage PI "<HR>"> ]]>
+<!entity newpage PI "">
+]>
+
+<article>
+
+
+
+<title> Coda Documentation
+<author> old and new
+<date>March 1998
+
+<abstract> This is a collection of documents some of which are in
+progress. It includes PostScript and PowerPoint documents for
+downloading.  The HTML here, reflects the content of the PostScript
+documents.
+</abstract>
+
+<sect>Manuals and internals in HTML format <P> 
+
+<itemize>
+<item> <url url="index.html"  name="This document">
+<item> <url url="manual.html"  name="The Coda Administration and User Manual">
+<item> <url url="rvm_manual.html"  name="The RVM Manual">
+<item> <url url="admin.html"  name="Some short scribbles about the volume databases">
+<item> <url url="sec.html"  name="Notes and explanations about Coda securtiy.">
+<item> <url url="kernel-venus-protocol.html"  name="A detailed document about hthe kernel Venus interaction.">
+<item> <url url="codadir.html"  name="A document describing the new directory system we are implementing now.">
+<item> <url url="venus-ds.html"  name="A document describing the main Venus data structures">
+</itemize>
+
+<sect>Manuals and internals in PostScript format <P> 
+
+<itemize>
+<item> <url url="../ps/index.ps"  name="This document">
+<item> <url url="../ps/manual.ps"  name="The Coda Administration and User Manual">
+<item> <url url="../ps/rvm_manual.ps"  name="The RVM Manual">
+<item> <url url="../ps/admin.ps"  name="Some short scribbles about the volume databases">
+<item> <url url="../ps/kernel-venus-protocol.ps"  name="A detailed document about hthe kernel Venus interaction.">
+<item> <url url="../ps/sec.ps"  name="Notes and explanations about Coda securtiy.">
+<item> <url url="../ps/codadir.ps"  name="A document describing the new directory system we are implementing now.">
+<item> <url url="../ps/venus-ds.ps"  name="A document describing the main Venus data structures">
+</itemize>
+
+<sect>Powerpoint slides of some Coda meeting presentations <P> 
+
+<itemize>
+<item> <url url="../ppt/sysad1.ppt"  name="Slides about system administration">
+<item> <url url="../ppt/rpc2.ppt"  name="Internals of RPC2 (in progress)">
+<item> <url url="../ppt/rdsseg.ppt"  name="Rds internals">
+<item> <url url="../ppt/server.ppt"  name="Server internals (part one)">
+<item> <url url="../ppt/directories.ppt"  name="Summary of the new directory system.">
+</itemize>
+
+
+</article>

@@ -1,49 +1,86 @@
+DOCDIR=install
 
-mandir = @mandir@
+#mandir = @mandir@
+top_src=@top_srcdir@
 prefix = @prefix@
+mandir=$(prefix)/man
 
 create_container = $(top_srcdir)/scripts/create_container2
 
 all:   FORCE
-	echo "Targets are: man, manual-html, rvm_manual-html, manual-ps, rvm_manual.ps"
+	echo "Targets are: manpages, psdocs, htmldocs"
+	echo "Install tagets: man-install, ps-install, html-install, ppt-install"
 
+# debugging aid
 printenv: FORCE
-	echo $(MANPAGEFILES)
+	echo MANPAGEFILES: $(MANPAGEFILES)
+	echo SUBDIRS: $(SUBDIRS)
 
-man: $(MANPAGEFILES)
+# build the documents (rules below)
+manpages: $(MANPAGEFILES) $(SUBDIRS)
+	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
 
-manual-html: FORCE
-	cd $(top_srcdir)/manual ; sgml2html manual
+psdocs: $(PSDOCS) $(SUBDIRS)
+	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
 
-rvm_manual-html: FORCE
-	cd $(top_srcdir)/rvm ; sgml2html rvm_manual
+htmldocs: $(HTMLDOCS) $(SUBDIRS)
+	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
 
-manual-ps: FORCE
-	cd $(top_srcdir)/manual ; sgml2latex -o ps manual
+# install the docs
+ppt-install: $(PPTDOCS) $(SUBDIRS)
+	-mkdir -p $(DOCDIR)/ppt
+	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
+ifdef PPTDOCS
+	install  $(PPTDOCS) $(DOCDIR)/ppt
+endif
 
-rvm_manual-ps: FORCE
-	cd $(top_srcdir)/rvm ; sgml2latex -o ps rvm_manual
+ps-install: $(PSDOCS) $(SUBDIRS)
+	-mkdir -p $(DOCDIR)/ps
+	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
+ifdef PSDOCS
+	install  $(PSDOCS) $(DOCDIR)/ps
+endif
 
-doc-install: FORCE
-	-mkdir -p $(top_srcdir)/install/html/rvm_manual
-	-mkdir -p $(top_srcdir)/install/html/manual
-	install  $(top_srcdir)/manual/*html $(top_srcdir)/install/html/manual
-	install  $(top_srcdir)/rvm/*html $(top_srcdir)/install/html/rvm_manual
-	install  $(top_srcdir)/manual/manual.ps $(top_srcdir)/install
-	install  $(top_srcdir)/rvm/rvm_manual.ps $(top_srcdir)/install
+html-install: $(HTMLDOCS) $(SUBDIRS)
+	-mkdir -p $(DOCDIR)/html
+	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
+ifdef HTMLDOCS
+	install  *html $(DOCDIR)/html
+endif
 
-man-install: man
+man-install: manpages
+	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
+ifdef MANPAGEFILES
 	-mkdir -p $(prefix)/man
-	-mkdir -p $(prefix)/man/man1
-	install -m 644 -o root -g bin $(MANPAGEFILES) $(prefix)/man/man1
+	-mkdir -p $(prefix)/man/man$(CH)
+	install -m 644 -o root -g bin $(MANPAGEFILES) $(mandir)/man$(CH)
+endif
 
+install: ps-install ppt-install html-install man-install
+
+# clean
 clean:
-	rm -f *.sgml.cntr *.sgml.cntr.man *.man __tmp.sgml
+	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
+	rm -f *.sgml.cntr *.sgml.cntr.man *.man __tmp.sgml *.[0-9] *.html *.tex $(MANPAGES) $(PSDOCS)
+
+distclean: 
+	make clean
+	find . -name Makefile -exec rm {} \;
+	rm Makerules
+
+# rules
+%.html: %.sgml
+	sgml2html $?
+
+%.ps: %.sgml
+	sgml2latex -o ps $?
 
 %.sgml.cntr: %.sgml
 	  $(create_container) $?
 
-%.man: %.sgml.cntr
+%.1 %.2 %.3 %.4 %.5 %.8 %.man: %.sgml.cntr
 	mv $? __tmp.sgml
 	sgml2txt -man __tmp.sgml
 	mv __tmp.man $@
+
+FORCE:

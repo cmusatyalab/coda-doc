@@ -1,0 +1,18 @@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+SUBDIRS=admin\
+	kernel\
+	rpc2\
+	rvm\
+	security\
+	server\
+	venus\
+#	console\
+#	backup
+
+
+include ../Makerules
+

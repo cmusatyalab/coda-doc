@@ -1,12 +1,12 @@
 
+
 SHELL = /bin/sh
 srcdir = @srcdir@
 VPATH = @srcdir@
 
-man:
-	$(MAKE) -C man man
-
-man-install:
-	$(MAKE) -C man man-install
+SUBDIRS=man
+PSDOCS=rvm_manual.ps
+HTMLDOCS=rvm_manual.html
 
 
+include ../Makerules

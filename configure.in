@@ -12,4 +12,15 @@ man/man8/Makefile
 rvm/Makefile
 rvm/man/Makefile
 rvm/man/man1/Makefile
-rvm/man/man3/Makefile )
+rvm/man/man3/Makefile
+manual/Makefile
+internals/Makefile
+internals/admin/Makefile
+internals/kernel/Makefile
+internals/rpc2/Makefile
+internals/rvm/Makefile
+internals/security/Makefile
+internals/server/Makefile
+internals/venus/Makefile
+cmu/Makefile
+ )

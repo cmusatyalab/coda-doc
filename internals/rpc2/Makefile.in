@@ -3,7 +3,10 @@ SHELL = /bin/sh
 srcdir = @srcdir@
 VPATH = @srcdir@
 
-SUBDIRS=man1 man3
+PSDOCS=
+HTMLDOCS=
+
+PPTDOCS=rpc2.ppt
 
 include ../../Makerules
 

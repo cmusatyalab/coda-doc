@@ -3,20 +3,16 @@
 
 <!-- man(1) pages -->
 &newpage;<sect> cfs(1) <P>	&cfs;
-&newpage;<sect> clearstat(1) <P>&clrstat
 &newpage;<sect> clog(1) <P>	&clog
 &newpage;<sect> cmon(1) <P>	&cmon
 &newpage;<sect> cpasswd(1) <p>  &cpwd
 &newpage;<sect> ctokens(1) <P>	&ctokens
 &newpage;<sect> cunlog(1) <P>	&cunlog
-&newpage;<sect> dirRep(1) <P>	&dirRep
 &newpage;<sect> filcon(1) <P>   &filcon
-&newpage;<sect> heal(1) <P>	&heal
 &newpage;<sect> hoard(1) <P>	&hoard
 &newpage;<sect> mvdb(1) <P>	&mvdb
 &newpage;<sect> repair(1) <P>	&repair
 &newpage;<sect> spy(1) <P>	&spy
-&newpage;<sect> ttyfcon(1) <P>  &ttyfcon
 
 <!-- man(3) pages -->
 &newpage;<sect> histo(3) <P>	&histo		
@@ -45,13 +41,10 @@
 &newpage;<sect> au(8) <P>	&au
 &newpage;<sect> auth2(8) <P>	&auth2
 &newpage;<sect> authmon(8) <P>	&authmon
-&newpage;<sect> autoback(8) <P>	&autoback
 &newpage;<sect> backup(8) <P>	&backuplogs
 &newpage;<sect> bldvldb(8) <P>	&bldvldb
-&newpage;<sect> clone(8) <P>	&clone
 &newpage;<sect> crvol(8) <P>	&crvol
 &newpage;<sect> crvolrep(8) <P>	&crvolrep
-&newpage;<sect> fsckcoda(8) <P>	&fsckcoda
 &newpage;<sect> initpw(8) <P>	&initpw
 &newpage;<sect> makeftree(8) <P>&makeftree
 &newpage;<sect> merge(8) <P>	&merge
@@ -61,7 +54,6 @@
 &newpage;<sect> prgvolre(8) <P>	&prgvolre
 &newpage;<sect> pwd2pdb(8) <P>	&pwd2pdb
 &newpage;<sect> readdump(8) <P> &readdump
-&newpage;<sect> replay(8) <P>	&replay
 &newpage;<sect> srv(8) <P>	&srv
 &newpage;<sect> startserver(8) <P> &strsrver
 &newpage;<sect> updtclnt(8) <P>	&updtclnt

@@ -1,0 +1,11 @@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+SUBDIRS=
+PSDOCS=building.ps releaseeng.ps
+HTMLDOCS=building.html releaseeng.html
+
+include ../Makerules
+
