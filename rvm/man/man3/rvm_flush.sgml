@@ -1,53 +1,44 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="rvm&lowbar;flush" SECTNUM=3>
-<sect1>NAME 
- <P>rvm&lowbar;flush - flush log records to log file
-
-")
-@ToC(Contents="rvm&lowbar;flush")
-@IndexEntry(Key="rvm&lowbar;flush",Entry="rvm&lowbar;flush, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rvm&lowbar;flush",Text2="rvm&lowbar;flush")
-
-<sect1>synopsis
-<tt>#include "rvm.h"</tt>
-
-<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;flush ()</tt>
+<manpage TITLE="rvm_flush" SECTNUM=3>
+<mansect>NAME 
+ <P>rvm_flush - flush log records to log file
 
 
-<sect1>description<P>
-rvm&lowbar;flush makes visible the log flush operation, which
+<mansect>SYNOPSIS
+<p>
+<verb>
+#include "rvm.h"
+
+rvm_return_t rvm_flush ()
+</verb>
+
+<mansect>DESCRIPTION<P>
+rvm_flush makes visible the log flush operation, which
 moves transaction records
 to the log file and insures the permanence of the changes
 represented by those records.
 It is normally done with a transaction commit,
 but is available
 to the application if it wishes to schedule the flush after a sequence of
-no&lowbar;flush transactions.
+no_flush transactions.
 
-rvm&lowbar;flush is synchronous with the calling thread.
+rvm_flush is synchronous with the calling thread.
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
+<tag/RVM_SUCCESS/ success
+<tag/RVM_ELOG/ no log file has been specified
+<tag/RVM_EINIT/ RVM not initialized
+</descrip>
 
 
-<sect1>See also<P>
-<tt>rvm&lowbar;end&lowbar;transaction (3)</tt>
+<mansect>SEE ALSO<P>
+<tt>rvm_end_transaction (3)</tt>
 
 
-<sect1>author<P>
+<mansect>AUTHOR<P>
 Hank Mashburn
 
 

@@ -1,54 +1,43 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=3>
-<sect1>NAME 
- <P> - initialize a recoverable heap
+<manpage TITLE="rds_init_heap" SECTNUM=3>
+<mansect>NAME 
+ <P>rds_init_heap - initialize a recoverable heap
 
-")
-@ToC(Contents="rds&lowbar;init&lowbar;heap")
-@IndexEntry(Key="rds&lowbar;init&lowbar;heap",Entry="rds&lowbar;init&lowbar;heap, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rds&lowbar;init&lowbar;heap",Text2="rds&lowbar;init&lowbar;heap")
+<mansect>SYNOPSIS
+<p>
+<verb>
+#include "rds.h"
 
-<sect1>Synopsis
-<tt>#include "rds.h"</tt>
+int rds_init_heap (base, length, chunkSize, nlists, tid, err)
 
-<tt>int rds&lowbar;init&lowbar;heap (base, length, chunkSize, nlists, tid, err)</tt>
+char          *base;     /* base address of heap */
+unsigned long length;    /* length of heap */
+unsigned long chunkSize; /* size of allocation unit */
+unsigned long nlists;    /* number of allocation lists */
+rvm_tid_t     *tid;      /* pointer to transaction identifier */
+int           *err;      /* pointer to error return location */
+</verb>
 
-@Opt3(Name="<tt>char</tt>",Desc="<tt>*base</tt>",
-	Expl="base address of heap")
-@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>length</tt>",
-	Expl="length of heap")
-@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>chunkSize</tt>",
-	Expl="size of allocation unit")
-@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>nlists</tt>",
-	Expl="number of allocation lists")
-@Opt3(Name="<tt>rvm&lowbar;tid&lowbar;t</tt>",Desc="<tt>*tid</tt>",
-	Expl="pointer to transaction identifier")
-@Opt3(Name="<tt>int</tt>",Desc="*err",
-	Expl="pointer to error return location")
-
-
-<sect1>Description<P>
-<tt>rds&lowbar;init&lowbar;heap</tt> initializes a recoverable heap in the previously
+<mansect>DESCRIPTION<P>
+<tt>rds_init_heap</tt> initializes a recoverable heap in the previously
 mapped memory region specified by the address <tt>base</tt> and <tt>length</tt>
 parameters. 
 Allocation requests will be rounded up to an integral number of
 allocation units <tt>chunkSize</tt>, which is specified in bytes, and must
 be an integral multiple of <tt>sizeof (char *)</tt>, and be at least 
-<tt>RDS&lowbar;MIN&lowbar;CHUNK&lowbar;SIZE</tt>.
+<tt>RDS_MIN_CHUNK_SIZE</tt>.
 
 For rapid allocation, RDS maintains separate allocation lists for
 blocks of different sizes.  The sizes are integrals of <tt>chunkSize</tt>,
 beginning with 1 and extending to the number of lists specified by
-<tt>nlists</tt>, which must be at least <tt>RDS&lowbar;MIN&lowbar;FREE&lowbar;LISTS</tt>.  These
+<tt>nlists</tt>, which must be at least <tt>RDS_MIN_FREE_LISTS</tt>.  These
 lists are initially empty and the entire heap is 
-placed on the large block list as a single block.  <tt>rds&lowbar;malloc</tt> will
+placed on the large block list as a single block.  <tt>rds_malloc</tt> will
 split this block as required.
 
 If a number of blocks of specific sizes are required by the
-application, the function <tt>rds&lowbar;prealloc</tt> is provided for efficient
+application, the function <tt>rds_prealloc</tt> is provided for efficient
 pre-allocation.  It should be called immediately after initializing
 the heap.
 
@@ -61,30 +50,23 @@ Since this function is called only to initialize the heap, RDS assumes
 there is no concurrent access and does no internal locking.
 
 
-<sect1>Diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag>positive values,Desc</tag>
-<P></descrip>
+<tag/SUCCESS/ success
+<tag/ENO_ROOM/ heap length not long enough for heap structures
+<tag/EBAD_CHUNK_SIZE/ the chunk size is not large enough or is not a
+multiple of sizeof(char *)
+<tag/EBAD_LIST_LENGTH/ the number of free lists is not at least
+RDS_MIN_FREE_LISTS
+<tag/positive values/ RVM return codes
+</descrip>
 
 
-<sect1>See also<P>
-<tt>rds&lowbar;zap&lowbar;heap (3)</tt>, <tt>rds&lowbar;prealloc (3)</tt>
+<mansect>SEE ALSO<P>
+<tt>rds_zap_heap (3)</tt>, <tt>rds_prealloc (3)</tt>
 
 
-<sect1>Author<P>
+<mansect>AUTHOR<P>
 David C. Steere
 
 

@@ -1,86 +1,68 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=3>
-<sect1>NAME 
- <P> - map recoverable storage
+<manpage TITLE="rds_load_heap, rds_start_heap" SECTNUM=3>
+<mansect>NAME 
+ <P>rds_load_heap, rds_start_heap - map recoverable storage
 
-")
-@ToC(Contents="rds&lowbar;load&lowbar;heap")
-@IndexEntry(Key="rds&lowbar;load&lowbar;heap",Entry="rds&lowbar;load&lowbar;heap, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rds&lowbar;load&lowbar;heap",Text2="rds&lowbar;load&lowbar;heap")
-@ToC(Contents="rds&lowbar;start&lowbar;heap")
-@IndexEntry(Key="rds&lowbar;start&lowbar;heap",Entry="rds&lowbar;start&lowbar;heap, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rds&lowbar;start&lowbar;heap",Text2="rds&lowbar;start&lowbar;heap")
+<mansect>SYNOPSIS
+<p>
+<verb>
+#include "rds.h"
 
-<sect1>Synopsis
-<tt>#include "rds.h"</tt>
+int rds_load_heap (DevName, DevLength, staticAddr, err);
+char         *DevName;  /* name of heap segment */
+rvm_length_t DevLength; /* length of heap raw partition */
+char         **staticAddr; /* address of static region (out)*/
+int          *err;      /* pointer to error return location */
+   
 
-<tt>int rds&lowbar;load&lowbar;heap (DevName, DevLength, staticAddr, err)</tt>
-@Opt3(Name="<tt>char</tt>",Desc="<tt>*DevName</tt>",
-	Expl="name of heap segment")
-@Opt3(Name="<tt>rvm&lowbar;length&lowbar;t</tt>",Desc="<tt>DevLength</tt>",
-	Expl="length of heap raw partition")
-@Opt3(Name="<tt>char</tt>",Desc="<tt>**staticAddr</tt>",
-	Expl="address of static region &lsqb;out&rsqb;")
-@Opt3(Name="<tt>int</tt>",Desc="*err",
-	Expl="pointer to error return location")
+int rds_start_heap (staticAddr, err);
+char         **staticAddr; /* address of static region (out)*/
+int          *err;      /* pointer to error return location */
 
-<tt>int rds&lowbar;start&lowbar;heap (staticAddr, err)</tt>
-@Opt3(Name="<tt>char</tt>",Desc="<tt>**staticAddr</tt>",
-	Expl="address of static region")
-@Opt3(Name="<tt>int</tt>",Desc="*err",
-	Expl="pointer to error return location")
+</verb>
 
-
-<sect1>Description<P>
-<tt>rds&lowbar;load&lowbar;heap</tt> provides a convenient method of mapping the heap
+<mansect>DESCRIPTION<P>
+<tt>rds_load_heap</tt> provides a convenient method of mapping the heap
 segment and initializing RDS.  The name of the file or partition
 containing the recoverable heap is specified by <tt>DevName</tt>, and the
 length of the partition is specified in <tt>DevLength</tt>.  If the heap 
 is in a file, <tt>DevLength</tt> should be zero.
 
-<tt>rds&lowbar;load&lowbar;heap</tt> calls <tt>rvm&lowbar;load&lowbar;segment</tt> to map the heap.  This
+<tt>rds_load_heap</tt> calls <tt>rvm_load_segment</tt> to map the heap.  This
 requires that the heap file or partition be created with
-<tt>rds&lowbar;zap&lowbar;heap</tt> or <tt>rvm&lowbar;create&lowbar;segment</tt>, which is most conveniently
+<tt>rds_zap_heap</tt> or <tt>rvm_create_segment</tt>, which is most conveniently
 done with the <tt>rdsinit</tt> utility.
 After the heap is mapped, the address of the static region is returned
-in <tt>staticAddr</tt>.  <tt>rds&lowbar;start&lowbar;heap</tt> is automatically called to
+in <tt>staticAddr</tt>.  <tt>rds_start_heap</tt> is automatically called to
 initialize RDS.
 
 If the actual mapping of the heap and static regions is done by the
-application, <tt>rds&lowbar;start&lowbar;heap</tt> should be used to initialize RDS.  In this
+application, <tt>rds_start_heap</tt> should be used to initialize RDS.  In this
 case, the address of the static region must be specified to RDS in the
 <tt>staticAddr</tt> parameter.
 
 With either function, the version of RDS that the heap was built with
 is compared with the version of the currently linked RDS library.  
-If there is a mismatch, the error code <tt>EHEAP&lowbar;VERSION&lowbar;SKEW</tt> is returned.
+If there is a mismatch, the error code <tt>EHEAP_VERSION_SKEW</tt> is returned.
 
 Since these functions are called only to initialize the application,
 RDS assumes there is no concurrent access and does no internal locking.
 
 
-<sect1>Diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag>positive values,Desc</tag>
-<P></descrip>
+<tag/SUCCESS/ success
+<tag/EHEAP_VERSION_SKEW/ RDS heap and library have different versions
+<tag/positive values/ RVM return codes
+</descrip>
 
 
-<sect1>See also<P>
-<tt>rvm&lowbar;load&lowbar;segment (3)</tt>, <tt>rvm&lowbar;map (3)</tt>, <tt>rdsinit (1)</tt>
+<mansect>SEE ALSO<P>
+<tt>rvm_load_segment (3)</tt>, <tt>rvm_map (3)</tt>, <tt>rdsinit (1)</tt>
 
 
-<sect1>Author<P>
+<mansect>AUTHOR<P>
 David C. Steere
 
 

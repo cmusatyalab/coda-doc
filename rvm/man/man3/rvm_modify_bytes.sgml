@@ -1,92 +1,69 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=>
-<sect1>NAME 
- <P> - recoverable modifications to a segment
+<manpage TITLE="rvm_modify_bytes" SECTNUM=3>
+<mansect>NAME 
+ <P>rvm_modify_bytes - recoverable modifications to a segment
 
-")
-@ToC(Contents="rvm&lowbar;modify&lowbar;bytes")
-@IndexEntry(Key="rvm&lowbar;modify&lowbar;bytes",Entry="rvm&lowbar;modify&lowbar;bytes, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rvm&lowbar;modify&lowbar;bytes",Text2="rvm&lowbar;modify&lowbar;bytes")
+<mansect>SYNOPSIS
+<P>
+<verb>
+#include "rvm.h"
 
-<sect1>synopsis
-<tt>#include "rvm.h"</tt>
+rvm_return_t rvm_modify_bytes (tid,dest,src,length)
 
-<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;modify&lowbar;bytes (tid,dest,src,length)</tt>
+rvm_tid_t     *tid;    /* pointer to transaction identifier */
+char          *dest;   /* base address of modification range */
+char          *src;    /* base address of source range */
+unsigned long length;  /* number of bytes to modify */
 
-@Opt3(Name="<tt>rvm&lowbar;tid&lowbar;t</tt>",Desc="<tt>*tid</tt>",
-	Expl="pointer to transaction identifier")
-@Opt3(Name="<tt>char</tt>",Desc="<tt>*dest</tt>",
-	Expl="base address of modification range")
-@Opt3(Name="<tt>char</tt>",Desc="<tt>*src</tt>",
-	Expl="base address of source range")
-@Opt3(Name="<tt>unsigned long</tt>",Desc="<tt>length</tt>",
-	Expl="number of bytes to modify")
+</verb>
 
-
-<sect1>description<P>
-rvm&lowbar;modify&lowbar;bytes is used to modify recoverable memory in a transaction.
-The transaction must have been previously initiated with rvm&lowbar;begin&lowbar;transaction;
-otherwise RVM&lowbar;ETID is returned.
+<mansect>DESCRIPTION<P>
+rvm_modify_bytes is used to modify recoverable memory in a transaction.
+The transaction must have been previously initiated with rvm_begin_transaction;
+otherwise RVM_ETID is returned.
 
 The modification range is specified with the dest and length
 parameters, and
-must be in valid virtual memory or RVM&lowbar;ERANGE is returned.
+must be in valid virtual memory or RVM_ERANGE is returned.
 The source of new values is specified with src, and must be in
-valid virtual memory or RVM&lowbar;ESRC is returned.
+valid virtual memory or RVM_ESRC is returned.
 The range must also be within a single mapped region specified by the
-region parameter, or RVM&lowbar;ENOT&lowbar;MAPPED is returned.
+region parameter, or RVM_ENOT_MAPPED is returned.
 A range of zero length is ignored.
 
 Modification of different mapped regions in successive
-rvm&lowbar;modify&lowbar;bytes calls is permitted.
-Modifications can also be made with rvm&lowbar;set&lowbar;range, and both can be
+rvm_modify_bytes calls is permitted.
+Modifications can also be made with rvm_set_range, and both can be
 used in the same transaction as is convenient to the programmer.
 The modifications in virtual memory are visible to the program when
 the call returns.
 
-If the transaction was begun with the no&lowbar;restore mode, no old
+If the transaction was begun with the no_restore mode, no old
 value records will be created for the modification range, and
 an abort will not restore the state of virtual memory.
 If memory to create an old value record for the range cannot be allocated,
-RVM&lowbar;ENO&lowbar;MEMORY is returned.
+RVM_ENO_MEMORY is returned.
 
 
-<sect1>diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
+<tag/RVM_SUCCESS/ success
+<tag/RVM_ETID/ invalid transaction identifier or pointer
+<tag/RVM_ENOT_MAPPED/ virtual memory range not mapped
+<tag/RVM_ESRC/ invalid addrss range for new values
+<tag/RVM_ERANGE/ invalide virtual memory range
+<tag/RVM_ENO_MEMORY/ heap exhausted
+<tag/RVM_EINIT/ RVM not initialized
+</descrip>
 
 
-<sect1>See also<P>
-@Begin(Text,Justification Off)
-<tt>rvm&lowbar;begin&lowbar;transaction (3)</tt>, <tt>rvm&lowbar;set&lowbar;range (3)</tt>,
-<tt>rvm&lowbar;abort&lowbar;transaction (3)</tt>, and <tt>rvm&lowbar;end&lowbar;transaction (3)</tt>
-@End(Text)
+<mansect>SEE ALSO<P>
+<tt>rvm_begin_transaction (3)</tt>, <tt>rvm_set_range (3)</tt>,
+<tt>rvm_abort_transaction (3)</tt>, and <tt>rvm_end_transaction (3)</tt>
 
 
-<sect1>author<P>
+<mansect>AUTHOR<P>
 Hank Mashburn
 
 

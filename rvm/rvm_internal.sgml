@@ -1,33 +1,18 @@
-<!doctype linuxdoc system>
+<chapt>RVM Internals<label id="RVMinternals">
+<p>
+<em>By Yui Wah LEE</em>
 
-<article>
-
-<!-- Title information -->
-
-<title>RVM Internals
-<author>Yui Wah LEE (Clement), <tt/clement+@cs.cmu.edu/
-<date>v0.9, 15 June 1997
-<abstract>
-This article documents the internals of Recoverable Virtual Memory
-(RVM) systems developed by Carnegie Mellon University.  This is a draft.
-</abstract>
-
-<!-- Table of contents -->
-<toc>
-
-<!-- %%%%%%%%%%%%%%%%%%%% new section %%%%%%%%%%%%%%%%%%%%  -->
 <sect> Overview of RVM internal structure
 <p>
 RVM is designed to be a <em/run-time library/ to be linked with an
 <em/external application/.  It allows the application to be benefited
 from <em/transactional/ support.  In particular, it allows operations
-on virtual memory to be <em/atomic/ and/or
+on virtual memory to be <em/atomic/ and
 <em/persistent/, provided that the application declares its intention
 through the RVM application programming interface. 
 
-Figure <ref id="fig-overview"> shows the overview of the data space of
-an RVM application.  There are three important spaces:
-<em/virtual memory/, <em/data segment/ and <em/log/.
+Figure <ref id="fig_overview"> shows the three important components of
+RVM: <em/virtual memory/, <em/data segment/ and <em/log/.
 
 Virtual memory is where the application manipulates its data.  RVM
 allows the application to declare <em/regions/ of virtual memory to be
@@ -35,7 +20,7 @@ associated with regions in external data segments.  The data segments
 are the persistent backing store of the virtual memory regions: latest
 committed image of the virtual memory region has a copy in the data
 segments.  Since data segment is on stable storage (disk), it is
-persistent across program crashes.  Should the application crashes, it
+persistent across program crashes.  Should a application crashes, it
 can always find those memory regions from the data segment.  The
 association of virtual memory regions with segment regions is called
 <em/mapping/.
@@ -43,7 +28,7 @@ association of virtual memory regions with segment regions is called
 For performance reason, RVM does not write <em/directly/ the committed
 image of virtual memory regions back to the data segment.  Doing so
 would generate excessive 'seek' operations on the magnetic head of the
-disk where the data segment is stored, since the access pattern can be
+disk, since the access pattern can be
 random.  Disk head seeks are expensive operation and should be
 minimized.  In the case of RVM, this is achieved by writting <em/new
 value/ of memory ranges as <tt/records/ in an <em/append-only/,
@@ -53,21 +38,22 @@ values are written on log (flushed), they become persistent across
 program crashes.  From time to time, records on the log are processed
 and applied onto the data segment.  After that, the log space used by the
 the records can be re-claimed for further use. This is called <em/log
-truncation/.  Log truncation is necessary, without it the log will be
-filled up eventually:  for a finite memory region, repeated updates on
-it can create unbounded number of log records.
+truncation/.  Log truncation is necessary, without it the log will
+grow unboundedly.
 
 <figure>
-  <eps file="overview">
-  <caption><label id="fig-overview">Overview
+  <eps file="overview" height="9cm">
+  <caption><label id="fig_overview">Overview
   
 </figure>
 
 <!-- %%%%%%%%%%%%%%%%%%%% new section %%%%%%%%%%%%%%%%%%%%  -->
 <sect> RVM application programming interface
 <p>
-To facilitate our discussion, let first review briefly the RVM API.
-Details of RVM API can be found in the RVM manuals.
+To facilitate our discussion, let first review briefly the RVM
+application programming interface.  Details of the intefaces can be
+found in chapter <ref id="rvmAPI" name="of RVM Library Functions">
+
 <code>
 rvm_options_t   options;
 char            *version;
@@ -98,26 +84,27 @@ rvm_unmap(region);
 rvm_terminate();
 </code>
 Application declares regions of VM that it want to have persistent
-image by doing <tt/rvm_map()/.  There are two possible modes for
+image by calling <tt/rvm_map()/.  There are two possible modes for
 <tt/rvm_map()/: <tt/copy/ and <tt/no_copy/.  The former is the default
 and will cause the corresponding region in the segment device to be
 read into virtual memory.  The latter is used when the application is
-sure the image in segment device is useless (e.g. the application is
+sure the image in segment device is useless (e.g., the application is
 going to replace it immediately).
 
 Application declares the begining of a transaction by calling
 <tt/rvm_being_transaction()/.  The transaction can be committed by
-calling <tt/rvm_end_transaction()/, or the aborted by calling
-<tt/rvm_abourt_transaction()/.  In addition, the application must
+calling <tt/rvm_end_transaction()/, or be aborted by calling
+<tt/rvm_abort_transaction()/.  In addition, the application must
 inform RVM the memory location that will be affected by the
 transactions.  These can be done by calling <tt/rvm_set_range()/ or
 <tt/rvm_modify_bytes()/.  RVM guarantees that if the transaction
-commits, then all the modifications make on ranges declared will be
-made effective automatically, conversely, if the transaction abort,
+commits, then all the modifications make on declared ranges will be
+made effective atomically, conversely, if the transaction abort,
 then none of modifications will be made effective.
 
-Normally, when transactions are aborted, the old value in the affected
-memory ranges will be <em/restored/.  However, in some case, the
+Normally, when transactions are aborted, the <em/old value/ in the affected
+memory ranges will be <em/restored/.  So, a default option for
+<tt/rvm_begin_transaction/ is <tt/restore/.  However, in some case, the
 application can be sure that it will never abort the transaction.  For
 example, if there are no concurrent transaction, the application can
 be sure it will never abort the transaction explicitly.  For these
@@ -125,11 +112,10 @@ cases, the application can start the transaction with the
 <tt/no_restore/ mode.
 
 If the application want the committed transaction be also recorded in
-the log device (stable storage) <tt/immediately/, it should commit the
-transaction with <tt/flush/ mode.  In this mode, once the
-<tt/end_transaction()/ call returns only after the transaction records
-are written to disk.  The application can be sure the committed
-transaction is persistent across program crashes.  However, there are
+the log device (stable storage) <em/immediately/, it should commit the
+transaction with <tt/flush/ mode.  In this mode, the
+<tt/end_transaction()/ calls return only after the transaction records
+are written to disk.  However, there are
 cases when the application can accept slight chance of lose of
 permanency.  In those case, it can end the transaction with a
 <tt/no_flush/ mode.  There will be a big payoff in performance, as the
@@ -137,7 +123,7 @@ function <tt/rvm_end_transaction()/ will return immediately, without
 having to the wait for the slow disk I/O to complete.  RVM will put
 the committed transaction in a queue and write them out to the log
 device later.  This is called <em/lazy commit/ and it provides a
-<tt/bound persistence/.  The committed transactions may lost if the
+<em/bound persistence/.  The committed transactions may lost if the
 program crashed before the queued transaction get a chance to be
 written out to log.  Note that although the transaction is lost, it is
 lost atomically.  Upon the next restart of the application, RVM
@@ -147,16 +133,18 @@ Commit transaction lazily also give more opportunity to inter-
 transaction optimization.  
 
 To force all previously committed transaction records to be written
-out log device, the application can call <tt/rvm_flush()/.
-Alternative, the application can commit a new transaction with
-<tt/flush/ mode.   
+out to log device, the application can call <tt/rvm_flush()/.
+Also, whenever the application commit a new transaction with <tt/flush/
+mode, there will be a side effect that all previous transaction on the
+queue will also be flushed.
 
 The log device is only a temporary stable storage for commited
 transactions: its primary purpose is to allow records be written on
 disk sequentially.  Eventually, these records need to be applied to
 the data segment.  The process of applying transaction log records to
 data segment is called <em/log truncation/.  RVM will carry out log
-truncation automatically when the log is too full.  Alternatively, the
+truncation automatically when the log is too full.  Users can specify
+the option <tt/truncate/ to set the threshold.  Alternatively, the
 application can initiate a trunction by calling <tt/rvm_truncate()/.
 Also, note that RVM will do a log truncation upon start up and
 <tt/rvm_map()/ operations.  This is to ensure the data segment has the
@@ -187,18 +175,18 @@ the types of the log devices.  The two constants are currently 0 and
 
 Log records are appended sequentially on log area after the log status
 block.  The area starts from <tt/log_start/ and is of size
-<tt/log_size/.  (Fig <ref id="fig-log_struct">)
+<tt/log_size/.  (Fig <ref id="fig_log_struct">)
 
 <figure>
-  <eps file="log_struct">
-  <caption><label id="fig-log_struct">Structure of the log
+  <eps file="log_struct" height="8cm">
+  <caption><label id="fig_log_struct">Structure of the log
 </figure>
 
 As new records are appended, the log pointer <tt/log_tail/ will be
 advanced.  <tt/log_head/ point to the first record in the log that is
 not yet subjected to truncation (<em/current epoch/).  If truncation
 is not in progress, both of the pointers <tt/prev_log_head/ and
-<tt/prev_log_tail/ will have a zero value. (Fig 3b)
+<tt/prev_log_tail/ will have a zero value. (Fig <ref id="fig_log_trunc">b)
 
 Currently, the log are truncated in a way called <em/epoch
 truncation/.  In one atomic operation, the function <tt/new_epoch()/
@@ -208,15 +196,16 @@ epoch/ and are subject to truncation.  At the same time <tt/log_head/
 will be advanced to <tt/log_tail/, effectively resetting the
 <em/current epoch/ to be empty.  New log records may
 be appended by concurrent threads while truncation is in progress, and
-<tt/log_tail/ will advance to new position. (Fig 3a)
+<tt/log_tail/ will advance to new position. (Fig <ref id="fig_log_trunc">a)
 
 It is important to use the log pointer to delimit the log into
 truncation epoch and current epoch as we don't want the log truncation
 process to interfere with the log flushing process.  
 
 <figure>
-  <eps file="log_trunc">
+  <eps file="log_trunc" height="10cm">
   <caption>Truncation of the log
+  <label id="fig_log_trunc">
 </figure>
 
 If the truncation goes well and all the records are successfully
@@ -293,16 +282,17 @@ trans_hdr_t;
 end marker/.  They are the majority of records on the log.  Each
 transaction will be written in a sequence of records: it begins with a
 transaction header, follows by one or more sub-record (the new value
-range record) and ends with a record end marker (Fig 4). This is for
-the simple case when the transaction are not split by a wrap marker in
-between.  If the transaction is split by a wrap marker, it will have
-two sequences of records, each begins and ends with a transaction
-header and end marker.  Details of log wrapping will be discussed in
-section <ref id="log-wrap">.
+range record) and ends with a record end marker (Fig <ref
+id="fig_log_rec">). This is for the simple case when the transaction
+are not split by a wrap marker in between.  If the transaction is
+split by a wrap marker, it will have two sequences of records, each
+begins and ends with a transaction header and end marker.  Details of
+log wrapping will be discussed in section <ref id="log-wrap">.
 
 <figure>
-  <eps file="log_records">
+  <eps file="log_records" height="8cm">
   <caption>Transaction records
+  <label id="fig_log_rec">
 </figure>
 
 New value records have variable lengths, each of them begins with a
@@ -323,17 +313,18 @@ naming here). On the other hand, <tt/sub_rec_len/ is a <tt/backward/
 link to the previous sub-record.  In new value range header, there is
 the third lenght field: <tt/length/, it is the length of the actual
 data.  <tt/length/ may not be equal to <tt/rec_length/ because of the
-padding.  See Fig 5 for the details of those links.
+padding.  See Fig <ref id="fig_rec_link"> for the details of those links.
 
 <figure>
-  <eps file="record_links">
+  <eps file="record_links" height="7cm">
   <caption>Forward and backward links of records
+  <label id="fig_rec_link">
 </figure>
 
 The fourth possible record type that could be find on log is the wrap
 marker.  Note that wrapping may not happen exactly at the end of the
 log, it may happen a little bit earlier.  In the latter case, the
-bytes follow the wrap marker will all be written with value 0xff.
+bytes follow the wrap marker will all be written with value <tt/0xff/.
 
 The fifth possible record type is special log record.  Currently, the
 only special log record is segment mapping descriptor (of type
@@ -360,11 +351,13 @@ function <tt/wait_for_space()/ to force a truncation.
 
 Log wrapping can happens <em/between/ transaction.  In this case, it
 simply leave a wrap marker (of type <em/log_wrap_t/ and start a brand
-new transaction at the beginning of log <em/log_start/  (Fig 6a). 
+new transaction at the beginning of log <em/log_start/ (Fig <ref
+id="fig_wrap">a).
 
 <figure>
-  <eps file="wrapping">
+  <eps file="wrapping" height="18cm">
   <caption>Three different possible wrapping
+  <label id="fig_wrap">
 </figure>
 
 It can also happens <em/within/ a transaction.  There are two
@@ -385,7 +378,7 @@ indicates this situation.  The first transaction header will only have
 only have the <tt/LAST_ENTRY_FLAG/ set.  (If the whole sequence of
 records for the transaction is not interrupted by a log wrapping, both
 <tt/FIRST_ENTRY_FLAG/ and <tt/LAST_ENTRY_FLAG/ of the transaction
-header will be set.) (Fig 6b)
+header will be set.) (Fig <ref id="fig_wrap">b)
 
 For the latter case where a new value range is split, each of the two
 portion of the data will has its own new value range header.  The first
@@ -394,8 +387,8 @@ marker and a wrap marker.  The second transaction header are then
 written at <tt/log_start/, followed by the second portion of the
 splitted range.  The remaining new value records then follows.  There
 is a flag <tt/is_split/ in the new value record header indicates that
-this happens. (Fig 6c)  The <tt/flag/ FIRST_ENTRY_FLAG and
-LAST_ENTRY_FLAG will also be set as in the previous case.
+this happens. (Fig 6c)  The flag <tt/FIRST_ENTRY_FLAG/ and
+<tt/LAST_ENTRY_FLAG/ will also be set as in the previous case.
 
 
 <!-- %%%%%%%%%%%%%%%%%%%% new section %%%%%%%%%%%%%%%%%%%%  -->
@@ -550,8 +543,8 @@ RVM_CONDITION     code;
 <sect1> Important Data Structure
 <p>
 The following structure are all declared in the file
-<tt/rvm_private.h/, which is an overwhelmingly long file (1800 lines).
-However, the important data structures are the following.
+<tt/rvm_private.h/.  The important data structures are the
+following.
 
 <sect2> Segment Descriptor (<tt/seg_t/)
 
@@ -654,11 +647,12 @@ Upon returns of these two routines,
 <tt/log_buf->ptr/ will be the index into log buffer that
 corresponds the current log position, and <tt/log_buf->offset/ will 
 correspond to the log offset of byte 0 in log buffer.
-<tt/log_buf->offset/ will be sector aligned. (Figure 7)
+<tt/log_buf->offset/ will be sector aligned. (Figure <ref id="fig_log_buf">)
 
 <figure>
-  <eps file="log_buf">
+  <eps file="log_buf" height="18cm">
   <caption>log buffer and init_buffer()
+  <label id="fig_log_buf">
 </figure>
 
 The following is a typical sequence code in log truncation:
@@ -945,15 +939,5 @@ expecting (possibly means a corrupted log) the program will:
 </itemize>
 The latter treatment allow manual handling of log corruption via <tt/rvmutl/.
 
-<sect> Further Information
-<p>
-<itemize>
-<item> Satyanarayanan, M., Mashburn, H.H., Kumar, P., Steere,
-  D.C. and Kistler, J.J., Lightweight Recoverable Virtual Memory, ACM
-  Transactions on Computer Systems, Vol. 12, No. 1, Feb. 1994, pp 33-57.
-<item> Mashburn, H.H., Satyanarayanan, M., RVM Recoverable Virtual
-  Memory, Carnegie Mellon University.
-</itemize>
-
-</article>
+</chapt>
 

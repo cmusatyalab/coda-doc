@@ -1,49 +1,40 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=3>
-<sect1>NAME 
- <P> - RDS statistics functions
+<manpage TITLE="rds_statistics" SECTNUM=3>
+<mansect>NAME 
+ <P>rds_get_stats, rds_clear_stats, rds_print_stats - RDS statistics functions
 
-")
-@ToC(Contents="rds&lowbar;get&lowbar;stats")
-@ToC(Contents="rds&lowbar;print&lowbar;stats")
-@ToC(Contents="rds&lowbar;clear&lowbar;stats")
-@IndexEntry(Key="rds&lowbar;get&lowbar;stats",Entry="rds&lowbar;get&lowbar;stats, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rds&lowbar;get&lowbar;stats",Text2="rds&lowbar;get&lowbar;stats")
+<mansect>SYNOPSIS
+<p>
+<verb>
+#include "rds.h"
 
-<sect1>Synopsis
-<tt>#include "rds.h"</tt>
+int           rds_get_stats (stats);
+rds_stats_t   *stats; /* pointer to RDS statistics record */
 
-<tt>int rds&lowbar;get&lowbar;stats (stats)</tt>
-@Opt3(Name="<tt>rds&lowbar;stats&lowbar;t</tt>",Desc="<tt>*stats</tt>",
-	Expl="pointer to RDS statistics record")
+int           rds_clear_stats (err);
+int           *err;   /* pointer to error return location */
 
-<tt>int rds&lowbar;clear&lowbar;stats (err)</tt>
-@Opt3(Name="<tt>int</tt>",Desc="*err",
-	Expl="pointer to error return location")
+int           rds_print_stats();
+</verb>
 
-<tt>int rds&lowbar;print&lowbar;stats ()</tt>
-
-
-<sect1>Description<P>
+<mansect>DESCRIPTION<P>
 RDS maintains simple statistics about the recoverable heap and the
 allocations performed.  The statistics area is kept in the recoverable
 heap region and is initialized when the heap is initialized.  
 
-The statistics can be read by <tt>rds&lowbar;get&lowbar;stats</tt> into an <tt>rds&lowbar;stats&lowbar;t</tt>
+The statistics can be read by <tt>rds_get_stats</tt> into an <tt>rds_stats_t</tt>
 record for analysis by the application, or printed on <tt>stdout</tt> by
-<tt>rds&lowbar;print&lowbar;stats</tt>.
-<tt>rds&lowbar;get&lowbar;stats (stats)</tt> and <tt>rds&lowbar;print&lowbar;stats ()</tt> return error codes as the
+<tt>rds_print_stats</tt>.
+<tt>rds_get_stats (stats)</tt> and <tt>rds_print_stats ()</tt> return error codes as the
 value of the function rather than in a parameter.
 
 After heap initialization, the statistics area can be cleared by
-calling <tt>rds&lowbar;clear&lowbar;stats</tt>.
-<tt>rds&lowbar;clear&lowbar;stats</tt> simply zeroes the statistics area via an internal
+calling <tt>rds_clear_stats</tt>.
+<tt>rds_clear_stats</tt> simply zeroes the statistics area via an internal
 transaction.  The space 
 allocated and free counts will not be accurate if it is called after
-initializing the RDS heap.  Note that <tt>rds&lowbar;clear&lowbar;stats</tt> requires an
+initializing the RDS heap.  Note that <tt>rds_clear_stats</tt> requires an
 error return code as a parameter, while the others return the error
 status as the function value.
 
@@ -52,20 +43,15 @@ is a possibility of concurrent access to the statistics, the accesses
 must be serialized by the application.
 
 
-<sect1>Diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
+<tag/SUCCESS/ success
+<tag/EHEAP_INIT/ RDS not initialized
+<tag/EBAD_ARGS/ null RDS statistics record pointer
+</descrip>
 
 
-<sect1>Author<P>
+<mansect>AUTHOR<P>
 David C. Steere
 
 

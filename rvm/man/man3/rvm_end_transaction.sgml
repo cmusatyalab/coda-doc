@@ -1,78 +1,65 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="rvm&lowbar;end&lowbar;transaction" SECTNUM=3>
-<sect1>NAME 
- <P>rvm&lowbar;end&lowbar;transaction - commit transaction
-
-")
-@ToC(Contents="rvm&lowbar;end&lowbar;transaction")
-@IndexEntry(Key="rvm&lowbar;end&lowbar;transaction",Entry="rvm&lowbar;end&lowbar;transaction, function",
-	Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rvm&lowbar;end&lowbar;transaction",Text2="rvm&lowbar;end&lowbar;transaction")
-
-<sect1>synopsis
-<tt>#include "rvm.h"</tt>
-
-<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;end&lowbar;transaction (tid,mode)</tt>
-
-@Opt3(Name="<tt>rvm&lowbar;tid&lowbar;t</tt>",Desc="<tt>*tid</tt>",Expl="pointer to transaction identifier")
-@Opt3(Name="<tt>rvm&lowbar;trans&lowbar;mode&lowbar;t</tt>",Desc="<tt>mode</tt>",Expl="transaction commit mode")
+<manpage TITLE="rvm_end_transaction" SECTNUM=3>
+<mansect>NAME 
+ <P>rvm_end_transaction - commit transaction
 
 
-<sect1>description<P>
-rvm&lowbar;end&lowbar;transaction commits the changes made since the transaction
+<mansect>SYNOPSIS
+<p>
+<verb>
+#include "rvm.h"
+
+rvm_return_t rvm_end_transaction (tid,mode)
+
+rvm_tid_t         *tid;  /* pointer to transaction identifier */
+rvm_trans_mode_t  mode;  /* transaction commit mode */
+</verb>
+
+<mansect>DESCRIPTION<P>
+rvm_end_transaction commits the changes made since the transaction
 began.
 All transactions can be committed with this function, regardless of
 the mode they were begun with.
 The transaction identifier must refer to a previously initiated transaction
-or RVM&lowbar;ETID is returned.
+or RVM_ETID is returned.
 
-Two commit modes are recognized: flush and no&lowbar;flush.
+Two commit modes are recognized: flush and no_flush.
 In a flush commit, the new value records for the transaction are
 written (flushed) to the log file.
 Permanence is then guaranteed upon successful return.
 
-A no&lowbar;flush commit is faster than a commit with log flushing,
+A no_flush commit is faster than a commit with log flushing,
 but provides a weaker guarantee of permanence.
 The new value records are created, but not written to the log file.
 Permanence is guaranteed only when they are flushed to the log
 file.
 This can be done either by a flush-mode commit of another transaction,
-or by explicitly flushing the log with rvm&lowbar;flush.
+or by explicitly flushing the log with rvm_flush.
 An application can enhance performance by delaying the log flush (and permanence of changes) until a sequence of related transactions has
 been completed.
 Note that aborting the last transaction of such a sequence <em>will not</em>
 restore the original state of transactions previously committed with
-the no&lowbar;flush option.
+the no_flush option.
 RVM does not support nested transactions.
 
 
-<sect1>Diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
+<tag/RVM_SUCCESS/ success
+<tag/RVM_ETID/ invalid transaction identifier or pointer
+<tag/RVM_EMODE/ invalide transaction end mode
+<tag/RVM_EINIT/ RVM not initialized
+</descrip>
 
 
-<sect1>See also<P>
-@Begin(Text,Justification Off)
-<tt>rvm&lowbar;begin&lowbar;transaction (3)</tt>, <tt>rvm&lowbar;set&lowbar;range (3)</tt>, <tt>rvm&lowbar;modify&lowbar;bytes (3)</tt>, and
-<tt>rvm&lowbar;flush (3)</tt>
-@End(Text)
+<mansect>SEE ALSO<P>
+<tt>rvm_begin_transaction (3)</tt>, <tt>rvm_set_range (3)</tt>, <tt>rvm_modify_bytes (3)</tt>, and
+<tt>rvm_flush (3)</tt>
 
 
-<sect1>author<P>
+
+<mansect>AUTHOR<P>
 Hank Mashburn
 
 

@@ -1,19 +1,9 @@
-
-@NewPage()
-@PageHeading(Left="RVM: @Value(SectionTitle)",Right="RVM: @Value(SectionTitle)")
-@DraftPageFooting(Odd="T",Immediate="T",Left="@Value(SystemRelease)",
-	Center="@Value(Date)",Right="@Value(Page)")
-@DraftPageFooting(Even="T",Immediate="T",Left="@Value(Page)",
-	Center="@Value(Date)",Right="@Value(SystemRelease)")
-@Chapter(RDS, A Dynamic Heap Allocator for RVM)
-@Process(PageHeadings)
-<label id="rds">
-
-@Begin(FlushLeft, Size 12)
+<chapt>RDS, A Dynamic Heap Allocator for RVM <label id="RDS">
+<p>
 <em>Designed and programmed by David C. Steere</em>
-@End(FlushLeft)
 
-<sect1>Introduction to RDS<p>
+<sect>Introduction to RDS<p>
+
 
 The Recoverable Dynamic Storage (RDS) library provides
 a heap similar to that of the C library, although with persistence,
@@ -21,7 +11,7 @@ for RVM segments.
 Additional provisions for convenient initialization and reloading of
 the heap after shutdown or crash are included.
 
-RDS uses the Quick Fit method @Cite(QuickFit) for allocation.
+RDS uses the Quick Fit method <cite id="QuickFit"> for allocation.
 In this method, separate free lists are maintained for a specified
 number of sizes.  Most programs tend to repeatedly allocate a small
 number of distinct sized blocks.  Quick Fit avoids overhead by
@@ -33,7 +23,7 @@ The free list sizes are integer multiples of the
 <em>chunk size</em>, which is specified when the recoverable heap is created
 and cannot be modified thereafter except by re-initializing the heap.
 The chunk size must be an integral multiple of <tt>sizeof (char *)</tt>, and
-be at least <tt>RDS&lowbar;MIN&lowbar;CHUNK&lowbar;SIZE</tt>.
+be at least <tt>RDS_MIN_CHUNK_SIZE</tt>.
 The free lists are maintained in sizes of one chunk to <em>n</em> chunks,
 where <em>n</em> is the maximum number of free lists.  The
 number of lists is also specified at heap creation and cannot be
@@ -58,27 +48,27 @@ list with no attempt coalesce it with adjacent free blocks.
 Coalescing is deferred until an allocation request
 can not be satisfied.
 
-The allocation and deallocation functions, rds&lowbar;malloc and
-rds&lowbar;free, resemble malloc and
+The allocation and deallocation functions, rds_malloc and
+rds_free, resemble malloc and
 free, although they are modified for transactions.
 To help prevent fragmentation, RDS also provides for pre-allocation of
 pools of block sizes that the 
 application will repeatedly allocate with the function
-rds&lowbar;prealloc.
+rds_prealloc.
 
-The function rds&lowbar;load&lowbar;heap provides a convenient way to use the
+The function rds_load_heap provides a convenient way to use the
 RVM segment loader to 
 load the persistent heap and a statically allocated region.
-rds&lowbar;load&lowbar;heap will make the necessary RVM mapping
+rds_load_heap will make the necessary RVM mapping
 calls and initialize RDS.  When it completes, the
 allocations persistent data is ready for use.
 
 Initialization of an RDS heap is done with the function
-rds&lowbar;init&lowbar;heap.  A second function, rds&lowbar;zap&lowbar;heap, which calls
-rds&lowbar;init&lowbar;heap and rvm&lowbar;create&lowbar;segment, can be used to prepare a
-segment for loading via rds&lowbar;load&lowbar;heap.  However, heap
+rds_init_heap.  A second function, rds_zap_heap, which calls
+rds_init_heap and rvm_create_segment, can be used to prepare a
+segment for loading via rds_load_heap.  However, heap
 initialization is usually done with the utility rdsinit, which
-will prompt for the necessary parameters to call rds&lowbar;zap&lowbar;heap.
+will prompt for the necessary parameters to call rds_zap_heap.
 
 To assist in detecting buffer overruns and other memory clobbers, RDS
 puts special <em>guard</em> constants at the beginning and end of each
@@ -105,19 +95,19 @@ and are all positive values.  Success is always indicated by the code
 SUCCESS, which is defined to be zero.
 
 The header file giving all necessary definitions for RDS is
-included in Appendix <ref id="RVMheaders" name="XXX"> on p. @PageRef(rdsh).
+included in Appendix <ref id="RVMheaders" name="of C declarations">.
 
-<sect1>Transactions and RDS<p>
+<sect>Transactions and RDS<p>
 
 All functions in RDS use RVM transactions.  Some, particularly
-rds&lowbar;malloc and rds&lowbar;free, must interact with the applications
+rds_malloc and rds_free, must interact with the applications
 transactions, requiring some care from the caller.
 RDS does not hold its lock until after commit so that greater concurrency
 can possibly be achieved in Coda.  This is not generally recommended
 because it permits uncommitted state to be
 used by other than the calling transaction.
 See the notes on good programming practice with RVM, Section
-<ref id="GoodLocking" name="XXX">, p. @PageRef(GoodLocking).
+<ref id="GoodLocking" name="of Transactions in Critical Sections">.
 
 Since the lock is not held until commit, some additional
 complexity must be introduced to insure that allocation and
@@ -138,38 +128,57 @@ If context swaps must be allowed (frequently the case), a null
 transaction parameter must be specified.  This will force an internal
 transaction to be created by RDS.
 This transaction will be committed by RDS before the function returns.  
-In this case, if <tt>rds&lowbar;malloc</tt> is called and
+In this case, if <tt>rds_malloc</tt> is called and
 the application transaction requesting the allocation must abort, the
-block must be explicitly deallocated by a call to rds&lowbar;free.
+block must be explicitly deallocated by a call to rds_free.
 Otherwise, recoverable heap space will be lost.
 
 When the application deallocates blocks in a transaction
 that could later abort and context swaps are possible, two special
 functions are provided, 
-rds&lowbar;fake&lowbar;free and rds&lowbar;do&lowbar;free.  These functions manage an
+rds_fake_free and rds_do_free.  These functions manage an
 <em>intention list</em> that records the intended deallocations, but defers
 the actual deallocation until the application transaction is ready to
 commit.  If the transaction aborts, the intention list is discarded.
-The application must call rds&lowbar;fake&lowbar;free at the point where
+The application must call rds_fake_free at the point where
 the block would logically be freed, and then
- call rds&lowbar;do&lowbar;free
+ call rds_do_free
 immediately before committing the application transaction.
 The application must provide the intention list header, of type
-<tt>intentionList&lowbar;t</tt>; RDS will manage the actual list.
+<tt>intentionList_t</tt>; RDS will manage the actual list.
 
 Note that these methods are safe <em>only</em> in a coroutine thread
 environment.  If pre-emptive threads, or a multiprocessor, are required,
 RDS cannot safely be used.
 
+&newpage;
+&mrdsmloc;
 
-@Include(rds&lowbar;malloc.mss)
-@Include(rds&lowbar;free.mss)
-@Include(rds&lowbar;fake&lowbar;free.mss)
-@Include(rds&lowbar;init&lowbar;heap.mss)
-@Include(rds&lowbar;load&lowbar;heap.mss)
-@Include(rds&lowbar;zap&lowbar;heap.mss)
-@Include(rds&lowbar;prealloc.mss)
-@Include(rds&lowbar;statistics.mss)
-@Include(rdsinit.mss)
+&newpage;
+&mrdsfree; 
 
-</manpage>
+&newpage;
+&mrdsfake; 
+
+&newpage;
+&mrdsihp;  
+
+&newpage;
+&mrdslhp;  
+
+&newpage;
+&mrdszhp;  
+
+&newpage;
+&mrdsprea; 
+
+&newpage;
+&mrdsstat; 
+
+&newpage;
+&mrdsinit;
+
+&newpage;
+
+</chapt>
+

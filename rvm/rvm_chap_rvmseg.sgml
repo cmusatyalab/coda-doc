@@ -1,40 +1,28 @@
-
-@NewPage()
-@PageHeading(Left="RVM: @Value(SectionTitle)",Right="RVM: @Value(SectionTitle)")
-@DraftPageFooting(Odd="T",Immediate="T",Left="@Value(SystemRelease)",
-	Center="@Value(Date)",Right="@Value(Page)")
-@DraftPageFooting(Even="T",Immediate="T",Left="@Value(Page)",
-	Center="@Value(Date)",Right="@Value(SystemRelease)")
-@Chapter(RVM Segment Loader)
-@Process(PageHeadings)
-<label id="rvmseg">
-
-@Begin(FlushLeft, Size 12)
+<chapt>RVM Segment Loader<label id="RVMseg">
+<p>
 <em>Designed and programmed by David C. Steere</em>
-@End(FlushLeft)
-<!--2 lines-->
 
 The RVM segment loader provides a mechanism that allows a load map to
 be created for a segment.  Regions can then be mapped
 to specific virtual memory addresses or to virtual memory allocated by RVM
 in a single library call.  There are only two library
-functions: <tt>rvm&lowbar;create&lowbar;segment</tt> and <tt>rvm&lowbar;load&lowbar;segment</tt>.
+functions: <tt>rvm_create_segment</tt> and <tt>rvm_load_segment</tt>.
 
 To use the segment loader, a segment header must be created
-by <tt>rvm&lowbar;create&lowbar;segment</tt>.  The header, which occupies the first page of the
+by <tt>rvm_create_segment</tt>.  The header, which occupies the first page of the
 segment, the load map for regions defined within
-the segment, and a version identifier so that <tt>rvm&lowbar;load&lowbar;segment</tt> can
+the segment, and a version identifier so that <tt>rvm_load_segment</tt> can
 recognize suitable segments.  
 All region lengths must be integral multiple of the
 page size of the machine, which is available as the macro
-<tt>RVM&lowbar;PAGE&lowbar;SIZE</tt>.  Virtual memory addresses must be page-aligned.
+<tt>RVM_PAGE_SIZE</tt>.  Virtual memory addresses must be page-aligned.
 
 The load map is prepared in a vector of descriptors for the desired
-regions (type <tt>rvm&lowbar;region&lowbar;def&lowbar;t</tt>).  The descriptors specify just
+regions (type <tt>rvm_region_def_t</tt>).  The descriptors specify just
 two parameters:  the region length
 and the virtual memory address where the region is to be loaded.
 The offsets of the regions in the segment are assigned by
-<tt>rvm&lowbar;create&lowbar;segment</tt>. 
+<tt>rvm_create_segment</tt>. 
 If pointers are included in the data, a fixed virtual memory address must be
 specified so that the loader will place the region there at each
 loading.  If there are no pointers, the segment loader can be
@@ -50,20 +38,30 @@ will have to be a way to modify the pointers or rebuild the structures.
 
 The segment header establishes the load map for only that segment.
 If multiple segments are used, each must have its own header, and 
-<tt>rvm&lowbar;load&lowbar;segment</tt> must be called for each.
+<tt>rvm_load_segment</tt> must be called for each.
 
-The segment loader is used by the RDS allocator (see Chapter
-<ref id="rds), p. @PageRef(rds" name="XXX">)
-to automate loading of a persistent heap region and a statically
-allocated region.  A utility program is available to create the
-segment header and initialize the heap so that it is easily loaded.
+The segment loader is used by the RDS allocator (see Chapter <ref
+id="RDS" name="of RDS">) to automate loading of a persistent heap
+region and a statically allocated region.  A utility program is
+available to create the segment header and initialize the heap so that
+it is easily loaded.
 
 The header file giving all necessary definitions for the RVM segment
-loader is
-included in Appendix <ref id="RVMheaders" name="XXX"> on p. @PageRef(rvmsegh).
+loader is included in Appendix <ref id="RVMheaders" name="of C
+Declarations">.
+
+&newpage;&mcreaseg; 
+
+&newpage;
+&mloadseg;
+
+&newpage;
+
+</chapt>
 
 
-@Include(rvm&lowbar;create&lowbar;segment.mss)
-@Include(rvm&lowbar;load&lowbar;segment.mss)
 
-</manpage>
+
+
+
+

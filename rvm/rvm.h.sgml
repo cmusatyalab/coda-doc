@@ -1,41 +1,4 @@
-#ifndef _BLURB_
-#define _BLURB_
-/*
-
-     RVM: an Experimental Recoverable Virtual Memory Package
-			Release 1.3
-
-       Copyright (c) 1990-1994 Carnegie Mellon University
-                      All Rights Reserved.
-
-Permission  to use, copy, modify and distribute this software and
-its documentation is hereby granted (including for commercial  or
-for-profit use), provided that both the copyright notice and this
-permission  notice  appear  in  all  copies  of   the   software,
-derivative  works or modified versions, and any portions thereof,
-and that both notices appear  in  supporting  documentation,  and
-that  credit  is  given  to  Carnegie  Mellon  University  in all
-publications reporting on direct or indirect use of this code  or
-its derivatives.
-
-RVM  IS  AN  EXPERIMENTAL  SOFTWARE  PACKAGE AND IS KNOWN TO HAVE
-BUGS, SOME OF WHICH MAY  HAVE  SERIOUS  CONSEQUENCES.    CARNEGIE
-MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS" CONDITION.
-CARNEGIE MELLON DISCLAIMS ANY  LIABILITY  OF  ANY  KIND  FOR  ANY
-DAMAGES  WHATSOEVER RESULTING DIRECTLY OR INDIRECTLY FROM THE USE
-OF THIS SOFTWARE OR OF ANY DERIVATIVE WORK.
-
-Carnegie Mellon encourages (but does not require) users  of  this
-software to return any improvements or extensions that they make,
-and to grant Carnegie Mellon the  rights  to  redistribute  these
-changes  without  encumbrance.   Such improvements and extensions
-should be returned to Software.Distribution@cs.cmu.edu.
-
-*/
-
-static char *rcsid = "$Header$";
-#endif _BLURB_
-
+<verb>
 /*
 *                       Definitions for RVM
 *
@@ -88,7 +51,11 @@ static char *rcsid = "$Header$";
    8/23/96 by tilt */
 
 typedef enum { rvm_false = 0, rvm_true = 1 } rvm_bool_t;
-
+</verb>
+
+&newpage;
+
+<verb>
 /*  structure identifiers: rvm_struct_id_t
     codes placed in the first field of each
     structure instance to identify the object.
@@ -118,7 +85,9 @@ typedef enum
     rvm_last_mode                       /* internal use only */
     }
 rvm_mode_t;
-
+</verb>
+&newpage;
+<verb>
 /*  Function return codes:  rvm_return_t */
 typedef enum {
     RVM_SUCCESS = 0,                    /* success return code */
@@ -172,7 +141,9 @@ extern char *rvm_type C_ARGS
     ((
     rvm_struct_id_t     id              /* structure identifier */
     ));
-
+</verb>
+&newpage;
+<verb>
 /*  RVM basic length and offset types:
     these types are used throughout RVM to hide machine-dependent
     representations of maximum virtual memory region lengths and
@@ -223,7 +194,9 @@ rvm_offset_t;
 
 /* return length x as rvm_offset_t */
 #define RVM_LENGTH_TO_OFFSET(x) RVM_MK_OFFSET(0,(x))
-
+</verb>
+&newpage;
+<verb>
 /* rvm_offset_t and rvm_length_t arithmetic support */
 
 /* add rvm_offset to rvm_offset; returns result (x+y)
@@ -274,7 +247,9 @@ rvm_offset_t;
 #define RVM_OFFSET_EQL(x,y)     (((x).high == (y).high) && \
                                  ((x).low == (y).low))
 #define RVM_OFFSET_EQL_ZERO(x)  (((x).high == 0) && ((x).low == 0))
-
+</verb>
+&newpage;
+<verb>
 /* page-size rounding macros */
 
 /* return page size as rvm_length_t */
@@ -303,7 +278,9 @@ rvm_offset_t;
 /* return rvm_offset x rounded down to integral page-size offset */
 #define RVM_ROUND_OFFSET_DOWN_TO_PAGE_SIZE(x)  \
     rvm_rnd_offset_dn_to_page(&(x))
-
+</verb>
+&newpage;
+<verb>
 /* transaction identifier descriptor */
 typedef struct
     {
@@ -333,7 +310,9 @@ extern void rvm_free_tid C_ARGS
     ((
     rvm_tid_t       *tid                /* pointer to record to be copied */
     ));
-
+</verb>
+&newpage;
+<verb>
 /*  options descriptor:  rvm_options_t */
 typedef struct
     {
@@ -389,7 +368,9 @@ extern void rvm_free_options C_ARGS
     ((
     rvm_options_t   *options            /* pointer to record to be freed */
     ));
-
+</verb>
+&newpage;
+<verb>
 /*  region descriptor: rvm_region_t */
 typedef struct
     {
@@ -424,7 +405,9 @@ extern void rvm_free_region C_ARGS
     ((
     rvm_region_t *region                /* pointer to record to be freed */
     ));
-
+</verb>
+&newpage;
+<verb>
 /*
         Main Function Declarations
 */
@@ -468,7 +451,9 @@ extern rvm_return_t rvm_query C_ARGS
                                            descriptor [out] */
     rvm_region_t        *region         /* optional pointer to region descriptor */
     ));
-
+</verb>
+&newpage;
+<verb>
 /* begin a transaction */
 extern rvm_return_t rvm_begin_transaction C_ARGS
     ((
@@ -519,7 +504,9 @@ extern rvm_return_t rvm_create_log C_ARGS
     rvm_offset_t    *log_len,           /* length of log data area */
     long            mode                /* file creation protection mode */
     ));
-
+</verb>
+&newpage;
+<verb>
 /* underlying support functions for length, offset, and rounding macros
 
    *** use outside of the macros can compromise portability ***
@@ -569,3 +556,4 @@ extern rvm_offset_t rvm_rnd_offset_dn_to_page C_ARGS
 
 
 #endif RVM_VERSION
+</verb>

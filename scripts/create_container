@@ -1,0 +1,20 @@
+#!/bin/sh
+
+CFILE=$1.cntr
+
+if [ -f ${CFILE} ]; then
+  rm ${CFILE}
+fi
+
+cat > ${CFILE} <<END
+<!doctype linuxdoc SYSTEM "../../../dtd/linuxdoc.dtd" [
+<!entity content SYSTEM 
+END
+
+echo \"$1\" >> ${CFILE}
+
+cat >> ${CFILE} <<END
+>
+]>
+
+&content;

@@ -1,0 +1,12 @@
+--- man/mapping.orig	Sat May 24 22:22:15 1997
++++ man/mapping	Tue Sep 23 14:59:53 1997
+@@ -64,6 +64,9 @@
+ <sect1>		+	".SH "
+ </sect1>
+ 
++<mansect>	+	".SH "
++</mansect>
++
+ <heading>	
+ </heading>		"\n\n"
+ 

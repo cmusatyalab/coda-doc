@@ -1,105 +1,143 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=1-RDSINIT>
-<sect1>NAME 
- <P> - RDS heap initialization utility
+<manpage TITLE="rdsinit" SECTNUM=1-RDSINIT>
+<mansect>NAME 
+ <P>rdsinit - RDS heap initialization utility
 
-")
-@ToC(Contents="rdsinit")
-@IndexEntry(Key="rdsinit",Entry="rdsinit, command",Number)
-@Index2ndary(Key1="Commands",Text1="Commands",
-    	Key2="rdsinit",Text2="rdsinit")
+<mansect>SYNOPSIS
+<p>
 
-<sect1>Synopsis
-<tt>#include "rds.h"</tt>
+<bf/rdsinit/ <em/log/ <em/data_seg/
+<p>
+<bf/rdsinit/ <em/log/ <em/data_seg/ <em/datalen/ <em/saddr/
+  <em/hlen/ <em/slen/ <em/nl/ <em/chunk/
+<p>
+<bf/rdsinit/ <em/-f/ <em/log/ <em/data_seg/ <em/datalen/ <em/saddr/
+  <em/hlen/ <em/slen/ <em/nl/ <em/chunk/ 
+<p>
 
-<tt>rdsinit log&lowbar;file data&lowbar;file</tt>
-
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-
-
-<sect1>Description<P>
+<mansect>DESCRIPTION<P>
 <tt>rdsinit</tt> is a utility that constructs an initialized RDS heap in an
 RVM segment.  It is intended to create a structure that can be loaded
-by <tt>rds&lowbar;load&lowbar;heap</tt>.
+by <tt>rds_load_heap</tt>.
 
-Two command line parameters are required: the name of the RVM log
-file, which must have previously been initialized by <tt>rvmutl</tt>, and
-the name of the data segment file that will be initialized with an RDS
-heap.  If either is missing, a command line error is printed.  If the
-log file has not been initialized, an RVM error will result.
-A short message indicating RVM initialization succeeded is then
-printed.
+There are three different ways of using rdsinit.  General users are
+expected to use first two interactive modes, where users may supply
+parameters for the rds heap interactively or on command line
+arguments.  However, in both cases, users will be asked interactively
+to confirm their choice of parameters before rdsinit goes ahead to
+make any permanent change.  These are the preferred modes of using
+rdsinit.  Script writers, however, may prefer to supply all the
+parameters on the command line and <em/no/ confirmation required for
+those parameters.  This is accomodate in the third mode where an
+additional switch of -f (firm) is supplied on the command line.
 
-If the data file doesnt exist, or is a raw partition, <tt>rdsinit</tt>
-will prompt for the maximum length of the file, which, like all
-<tt>rdsinit</tt> numeric parameters,  can be entered
-in octal, decimal, or hexadecimal. If octal notation is used, the
-number must be preceded by <tt>0</tt>.  Hexadecimal notation is preceded by
-<tt>0x</tt>.  Decimal notation requires no prefix.
-RDS will initialize the segment to all zeroes, and print a completion
-message:
+In any case, two command-line parameters are always
+required: <tt/log/ and <tt/data_seg/.  The former is the name of the
+RVM log, which must have previously been initialized by
+<tt>rvmutl</tt>; the latter is the name of the data segment that will
+be initialized with an RDS heap.  If either is missing, a command line
+error is printed.  If the log has not been initialized, an RVM error
+will result.  A short message indicating RVM initialization succeeded
+is then printed.  Both the log and data segment can be regular files or
+raw partitions.
 
-<code>
-<tt>Enter the length of the file/device data&lowbar;file: nnnnnnn</tt>
-<tt>Going to initialize data file to zero, could take awhile.</tt>
-<tt>done.</tt>
-</code>
+After the name of log and data segment, there are six other numeric
+parameters required.  They are summarized here and will be
+explained one by one in the following paragraphs:
 
-<tt>rdsinit</tt> will then ask for the starting address of recoverable
-memory in virtual memory, which must be on a page
-boundary, the length of the heap, and the length of
-the statically allocated region, must be integrals of the system page
-size:
+<descrip>
+<tag/datalen/ Length of data segment
+<tag/saddr/   Starting address of rvm
+<tag/hlen/    Heap region length
+<tag/slen/    Static region length
+<tag/nl/      Number of lists of free block
+<tag/chunk/   Chunk size
+</descrip>
 
-<code>
-<tt>starting address of rvm: nnnnnnn</tt>
-<tt>heap len: nnnnnnn</tt>
-<tt>static len: nnnnnnn</tt>
-</code>
+While entering these six numeric parameters, either on command line on
+via the interactive prompt, users may use numeric number in
+hexadecimal, decimal or even octal notation.  Hexadecimal numbers are
+preceeded by <tt/Ox/, decimal numbers are preceeded by nothing and
+octal numbers are preceded by <tt/0/.
 
-If any parameter is entered incorrectly, <tt>rdsinit</tt> will print an
-error message and request reentry of the parameter.  The length of the
-segment will be checked to be sure the regions and segment header can
-be allocated.  If not, the segment length will be requested again.
+Special note for long time rdsinit user: the old rdsinit automatically
+assumed <tt/saddr/, <tt/hlen/ and <tt/slen/ parameters supplied on
+command lines are in hexidecimal and <em/did not/ require the prefix
+<tt/0x/.  <em/This is no longer true with this version of rdsinit./
 
-The heap region is allocated at starting address, which becomes the
-permanent address of the heap.  The static region will start at the
-starting address plus the heap length and is also permanent.  These
-addresses and lengths can only be changed by re-initialization of the
-segment. 
+Users specify the length of the data segment with the parameter
+<em/datalen/.  Again, old version of rdsinit did not require this
+parameter if the data segment was a regular file and it existed
+already at the time of running rdsinit.  This special case is
+eliminated: <em/length of data segment must to be supplied in all
+circumstances./
 
-Next, the two parameters for the free lists are requested:
+Starting address of rvm, or <em/saddr/, is where heap and static
+region will be mapped into virtual memory.  Heap region is located
+right at the starting address, while static region is located at
+starting address plus heap region length.  Users may need to have some
+knowledges of the overall layout of the virtual memory use by the
+system before they can make the right choice of starting address.  For
+example, the starting address of rvm must be much larger than the
+largest possible break point of your application, and it should not be
+in conflict other uses of virtual memory (such as use by shared
+libraries).  It must also be on a page boundary.  In CMU, we use
+0x20000000 (536870912) with Linux and BSD44, or 0x70000000 (1879048192)
+with Mach.  It is possible to choose other values, but you have to
+choose them carefully.
 
-<code>
-</code>
-<tt>nlists: nnn</tt>
-<tt>chunksize: nnn</tt>
+Length of regions of heap and static are specified by the parameter
+<em/hlen/ and <em/slen/ respectively.  They both must be integral
+multiple of pagesize of the system.  Also, the combined length of the
+two regions must be smaller than the length of data segment minus one
+extra page.
 
-Note that the chunk size must be an integral multiple of
-<tt>sizeof (char *)</tt>, and be at least <tt>RDS&lowbar;MIN&lowbar;CHUNK&lowbar;SIZE</tt>.
-The number of free lists, <tt>nlists</tt>, must be at least
-<tt>RDS&lowbar;MIN&lowbar;FREE&lowbar;LISTS</tt> (1).
+Note that the above three parameters: saddr, hlen, slen, are
+permanent.  They can't be changed without re-initizing (and
+brain-wiping) the data segment.
 
-Once all parameters are entered correctly, the segment load map and
-the heap will be created.
-If all goes well, the load map for the segment is printed and
-<tt>rdsinit</tt> terminates.  The heap is then ready for use.
+The next two parameters: <em/nl/ and <em/chunk/ are related to
+underlying structure of management of the heap.  RDS uses the Quick
+Fit method for heap allocation.  In this method, free blocks are
+maintained by a number of free lists, each list for one particular
+size of free blocks.  Specifically, there will be <tt/nl/ free lists,
+and each of them will have free blocks of size <tt/1..nl/ chunk
+respectively.
+
+Chunk size must be integral multiple of <tt>sizeof(char *)</tt>, and be at
+least <tt/RDS_MIN_CHUNK_SIZE/.  Number of lists must be at least
+<tt/RDS_MIN_FREE_LISTS/.      For example, a reasonable choice is to have
+100 free list with chunk size 32 bytes.
+
+Once all the parameters are chosen, rdsinit will ask user for
+confirmation before it goes ahead and make permanent change on the log
+and data segment.  Note in the following example that those numerical
+arguments are presented in both hexidecimal and decimal (in bracket).
+It is safe to quit at this point and no permanent changes will be made.
+<verb>
+The following parameters are chosen:
+   length of data segment:    0xf5000 (   1003520)
+  starting address of rvm: 0x20000000 ( 536870912)
+                 heap len:    0xf0000 (    983040)
+               static len:     0x4000 (     16384)
+                   nlists:       0x64 (       100)
+               chunk size:       0x20 (        32)
+Do you agree with these parameters ? (y|n|q) y
+</verb>
+
+If user supplied the -f (firm) switch on command line, this last
+confirmation will not show up.
 
 
-<sect1>See also<P>
-<tt>rds&lowbar;init&lowbar;heap (3)</tt>, <tt>rds&lowbar;load&lowbar;heap (3)</tt>, <tt>rds&lowbar;zap&lowbar;heap (3)</tt>,
-<tt>rvm&lowbar;create&lowbar;segment (3)</tt>, <tt>rvm&lowbar;load&lowbar;segment (3)</tt>, <tt>rvmutl (1)</tt>
+<mansect>SEE ALSO<P>
+<tt>rds_init_heap (3)</tt>, <tt>rds_load_heap (3)</tt>, <tt>rds_zap_heap (3)</tt>,
+<tt>rvm_create_segment (3)</tt>, <tt>rvm_load_segment (3)</tt>, <tt>rvmutl (1)</tt>
 
 
-<sect1>Author<P>
-David C. Steere
+<mansect>AUTHOR<P>
+David C. Steere, created man page <p>
+Yui W. Lee, modified (Sept 1997)
 
 
 </manpage>

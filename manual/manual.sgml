@@ -18,9 +18,7 @@
 <!entity files SYSTEM "file_list.sgml">
 <!entity problems SYSTEM "problems.sgml">
 <!entity expl SYSTEM "examples.sgml">
-
 ]>
-
 <report>
 
 <title>Coda File System &nl; User and System Administrators Manual
@@ -48,5 +46,6 @@
 &files;
 &problems;
 &expl;
+
 </report>
 

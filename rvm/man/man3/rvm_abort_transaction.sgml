@@ -1,55 +1,43 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=3>
-<sect1>NAME 
- <P> - abort specified transaction
+<manpage TITLE="rvm_abort_transaction" SECTNUM=3>
+<mansect>NAME 
+ <P>rvm_abort_transaction - abort specified transaction
 
-")
-@ToC(Contents="rvm&lowbar;abort&lowbar;transaction")
-@IndexEntry(Key="rvm&lowbar;abort&lowbar;transaction",Entry="rvm&lowbar;abort&lowbar;transaction,
-function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rvm&lowbar;abort&lowbar;transaction",Text2="rvm&lowbar;abort&lowbar;transaction")
+<mansect>SYNOPSIS
+<p>
+<verb>
+#include "rvm.h"
 
-<sect1>synopsis
-<tt>#include "rvm.h"</tt>
+rvm_return_t rvm_abort_transaction (tid)
 
-<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;abort&lowbar;transaction (tid)</tt>
+rvm_tid_t    *tid;   /* pointer to transaction identifier */
+</verb>
 
-@Opt3(Name="<tt>rvm&lowbar;tid&lowbar;t</tt>",Desc="<tt>*tid</tt>",
-	Expl="pointer to transaction identifier")
-
-
-<sect1>description<P>
-rvm&lowbar;abort&lowbar;transaction aborts the specified transaction.
+<mansect>DESCRIPTION<P>
+rvm_abort_transaction aborts the specified transaction.
 Transactions begun with any mode can be aborted with this function.
 All modifications to segments made in the course of the transaction are
 restored to their original values (unless the transaction was begun
-with the no&lowbar;restore) mode.
+with the no_restore) mode.
 
 The transaction identifier must refer to a previously initiated transaction
-or RVM&lowbar;ETID is returned.
+or RVM_ETID is returned.
 
 
-<sect1>Diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
+<tag/RVM_SUCCESS/ success
+<tag/RVM_ETID/ invalid transaction identifier or pointer
+<tag/RVM_EINIT/ RVM not initialized
+</descrip>
 
 
-<sect1>See also<P>
-<tt>rvm&lowbar;begin&lowbar;transaction (3)</tt>, <tt>rvm&lowbar;end&lowbar;transaction (3)</tt>
+<mansect>SEE ALSO<P>
+<tt>rvm_begin_transaction (3)</tt>, <tt>rvm_end_transaction (3)</tt>
 
 
-<sect1>author<P>
+<mansect>AUTHOR<P>
 Hank Mashburn
 
 

@@ -1,67 +1,60 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=3>
-<sect1>NAME 
- <P> - map segment region
+<manpage TITLE="rvm_map" SECTNUM=3>
+<mansect>NAME 
+ <P>rvm_map - map segment region
 
-")
-@ToC(Contents="rvm&lowbar;map")
-@IndexEntry(Key="rvm&lowbar;map",Entry="rvm&lowbar;map, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rvm&lowbar;map",Text2="rvm&lowbar;map")
+<mansect>SYNOPSIS
+<P>
+<verb>
+#include "rvm.h"
 
-<sect1>synopsis
-<tt>#include "rvm.h"</tt>
-
-<tt>typedef struct
+typedef struct
     &lcub;
-    char            *data&lowbar;dev;
-    rvm&lowbar;offset&lowbar;t    dev&lowbar;length;
-    rvm&lowbar;offset&lowbar;t    offset;
+    char            *data_dev;
+    rvm_offset_t    dev_length;
+    rvm_offset_t    offset;
     char            *vmaddr;
-    rvm&lowbar;length&lowbar;t    length;
-    bool            no&lowbar;copy;
+    rvm_length_t    length;
+    bool            no_copy;
     &rcub;
-rvm&lowbar;region&lowbar;t;</tt>
+rvm_region_t;
 
-<tt>typedef struct
+typedef struct
     &lcub;
-    char            *log&lowbar;dev;
+    char            *log_dev;
     long            truncate;
-    rvm&lowbar;length&lowbar;t    recovery&lowbar;buf&lowbar;len;
-    rvm&lowbar;length&lowbar;t    flush&lowbar;buf&lowbar;len;
-    rvm&lowbar;length&lowbar;t    max&lowbar;read&lowbar;len;
-    rvm&lowbar;length&lowbar;t    flags;
+    rvm_length_t    recovery_buf_len;
+    rvm_length_t    flush_buf_len;
+    rvm_length_t    max_read_len;
+    rvm_length_t    flags;
     &rcub;
-rvm&lowbar;options&lowbar;t;</tt>
+rvm_options_t;
 
-<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;map (region,options)</tt>
+rvm_return_t rvm_map (region,options)
 
-@Opt3(Name="<tt>rvm&lowbar;region&lowbar;t</tt>",Desc="<tt>*region</tt>",
-	Expl="pointer to a region descriptor &lsqb;in/out&rsqb;")
-@Opt3(Name="<tt>rvm&lowbar;options&lowbar;t</tt>",Desc="<tt>*options</tt>",
-	Expl="optional pointer to an options record")
+rvm_region_t    *region;  /* pointer to a region descriptor [in/out] */
+rvm_options_t   *options; /* optional pointer to an options record */
+</verb>
 
-
-<sect1>Description<P>
-rvm&lowbar;map moves a copy of all or part of the data in a data file
+<mansect>DESCRIPTION<P>
+rvm_map moves a copy of all or part of the data in a data file
 to virtual memory.
 Mapping is necessary before any transactions can be made on a segment.
 Data can be mapped in any integer multiple of page size that Unix allows.
 The only restriction is available space in virtual memory.
 
 To insure that the committed image of the data file is brought into
-memory, rvm&lowbar;map generally performs log truncation before mapping.
+memory, rvm_map generally performs log truncation before mapping.
 One advantage of this is that crash recovery is automatic with the first
 mapping after the crash.
 The application need do nothing to restore the state of recoverable
 storage.
 
-rvm&lowbar;map requires the name of the segment file to be specified in
+rvm_map requires the name of the segment file to be specified in
 the descriptor provided by the region parameter.
 If the region parameter does not point to a legitimate descriptor, or
-the segment file cannot be opened, RVM&lowbar;EREGION is returned.
+the segment file cannot be opened, RVM_EREGION is returned.
 
 The range to map is specified by the offset
 and length fields of the region descriptor.
@@ -69,13 +62,13 @@ The offset is rounded down to a page boundary, and the unrounded
 offset plus length is rounded up to a page boundary to determine the
 exact region mapped.
 The rounded offset plus length must
-lie at least partially within the segment or RVM&lowbar;EOFFSET is returned.
+lie at least partially within the segment or RVM_EOFFSET is returned.
 
 For file segments, if length is zero, the number of bytes
 remaining in the segment from the offset is assumed.
 Setting the offset and length to zero maps the entire segment.
 For raw partition segments, the length must be specified.
-If the range cannot be mapped due to size, RVM&lowbar;ERANGE will be returned.
+If the range cannot be mapped due to size, RVM_ERANGE will be returned.
 The rounded offset and the length of the region actually mapped are returned
 in the region descriptor, and should not be changed since the
 region descriptor will be the applications record of the mapping and
@@ -95,45 +88,46 @@ Interference between them can cause unreferenced virtual memory, but
 the results are always correct.
 To avoid such interference, try to do mapping allocations during
 application initialization, or other times when concurrency is minimal.
-Mach versions of RVM use vm&lowbar;allocate and do not suffer from
+Mach versions of RVM use vm_allocate and do not suffer from
 conflicts with malloc.
 
 When a buffer is allocated, its address is returned in vmaddr.
 If the buffer cannot be allocated due to space restrictions,
-RVM&lowbar;ENO&lowbar;MEMORY will be returned.
+RVM_ENO_MEMORY will be returned.
 
 When vmaddr is non-zero, it must refer to a page aligned buffer;
 the address specified is not rounded.
-If  vmaddr specifies an invalid address, RVM&lowbar;ERANGE will be returned.
+If  vmaddr specifies an invalid address, RVM_ERANGE will be returned.
 
 Mapping buffers must not overlap in virtual memory.
 Neither can the same region of a segment be mapped twice by the same process.
-In these cases, RVM&lowbar;EVM&lowbar;OVERLAP or RVM&lowbar;EOVERLAP will be returned.
+In these cases, RVM_EVM_OVERLAP or RVM_EOVERLAP will be returned.
 If an application splits objects across page boundaries, it must make
 sure the pages are mapped so that such objects can be accessed.
 
 If any error is encountered, no buffer is allocated, no data mapped,
 and no modifications are made to the region descriptor.
 
-An optional rvm&lowbar;options record can be specified with the
+An optional rvm_options record can be specified with the
 options parameter.
-If options is not zero, and points to a valid rvm&lowbar;options record, the
+If options is not zero, and points to a valid rvm_options record, the
 options specified will be used in the mapping.
-The options available are described on p. @PageRef(OptDef).
+Please refer to the RVM manual (section RVM option descriptor) for
+details for the available options.
 Options that must be specified on the first mapping only will be ignored
 on mappings of other regions of the same segment.
 If options is not zero and does not point to a valid record,
-RVM&lowbar;EOPTIONS will be returned.
+RVM_EOPTIONS will be returned.
 
 If this is the first mapping of a segment and a Mach version of RVM is
 running then the pager field of the options record is checked.
 If it is not the null string,
-rvm&lowbar;map will attempt to load the file specified into a forked task as an
+rvm_map will attempt to load the file specified into a forked task as an
 external pager and initialize it.
 If either the load fails or the task cannot be properly initialized as
-an external pager, RVM&lowbar;EPAGER is returned.
+an external pager, RVM_EPAGER is returned.
 Any task created will be destroyed if an error is reported.
-If successful, rvm&lowbar;map returns and pages will be copied on demand
+If successful, rvm_map returns and pages will be copied on demand
 by the external pager.
 The external pager backs all mapped regions of the segment, and will be in
 effect until the last region is unmapped.
@@ -142,10 +136,10 @@ references to the data in the region are sparse.
 
 If RVM is running on Unix, or the pager field is a
 null pointer, the mapped region is copied into virtual memory in total.
-If on Mach, the inheritance property of pages will be set to VM&lowbar;INHERIT&lowbar;NONE
+If on Mach, the inheritance property of pages will be set to VM_INHERIT_NONE
 and it recommended that this not be changed.
 
-If the no&lowbar;copy field is set in the region record, the data
+If the no_copy field is set in the region record, the data
 for the mapped region will not be copied to virtual memory.
 This is true with or without the external pager.
 This option can be used when it is known that the data will be
@@ -157,70 +151,46 @@ However, the application can change this if desired by making the
 appropriate kernel calls.
 
 A disk transfer error can result in corrupting a buffer, so applications
-must not assume anything about data in an existing buffer unless rvm&lowbar;map
+must not assume anything about data in an existing buffer unless rvm_map
 returns successfully.
-If a transfer error occurs,RVM&lowbar;EIO will be returned and length
+If a transfer error occurs,RVM_EIO will be returned and length
 will be set to zero, and errno will contain the error number
 returned by the failing I/O call.
 
 Mapping requires allocation of internal structures.
-If these cannot be allocated, RVM&lowbar;ENO&lowbar;MEMORY is returned and no
+If these cannot be allocated, RVM_ENO_MEMORY is returned and no
 data mapped.
 
 
-<sect1>diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
+<tag/RVM_SUCCESS/ success
+<tag/RVM_EREGION/ invalid region descriptor or pointer
+<tag/RVM_EOFFSET/ invalid offset
+<tag/RVM_ERANGE/ invalid virtual memory range
+<tag/RVM_EOVERLAP/ region overlaps existing segment mapping
+<tag/RVM_EVM_OVERLAP/ region overlaps existing virtual memory mapping
+<tag/RVM_EOPTIONS/ invalid options record or pointer
+<tag/RVM_EIO/ transfer error or segment file cannot be opened, errno
+has code number
+<tag/RVM_EPAGER/ invalid external pager
+<tag/RVM_ENO_MEMORY/ heap exhausted, or buffer cannot be allocated
+<tag/RVM_ENOT_MAPPED/ file to be mapped has zero length
+<tag/RVM_ELOG/ no log file has been specified or invalid file name
+<tag/RVM_EINIT/ RVM not initialized
+</descrip>
 
 
-<sect1>See also<P>
-<tt>rvm&lowbar;unmap (3)</tt>, <tt>rvm&lowbar;set&lowbar;options (3)</tt>, <tt>rvm&lowbar;query (3)</tt>,
-<tt>rvm&lowbar;create&lowbar;segment</tt>, and <tt>rvm&lowbar;load&lowbar;segment</tt>
+<mansect>SEE ALSO<P>
+<tt>rvm_unmap (3)</tt>, <tt>rvm_set_options (3)</tt>, <tt>rvm_query (3)</tt>,
+<tt>rvm_create_segment</tt>, and <tt>rvm_load_segment</tt>
 
 
-<sect1>Author<P>
+<mansect>AUTHOR<P>
 Hank Mashburn
 
 
-<sect1>Bugs<P>
+<mansect>BUGS<P>
 There is no provision for extending a mapped region.
 
 

@@ -1,110 +1,94 @@
+<manpage TITLE="rvm_initialize" SECTNUM=3>
+<mansect>NAME 
+ <P>rvm_initialize - RVM initialization
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=3>
-<sect1>NAME 
- <P> - RVM initialization
+<mansect>SYNOPSIS
+<P>
+<verb>
+#include "rvm.h"
 
-")
-@ToC(Contents="rvm&lowbar;initialize")
-@IndexEntry(Key="rvm&lowbar;initialize",Entry="rvm&lowbar;initialize, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rvm&lowbar;initialize",Text2="rvm&lowbar;initialize")
-@IndexEntry(Key="rvm&lowbar;init",Entry="rvm&lowbar;init, macro",Number)
-@Index2ndary(Key1="Macros",Text1="Macros",
-    	Key2="rvm&lowbar;init",Text2="rvm&lowbar;init")
-
-<sect1>synopsis
-<tt>#include "rvm.h"</tt>
-
-<tt>typedef struct
-    &lcub;
-    char            *log&lowbar;dev;
+typedef struct
+    {
+    char            *log_dev;
     long            truncate;
-    rvm&lowbar;length&lowbar;t    recovery&lowbar;buf&lowbar;len;
-    rvm&lowbar;length&lowbar;t    flush&lowbar;buf&lowbar;len;
-    rvm&lowbar;length&lowbar;t    max&lowbar;read&lowbar;len;
-    rvm&lowbar;length&lowbar;t    flags;
-    &rcub;
-rvm&lowbar;options&lowbar;t;</tt>
+    rvm_length_t    recovery_buf_len;
+    rvm_length_t    flush_buf_len;
+    rvm_length_t    max_read_len;
+    rvm_length_t    flags;
+    }
+rvm_options_t;
 
-<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;initialize (version, options)</tt>
-<tt>rvm&lowbar;return&lowbar;t RVM&lowbar;INIT (options)</tt>
+rvm_return_t rvm_initialize (version, options)
+rvm_return_t RVM_INIT (options)
 
-@Opt3(Name="<tt>char</tt>",Desc="<tt>*version</tt>",
-	Expl="RVM library version")
-@Opt3(Name="<tt>rvm&lowbar;options&lowbar;t</tt>",Desc="<tt>*options</tt>",
-	Expl="pointer to a RVM options record")
+char          *version;   /* RVM library version */
+rvm_options_t *options;   /* pointer to a RVM options record */
 
+</verb>
 
-<sect1>Description<P>
-rvm&lowbar;initialize must be called once to initialize the RVM library, and
+<mansect>DESCRIPTION<P>
+rvm_initialize must be called once to initialize the RVM library, and
 must be called before any other RVM function.
 Without successful initialization, any call to RVM functions except
-rvm&lowbar;initialize
-will result in the error return RVM&lowbar;EINIT.
-Multiple calls to rvm&lowbar;initialize are ignored.
-However, rvm&lowbar;initialize cannot be used to restart RVM after
-rvm&lowbar;terminate has been called.
+rvm_initialize
+will result in the error return RVM_EINIT.
+Multiple calls to rvm_initialize are ignored.
+However, rvm_initialize cannot be used to restart RVM after
+rvm_terminate has been called.
 
 The version parameter is used to detect version skews.
-The string constant RVM&lowbar;VERSION from rvm.h is passed to
-rvm&lowbar;initialize, and compared with 
+The string constant RVM_VERSION from rvm.h is passed to
+rvm_initialize, and compared with 
 the value from the header file the library was compiled with.
-If they are different, RVM&lowbar;EVERSION&lowbar;SKEW is returned and RVM will
+If they are different, RVM_EVERSION_SKEW is returned and RVM will
 not initialize. 
 
 RVM operation option choices are specified with the options parameter.
-A options record created with typedef rvm&lowbar;options&lowbar;t must be used.
-RVM&lowbar;EOPTIONS will be returned if options does not point to a valid
+A options record created with typedef rvm_options_t must be used.
+RVM_EOPTIONS will be returned if options does not point to a valid
 record.
 
 The name of the log file must be specified in the options record.
 If either the name is not provided, or the file cannot be opened and
-initialized, RVM&lowbar;ELOG will be returned.
+initialized, RVM_ELOG will be returned.
 If options other than the log file are not specified, defaults will
 be assumed.
-These can be changed later with rvm&lowbar;set&lowbar;options.
+These can be changed later with rvm_set_options.
 
-rvm.h defines a macro, RVM&lowbar;INIT, with a single parameter for
-the options, that calls rvm&lowbar;initialize and automatically passes
-RVM&lowbar;VERSION.
+rvm.h defines a macro, RVM_INIT, with a single parameter for
+the options, that calls rvm_initialize and automatically passes
+RVM_VERSION.
 This is the best way to initialize RVM.
 
 
-<sect1>diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
+<tag/RVM_SUCCESS/
+success
+<P>
+<tag/RVM_EVERSION_SKEW/
+RVM library version skew
+<tag/RVM_ELOG/
+invalid log file
+<tag/RVM_EIO/
+I/O or kernel error, errno has code number
+<tag/RVM_EOPTIONS/
+invalid RVM options record or pointer
+<tag/RVM_ENO_MEMORY/
+heap exhausted
+<tag/RVM_EINIT/
+RVM previously terminated
+<tag/RVM_EPORTABILITY/
+internal portability problem, see system maintainer
+</descrip>
 
 
-<sect1>See also<P>
-<tt>rvm&lowbar;terminate (3)</tt>, <tt>rvm&lowbar;set&lowbar;options (3)</tt>, <tt>rvm&lowbar;query (3)</tt>
+<mansect>SEE ALSO<P>
+<tt>rvm_terminate (3)</tt>, <tt>rvm_set_options (3)</tt>, <tt>rvm_query (3)</tt>
 
 
-<sect1>author<P>
+<mansect>AUTHOR<P>
 Hank Mashburn
 
 

@@ -1,24 +1,20 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="rvm&lowbar;truncate" SECTNUM=3>
-<sect1>NAME 
- <P>rvm&lowbar;truncate - truncate the log
-
-")
-@ToC(Contents="rvm&lowbar;truncate")
-@IndexEntry(Key="rvm&lowbar;truncate",Entry="rvm&lowbar;truncate, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rvm&lowbar;truncate",Text2="rvm&lowbar;truncate")
-
-<sect1>synopsis
-<tt>#include "rvm.h"</tt>
-
-<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;truncate ()</tt>
+<manpage TITLE="rvm_truncate" SECTNUM=3>
+<mansect>NAME 
+ <P>rvm_truncate - truncate the log
 
 
-<sect1>description<P>
-rvm&lowbar;truncate makes visible the log truncation operation.
+<mansect>SYNOPSIS
+<p>
+<verb>
+#include "rvm.h"
+
+rvm_return_t rvm_truncate ()
+</verb>
+
+<mansect>DESCRIPTION<P>
+rvm_truncate makes visible the log truncation operation.
 When the log is truncated, records for committed changes are used to update the
 committed images of modified segments.
 After modified data files are successfully updated, the records can
@@ -27,11 +23,11 @@ be deleted and the log "truncated."
 Like log flushing, this operation is usually performed implicitly by RVM,
 but is available to the application if it wishes to
 schedule the operation itself.
-rvm&lowbar;truncate performs a flush before truncating, and is
+rvm_truncate performs a flush before truncating, and is
 synchronous with the calling thread.
 
-rvm&lowbar;truncate requires virtual memory working space.
-If this space cannot be allocated, RVM&lowbar;ENO&lowbar;MEMORY is returned, and
+rvm_truncate requires virtual memory working space.
+If this space cannot be allocated, RVM_ENO_MEMORY is returned, and
 the truncation is aborted.
 If possible, the application can deallocate as much memory as possible
 and retry the truncation.
@@ -39,30 +35,21 @@ This can done as many times as necessary.
 If no memory can be freed, this error should be considered fatal.
 
 
-<sect1>DIAGNOSTICS<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag><tt>RVM&lowbar;EINIT</tt></tag>RVM not initialized.
-<P></descrip>
+<tag/RVM_SUCCESS/ success
+<tag/RVM_ENO_MEMORY/ heap exhausted
+<tag/RVM_EIO/ I/O or kernel error, errno has code number
+<tag/RVM_ELOG/ no log file has been specified
+<tag/RVM_EINIT/ RVM not initialized
+</descrip>
 
 
-<sect1>See also<P>
-<tt>rvm&lowbar;flush (3)</tt>
+<mansect>SEE ALSO<P>
+<tt>rvm_flush (3)</tt>
 
 
-<sect1>author<P>
+<mansect>AUTHOR<P>
 Hank Mashburn
 
 

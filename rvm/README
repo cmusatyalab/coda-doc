@@ -1,0 +1,179 @@
+
+	      =========================================
+	      README for RVM documentations source area
+	      =========================================
+
+Yui Wah Lee (clement+@cs.cmu.edu)  Sept 24, 97
+
+[0] The whole RVM documentation are now in SGML format, from which we can
+    generate documents of at least three different formats:
+
+      a) latex (and hence dvi, postscript and hardcopy)
+      b) html  
+      c) man page 
+
+[1] Replacement files
+
+We assume you use the sgml-tools from Matt Welsh.  There are some
+minimum changes required on the replacement files.  To be able to
+generate latex and manpage files from the sgml, you need to apply the
+following two patches to your replacement files in sgml-tools.
+Assuming that your replacement files are placed in the directories
+"/usr/lib/sgml-tools/rep", you need to do the following (you need to
+be root):
+
+  # cd /usr/lib/sgml-tools/rep
+  # patch < latex2e.patch
+  # patch < man.patch
+
+latex2e.patch
+------------------------------------------------------------------
+--- latex2e/mapping.orig        Sat May 24 22:22:15 1997
++++ latex2e/mapping     Tue Sep 23 14:56:37 1997
+@@ -136,6 +136,9 @@
+ <sect1>                +       "\n\\subsection"
+ </sect1>
+ 
++<mansect>              +       "\n\\subsection*"
++</mansect>
++
+ <sect2>                +       "\n\\subsubsection"
+ </sect2>
+ 
+------------------------------------------------------------------
+
+man.patch
+------------------------------------------------------------------
+--- man/mapping.orig    Sat May 24 22:22:15 1997
++++ man/mapping Tue Sep 23 14:59:53 1997
+@@ -64,6 +64,9 @@
+ <sect1>                +       ".SH "
+ </sect1>
+ 
++<mansect>      +       ".SH "
++</mansect>
++
+ <heading>
+ </heading>             "\n\n"
+ 
+------------------------------------------------------------------
+
+(the changes are required to make the man pages included in rvm
+document look more like man pages.  There are also some change in
+linuxdoc.dtd file, as discussed later)
+
+[2] To generate latex document
+
+I recommend you use latex2e format for the latex document.  This can
+be done by called sgml2latex with the "-2e" switch.  That is,
+
+  $ sgml2latex -2e rvm_manual    
+  $ latex rvm_manual             
+  $ bibtex rvm_manual            
+  $ latex rvm_manual; latex rvm_manual
+
+Note that you need to run latex once, bibtex once, and then latex
+twice to resolve all the references.  
+
+(The -d switch of sgml2latex, for generating dvi file directly,
+doesn't quite work.  So, I recommended you do them seperately as
+above.)
+
+[3] To generate html documents
+
+There are different entities for the special processing instruction
+(PI) of explicit pagebreak for latex and html.  They are defined as
+conditional text.  But you still need to edit the rvm_manual.sgml file
+to activate it.  Luckily, you only need to edit one place (two lines)
+for this activation.  Essentially, you swap the word "INCLUDE" and
+"IGNORE".  Use your editor (e.g., vi or emacs) and change the
+following two lines from (they located at the very beginning of the
+file rvm_manual.sgml)
+
+<!entity % latex "INCLUDE">
+<!entity % html  "IGNORE">
+
+to
+
+<!entity % latex "IGNORE">
+<!entity % html  "INCLUEE">
+
+(The former two lines are good for generating latex document,
+while the latter two lines are good for generating html document.)
+
+After that, you can run sgml2html as usual.  That is,
+
+  $ sgml2html rvm_manual
+
+[4] To generate man pages
+
+Source sgml files of man pages are located in man/man1 and man/man3.
+They are all in a format that allows them to be easily included in
+some chapters of the rvm document (i.e., they don't have the
+"<!doctype ..." stuff).  To generate the man pages themselves, you use
+the make program:
+
+  $ cd man/man1
+  $ make all
+  $ cd man/man3
+  $ make all
+
+And you will have all the man pages (named as *.man) in the two
+directories.  Note that there will be some "container files" created
+as intemediate files.  These container files are name *.sgml.cntr,
+they are the files which have the "<!doctype ..."  stuff.  These files
+will then simply include the *.sgml files.  The "make" program will
+called the "sgml2txt -man" command to generate the man pages.
+
+[5] Scripts
+
+There are 4 scripts release in this batch.  One of them are essential
+for the generation of make file, and the other three are helpful for
+the conversion process.  They are all located in the directory
+doc/scripts.
+ 
+a. create_container   used by Makefile of man page generation
+b. undoc.pl           removing "<!doctype..." stuff from sgml files of
+                      man pages.
+c. lowbar             converting "&lowbar;" to "_"
+d. mansect.pl         converting "<sect1>" tags to "<mansect>" tags
+
+Check out doc/scripts/README for the details.
+
+[6] dtd
+
+There are some change made to the doc/dtd/linuxdoc.dtd file.  The
+following changes have already applied to the file, so you *do not*
+need to apply any patch.  The changes are put here for document
+purpose only.
+
+------------------------------------------------------------------
+--- ../../coda_doc.orig/doc/dtd/linuxdoc.dtd    Mon Sep  1 10:05:39 1997
++++ ../../coda_doc/doc/dtd/linuxdoc.dtd Wed Sep 24 18:49:05 1997
+@@ -439,7 +439,7 @@
+ <!element rhead - o (%inline)>
+ <!entity % sect "heading, header?, p* " >
+ <!element heading o o (%inline)>
+-<!element chapt - o (%sect, sect*) +(footnote)> 
++<!element chapt - o (%sect, (sect | manpage)*) +(footnote)> 
+ <!element sect  - o (%sect, sect1*) +(footnote)>
+ <!element sect1 - o (%sect, sect2*)>
+ <!element sect2 - o (%sect, sect3*)>
+@@ -516,10 +516,11 @@
+ <!element notes - - (title?, p+) >
+ <!attlist notes
+        opts cdata "null" >
+-<!element manpage - - (sect1*,sect2*) 
++<!element manpage - - ( (mansect | sect1)*,sect2*) 
+        -( f | %mathpar | figure | tabular | 
+           table | %xref | %thrm )>
+ 
++<!element mansect - o (%sect)>
+ 
+ <!attlist manpage
+        opts cdata "null"
+------------------------------------------------------------------
+
+[7] todo
+
+a) citation, figure and table are not handled very well in the html format.

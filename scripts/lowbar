@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+  echo "$0 <filename>"
+  exit 0
+fi
+
+sed '1,$s/&lowbar;/_/g' $1 > tmp
+if [ $? -eq 0 ]; then
+  mv tmp $1
+fi

@@ -1,9 +1,60 @@
-<!doctype linuxdoc SYSTEM "../dtd/linuxdoc.dtd">
+<!doctype linuxdoc SYSTEM "../dtd/linuxdoc.dtd" [
+<!entity rvmseg   SYSTEM "rvm_chap_rvmseg.sgml">
+<!entity rvmrds   SYSTEM "rvm_chap_rds.sgml">
+<!entity rvmutl   SYSTEM "rvm_chap_rvmutl.sgml">
+<!entity rvmint   SYSTEM "rvm_internal.sgml">
+<!entity appndxim SYSTEM "rvm_appndx_import.sgml">
+<!entity appndxhd SYSTEM "rvm_appndx_headers.sgml">
+<!entity rvmh     SYSTEM "rvm.h.sgml">
+<!entity rvmstath SYSTEM "rvm_statistics.h.sgml">
+<!entity rdsh     SYSTEM "rds.h.sgml">
+<!entity rvmsegh  SYSTEM "rvm_segment.h.sgml">
+
+<!entity minit    SYSTEM "man/man3/rvm_initialize.sgml">
+<!entity msetopt  SYSTEM "man/man3/rvm_set_options.sgml">
+<!entity mterm    SYSTEM "man/man3/rvm_terminate.sgml">
+<!entity mmap     SYSTEM "man/man3/rvm_map.sgml">
+<!entity munmap   SYSTEM "man/man3/rvm_unmap.sgml">
+
+<!entity mbegint  SYSTEM "man/man3/rvm_begin_transaction.sgml">
+<!entity msetrng  SYSTEM "man/man3/rvm_set_range.sgml">
+<!entity mmodbyte SYSTEM "man/man3/rvm_modify_bytes.sgml">
+<!entity mabortt  SYSTEM "man/man3/rvm_abort_transaction.sgml">
+<!entity mendt    SYSTEM "man/man3/rvm_end_transaction.sgml">
+
+<!entity mflush   SYSTEM "man/man3/rvm_flush.sgml">
+<!entity mtrunc   SYSTEM "man/man3/rvm_truncate.sgml">
+<!entity mcrealog SYSTEM "man/man3/rvm_create_log.sgml">
+<!entity mquery   SYSTEM "man/man3/rvm_query.sgml">
+<!entity mstat    SYSTEM "man/man3/rvm_statistics.sgml">
+<!entity mprnstat SYSTEM "man/man3/rvm_print_statistics.sgml">
+
+<!entity mcreaseg SYSTEM "man/man3/rvm_create_segment.sgml">
+<!entity mloadseg SYSTEM "man/man3/rvm_load_segment.sgml">
+
+<!entity mrdsmloc SYSTEM "man/man3/rds_malloc.sgml">
+<!entity mrdsfree SYSTEM "man/man3/rds_free.sgml">
+<!entity mrdsfake SYSTEM "man/man3/rds_fake_free.sgml">
+<!entity mrdsihp  SYSTEM "man/man3/rds_init_heap.sgml">
+<!entity mrdslhp  SYSTEM "man/man3/rds_load_heap.sgml">
+<!entity mrdszhp  SYSTEM "man/man3/rds_zap_heap.sgml">
+<!entity mrdsprea SYSTEM "man/man3/rds_prealloc.sgml">
+<!entity mrdsstat SYSTEM "man/man3/rds_statistics.sgml">
+<!entity mrdsinit SYSTEM "man/man1/rdsinit.sgml">
+
+<!entity % latex "INCLUDE">
+<!entity % html  "IGNORE">
+<![ %latex; [ <!entity newpage PI "\newpage"> ]]>
+<![ %html; [ <!entity newpage PI "<HR>"> ]]>
+<!entity newpage PI "">
+]>
 <report>
 
 <title>RVM <newline> Recoverable Virtual Memory
 <subtitle> RVM Release 1.3
-<author>Henry M. Mashburn, Mahadev Satyanarayanan 
+<author>
+<name>
+Henry M. Mashburn, Mahadev Satyanarayanan, David Steere, Yui W. Lee
 <thanks>
 "This research was supported by the Defense Advanced
 	Research Projects Agency (Avionics Lab,
@@ -14,8 +65,9 @@
 	The views and conclusions in this document are those of the authors
 	and do not represent the official policies of the funding agency
 	or Carnegie Mellon University."
+
 <inst> School of Computer Science <newline> Carnegie Mellon University
-<date>29 June 1994
+<date>17 September 1997
 
 <abstract>"RVM provides an unstructured recoverable virtual memory.
 	The recoverable storage is represented by Unix files or disk partitions
@@ -169,11 +221,11 @@ The functionality is similar to malloc and free, although with
 persistence.
 The loader is used to automate reloading of the heap after
 shutdown or a crash.
-Details of these options are described in Appendixes 
-<ref id="RDS" name="XXX"> and <ref id="RVMseg" name="XXX">.
+Details of these options are described in Chapter
+<ref id="RVMseg" name="RVM Segment Loader">
+and <ref id="RDS" name="RDS, A Dynamic Heap Allocator">.
 
 <sect>Recoverable Storage<p>
-@Process(PageHeadings)
 
 RVM manages recoverable storage in <em>segments</em>, which
 can be thought of as being
@@ -185,16 +237,15 @@ machine, although sharing of segments among processes is severely constrained.
 
 <sect1>Segment Structure<p>
 
-Segments are represented by files or
-disk partitions (or any other random access device) which RVM presumes
-to be structureless.
-Since Unix can name partitions as special files,
-storage for segments will be referred to from now on as files.
-The file name is also the segments name in RVM.
-The maximum segment size is determined by the static allocation of the
-file, with a limit of 2@+(64) bytes so that large disks can be supported.
-The 64 bit addresses are represented as two unsigned long integers
-since not all machines support an eight byte integer format.
+Segments are represented by files or disk partitions (or any other
+random access device) which RVM presumes to be structureless.  Since
+Unix can name partitions as special files, storage for segments will
+be referred to from now on as files.  The file name is also the
+segments name in RVM.  The maximum segment size is determined by the
+static allocation of the file, with a limit of <f>2<sup>64</sup></f> bytes so
+that large disks can be supported.  The 64 bit addresses are
+represented as two unsigned long integers since not all machines
+support an eight byte integer format.
 
 The segment file represents the image of the recoverable memory
 with an address space from zero to the maximum size of the file in bytes.
@@ -214,63 +265,59 @@ not likely to be damaged simultaneously (see <cite id="Hagmann">).
 
 <sect1>The Log and Its Operations<p>
 
-To insure the integrity of the data
-segments across crashes, a dedicated log file is used by RVM to
-record changes to segments as transactions are processed 
-The log file records changes to all segments used by the
-application and is declared to RVM at initialization time.
-The actual file can be a disk partition, but using a RAM disk, which
-has no seek or rotational latencies, will give better performance.
-If a RAM disk is used, it should be provided with an uninterruptable
-power supply for protection from power failures.
+To insure the integrity of the data segments across crashes, a
+dedicated log file is used by RVM to record changes to segments as
+transactions are processed The log file records changes to all
+segments used by the application and is declared to RVM at
+initialization time.  The actual file can be a disk partition, but
+using a RAM disk, which has no seek or rotational latencies, will give
+better performance.  If a RAM disk is used, it should be provided with
+an uninterruptable power supply for protection from power failures.
 
-If two or more instantiations of RVM are operating on the same
-machine and disk partitions are used for the log files, the
-partitions should be allocated on different disk drives if possible.
-If a single drive must be used, the actual partitions
-should be placed on adjacent cylinders to minimize seek latencies.
-Head movement between partitions can be a serious performance limitation.
+If two or more instantiations of RVM are operating on the same machine
+and disk partitions are used for the log files, the partitions should
+be allocated on different disk drives if possible.  If a single drive
+must be used, the actual partitions should be placed on adjacent
+cylinders to minimize seek latencies.  Head movement between
+partitions can be a serious performance limitation.
 
 Following the example of most database management systems, RVM uses
-<em>write-ahead</em> logging to improve performance, recording
-only changes as a mapped region is modified.
-The changes are typically smaller than the modified region, and
-if modifications are scattered through a large region, the change records
-can be much smaller.
-Therefore writing only changes will often be cheaper than writing the entire
-region.
+<em>write-ahead</em> logging to improve performance, recording only
+changes as a mapped region is modified.  The changes are typically
+smaller than the modified region, and if modifications are scattered
+through a large region, the change records can be much smaller.
+Therefore writing only changes will often be cheaper than writing the
+entire region.
 
 There are two log operations: <em>flush</em> and <em>truncation</em>.
 As transactions are performed, records of segment changes are created
-and are written to the log file in the flush operation.
-Periodically, the modifications represented by the log records are
-applied to the data file.
-After this is done, the records are removed from the log, and the log
-is said to be <em>truncated</em>.
-These operations are usually automatically performed by RVM, but
-because log management is the strongest determinant of performance,
-the operations are made visible and
-the application can use knowledge of its operations to optimize their timing.
+and are written to the log file in the flush operation.  Periodically,
+the modifications represented by the log records are applied to the
+data file.  After this is done, the records are removed from the log,
+and the log is said to be <em>truncated</em>.  These operations are
+usually automatically performed by RVM, but because log management is
+the strongest determinant of performance, the operations are made
+visible and the application can use knowledge of its operations to
+optimize their timing.
 
 The log file must be initialized before it can be used by RVM.
-Initialization is usually performed by the init&lowbar;log command
-provided by the utility rvmutl, but, for files only, can also be
-done by a library call, rvm&lowbar;create&lowbar;log.
-The operation is quite simple since only the amount of storage
-allocated to log records need be specified.
+Initialization is usually performed by the init_log command provided
+by the utility rvmutl, but, for files only, can also be done by a
+library call, rvm_create_log.  The operation is quite simple since
+only the amount of storage allocated to log records need be specified.
 The remaining initialization and maintenance is provided by RVM.
 Details of log initialization and other functions of rvmutl are
-provided in Chapter <ref id="rvmutl" name="XXX">.
+provided in Chapter <ref id="rvmutl" name="of rvmutl">.
 
 <sect1>Segment Mapping<p>
-@Process(PageHeadings)
 
-The mapping of data from the data file to memory, a function
-supplied by the cache manager in data base systems, is supported
-differently by RVM.  Mappings can not be automatic upon fetch of an
-object since a segment is an unstructured space.  The application must
-manage the virtual memory cache by explicitly mapping and unmapping segment regions
-corresponding to application objects, or collections of objects.
+The mapping of data from the data file to memory, a function supplied
+by the cache manager in data base systems, is supported differently by
+RVM.  Mappings can not be automatic upon fetch of an object since a
+segment is an unstructured space.  The application must manage the
+virtual memory cache by explicitly mapping and unmapping segment
+regions corresponding to application objects, or collections of
+objects.
 
 The relation of the data cache and the data file is
 independent of virtual memory and should not be confused with
@@ -283,28 +330,25 @@ allocate its own structures.
 
 When a region is mapped in Unix, it is normally copied from the data
 file to virtual memory.
-This copy-on-mapping method is illustrated in Figure <ref id="CopyMap" name="XXX">.
+This copy-on-mapping method is illustrated in Figure <ref id="CopyMap"
+name="of copy on mapping">.
 For large regions, copying can take some time, and designers should
 consider mapping such regions at initialization and leaving them
 mapped as long as they are required.
-@Begin(Figure)
-@Begin(Center)
-@Graphic(PostScript="copy-on-map.ps",magnify = 0.8,
-	BoundingBox="0.375 inches,8.0 inches,5.50 inches,10.625 inches")
-@End(Center)
-@DblCaption(
-    	Caption="Data mapping with the copy-on-map method.",
-    	SubCaption="All shaded areas are physically copied to the
-    	    addresses specified during mapping."
-    	)
-@Tag(CopyMap)
-@End(Figure)
+
+<figure>
+  <eps file="copy-on-map" height="5cm">
+  <caption>Data mapping with the copy-on-map method.  All shaded areas
+  are physically copied to the addresses specified during mapping.
+  <label id="CopyMap">
+</figure>
 
 For Mach applications, segment mapping can be done in cooperation with the
 virtual memory system by using Machs external pager interface.
 Mapped regions are copied into virtual memory on demand by the
 external pager, so there is no I/O delay when a region is mapped.
-This mapping method is illustrated in Figure <ref id="CopyDemand" name="XXX">.
+This mapping method is illustrated in Figure <ref id="CopyDemand"
+name="of copy on demand">.
 
 Because virtual memory contains uncommitted changes, the pager
 is not permitted to write pages back to the data file.
@@ -320,19 +364,13 @@ be aware that paging activity can seriously degrade performance and
 should match virtual memory usage to available physical memory for
 best results.
 
-@Begin(Figure)
-@Begin(Center)
-@Graphic(PostScript="copy-on-demand.ps",magnify = 0.8,
-	BoundingBox="0.375 inches,8.75 inches,5.50 inches,10.625 inches")
-@End(Center)
-@DblCaption(
-    	Caption="Data mapping with the copy-on-demand method.",
-    	SubCaption="Address space
+<figure>
+  <eps file="copy-on-demand" height="5cm">
+  <caption>Data mapping with the copy-on-demand method. Address space
     	    is reserved by mapping (lightly shaded areas), but the pages
-    	    are not physically copied until referenced (dark shading)."
-    	)
-@Tag(CopyDemand)
-@End(Figure)
+    	    are not physically copied until referenced (dark shading).
+  <label id=CopyDemand>
+</figure>
 
 RVM provides a standard external pager, but does not preempt the
 external pager mechanism.
@@ -433,7 +471,6 @@ If such mechanisms or direct access are necessary,  remember that RVM leaves
 interprocess communication and synchronization strictly to the application.
 
 <sect>Transactions<p>
-@Process(PageHeadings)
 
 RVM provides the basic transaction operations <em>begin</em>, <em>end</em>, and <em>abort</em>.
 As a transaction proceeds, the state of the byte ranges affected by
@@ -459,11 +496,11 @@ there are times when an application does not need virtual memory
 restoration on abort.
 In these cases, it is known that the current state of memory
 is worthless, and no effort need be spent preparing for restoration. 
-RVM supports no&lowbar;restore transactions when old value records are
+RVM supports no_restore transactions when old value records are
 not necessary.
 Any transaction that cannot be aborted by the application, or
 does not need virtual memory restoration if aborted, is a candidate
-for no&lowbar;restore.
+for no_restore.
 
 Another opportunity for optimization occurs when many changes are made
 to a concise region.
@@ -482,18 +519,18 @@ new value records created when the transaction commits will
 record all modifications.
 Also, because the ranges of modification are known, no modify function
 is needed and normal assignment statements can be used.
-The rvm&lowbar;set&lowbar;range function is used to specify ranges and create
+The rvm_set_range function is used to specify ranges and create
 old value records.
 
-The rvm&lowbar;modify&lowbar;bytes function is also provided for convenience
+The rvm_modify_bytes function is also provided for convenience
 when the entire range is to be modified.
-Both rvm&lowbar;modify&lowbar;bytes and rvm&lowbar;set&lowbar;range can be used in the
+Both rvm_modify_bytes and rvm_set_range can be used in the
 same transaction as needed.
 
 The begin transaction modes are summarized below:
 <descrip>
 <tag/restore/restore virtual memory on abort.
-<tag/no&lowbar;restore/do not restore virtual memory on abort.
+<tag/no_restore/do not restore virtual memory on abort.
 </descrip>
 
 <sect1>Transaction Abort<p>
@@ -509,12 +546,12 @@ If a restore mode transaction is aborted, the old value records
 are used to restore the region affected to its exact
 state before the transaction began.
 Applications can abort a transaction at any time, for any reason, with
-the rvm&lowbar;abort&lowbar;transaction function.
+the rvm_abort_transaction function.
 
 <sect1>Transaction Commit<p>
 
 Once the application has completed all modifications, it
-then <em>commits</em> to the changes by calling rvm&lowbar;end&lowbar;transaction.
+then <em>commits</em> to the changes by calling rvm_end_transaction.
 At this time, RVM makes permanent the changes by copying them to the log file.
 
 RVM provides two commit modes with different performance and
@@ -525,7 +562,7 @@ After this is done, only a disaster destroying the information in the log
 file can cause loss of the changes.
 The recovery mechanisms can restore the changes in a less destructive crash.
 
-The faster mode, no&lowbar;flush, does not copy changes to the
+The faster mode, no_flush, does not copy changes to the
 log file before reporting success.
 There is no guarantee for change permanence since
 a system crash before the file is written
@@ -535,13 +572,13 @@ permanence provided by flushing.
 This is sometimes called a "lazy" commit <cite id="Camelot">.
 Permanence can be insured at a later time by any transaction
 doing a commit with flush, or by the application directly invoking
-the rvm&lowbar;flush function.
+the rvm_flush function.
 
 The two types of commit are supported by the following options,
 either of which can be used to commit a transaction begun in any mode:
 <descrip>
 <tag/flush/guaranteed permanence of changes.
-<tag/no&lowbar;flush/quick commit, no guarantee of permanence.
+<tag/no_flush/quick commit, no guarantee of permanence.
 </descrip>
 
 <sect1>Transaction Optimizations<p>
@@ -552,9 +589,9 @@ single transaction.  This eliminates redundant log records if the
 transaction declares overlapping ranges.  Also, adjacent ranges are
 coalesced into a single range for logging.
 
-When no&lowbar;flush commit is used, a second level of optimization can
+When no_flush commit is used, a second level of optimization can
 be used.  Ranges in the currently committed transaction can be
-coalesced with those of previous no&lowbar;flush committed transactions
+coalesced with those of previous no_flush committed transactions
 that have not been flushed.  This can eliminate redundant log records
 if the same offsets in a segment are modified by successive
 transactions.
@@ -570,7 +607,6 @@ applications transaction history, and has been a useful debugging
 tool.
 
 <sect>Concurrency in RVM<p>
-@Process(PageHeadings)
 
 Applications have the option of using threads provided
 by the C Threads <cite id="Cthreads"> programming package.
@@ -580,16 +616,16 @@ freely, with RVM synchronizing access to its internal structures.
 
 This discussion of concurrency in RVM assumes that Mach preemptive threads are in
 use (one Mach thread per C thread, -lthreads) library.
-However, RVM will also work correctly if the coroutine C Thread (-lco&lowbar;threads) library is
+However, RVM will also work correctly if the coroutine C Thread (-lco_threads) library is
 linked for debugging since the C Thread synchronization primitives are used
 exclusively.
 The choice of thread type is made simply by linking the desired thread library.
 Linking different versions of RVM for the thread types will not be necessary.
-The Mach task implementation of C Threads, -ltask&lowbar;threads library, must
+The Mach task implementation of C Threads, -ltask_threads library, must
 not be used.
 
 RVM does not set or modify any of the C Thread control variables such
-as mutex&lowbar;spin&lowbar;limit <footnote>Setting any of the spin limits to other
+as mutex_spin_limit <footnote>Setting any of the spin limits to other
 than zero on a uniprocessor is pointless!</footnote>.
 This level of tuning is left to the application, which is also
 responsible for setting thread stack limits via the shell limit command.
@@ -609,22 +645,18 @@ locking structure is specifically intended to allow the maximum useful
 concurrency while minimizing synchronization overhead.
 
 The fast functions are:
-<code>
-@TabClear()
-@TabSet(+2.5inches)
-rvm&lowbar;begin&lowbar;transaction@\rvm&lowbar;abort&lowbar;transaction
-rvm&lowbar;set&lowbar;range@\rvm&lowbar;modify&lowbar;bytes
-rvm&lowbar;set&lowbar;options@\rvm&lowbar;query
-rvm&lowbar;unmap@\rvm&lowbar;terminate
-</code>
+<verb>
+    rvm_begin_transaction  rvm_abort_transaction
+    rvm_set_range          rvm_modify_bytes
+    rvm_set_options        rvm_query
+    rvm_unmap              rvm_terminate
+</verb>
 
 Slow functions are those requiring synchronous file access:
-<code>
-@TabClear()
-@TabSet(+2.5inches)
-rvm&lowbar;map@\rvm&lowbar;end&lowbar;transaction
-rvm&lowbar;flush@\rvm&lowbar;truncate
-</code>
+<verb>
+    rvm_map                rvm_end_transaction
+    rvm_flush              rvm_truncate
+</verb>
 
 These functions will be sequentialized on their access to files.
 First-come, first-served order prevails.
@@ -635,18 +667,19 @@ The order of access will be determined by the kernel.
 
 Several of these functions can be in the "fast" category under certain
 conditions:
-@Begin(Itemize,Spread .3)
-rvm&lowbar;end&lowbar;transaction will be quick in no&lowbar;flush mode.
-
-rvm&lowbar;truncate and rvm&lowbar;flush will be fast if the log is empty.
-
-rvm&lowbar;map, when operating on a segment backed by an external pager,
+<itemize>
+<item>
+rvm_end_transaction will be quick in no_flush mode.
+<item>
+rvm_truncate and rvm_flush will be fast if the log is empty.
+<item>
+rvm_map, when operating on a segment backed by an external pager,
 will be much faster than when performing copy-on-map.
-@End(Itemize)
+</itemize>
 
 <sect1>Concurrency During Flush and Truncation<p>
 
-Because no&lowbar;flush transactions do not require immediate access to
+Because no_flush transactions do not require immediate access to
 the log file, RVM permits them to commit during flushing or
 truncation.
 Transactions that require exclusive access to the log (flush) mode must be
@@ -662,31 +695,31 @@ This allows transactions to commit while truncation proceeds, although
 a small delay might occur due to contention for the log file.
 Truncation is considered lower priority than commit and will yield
 control of the log after each access.
-A committing transaction will flush all waiting no&lowbar;flush
+A committing transaction will flush all waiting no_flush
 transactions plus itself before permitting truncation to proceed.
 
 Applications can control the timing of truncation by either setting a
 threshold for initiation, or by doing it themselves.
 If invoked by threshold, RVM uses an internal thread to execute the
 truncation, and transactions continue.
-If the application directly invokes rvm&lowbar;truncate, truncation is
+If the application directly invokes rvm_truncate, truncation is
 synchronous with the calling thread.
 Regardless of method, truncation should be initiated soon enough that
 the remainder of the log is not filled before truncation completes.
 Otherwise, transactions will be blocked until log space is
 available.
 Details of truncation control can be found in the Options section
-on p. @PageRef(Options).
+(section <ref id="Options">).
 
-Log truncation and rvm&lowbar;map have special concurrency considerations
-because rvm&lowbar;map must
+Log truncation and rvm_map have special concurrency considerations
+because rvm_map must
 insure that the data mapped represents the most recent committed image
 of the segment, a state that is controlled by log truncation.
 On the first mapping of a segment, a truncation will be needed if the log
 is not empty.
 In subsequent mappings, truncation will be needed only if a modified region
 is unmapped and then remapped with no intervening truncation.
-In these cases, rvm&lowbar;map will initiate truncation and must wait for
+In these cases, rvm_map will initiate truncation and must wait for
 its completion.
 
 RVM attempts to minimize mapping delays due to truncation by keeping
@@ -697,7 +730,6 @@ delayed only until the needed region of the data file has had all
 relevant log records applied to it.
 
 <sect>Good Programming Practice<p>
-@Process(PageHeadings)
 
 Good programming practice in building applications with RVM is quite
 simple.
@@ -708,49 +740,44 @@ in critical sections.
 <sect1>Declaring Modification Ranges<p>
 
 Since RVM has no way to detect modifications to mapped regions unless
-they have been declared by a call to rvm&lowbar;set&lowbar;range, programmers
-must be careful to insure that all modifications are covered by such a
-declaration.
-Failure to do so results in errors that are not detectable until the
-modified region is unmapped, either explicitly, or by termination of
-execution.
-When the modified range is again mapped, the undeclared modifications
-will be missing since they were not included in the new values
-captured by transaction commit.
-This has been the most common programming error noted in use of RVM,
-so if some modifications thought to have been committed are missing
-after a restart, check the rvm&lowbar;set&lowbar;range calls carefully to be
-sure that all modifications are covered.
+they have been declared by a call to rvm_set_range, programmers must
+be careful to insure that all modifications are covered by such a
+declaration.  Failure to do so results in errors that are not
+detectable until the modified region is unmapped, either explicitly,
+or by termination of execution.  When the modified range is again
+mapped, the undeclared modifications will be missing since they were
+not included in the new values captured by transaction commit.  This
+has been the most common programming error noted in use of RVM, so if
+some modifications thought to have been committed are missing after a
+restart, check the rvm_set_range calls carefully to be sure that all
+modifications are covered.
 
-The declaration of a modification range should always be made <em>before</em> the
-modifications are actually assigned.
-This is mandatory when transactions are begun in restore mode
-since the old values are preserved by rvm&lowbar;set&lowbar;range for
-restoration if rvm&lowbar;abort&lowbar;transaction is called.
-If the assignments are made before calling rvm&lowbar;set&lowbar;range, the
-opportunity to capture the old values is lost and aborting the
-transaction will result in restoring the modifications rather than the
-original data.
-In future versions, making modifications before calling
-rvm&lowbar;set&lowbar;range may result in incorrect operation.
+The declaration of a modification range should always be made
+<em>before</em> the modifications are actually assigned.  This is
+mandatory when transactions are begun in restore mode since the old
+values are preserved by rvm_set_range for restoration if
+rvm_abort_transaction is called.  If the assignments are made before
+calling rvm_set_range, the opportunity to capture the old values is
+lost and aborting the transaction will result in restoring the
+modifications rather than the original data.  In future versions,
+making modifications before calling rvm_set_range may result in
+incorrect operation.
 
 Declarations of modification ranges are most efficiently made by
-minimizing the number of calls to rvm&lowbar;set&lowbar;range or
-rvm&lowbar;modify&lowbar;bytes.
+minimizing the number of calls to rvm_set_range or rvm_modify_bytes.
 Since the overhead of of a modification range record in the log is
-significant, declaring the range to include the
-entire modified object is often more efficient than declaring several
-small changes within the object.
-This is true for objects up to 100 bytes or so.
-One must be careful, though, not to include any part of an object that
-may be modified by a concurrent transaction since this could cause
+significant, declaring the range to include the entire modified object
+is often more efficient than declaring several small changes within
+the object.  This is true for objects up to 100 bytes or so.  One must
+be careful, though, not to include any part of an object that may be
+modified by a concurrent transaction since this could cause
 uncommitted state to be made permanent.
 
 A second efficiency consideration is to declare a single modification
 range to cover an entire array or other structure that is modified
-sequentially, such as in an initialization.
-Declaring each element of a contiguous structure individually can
-cause extra log overhead if transaction optimizations are not enabled.
+sequentially, such as in an initialization.  Declaring each element of
+a contiguous structure individually can cause extra log overhead if
+transaction optimizations are not enabled.
 
 <sect1>Transactions in Critical Sections<p>
 <label id="GoodLocking">
@@ -767,50 +794,42 @@ committed, there is the possibility that a concurrent access could
 make additional changes that are not part of the transaction.
 Similarly, if a lock is released before an abort, the abort could
 restore values that are not meaningful to a concurrent transaction.
-@NewPage
 
 <chapt>RVM Library Specifications<p>
-@Process(PageHeadings)
 
 RVM is a library of functions to be linked with the application and is
-executed within the address space and control thread of the calling process.
-For single process applications, this design eliminates RPC calls, although
-extensions to RVM for distributed transactions will require them.
+executed within the address space and control thread of the calling
+process.  For single process applications, this design eliminates RPC
+calls, although extensions to RVM for distributed transactions will
+require them.
 
 The functions implementing the core of RVM are included in one user
-level library.
-Two versions of the library are necessary: one for Unix, and one for Mach.
-The Unix version will run under Mach, but no Mach-specific features,
-such as external pager support or C Threads, will be available.
-The interface to C is specified in one header file that is used with
-both versions.
+level library.  Two versions of the library are necessary: one for
+Unix, and one for Mach.  The Unix version will run under Mach, but no
+Mach-specific features, such as external pager support or C Threads,
+will be available.  The interface to C is specified in one header file
+that is used with both versions.
 
-Auxiliary libraries of useful functions are also available.
-These can extend the functionality of RVM, or provide
-convenience features useful to a broad range of applications.
-Two of these, a utility for loading
-regions of segments, and an allocator for segments, are documented in
-Chapter <ref id="RVMseg" name="XXX">, p. @PageRef(RVMseg) and Chapter <ref id="RDS" name="XXX">, p.
-@PageRef(RDS).
+Auxiliary libraries of useful functions are also available.  These can
+extend the functionality of RVM, or provide convenience features
+useful to a broad range of applications.  Two of these, a utility for
+loading regions of segments, and an allocator for segments, are
+documented in Chapter <ref id="RVMseg" name="of RVM Segment Loader">
+and Chapter <ref id="RDS" name="of RDS, A Dynamic Heap Allocator">.
 
-All RVM functions return success/failure codes of type
-rvm&lowbar;return&lowbar;t<footnote>All RVM-specific types are declared as C typedefs and have a "&lowbar;t" suffix.</footnote>.
-@Index2ndary(Key1="Typedefs",Text1="Typedefs",
-    	    Key2="rvm&lowbar;return&lowbar;t",Text2="rvm&lowbar;return&lowbar;t")
-The code, RVM&lowbar;SUCCESS <footnote>Constants and macros defined with &num;define
-are in upper case; types, structures, variables, and functions are declared in
-lower case </footnote>,
-@Index2ndary(Key1="Error codes",Text1="Error codes",
-    	    Key2="RVM&lowbar;SUCCESS",Text2="RVM&lowbar;SUCCESS") 
-is returned by all functions to report successful execution.
-If an exception is encountered in executing a library function, an appropriate
-code is returned.
-These codes are specified with the functions.
-If the RVM&lowbar;EIO code is returned, the specific error causing it
-will be left in errno.
-RVM functions check their parameters at entry, so unless otherwise
-specified in the function descriptions,
-a function returning an error code will have had no effect.
+All RVM functions return success/failure codes of type rvm_return_t
+<footnote>All RVM-specific types are declared as C typedefs and have a
+"_t" suffix.</footnote>.  The code, RVM_SUCCESS <footnote>Constants
+and macros defined with &num;define are in upper case; types,
+structures, variables, and functions are declared in lower case
+</footnote>, is returned by all functions to report successful
+execution.  If an exception is encountered in executing a library
+function, an appropriate code is returned.  These codes are specified
+with the functions.  If the RVM_EIO code is returned, the specific
+error causing it will be left in errno.  RVM functions check their
+parameters at entry, so unless otherwise specified in the function
+descriptions, a function returning an error code will have had no
+effect.
 
 Library functions can also return information via output parameters.
 When this method is used, descriptions of the information returned will be
@@ -818,15 +837,14 @@ specified with the function.
 
 <sect>RVM Files and Structures<p>
 
-A single header file, rvm.h (included in Appendix <ref id="RVMheaders), p.
-@PageRef(rvmh" name="XXX">), provides the basic declarations for using RVM.
-rvm.h recognizes if it has been previously included in
-a compilation and will not create multiple definitions.
-In the Carnegie-Mellon programming environment, the enumeration
-typedef bool, with constants true and false, and the typeless
-constants TRUE and FALSE are often defined with the include
-file stdlib.h (or libc.h) at CMU.
-For convenience, rvm.h also supplies these, but will not attempt
+A single header file, rvm.h (included in Appendix <ref id="RVMheaders"
+ name="of C Declaration of RVM">), provides the basic declarations for
+using RVM.  rvm.h recognizes if it has been previously included in a
+compilation and will not create multiple definitions.  In the
+Carnegie-Mellon programming environment, the enumeration typedef bool,
+with constants true and false, and the typeless constants TRUE and
+FALSE are often defined with the include file stdlib.h (or libc.h) at
+CMU.  For convenience, rvm.h also supplies these, but will not attempt
 to redefine them if stdlib.h has been included.
 
 Other header files are used for optional features of RVM.  These
@@ -834,164 +852,209 @@ include headers for statistics collection and printing, an allocator,
 and a segment loading utility.
 
 In building the application, the choice of Unix or Mach libraries must
-be made.
-If the application is using threads, Mach must be used, and the
-application must also link the C Threads library and the safe version
-of the C library (see <cite id="Cthreads">), p. 13).
-The Unix library will run on Mach/Unix, but will be strictly
-synchronous so threads must not be used in the application.
+be made.  If the application is using threads, Mach must be used, and
+the application must also link the C Threads library and the safe
+version of the C library (see <cite id="Cthreads">), p. 13).  The Unix
+library will run on Mach/Unix, but will be strictly synchronous so
+threads must not be used in the application.
 
 The necessary files are:
 <descrip>
-<tag/header files:/<tt>~/include/rvm.h, ~/include/rvm&lowbar;statistics.h</tt>
+<tag/header files:/<tt>~/include/rvm.h, ~/include/rvm_statistics.h</tt>
 <tag/library:/<tt>~/lib/librvm.a</tt>
 <tag/log utility:/<tt>~/bin/rvmutl</tt>
 </descrip>
 
-Each structure used in RVM has a self-identifier as its first field (struct&lowbar;id).
-These are used by the library functions to validate the record type
-and are also valuable in debugging since the type, regardless of casts (intentional or otherwise), will be available.
-The type code will automatically be set by type-specific allocation and
-initialization routines provided by RVM.
-The struct&lowbar;id field must not be modified.
+Each structure used in RVM has a self-identifier as its first field
+(struct_id).  These are used by the library functions to validate the
+record type and are also valuable in debugging since the type,
+regardless of casts (intentional or otherwise), will be available.
+The type code will automatically be set by type-specific allocation
+and initialization routines provided by RVM.  The struct_id field must
+not be modified.
 
 The print names for all RVM codes and typedefs can be obtained with
-functions similar to strerror.
-These functions return a pointer to a character array containing the name.
-These arrays are statically allocated and the pointers must not be
-deallocated with free; no deallocation is necessary.
-The functions are:
+functions similar to strerror.  These functions return a pointer to a
+character array containing the name.  These arrays are statically
+allocated and the pointers must not be deallocated with free; no
+deallocation is necessary.  The functions are:
 
 <verb>
-char *rvm&lowbar;return (code)/* function return codes */
-rvm&lowbar;return&lowbar;tcode;
+char *rvm_return (code)/* function return codes */
+rvm_return_tcode;
 
-char *rvm&lowbar;mode (mode)/* transaction modes */
-rvm&lowbar;mode&lowbar;tmode;
+char *rvm_mode (mode)/* transaction modes */
+rvm_mode_tmode;
 
-char *rvm&lowbar;type (struct&lowbar;id)/* typedef/structure  names */
-rvm&lowbar;struct&lowbar;id&lowbar;tid;
+char *rvm_type (struct_id)/* typedef/structure  names */
+rvm_struct_id_tid;
 </verb>
 
 <label id="AllocFuncs">
-The structures used in RVM have
-allocation, initialization, copy, and deallocation functions
-defined for them.
-The allocation and deallocation functions maintain a cache of heap allocated
-records within RVM.
-All type-specific initialization and finalization is automatically done, as
-needed, by these routines.
-Initialization for non-heap allocated records is also provided.
-At present there are three types allocated: rvm&lowbar;options&lowbar;t,
-rvm&lowbar;region&lowbar;t, and rvm&lowbar;tid&lowbar;t.
+The structures used in RVM have allocation, initialization, copy, and
+deallocation functions defined for them.  The allocation and
+deallocation functions maintain a cache of heap allocated records
+within RVM.  All type-specific initialization and finalization is
+automatically done, as needed, by these routines.  Initialization for
+non-heap allocated records is also provided.  At present there are
+three types allocated: rvm_options_t, rvm_region_t, and rvm_tid_t.
 These represent the options descriptor, discussed below, the mapped
 regions descriptor, and the transaction identifier.
 
-These functions take their names from the type they support.
-For example, the allocation function for rvm&lowbar;options&lowbar;t is
-rvm&lowbar;malloc&lowbar;options, which requires no parameters and returns a
-pointer to a new options record.
-Similarly, the deallocation function for a transaction identifier (rvm&lowbar;tid&lowbar;t)
-is <tt>rvm&lowbar;free&lowbar;tid (tid)</tt>, which takes a single parameter, tid,
-which is a pointer to a transaction identifier record.
-Strings used in RVM records are always copies of pointers to the
-previously existing character arrays, so no deallocation is necessary.
+These functions take their names from the type they support.  For
+example, the allocation function for rvm_options_t is
+rvm_malloc_options, which requires no parameters and returns a pointer
+to a new options record.  Similarly, the deallocation function for a
+transaction identifier (rvm_tid_t) is <tt>rvm_free_tid (tid)</tt>,
+which takes a single parameter, tid, which is a pointer to a
+transaction identifier record.  Strings used in RVM records are always
+copies of pointers to the previously existing character arrays, so no
+deallocation is necessary.
 
-The initialization and copy functions are named
-rvm&lowbar;init&lowbar;~ and rvm&lowbar;copy&lowbar;~
-respectively, and take a single parameter: the pointer to the record affected. 
-The copy functions return a pointer to the created record.
-The rvm&lowbar;init&lowbar;~ functions must be applied to statically, globally, or
-automatically allocated records before RVM will recognize them.
-The rvm&lowbar;free&lowbar;~ functions will ignore such non-heap allocated records.
-A field, from&lowbar;heap, is present in all RVM structures so that the
-space freeing functions can detect non-heap allocated records.
-It is set by the allocation functions, and must not be altered.
-The function specifications are:
+The initialization and copy functions are named rvm_init_~ and
+rvm_copy_~ respectively, and take a single parameter: the pointer to
+the record affected.  The copy functions return a pointer to the
+created record.  The rvm_init_~ functions must be applied to
+statically, globally, or automatically allocated records before RVM
+will recognize them.  The rvm_free_~ functions will ignore such
+non-heap allocated records.  A field, from_heap, is present in all RVM
+structures so that the space freeing functions can detect non-heap
+allocated records.  It is set by the allocation functions, and must
+not be altered.  The function specifications are:
 
 <verb>
-rvm&lowbar;~&lowbar;t *rvm&lowbar;malloc&lowbar;~();/* allocate, initialize record; return pointer */
+/********/
+/* utility routines for rvm_options_t (option descriptor, or opt. desptr.) */
+/********/
+rvm_options_t *opt;                   /* pointer to option descriptor      */
 
-rvm&lowbar;free&lowbar;~(rec)/* free the record pointed to by rec */
-rvm&lowbar;~&lowbar;t*rec;
+rvm_options_t *rvm_malloc_options();  /* allocate, initialize opt. desptr. */ 
+                                      /* return pointer                    */
 
-rvm&lowbar;init&lowbar;~(rec)/* initialize non-heap allocated record */
-rvm&lowbar;~&lowbar;t*rec;/* pointer to record to initialize */
+rvm_free_options(opt);                /* free the opt. desptr. pointed to  */
+                                      /* by opt                            */
+			              
+rvm_init_options(opt);                /* initialize non-heap allocated     */
+                                      /* opt. desptr.                      */
 
-rvm&lowbar;~&lowbar;t *rvm&lowbar;copy&lowbar;~(rec)/* copy record pointed to by rec */
-rvm&lowbar;~&lowbar;t*rec;/* to allocated record; return pointer to copy */
+rvm_options_t *rvm_copy_options(opt); /* copy opt. desptr. pointed to by   */
+                                      /* opt to a newly allocated opt.     */
+                                      /* desptr., return pointer           */
+/********/
+/* utility routines for rvm_region_t (region descriptor, or reg. desptr.)  */
+/********/
+rvm_region_t *reg;                    /* pointer to region descriptor      */
+
+rvm_region_t *rvm_malloc_region();    /* allocate, initialize reg. desptr. */ 
+                                      /* return pointer                    */
+				    
+rvm_free_region(reg);                 /* free the reg. desptr. pointed to  */
+                                      /* by reg                            */
+			              	   
+rvm_init_region(reg);                 /* initialize non-heap allocated     */
+                                      /* reg. desptr.                      */
+				    
+rvm_region_t *rvm_copy_region(reg);   /* copy reg. desptr. pointed to by   */
+                                      /* reg to a newly allocated reg.     */
+                                      /* desptr., return pointer           */
+/********/
+/* utility routines for rvm_tid_t (transaction identifer, or tid)          */
+/********/
+rvm_tid_t *tid;                       /* pointer to transaction identifier */
+
+rvm_tid_t *rvm_malloc_tid();          /* allocate, initialize tid          */ 
+                                      /* return pointer                    */
+			             
+rvm_free_tid(tid);         	      /* free the tid pointed to by tid    */
+			   		 
+rvm_init_tid(tid);         	      /* initialize non-heap allocated tid */
+			     
+rvm_tid_t *rvm_copy_tid(tid);         /* copy tid pointed to by opt        */
+                                      /* to a newly allocated tid          */
+                                      /* return pointer                    */
+
+
 </verb>
+<!--
+<verb>
+rvm_~_t *rvm_malloc_~();/* allocate, initialize record; return pointer */
 
+rvm_free_~(rec)         /* free the record pointed to by rec */
+rvm_~_t*rec;
+
+rvm_init_~(rec)         /* initialize non-heap allocated record */
+rvm_~_t*rec;            /* pointer to record to initialize */
+
+rvm_~_t *rvm_copy_~(rec)/* copy record pointed to by rec */
+rvm_~_t*rec;            /* to allocated record; return pointer to copy */
+</verb>
+-->
 Implementing RVM as a library limits freedom to change the program
-interface because change would require code changes in all applications.
-To alleviate this,
-RVM uses <em>option records</em> to specify parameters for certain features.
-New features will be implemented by adding new fields to the records so
-program changes will be limited to those applications
-needing the new features.
+interface because change would require code changes in all
+applications.  To alleviate this, RVM uses <em>option records</em> to
+specify parameters for certain features.  New features will be
+implemented by adding new fields to the records so program changes
+will be limited to those applications needing the new features.
 Others will need only to recompile and link, an automated process for
 most systems.
 
 The option records can specify global settings, particularly for the
 log, and also options for individual recoverable storage segments.
 Some features may require setting at initialization time, and can not
-be changed later.
-Details of each option are presented as the features are discussed.
+be changed later.  Details of each option are presented as the
+features are discussed.
 
 <sect>Initialization, Options and Mapping<p>
-@Process(PageHeadings)
 
-RVM requires initialization by the client application.
-In addition to initializing its internal structures,
-RVM will check for version skews between the version of rvm.h
-used to build the application and the version of librvm.a linked.
+RVM requires initialization by the client application.  In addition to
+initializing its internal structures, RVM will check for version skews
+between the version of rvm.h used to build the application and the
+version of librvm.a linked.
 
 At initialization, the name of the log file is specified and other
-options can also be specified.
-Most options (except the log file) can be changed after RVM has been initialized,
-and there is provision to query the state of all options.
+options can also be specified.  Most options (except the log file) can
+be changed after RVM has been initialized, and there is provision to
+query the state of all options.
 
-To insure an orderly shutdown of RVM, a termination function is
-also provided.
-It will detect and return an error code if any transactions are found
-to be uncommitted at the time of shutdown.
-As part of orderly termination, the application designer should
-consider forcing a log truncation.
-This will avoid the inconvenience of truncation delay during the first
-mapping the next time the application is started.
+To insure an orderly shutdown of RVM, a termination function is also
+provided.  It will detect and return an error code if any transactions
+are found to be uncommitted at the time of shutdown.  As part of
+orderly termination, the application designer should consider forcing
+a log truncation.  This will avoid the inconvenience of truncation
+delay during the first mapping the next time the application is
+started.
 
 <sect1>RVM Options Descriptor<p>
 <label id="Options">
 
 When a region is mapped, certain options can be specified in an
-rvm&lowbar;options&lowbar;t 
-record created with rvm&lowbar;malloc&lowbar;options, which takes no parameters.
-Option records can also be used with rvm&lowbar;query to discover the
-state of RVM options and resource usage.
-At present the following mapping option fields are defined:
+rvm_options_t record created with rvm_malloc_options, which takes no
+parameters.  Option records can also be used with rvm_query to
+discover the state of RVM options and resource usage.  At present the
+following mapping option fields are defined:
 <descrip>
 <label id="OptDef">
-<tag/log&lowbar;dev/Name of the log file.  Required on initialization and
+<tag/log_dev/Name of the log file.  Required on initialization and
 cannot be changed thereafter.  Returned on query.
 <tag/truncate/Log truncation threshold: percentage of the log file capacity.
 When this much of the log is full, truncation will be initiated.
 Zero inhibits the truncation thread.
 Actual percentage of log used at time of returned;
 default: 50%, specified by the constant TRUNCATE.
-<tag/recovery&lowbar;buf&lowbar;len/Length of truncation buffer in bytes.
-<tag/flush&lowbar;buf&lowbar;len/Length of flush buffer in bytes.
-<tag/max&lowbar;read&lowbar;len/Maximum disk transfer length (Mach only).
-<tag/log&lowbar;empty/State returned on query (bool).
+<tag/recovery_buf_len/Length of truncation buffer in bytes.
+<tag/flush_buf_len/Length of flush buffer in bytes.
+<tag/max_read_len/Maximum disk transfer length (Mach only).
+<tag/log_empty/State returned on query (bool).
 <tag/pager/Name of external pager file (char array).
-<tag/n&lowbar;uncommit/Number of uncommitted transactions returned on
+<tag/n_uncommit/Number of uncommitted transactions returned on
 query.
-<tag/tid&lowbar;array/Pointer to an array of transaction identifiers of length
-n&lowbar;uncommit returned on query.
+<tag/tid_array/Pointer to an array of transaction identifiers of length
+n_uncommit returned on query.
 <tag/flags/Bit vector of option flags.
 </descrip>
 Unless otherwise specified in rvm.h, all fields are unsigned long integers.
 
-The log&lowbar;dev field is a pointer to to a character array that
+The log_dev field is a pointer to to a character array that
 contains the Unix file name of the log.
 This must be specified on initialization and is returned on query.
 The log file cannot be changed after initialization.
@@ -1004,366 +1067,365 @@ If the value of truncate is non-zero, RVM creates an internal
 thread to do truncations asynchronously; a zero value
 inhibits automatic truncations if a thread was already created.
 When the automatic truncations are inhibited, truncations
-are initiated by the application with rvm&lowbar;truncate,
+are initiated by the application with rvm_truncate,
 or by remapping a previously mapped and modified region.
 
-If automatic truncation is inhibited and the log file overflows,
-a truncation is performed by the thread encountering the
-overflow.
-This is an emergency measure and applications should not allow it to
-happen since all transactions will be blocked until the
-truncation completes.
+If automatic truncation is inhibited and the log file overflows, a
+truncation is performed by the thread encountering the overflow.  This
+is an emergency measure and applications should not allow it to happen
+since all transactions will be blocked until the truncation completes.
 However, when running without thread support, this is the only method
 of initiating truncation.
 
-The recovery&lowbar;buf&lowbar;len field specifies the length, in bytes, of the
+The recovery_buf_len field specifies the length, in bytes, of the
 buffer used by truncation.  It is set to a default value of 256
 Kbytes, which is generally sufficient.
 
-The flush&lowbar;buf&lowbar;len field specifies the length, in bytes, of the
+The flush_buf_len field specifies the length, in bytes, of the
 buffer used to flush log records on raw partitions.  
 It is not used for file-based logs.  The default length is 256 Kbytes.
 
-The max&lowbar;read&lowbar;len field specifies the length, in bytes, of the
+The max_read_len field specifies the length, in bytes, of the
 maximum read transfer that RVM will perform.  This is a Mach-only
 feature, and is used to limit the amount of kernel buffering
 required when large segments are mapped.  This field is ignored on
 Unix systems.  The default of 512 Kbytes seems to work well.
 
-log&lowbar;empty will be set by rvm&lowbar;query if the log is empty.
+log_empty will be set by rvm_query if the log is empty.
 This is to help applications determine when it is safe to transfer
 access control to a segment between processes.
 
 The pager option is used to specify a Mach external pager to be
 used with mappings of the segment.  This is not implemented at this time.
 
-The fields n&lowbar;uncommit and tid&lowbar;array are returned by
-rvm&lowbar;query to allow an application to discover uncommitted
-transactions.
-This is necessary if either rvm&lowbar;unmap or rvm&lowbar;terminate
-return an error code because such transactions are outstanding.
-n&lowbar;uncommit is set to the number of uncommitted transactions
-outstanding in a region, or in the entire segment, if no region is
-specified.
-If n&lowbar;uncommit is not zero, tid&lowbar;array will point to an array of
-length n&lowbar;uncommit of transaction identifiers.
+The fields n_uncommit and tid_array are returned by rvm_query to allow
+an application to discover uncommitted transactions.  This is
+necessary if either rvm_unmap or rvm_terminate return an error code
+because such transactions are outstanding.  n_uncommit is set to the
+number of uncommitted transactions outstanding in a region, or in the
+entire segment, if no region is specified.  If n_uncommit is not zero,
+tid_array will point to an array of length n_uncommit of transaction
+identifiers.
 
-The flags field is a bit vector used to specify other options to
-RVM.
-At present, the transaction optimization options
-RVM&lowbar;COALESCE&lowbar;RANGES and RVM&lowbar;COALESCE&lowbar;TRANS can be specified.
-Both are specified with RVM&lowbar;ALL&lowbar;OPTIMIZATIONS.
-The options in use are returned by rvm&lowbar;query.
+The flags field is a bit vector used to specify other options to RVM.
+At present, the transaction optimization options RVM_COALESCE_RANGES
+and RVM_COALESCE_TRANS can be specified.  Both are specified with
+RVM_ALL_OPTIMIZATIONS.  The options in use are returned by rvm_query.
 
 <sect1>RVM Region Descriptor and Segment Mapping<p>
-@Process(PageHeadings)
 
-Regions of recoverable storage are mapped into virtual memory for manipulation
-by a process.
-Mapped regions are described by the typedef rvm&lowbar;region&lowbar;t.
-This structure (actually pointers to its instances) is used as a handle to
-specify regions in mapping and transaction function calls.
-The fields of the structure are:
+Regions of recoverable storage are mapped into virtual memory for
+manipulation by a process.  Mapped regions are described by the
+typedef rvm_region_t.  This structure (actually pointers to its
+instances) is used as a handle to specify regions in mapping and
+transaction function calls.  The fields of the structure are:
 <descrip>
-<tag/data&lowbar;dev/Name of the segment file.
-<tag/dev&lowbar;length/64 bit segment maximum length.
+<tag/data_dev/Name of the segment file.
+<tag/dev_length/64 bit segment maximum length.
 <tag/offset/64 bit region offset in segment.
 <tag/vmaddr/Virtual memory base address of mapped region.
 <tag/length/Length, in bytes, of region.
-<tag/no&lowbar;copy/Do not copy segment data for mapped region if true.
+<tag/no_copy/Do not copy segment data for mapped region if true.
 </descrip>
-The file name and
-virtual memory address are pointers to character arrays.
+The file name and virtual memory address are pointers to character
+arrays.
 
-The dev&lowbar;length field is of type rvm&lowbar;offset&lowbar;t, a structure
-specifying the 64 bit disk offset.
-It specifies the maximum length of a segment that may be mapped, and
-permits enforcement of a resource limit on a segment.
-Optional for segments represented by files, it is required for disk
-partitions since there is no easy way to discover the partition size
-at run-time.
+The dev_length field is of type rvm_offset_t, a structure specifying
+the 64 bit disk offset.  It specifies the maximum length of a segment
+that may be mapped, and permits enforcement of a resource limit on a
+segment.  Optional for segments represented by files, it is required
+for disk partitions since there is no easy way to discover the
+partition size at run-time.
 
-The offset field is of type rvm&lowbar;offset&lowbar;t, and is the offset in
+The offset field is of type rvm_offset_t, and is the offset in
 the segment of the first byte of the region.
 
-The length field is of type rvm&lowbar;length&lowbar;t.  This numeric type is
+The length field is of type rvm_length_t.  This numeric type is
 guaranteed to always be of sufficient size to represent the maximum
 region length meaningful in the host machine address space.
 Functions and macros to manipulate length and offset
 types are provided and are described in the next section.
 
-The no&lowbar;copy field offers a performance enhancement when the data
+The no_copy field offers a performance enhancement when the data
 would be entirely replaced by the application.
 When the option is chosen by setting the field to true,
 the segment region is associated with the specified virtual memory
 region, but no data from the segment is copied into memory.
 This option is available with or without the external pager.
 
-Programs prepare for RVM function calls by creating an rvm&lowbar;region&lowbar;t record
-with the allocator rvm&lowbar;malloc&lowbar;region.
+Programs prepare for RVM function calls by creating an rvm_region_t record
+with the allocator rvm_malloc_region.
 Statically or globally allocated records must be initialized with
-rvm&lowbar;init&lowbar;region, which requires a pointer to the record.
+rvm_init_region, which requires a pointer to the record.
 All field values are entered directly into the records.
 
-When the region records are used, the file name is always
-required, but other fields may sometimes not be used.
-Certain fields are also used to return information.
-The descriptions of the functions will specify what is required and what is
-returned.
-After a region is mapped, the descriptor is used for all functions referencing
-the region.
+When the region records are used, the file name is always required,
+but other fields may sometimes not be used.  Certain fields are also
+used to return information.  The descriptions of the functions will
+specify what is required and what is returned.  After a region is
+mapped, the descriptor is used for all functions referencing the
+region.
 
 <sect>Statistics Collection<p>
-@Process(PageHeadings)
 
 RVM collects various statistics about its performance and the
-characteristics of the applications transaction behavior.
-All statistics are collected for both current and cumulative periods.
-The current period begins at RVM initialization time and continues
-until the next truncation.
-At truncation time, the current values are summed with the cumulative
-values.  The current fields are then reset.
+characteristics of the applications transaction behavior.  All
+statistics are collected for both current and cumulative periods.  The
+current period begins at RVM initialization time and continues until
+the next truncation.  At truncation time, the current values are
+summed with the cumulative values.  The current fields are then reset.
 Reseting the cumulative values can be done only by reinitializing the
 log, so the cumulative history is maintained from the time the log is
 initialized.
 
-To read the statistics, a <tt>rvm&lowbar;statistics&lowbar;t</tt> record is allocated
-with <tt>rvm&lowbar;malloc&lowbar;statistics</tt>, and passed to the <tt>rvm&lowbar;statistics</tt>
-function.
-The current and cumulative values are copied into the record and it
-is returned.
+To read the statistics, a <tt>rvm_statistics_t</tt> record is
+allocated with <tt>rvm_malloc_statistics</tt>, and passed to the
+<tt>rvm_statistics</tt> function.  The current and cumulative values
+are copied into the record and it is returned.
 
 As RVM is developed, the statistics are expected to change.
-Consequently, the definition of the <tt>rvm&lowbar;statistics&lowbar;t</tt> record that
-is used to present the values to the application is not included in
-the standard RVM library header.
-A secondary header file, <tt>rvm&lowbar;statistics.h</tt>, is used so that the
-statistics version can change independently of the primary program
-interface.  If the application
-program makes minimal direct use of the fields in the
-<tt>rvm&lowbar;statistics&lowbar;t</tt> record, the anticipated changes should cause
+Consequently, the definition of the <tt>rvm_statistics_t</tt> record
+that is used to present the values to the application is not included
+in the standard RVM library header.  A secondary header file,
+<tt>rvm_statistics.h</tt>, is used so that the statistics version can
+change independently of the primary program interface.  If the
+application program makes minimal direct use of the fields in the
+<tt>rvm_statistics_t</tt> record, the anticipated changes should cause
 little reprogramming inconvenience.
 
 To further insulate the application program from changes in the
-statistics, a printing function <tt>rvm&lowbar;print&lowbar;statistics</tt>, is also
-included.  If statistics are
-simply captured and printed, the details of the statistics record are
-completely hidden.
-The statistics can also be printed with the <tt>rvmutl</tt> log utility.
+statistics, a printing function <tt>rvm_print_statistics</tt>, is also
+included.  If statistics are simply captured and printed, the details
+of the statistics record are completely hidden.  The statistics can
+also be printed with the <tt>rvmutl</tt> log utility.
 
 For detailed specification of the statistics currently collected,
-consult the header file <tt>rvm&lowbar;statistics.h</tt>, which printed in
-Appendix <ref id="RVMheaders" name="XXX">, p. @PageRef(rvmstatsh).
+consult the header file <tt>rvm_statistics.h</tt>, which printed in
+Appendix <ref id="RVMheaders" name="of C Declaration of RVM">.
 
 <sect>Address, Length, and Offset Arithmetic<p>
 <label id="Offset">
-The <tt>rvm&lowbar;length&lowbar;t</tt> and <tt>rvm&lowbar;offset&lowbar;t</tt> types are intended to shield
-applications from machine-dependent representations of large values.
-Using basic C types such as unsigned long for region lengths may
-not work on machines 
-with virtual address spaces greater than 2@+(32).
-Type long may continue to be defined as a 32-bit quantity in some
-C compilers so rvm&lowbar;length&lowbar;t will always be defined as an
-integer type wide enough to hold the largest virtual memory region
-possible on the host machine.
+The <tt>rvm_length_t</tt> and <tt>rvm_offset_t</tt> types are intended
+to shield applications from machine-dependent representations of large
+values.  Using basic C types such as unsigned long for region lengths
+may not work on machines with virtual address spaces greater than
+<f>2<sup>32</sup></f>.  Type long may continue to be defined as a
+32-bit quantity in some C compilers so rvm_length_t will always be
+defined as an integer type wide enough to hold the largest virtual
+memory region possible on the host machine.
 
-Similarly, disk memories greater than 2@+(32) already exist.
-The rvm&lowbar;offset&lowbar;t will be guaranteed to provide 64-bit integer
-representation for segment offsets.
-On most present machines, this is implemented as two 32-bit fields,
-but on machines with 64-bit integer formats, rvm&lowbar;offset&lowbar;t may be
-defined as a single field.
-Applications are strongly discouraged from directly using the internal
-representations of either rvm&lowbar;length&lowbar;t or rvm&lowbar;offset&lowbar;t.
-Such use may create portability problems.
+Similarly, disk memories greater than <f>2<sup>32</sup></f> already
+exist.  The rvm_offset_t will be guaranteed to provide 64-bit integer
+representation for segment offsets.  On most present machines, this is
+implemented as two 32-bit fields, but on machines with 64-bit integer
+formats, rvm_offset_t may be defined as a single field.  Applications
+are strongly discouraged from directly using the internal
+representations of either rvm_length_t or rvm_offset_t.  Such use may
+create portability problems.
 
 The following functions and macros are provided for manipulating
-rvm&lowbar;length&lowbar;ts and virtual memory addresses:
+rvm_length_ts and virtual memory addresses:
 
-<code>
-RVM&lowbar;ADD&lowbar;LENGTH&lowbar;TO&lowbar;ADDR (vmaddr,length) /* add length to address, */
-@\char@\*vmaddr;@\/* returning result as value of macro */
-@\rvm&lowbar;length&lowbar;t@\length;@\/* with type char *  */
-RVM&lowbar;SUB&lowbar;LENGTH&lowbar;FROM&lowbar;ADDR (vmaddr,length) /* subtract length from address, */
-@\char@\*vmaddr;@\/* returning result as value of macro */
-@\rvm&lowbar;length&lowbar;t@\length;@\/* with type char *   */
-</code>
+<verb>
+RVM_ADD_LENGTH_TO_ADDR (vmaddr,length) /* add length to address, */
+  char          *vmaddr;  /* returning result as value of macro */
+  rvm_length_t  length;   /* with type char *  */
+RVM_SUB_LENGTH_FROM_ADDR (vmaddr,length) /* subtract length from address, */
+  char          *vmaddr;  /* returning result as value of macro */
+  rvm_length_t  length;   /* with type char *   */
+</verb>
 
 The following macros are provided for manipulating, comparing, and converting
 offsets.
 
-<code>
-RVM&lowbar;ADD&lowbar;OFFSETS (x,y)@\/* add y to x, */
-@\rvm&lowbar;offset&lowbar;t@\x;@\/* return offset result */
-@\rvm&lowbar;offset&lowbar;t@\y;
+<verb>
+RVM_ADD_OFFSETS (x,y)  /* add y to x, */
+  rvm_offset_t  x;     /* return offset result */
+  rvm_offset_t  y;
 
-RVM&lowbar;SUB&lowbar;OFFSETS (x,y)@\/* subtract y from x, */
-@\rvm&lowbar;offset&lowbar;t@\x;@\/* return offset result */
-@\rvm&lowbar;offset&lowbar;t@\y;
+RVM_SUB_OFFSETS (x,y)  /* subtract y from x, */
+  rvm_offset_t  x;     /* return offset result */
+  rvm_offset_t  y;
 
-RVM&lowbar;ADD&lowbar;LENGTH&lowbar;TO&lowbar;OFFSET (x,y)@\/* add length y to offset x, */
-@\rvm&lowbar;offset&lowbar;t@\x;@\/* return offset result */
-@\rvm&lowbar;length&lowbar;t@\y;
+RVM_ADD_LENGTH_TO_OFFSET (x,y)  /* add length y to offset x, */
+  rvm_offset_t  x;     /* return offset result */
+  rvm_length_t  y;
 
-RVM&lowbar;SUB&lowbar;LENGTH&lowbar;FROM&lowbar;OFFSET (x,y)@\/* subtract length y from offset x, */
-@\rvm&lowbar;offset&lowbar;t@\x;@\/* return offset result */
-@\rvm&lowbar;length&lowbar;t@\y;
+RVM_SUB_LENGTH_FROM_OFFSET (x,y)  /* subtract length y from offset x, */
+  rvm_offset_t  x;     /* return offset result */
+  rvm_length_t  y;
 
-RVM&lowbar;MK&lowbar;OFFSET (x,y)@\/* make an offset from two lengths  x, y, */
-@\/* return offset result */
-@\rvm&lowbar;length&lowbar;t@\x;@\/* high order bits */
-@\rvm&lowbar;length&lowbar;t@\y;@\/* low order bits */
+RVM_MK_OFFSET (x,y)    /* make an offset from two lengths  x, y, */
+                       /* return offset result */
+  rvm_length_t  x;     /* high order bits */
+  rvm_length_t  y;     /* low order bits */
+		     
+RVM_OFFSET_INITIALIZER (x,y)  /* compile-time initializer for offsets */
+  rvm_length_t  x;     /* high order bits */
+  rvm_length_t  y;     /* low order bits */
+		     
+RVM_ZERO_OFFSET (x)    /* zero all 64 bits of x */
+  rvm_offset_t  x;
 
-RVM&lowbar;OFFSET&lowbar;INITIALIZER (x,y)@\/* compile-time initializer for offsets */
-@\rvm&lowbar;length&lowbar;t@\x;@\/* high order bits */
-@\rvm&lowbar;length&lowbar;t@\y;@\/* low order bits */
+RVM_OFFSET_TO_LENGTH (x)  /* return low-order bits of offset x as length */
+  rvm_offset_t  x;
 
-RVM&lowbar;ZERO&lowbar;OFFSET (x)@\/* zero all 64 bits of x */
-@\rvm&lowbar;offset&lowbar;t@\x;
+RVM_OFFSET_HIGH_BITS_TO_LENGTH (x)  /* return the high-order bits offset x as length */
+  rvm_offset_t  x;
 
-RVM&lowbar;OFFSET&lowbar;TO&lowbar;LENGTH (x)@\/* return low-order bits of offset x as length */
-@\rvm&lowbar;offset&lowbar;t@\x;
-
-RVM&lowbar;OFFSET&lowbar;HIGH&lowbar;BITS&lowbar;TO&lowbar;LENGTH (x)@\/* return the high-order bits offset x as length */
-@\rvm&lowbar;offset&lowbar;t@\x;
-
-RVM&lowbar;LENGTH&lowbar;TO&lowbar;OFFSET (x)@\/* construct offset from length x */
-@\rvm&lowbar;length&lowbar;t@\x;
-</code>
+RVM_LENGTH_TO_OFFSET (x)  /* construct offset from length x */
+  rvm_length_t  x;
+</verb>
 
 The comparison macros return 1 if the comparison is true; 0 otherwise:
 
-<code>
-RVM&lowbar;OFFSET&lowbar;~(x,y)@\/* comparators, return 1 if comparison is true */
-@\rvm&lowbar;offset&lowbar;t@\x;@\/* operators (~): LSS, LEQ, GTR, GEQ, EQL */
-@\rvm&lowbar;offset&lowbar;t@\y;
+<verb>
+RVM_OFFSET_~(x,y)   /* comparators, return 1 if comparison is true */
+  rvm_offset_t  x;  /* operators (~): LSS, LEQ, GTR, GEQ, EQL */
+  rvm_offset_t  y;
 
-RVM&lowbar;OFFSET&lowbar;EQL&lowbar;ZERO (x)@\/* return 1 if offset x is zero */
-@\rvm&lowbar;offset&lowbar;t@\x;
-</code>
+RVM_OFFSET_EQL_ZERO (x)  /* return 1 if offset x is zero */
+  rvm_offset_t  x;
+</verb>
 For convenience in mapping, the following macros provide integral, page-sized
 conversions:
-<code>
-RVM&lowbar;PAGE&lowbar;SIZE@\/* return page size as rvm&lowbar;length&lowbar;t */
+<verb>
+RVM_PAGE_SIZE       /* return page size as rvm_length_t */
 
-RVM&lowbar;ROUND&lowbar;LENGTH&lowbar;UP&lowbar;TO&lowbar;PAGE&lowbar;SIZE (x)@\/* return length x rounded up */
-@\rvm&lowbar;length&lowbar;t@\x;@\/* to next integral page-sized length */
+RVM_ROUND_LENGTH_UP_TO_PAGE_SIZE (x)  /* return length x rounded up */
+  rvm_length_t  x;  /* to next integral page-sized length */
 
-RVM&lowbar;ROUND&lowbar;LENGTH&lowbar;DOWN&lowbar;TO&lowbar;PAGE&lowbar;SIZE (x)@\/* return length x truncated */
-@\rvm&lowbar;length&lowbar;t@\x;@\/* to integral page-sized length */
+RVM_ROUND_LENGTH_DOWN_TO_PAGE_SIZE (x)  /* return length x truncated */
+  rvm_length_t  x;  /* to integral page-sized length */
 
-RVM&lowbar;ROUND&lowbar;ADDR&lowbar;UP&lowbar;TO&lowbar;PAGE&lowbar;SIZE (x)@\/* return address x rounded up */
-@\char@\*x;@\/* to next integral page size */
+RVM_ROUND_ADDR_UP_TO_PAGE_SIZE (x)  /* return address x rounded up */
+  char  *x;         /* to next integral page size */
 
-RVM&lowbar;ROUND&lowbar;ADDR&lowbar;DOWN&lowbar;TO&lowbar;PAGE&lowbar;SIZE (x)@\/* return address x truncated */
-@\char@\*x;@\/* to integral page size */
+RVM_ROUND_ADDR_DOWN_TO_PAGE_SIZE (x)  /* return address x truncated */
+  char  *x;         /* to integral page size */
 
-RVM&lowbar;ROUND&lowbar;OFFSET&lowbar;UP&lowbar;TO&lowbar;PAGE&lowbar;SIZE (x)@\/* return offset x rounded up */
-@\rvm&lowbar;offset&lowbar;t@\x;@\/* to next integral page-sized offset */
+RVM_ROUND_OFFSET_UP_TO_PAGE_SIZE (x)  /* return offset x rounded up */
+  rvm_offset_t  x;  /* to next integral page-sized offset */
 
-RVM&lowbar;ROUND&lowbar;OFFSET&lowbar;DOWN&lowbar;TO&lowbar;PAGE&lowbar;SIZE (x)@\/* return offset x truncated */
-@\rvm&lowbar;offset&lowbar;t@\x;@\/* to integral page-sized offset */
+RVM_ROUND_OFFSET_DOWN_TO_PAGE_SIZE (x)  /* return offset x truncated */
+  rvm_offset_t  x;  /* to integral page-sized offset */
 
-</code>
+</verb>
 
 <chapt>Library Functions<p>
+<label id="rvmAPI">
+In this and the next two chapters, funtions of the RVM runtime library
+will be briefly presented in groups, and then the actual man pages of the
+functions will be presented.
+
 <sect>Initialization, Options, and Mapping Functions<p>
 
-
-@include(rvm&lowbar;initialize.mss)
-@Include(rvm&lowbar;set&lowbar;options.mss)
-@Include(rvm&lowbar;terminate.mss)
-@Include(rvm&lowbar;map.mss)
-@Include(rvm&lowbar;unmap.mss)
-
-@NewPage
-@DraftPageFooting(Odd="T",Immediate="T",Left="@Value(SystemRelease)",
-	Center="@Value(Date)",Right="@Value(Page)")
-@DraftPageFooting(Even="T",Immediate="T",Left="@Value(Page)",
-	Center="@Value(Date)",Right="@Value(SystemRelease)")
-
-<sect>Transaction Functions<p>
-@Process(PageHeadings)
-
-Transactions are used to change recoverable storage.
-A single transaction can modify any number of mapped regions.
-Addresses used in modifications to recoverable storage are virtual addresses
-and only virtual memory is modified directly.
-RVM will perform the translation into segment offsets based on the mapped region
-descriptors.
-The modifications become permanent only when a transaction commits.
-
-To initiate a transaction, a transaction identifier record (rvm&lowbar;tid&lowbar;t) is created and presented to rvm&lowbar;start&lowbar;transaction
-which will give the transaction a unique identifier.
-A pointer to the record becomes a handle that 
-must be used for all subsequent operations on the transaction.
-The record can be created with the rvm&lowbar;malloc&lowbar;tid function (see p.
-@PageRef(AllocFuncs)).
-
-The transaction identifier record has two time
-value fields that mark the approximate time when the transaction was
-begun.
-Because the Unix kernel call gettimeofday underlying the timestamps
-is defined in microseconds, but many machine clocks do not have that
-fine resolution, the value can be no more precise than the machines
-clock.
-Also, RVM may increment the lowest order bits to generate a unique
-name without having to perform a kernel call.
-The value can still be presented to the time formatting routines available
-to extract a printable time.
-The fields, both integers, are contained in the <tt>struct timeval</tt>
-field <tt>uname</tt>:
+There are five functions for this groups:
 <descrip>
-<tag/tv&lowbar;sec/Seconds since Jan. 1, 1970.
-<tag/tv&lowbar;usec/Microseconds since last second "tick."
+<tag/rvm_initialize/ Initialization of RVM runtime library
+<tag/rvm_set_options/ Changes RVM options after initialization
+<tag/rvm_terminate/ Clean termination of RVM runtime library
+<tag/rvm_map/ Mapping all or part of data segment to virtual memory
+<tag/rvm_unmap/ Ummapping previouslly mapped segment
+</descrip>
+
+&newpage;
+&minit;
+
+&newpage;
+&msetopt;
+
+&newpage;
+&mterm;
+
+&newpage;
+&mmap;
+
+&newpage;
+&munmap;
+
+&newpage;
+<sect>Transaction Functions<p>
+
+Transactions are used to change recoverable storage.  A single
+transaction can modify any number of mapped regions.  Addresses used
+in modifications to recoverable storage are virtual addresses and only
+virtual memory is modified directly.  RVM will perform the translation
+into segment offsets based on the mapped region descriptors.  The
+modifications become permanent only when a transaction commits.
+
+To initiate a transaction, a transaction identifier record (rvm_tid_t)
+is created and presented to rvm_start_transaction which will give the
+transaction a unique identifier.  A pointer to the record becomes a
+handle that must be used for all subsequent operations on the
+transaction.  The record can be created with the rvm_malloc_tid
+function (see section <ref id="AllocFuncs" name="of RVM structures">).
+
+The transaction identifier record has two time value fields that mark
+the approximate time when the transaction was begun.  Because the Unix
+kernel call gettimeofday underlying the timestamps is defined in
+microseconds, but many machine clocks do not have that fine
+resolution, the value can be no more precise than the machines clock.
+Also, RVM may increment the lowest order bits to generate a unique
+name without having to perform a kernel call.  The value can still be
+presented to the time formatting routines available to extract a
+printable time.  The fields, both integers, are contained in the
+<tt>struct timeval</tt> field <tt>uname</tt>:
+<descrip>
+<tag/tv_sec/Seconds since Jan. 1, 1970.
+<tag/tv_usec/Microseconds since last second "tick."
 </descrip>
 
 RVM offers several options to control logging in transactions.
 The intent in all cases is to take advantage of special situations that may
 be known to the application and can be used to optimize the timing of,
 or eliminate, log operations.
-If a transaction cannot abort, using no&lowbar;restore transactions will
+If a transaction cannot abort, using no_restore transactions will
 enhance performance.
 
 The options supported are:
 <descrip>
 <tag/restore/Create old and new value log records for modifications;
 restore virtual memory after an abort.
-<tag/no&lowbar;restore/Do not create old value log records; virtual memory
+<tag/no_restore/Do not create old value log records; virtual memory
 not restored after an abort.
 <tag/flush/Flush log on commit.
-<tag/no&lowbar;flush/Do not flush log on commit.
+<tag/no_flush/Do not flush log on commit.
 </descrip>
 
 Note that options can be specified at transaction start and commit.
-The restore, and no&lowbar;restore options are valid only at the
+The restore, and no_restore options are valid only at the
 beginning of a transaction.
-The flush and no&lowbar;flush options are valid only at transaction
+The flush and no_flush options are valid only at transaction
 end (commit).
 At either transaction beginning or end, only one option can be specified.
 
-@Include(rvm&lowbar;begin&lowbar;transaction.mss)
-@Include(rvm&lowbar;set&lowbar;range.mss)
-@Include(rvm&lowbar;modify&lowbar;bytes.mss)
-@Include(rvm&lowbar;abort&lowbar;transaction.mss)
-@Include(rvm&lowbar;end&lowbar;transaction.mss)
 
-@NewPage
-@DraftPageFooting(Odd="T",Immediate="T",Left="@Value(SystemRelease)",
-	Center="@Value(Date)",Right="@Value(Page)")
-@DraftPageFooting(Even="T",Immediate="T",Left="@Value(Page)",
-	Center="@Value(Date)",Right="@Value(SystemRelease)")
+&newpage;
+&mbegint;  
 
+&newpage;
+&msetrng;  
+
+&newpage;
+&mmodbyte; 
+
+&newpage;
+&mabortt;  
+
+&newpage;
+&mendt;    
+
+&newpage;
 <sect>Log Control Operations<p>
-@Process(PageHeadings)
 
 <sect1>Log Flush and Truncation<p>
 If an application is scheduling log operations, it can explicitly
-invoke the flush and truncate operations with the rvm&lowbar;flush and
-rvm&lowbar;truncate functions.
-Both of these functions are considered "slow" operations since they
+invoke the flush and truncate operations with the rvm_flush and
+rvm_truncate functions.
+Both of these functions are considered <em/slow/ operations since they
 require disk operations, and will lock out other RVM functions
-requiring disk access, particularly rvm&lowbar;end&lowbar;transaction in flush mode.
+requiring disk access, particularly rvm_end_transaction in flush mode.
 If invoked by more than one thread, these operations will be
 serialized in the order received by RVM.
 
@@ -1372,7 +1434,7 @@ is empty, and will return immediately.
 
 <sect1>Log Initialization<p>
 
-The function rvm&lowbar;create&lowbar;log can be used to create log files,
+The function rvm_create_log can be used to create log files,
 <em>provided</em> that the file does not already exist.
 This requirement is made to prevent applications that automatically
 create a log file on startup from destroying the log records that are
@@ -1381,79 +1443,94 @@ necessary to recover from a crash.
 Either files or raw disk partitions can be initialized as logs with the
 utility rvmutl. (Raw disk partitions can only be initialized by
 rvmutl).
-Details are found in Chapter <ref id="rvmutl" name="XXX">, p. @PageRef(rvmutl).
+Details are found in Chapter <ref id="rvmutl" name="of rvmutl">.
 
-@Include(rvm&lowbar;flush.mss)
-@Include(rvm&lowbar;truncate.mss)
-@Include(rvm&lowbar;create&lowbar;log.mss)
+&newpage;
+&mflush;
 
-@NewPage
-@DraftPageFooting(Odd="T",Immediate="T",Left="@Value(SystemRelease)",
-	Center="@Value(Date)",Right="@Value(Page)")
-@DraftPageFooting(Even="T",Immediate="T",Left="@Value(Page)",
-	Center="@Value(Date)",Right="@Value(SystemRelease)")
+&newpage;
+&mtrunc;   
+   
+&newpage;
+&mcrealog; 
+
+&newpage;
 
 <sect>Query and Statistics Functions<p>
-@Process(PageHeadings)
 
 RVM allows the application to query the settings of options and some
-internal state with <tt>rvm&lowbar;query</tt>.  Access to the statistics
-automatically collected by RVM is provided by <tt>rvm&lowbar;statistics</tt>.
+internal state with <tt>rvm_query</tt>.  Access to the statistics
+automatically collected by RVM is provided by <tt>rvm_statistics</tt>.
 
 The query and statistics functions require that the application
 allocate records for the data to be returned.  In general, the
 application is responsible for deallocation of these records, although
 they can be used in multiple calls to their respective functions.
-As with other records types in RVM, the <tt>rvm&lowbar;options&lowbar;t</tt> and
-<tt>rvm&lowbar;statistics&lowbar;t</tt> records must be allocated or initialized with the
+As with other records types in RVM, the <tt>rvm_options_t</tt> and
+<tt>rvm_statistics_t</tt> records must be allocated or initialized with the
 provided type-specific functions.
 
-Because <tt>rvm&lowbar;query</tt> must return two variable length items, some
+Because <tt>rvm_query</tt> must return two variable length items, some
 special allocation conventions must be observed.
 If the name of the log file is to be returned, the caller must
 allocate a buffer of <tt>MAXPATHLEN+1</tt> characters and place a pointer
-to it in the <tt>log&lowbar;dev</tt> field.
+to it in the <tt>log_dev</tt> field.
 The file name will be copied into the buffer.
 The buffer will not be deallocated by RVM.
-The <tt>log&lowbar;dev</tt> field should be null if the name of the log is not to
+The <tt>log_dev</tt> field should be null if the name of the log is not to
 be returned.
 
-The tid&lowbar;array vector is always returned if uncommitted
+The tid_array vector is always returned if uncommitted
 transactions are present.  Since the length isnt known before the
-call, <tt>rvm&lowbar;query</tt> must do the allocation.  This results in the
+call, <tt>rvm_query</tt> must do the allocation.  This results in the
 following deallocation conventions:
-for option records allocated with <tt>rvm&lowbar;malloc&lowbar;options</tt>, the array
+for option records allocated with <tt>rvm_malloc_options</tt>, the array
 should not be deallocated by the application since this will be done by
-<tt>rvm&lowbar;free&lowbar;options</tt>.
+<tt>rvm_free_options</tt>.
 However, if the options record is allocated on the stack, the array
 must be explicitly deallocated by the application, or space will be
 lost.
 
 Deallocation of the array in statically allocated options records is
 optional: repeated use of the record will cause the array to be
-reallocated as necessary by <tt>rvm&lowbar;query</tt> with no explicit action by
+reallocated as necessary by <tt>rvm_query</tt> with no explicit action by
 the application.  If you do deallocate the array, you <em>must</em> null the
 pointer to avoid a possible internal error due the dangling pointer.
 
 No special deallocation conventions are required for
-<tt>rvm&lowbar;statistics&lowbar;t</tt> records.
+<tt>rvm_statistics_t</tt> records.
 
-@Include(rvm&lowbar;query.mss)
-@Include(rvm&lowbar;statistics.mss)
-@Include(rvm&lowbar;print&lowbar;statistics.mss)
+&newpage;
+&mquery;   
 
+&newpage;
+&mstat;    
 
-@Include(rvm&lowbar;chap&lowbar;rvmseg.mss)
-@Include(rvm&lowbar;chap&lowbar;rds.mss)
-@Include(rvm&lowbar;chap&lowbar;rvmutl.mss)
+&newpage;
+&mprnstat; 
 
+&newpage;
 
-@Include(rvm&lowbar;appndx&lowbar;import.mss)
-@Include(rvm&lowbar;appndx&lowbar;headers.mss)
+<!-- chapter on rvm segment loader -->
+&rvmseg;
 
+<!-- chapter on rds                -->
+&rvmrds;
 
-@DraftBibliography
-@DraftIndex
-@DraftContents
+<!-- chapter on rvm internals      -->
+&rvmint;
+
+<!-- chapter on rvmutl             -->
+&rvmutl;
+
+<appendix>
+
+<!-- appendix on import and installation -->
+&appndxim;
+
+<!-- appendix on header files            -->
+&appndxhd;
+
+<biblio style="alpha" files="rvm_manual">
 
 </report>

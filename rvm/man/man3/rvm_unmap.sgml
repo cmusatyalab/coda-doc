@@ -1,59 +1,54 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=3>
-<sect1>NAME 
- <P> - unmap segment region
+<manpage TITLE="rvm_unmap" SECTNUM=3>
+<mansect>NAME 
+ <P>rvm_unmap - unmap segment region
 
-")
-@ToC(Contents="rvm&lowbar;unmap")
-@IndexEntry(Key="rvm&lowbar;unmap",Entry="rvm&lowbar;unmap, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rvm&lowbar;unmap",Text2="rvm&lowbar;unmap")
 
-<sect1>synopsis
-<tt>#include "rvm.h"</tt>
+<mansect>SYNOPSIS
+<P>
+<verb>
+#include "rvm.h"
 
-<tt>typedef struct
-    &lcub;
-    char            *data&lowbar;dev;
-    rvm&lowbar;offset&lowbar;t    dev&lowbar;length;
-    rvm&lowbar;offset&lowbar;t    offset;
+typedef struct
+    {
+    char            *data_dev;
+    rvm_offset_t    dev_length;
+    rvm_offset_t    offset;
     char            *vmaddr;
-    rvm&lowbar;length&lowbar;t    length;
-    bool            no&lowbar;copy;
-    &rcub;
-rvm&lowbar;region&lowbar;t;</tt>
+    rvm_length_t    length;
+    bool            no_copy;
+    }
+rvm_region_t;
 
-<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;unmap (region)</tt>
+rvm_return_t rvm_unmap (region)
 
-@Opt3(Name="<tt>rvm&lowbar;region&lowbar;t</tt>",Desc="<tt>*region</tt>",
-	Expl="pointer to region descriptor")
+rvm_region_t *region;   /* pointer to region descriptor */
+</verb>
 
-
-<sect1>description<P>
-rvm&lowbar;unmap releases mapped buffers.
+<mansect>DESCRIPTION<P>
+rvm_unmap releases mapped buffers.
 The virtual memory space is freed for other uses, but not returned to Unix.
-This is true even if the space was allocated by rvm&lowbar;map, in which
+This is true even if the space was allocated by rvm_map, in which
 case attempts to deallocate it with free will result in error.
 If the space was originally allocated from the heap by the
 application, using free is permissible.
 
 If vmaddr is invalid, length is zero, or the
 range is not within
-valid virtual memory limits, RVM&lowbar;ERANGE is returned.
+valid virtual memory limits, RVM_ERANGE is returned.
 The address range must represent a mapped region of a segment,
-otherwise RVM&lowbar;ENOT&lowbar;MAPPED is returned.
-The region unmapped must be the same as that mapped, or RVM&lowbar;ERANGE
-or RVM&lowbar;ENOT&lowbar;MAPPED, as appropriate, will be returned.
+otherwise RVM_ENOT_MAPPED is returned.
+The region unmapped must be the same as that mapped, or RVM_ERANGE
+or RVM_ENOT_MAPPED, as appropriate, will be returned.
 A region cannot be split by unmapping part of it.
-Use of the region descriptor as returned by rvm&lowbar;map for the region
+Use of the region descriptor as returned by rvm_map for the region
 is recommended.
 
 Before a region of a segment can be unmapped, there must be no uncommitted
 transactions affecting that region.
-RVM checks this and will return the code RVM&lowbar;EUNCOMMIT if any exist.
-The function rvm&lowbar;query can be used to discover the uncommitted
+RVM checks this and will return the code RVM_EUNCOMMIT if any exist.
+The function rvm_query can be used to discover the uncommitted
 transaction (s).
 Discovery of an uncommitted transaction in a region to be unmapped is a
 likely indicator of program logic errors.
@@ -64,33 +59,23 @@ If several regions are unmapped, truncation after the last unmapped
 will insure no mapping delay if any are remapped.
 
 
-<sect1>diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
+<tag/RVM_SUCCESS/ success
+<tag/RVM_EREGION/ invalid region descriptor or pointer
+<tag/RVM_ERANGE/ virtual memory address range does not match mapped
+region
+<tag/RVM_EUNCOMMIT/ uncommitted transaction(s) pending
+<tag/RVM_ENOT_MAPPED/ designated region not mapped
+<tag/RVM_EINIT/ RVM not initialized
+</descrip>
 
 
-<sect1>See also<P>
-<tt>rvm&lowbar;map (3)</tt>, <tt>rvm&lowbar;set&lowbar;options (3)</tt>, and <tt>rvm&lowbar;query (3)</tt>
+<mansect>SEE ALSO<P>
+<tt>rvm_map (3)</tt>, <tt>rvm_set_options (3)</tt>, and <tt>rvm_query (3)</tt>
 
 
-<sect1>author<P>
+<mansect>AUTHOR<P>
 Hank Mashburn
 
 

@@ -1,47 +1,39 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=3>
-<sect1>NAME 
- <P> - RVM log file creation
+<manpage TITLE="rvm_create_log" SECTNUM=3>
+<mansect>NAME 
+ <P>rvm_create_log - RVM log file creation
 
-")
-@ToC(Contents="rvm&lowbar;create&lowbar;log")
-@IndexEntry(Key="rvm&lowbar;create&lowbar;log",Entry="rvm&lowbar;create&lowbar;log, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rvm&lowbar;create&lowbar;log",Text2="rvm&lowbar;create&lowbar;log")
+<mansect>SYNOPSIS
+<p>
+<verb>
+#include "rvm.h"
 
-<sect1>synopsis
-<tt>#include "rvm.h"</tt>
+rvm_return_t rvm_create_log (options, length, mode)
 
-<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;create&lowbar;log (options, length, mode)</tt>
+rvm_options   *options;  /* pointer to a RVM options record */
+rvm_offset_t  *length;   /* length of log record area in file to be created */
+long          mode;      /* protection mode of file to be created */
+</verb>
 
-@Opt3(Name="<tt>rvm&lowbar;options&lowbar;t</tt>",Desc="<tt>*options</tt>",
-	Expl="pointer to a RVM options record")
-@Opt3(Name="<tt>rvm&lowbar;offset&lowbar;t</tt>",Desc="<tt>*length</tt>",
-	Expl="length of log record area in file to be created")
-@Opt3(Name="<tt>long</tt>",Desc="<tt>mode</tt>",
-	Expl="protection mode of file to be created")
-
-
-<sect1>Description<P>
-rvm&lowbar;create&lowbar;log provides a mechanism for creating a log file from
+<mansect>DESCRIPTION<P>
+rvm_create_log provides a mechanism for creating a log file from
 within an application.
 It is intended to allow an application to be self-installing by
 silently creating the log and other RVM structures it needs.
 To provide some protection against an applications automatically
-over-writing a log containing valid records, rvm&lowbar;create&lowbar;log can
+over-writing a log containing valid records, rvm_create_log can
 be used to create logs in Unix files only, and only if the file does
 not already exist.
 Creating logs in raw partitions must be done with the utility
-rvmutl, discussed in Appendix <ref id="rvmutl" name="XXX">, p. @PageRef(rvmutl).
+<tt/rvmutl/.
 
 The name of the log file to be created must be specified in the options record.
-An options record created with typedef rvm&lowbar;options&lowbar;t must be used.
-RVM&lowbar;EOPTIONS will be returned if options does not point to a valid
+An options record created with typedef rvm_options_t must be used.
+RVM_EOPTIONS will be returned if options does not point to a valid
 record.
 If either the name is not provided, or the file cannot be created and
-initialized, RVM&lowbar;ELOG will be returned.
+initialized, RVM_ELOG will be returned.
 Also, the total length of the file to be created must be permitted by the
 file system.
 This includes the length specified for log records plus the overhead
@@ -52,44 +44,29 @@ The mode parameter is the Unix file system protection mode and
 must allow writing by the owner.  An i/o error will be returned if
 the file cannot be created or written.
 
-rvm&lowbar;create&lowbar;log does not declare the created log file as the
+rvm_create_log does not declare the created log file as the
 operational log.  This must be done by specifying an options
-descriptor to <tt>rvm&lowbar;set&lowbar;options</tt>, <tt>rvm&lowbar;initialize</tt>, or <tt>rvm&lowbar;map</tt>.
+descriptor to <tt>rvm_set_options</tt>, <tt>rvm_initialize</tt>, or <tt>rvm_map</tt>.
 
 
-<sect1>diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
+<tag/RVM_SUCCESS/ success
+<tag/RVM_ELOG/ no log file has been specified
+<tag/RVM_EIO/ I/O or kernel error, errno has code number
+<tag/RVM_EOPTIONS/ invalid RVM options record or pointer
+<tag/RVM_ENO_MEMORY/ heap exhausted
+<tag/RVM_ENAME_TOO_LONG/ file name longer than 1023 characters
+<tag/RVM_ETOO_BIG/ file length requested greater than file system permits
+<tag/RVM_EINIT/ RVM not initialized
+</descrip>
 
 
-<sect1>See also<P>
-<tt>rvm&lowbar;set&lowbar;options (3)</tt>, <tt>rvm&lowbar;initialize (3)</tt>, <tt>rvm&lowbar;map (3)</tt>
+<mansect>SEE ALSO<P>
+<tt>rvm_set_options (3)</tt>, <tt>rvm_initialize (3)</tt>, <tt>rvm_map (3)</tt>
 
 
-<sect1>author<P>
+<mansect>AUTHOR<P>
 Hank Mashburn
 
 

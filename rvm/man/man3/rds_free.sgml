@@ -1,87 +1,69 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=3>
-<sect1>NAME 
- <P> - return a block to the recoverable heap
+<manpage TITLE="rds_free" SECTNUM=3>
+<mansect>NAME 
+ <P>rds_free - return a block to the recoverable heap
 
-")
-@ToC(Contents="rds&lowbar;free")
-@IndexEntry(Key="rds&lowbar;free",Entry="rds&lowbar;free, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rds&lowbar;free",Text2="rds&lowbar;free")
+<mansect>SYNOPSIS
+<p>
+<verb>
+#include "rds.h"
 
-<sect1>Synopsis
-<tt>#include "rds.h"</tt>
+int rds_free (addr, tid, err)
 
-<tt>int rds&lowbar;free (addr, tid, err)</tt>
+char          *addr; /* address of block to be freed */
+rvm_tid_t     *tid;  /* optional pointer to transaction identifier */
+int           *err;  /* pointer to error return location */
 
-@Opt3(Name="<tt>char</tt>",Desc="<tt>*addr</tt>",
-	Expl="address of block to be freed")
-@Opt3(Name="<tt>rvm&lowbar;tid&lowbar;t</tt>",Desc="<tt>*tid</tt>",
-	Expl="optional pointer to transaction identifier")
-@Opt3(Name="<tt>int</tt>",Desc="*err",
-	Expl="pointer to error return location")
+</verb>
 
-
-<sect1>Description<P>
-<tt>rds&lowbar;free</tt> deallocates recoverable storage allocated by <tt>rds&lowbar;malloc</tt>.
+<mansect>DESCRIPTION<P>
+<tt>rds_free</tt> deallocates recoverable storage allocated by <tt>rds_malloc</tt>.
 The block to be deallocated is passed in the <tt>addr</tt> parameter.  This
-block must not already be free, or the <tt>EFREED&lowbar;TWICE</tt> error
+block must not already be free, or the <tt>EFREED_TWICE</tt> error
 code will be returned in <tt>err</tt>.
 
 Because deallocation actions in the recoverable heap must be done via
-transactions, <tt>rds&lowbar;free</tt> offers two choices for the transaction.
-In the first case, <tt>rds&lowbar;free</tt> can be instructed to use an existing
-transaction by passing the address of a valid <tt>rvm&lowbar;tid&lowbar;t</tt> record in
+transactions, <tt>rds_free</tt> offers two choices for the transaction.
+In the first case, <tt>rds_free</tt> can be instructed to use an existing
+transaction by passing the address of a valid <tt>rvm_tid_t</tt> record in
 the <tt>tid</tt> parameter.  This avoids extra transaction start and commit
 overhead and provides automatic reallocation if the transaction must
 later abort.
 
-If the available transaction was started in <tt>no&lowbar;restore</tt> mode, the
-<tt>tid</tt> parameter should be set to null, instructing <tt>rds&lowbar;free</tt> to
+If the available transaction was started in <tt>no_restore</tt> mode, the
+<tt>tid</tt> parameter should be set to null, instructing <tt>rds_free</tt> to
 start an internal transaction.
-This transaction will be committed in <tt>no&lowbar;flush</tt> mode if the
+This transaction will be committed in <tt>no_flush</tt> mode if the
 allocation is made, and aborted otherwise.
 
 In neither case can context swaps be permitted between deallocation and
 transaction commit or abort since the modified, but uncommitted, free lists are visible to other RDS actions.
 If this condition cannot be met, or if there is a
 possibility that the transaction will abort, the functions
-<tt>rds&lowbar;fake&lowbar;free</tt> and <tt>rds&lowbar;do&lowbar;free</tt> must be used.
+<tt>rds_fake_free</tt> and <tt>rds_do_free</tt> must be used.
 
 
-<sect1>Diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag>positive values,Desc</tag>
-<P></descrip>
+<tag/SUCCESS/ success
+<tag/EFREED_TWICE/ block is already free
+<tag/ECORRUPT/ RDS heap damaged
+<tag/EBAD_ARGS/ block is not on 4 byte boundary
+<tag/EHEAP_INIT/ RDS not initialized
+<tag/positive values/ RVM return codes
+</descrip>
 
 
-<sect1>See also<P>
-<tt>rds&lowbar;malloc (3)</tt>, <tt>rds&lowbar;fake&lowbar;free (3)</tt>, <tt>rds&lowbar;do&lowbar;free (3)</tt>
+<mansect>SEE ALSO<P>
+<tt>rds_malloc (3)</tt>, <tt>rds_fake_free (3)</tt>, <tt>rds_do_free (3)</tt>
 
 
-<sect1>Author<P>
+<mansect>AUTHOR<P>
 David C. Steere
 
 
-<sect1>Bugs<P>
+<mansect>BUGS<P>
 The internal synchronization is not valid with pre-emptive threads.
 
 

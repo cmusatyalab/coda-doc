@@ -1,71 +1,54 @@
 
-<!doctype linuxdoc system>
 
-<manpage TITLE="" SECTNUM=3>
-<sect1>NAME 
- <P> - format and print statistics
+<manpage TITLE="rvm_print_statistics" SECTNUM=3>
+<mansect>NAME 
+ <P>rvm_print_statistics - format and print statistics
 
-")
-@ToC(Contents="rvm&lowbar;print&lowbar;statistics")
-@IndexEntry(Key="rvm&lowbar;print&lowbar;statistics",Entry="rvm&lowbar;print&lowbar;statistics, function",Number)
-@Index2ndary(Key1="Functions",Text1="Functions",
-    	Key2="rvm&lowbar;print&lowbar;statistics",Text2="rvm&lowbar;print&lowbar;statistics")
+<mansect>SYNOPSIS
+<p>
+<verb>
+#include "rvm_statistics.h"
 
-<sect1>Synopsis
-<tt>#include "rvm&lowbar;statistics.h"</tt>
-
-<tt>typedef struct
+typedef struct
     &lcub;
-    <em>see @T&lsqb;rvm&lowbar;statistics.h</tt> for current fields</em>
+    /* see rvm_statistics.h for current fields */
     &rcub;
-rvm&lowbar;statistics&lowbar;t;&rsqb;
+rvm_statistics_t;&rsqb;
 
-<tt>rvm&lowbar;return&lowbar;t rvm&lowbar;print&lowbar;statistics (statistics,out&lowbar;stream)</tt>
+rvm_return_t     rvm_print_statistics (statistics,out_stream);
+rvm_statistics_t *statistics; /* pointer to a statistics record */
+FILE             *out_stream; /* pointer to stdio stream */
+</verb>
 
-@Opt3(Name="<tt>rvm&lowbar;statistics&lowbar;t</tt>",Desc="<tt>*statistics</tt>",
-	Expl="pointer to a statistics record")
-@Opt3(Name="<tt>FILE</tt>",Desc="<tt>*out&lowbar;stream</tt>",
-	Expl="pointer to stdio stream")
-
-
-<sect1>Description<P>
-rvm&lowbar;print&lowbar;statistics formats an rvm&lowbar;statistics&lowbar;t record
-previously filled in by rvm&lowbar;statistics.  The formated output is
+<mansect>DESCRIPTION<P>
+rvm_print_statistics formats an rvm_statistics_t record
+previously filled in by rvm_statistics.  The formated output is
 set to the specified stream, which must first have been opened with
 fopen.
 
 For detailed specification of the statistics currently collected,
-consult the header file <tt>rvm&lowbar;statistics.h</tt>, which printed in
-Appendix <ref id="RVMheaders" name="XXX">, p. @PageRef(rvmstatsh).
+consult the header file <tt>rvm_statistics.h</tt>, which is also
+included in the RVM manual.
 
 This function can also be invoked from <tt>rvmutl</tt> with the
 <tt>statistics</tt> command.
 
 
-<sect1>Diagnostics<P>
+<mansect>DIAGNOSTICS<P>
 <descrip>
-<tag></tag>
-<P></descrip>
-<!--8 points-->
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
-<descrip>
-<tag></tag>
-<P></descrip>
+<tag/RVM_SUCCESS/ success
+<tag/RVM_ESTATISTICS/ Invalid statistics record or pointer
+<tag/RVM_EIO/ I/O or kernel error, errno has code number
+<tag/RVM_ELOG/ no log file has been specified
+<tag/RVM_EINIT/ RVM not initialized
+</descrip>
 
 
-<sect1>See also<P>
-<tt>rvm&lowbar;statistics (3)</tt>, <tt>rvmutl-statistics (1)</tt>
+<mansect>SEE ALSO<P>
+<tt>rvm_statistics (3)</tt>, <tt>rvmutl-statistics (1)</tt>
 
 
-<sect1>Author<P>
+<mansect>AUTHOR<P>
 Hank Mashburn
 
 
