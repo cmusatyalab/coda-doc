@@ -37,7 +37,7 @@ We strongly recommend that you try testserver.coda.cs.cmu.edu as the
 
 NOTE:
 The cache size should be at least 10Meg, typically 60-100Meg is used
-(ie. 60000 or 100000 on the above line).  DO NOT GO ABOVE 100Meg.
+(ie. 60000 or 100000 on the above line).  DO NOT GO ABOVE 200-300Meg.
 NOTE:
 venus-setup will edit /etc/services to add some additional services.)
 NOTE:
@@ -50,7 +50,7 @@ run these commands from NetBSD's virtual consoles as well, but
 omitting the "xterm -e" in front of the commands below.
 
 Start Venus with
-	venus -init &
+	venus &
 
 The init flag is only given the first time venus is started.  It flushes
 the local cache contents.  (Actually, the first time venus is started
@@ -62,7 +62,12 @@ It will tell you when venus has started and give status.
 
 Type 
     xterm -e codacon &
-to see the communications between the kernel and Venus.
+to see the communications between the Venus and Vice.  It is possible
+to see the upcalls from the kernel to Venus by turning up logging in
+Venus, but they are not very interesting.  (To turn on minimal debugging,
+type:
+	vutil -d 1
+and then tail .../coda.cache/venus.log.)
 
 
 NOTE:
@@ -172,20 +177,29 @@ shuts down the server.  Restart as above.
 4. Restarting a client.
 
 The official procedure is to:
-	vutil -shutdown
+	vutil shutdown
 
 kill -9 <venus> works equally well.  Then restart as stated above.
 
-If ps aux | grep venus displays a Zombie venus, you will probably need
-to reboot your machine before trying again.
+5. Troubleshooting the Server
 
-5. Troubleshooting.
-
-a) If the server crashes before you have used it through /coda, do rm
--rf /vice and start all over. At the minimum you must do before you
+If the server crashes before you have used it through /coda, do rm -rf
+/vice and start all over. At the minimum you must do before you
 restart.
 
-Remember: first clean, then startserver, then make rootvolumes.
+Remember: first clean, then startserver, then make rootvolumes, but ...
 
-b) If venus comes up but hangs or crashes, check for zombie venus
-processes. If these exist, reboot first.
+If your server doesn't come up, ask for help on
+linux-coda@coda.cs.cmu.edu.  It is Likely cleaning will reproduce the
+same problem.
+
+6. Troubleshooting the Client
+
+If venus comes up but hangs or crashes, check for zombie venus
+processes.  Also read the etc/console file and see if venus has an
+assertion failure.  If these happen, rebooting may help.
+
+If you are having repeatable difficulties starting venus, try starting
+venus with:
+	venus -init
+Occasionally, bad state is left in the cache and this will clear it out.
