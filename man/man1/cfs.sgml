@@ -12,6 +12,7 @@ cfs - Coda File System Interface Program
 <bf>cfs checkvolumes</bf><P>
 <bf>cfs clearpriorities</bf><P>
 <bf>cfs compress</bf> &lt;file&gt; &lsqb;&lt;file&gt; &lt;file&gt; ...&rsqb;<P>
+<bf>cfs [@cpu|@sys]</bf>
 <bf>cfs disconnect</bf><P>
 <bf>cfs endrepair</bf> &lt;file&gt;<P>
 <bf>cfs examineclosure</bf><P>
@@ -79,10 +80,17 @@ used for cache management.
 <P></descrip>
 
 <descrip>
-<tag><bf>compress</bf></tag>Compress given files in the cache.
-These files will be uncompressed automatically if they are touched or
+<tag><bf>compress</bf></tag>compress given files in the cache.
+these files will be uncompressed automatically if they are touched or
 can be explicitely uncompressed with the <em>cfs uncompress</em> command.
-<P></descrip>
+<p></descrip>
+
+<descrip>
+<tag><bf>@cpu or @sys</bf></tag> When the end of a pathname component is
+either @sys or @cpu, the local venus will replace these magic strings with
+a platform dependent string. These cfs commands can be used to check what
+the precise expansion values depending on the current OS/cpu.
+<p></descrip>
 
 <descrip>
 <tag><bf>disconnect</bf></tag>Partition your client from the
