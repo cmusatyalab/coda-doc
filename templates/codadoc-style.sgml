@@ -1,0 +1,220 @@
+<!doctype linuxdoc system "../dtd/linuxdoc.dtd">
+
+<!--	****************************************************************
+	*DRAFT* SGML style sheet for Coda documents.  
+	Src: /usr/doc/sgml-tools-1.0.2/example.sgml
+	****************************************************************
+ -->
+
+
+<article>
+
+<title>Coda Documents Style Guide
+<author>Roy Taylor
+<date>v1.0, 20 Jan 98
+<abstract>
+  This <em/Guide/ illustrates style conventions for Coda SGML documents 
+  and is intended for processing with the sgml-tools package.  
+</abstract>
+
+
+<toc>					<!-- Table of contents -->
+
+
+<sect>Introduction
+<p>
+This file illustrates many of the Linuxdoc constructs and the Coda extensions
+to them.  For more detail see the <em/SGML-Tools User's Guide/,
+<tt>/usr/doc/sgml-tools-1.0.2/guide.{sgml,txt,ps}</tt> or, better yet, the
+reorganized and slightly newer <url 
+  url="http://www.xs4all.nl/~cg/sgmltools/guide/guide.html" 
+  name="Web version,">.
+
+Format this (and similar Coda SGML files) thus to get the Unix `<tt/man/`
+page format:  
+<tscreen><verb>
+% sgml2txt -man style.sgml 
+</verb></tscreen>
+You can also generate LaTeX, HTML, GNU info, and plain ASCII.  
+The latter two will be less useful to us for now.  Typing <tt/sgml2latex/ 
+at the command level, for example, will list the options for LaTeX output,
+the most useful of which may be:   
+<tscreen><verb>
+% sgml2latex -d -p letter style
+</verb></tscreen>
+
+However, you need to be <bf><em/reading the SGML file itself/</bf> to see the
+tags and how they are actually used.  Currently a pre-beta version, the file
+lives in <tt>/afs/cs/project/coda-doc/examples/style.sgml</tt>.
+
+
+<sect>Linuxdoc Conventions
+<p>
+This <em/Guide/ uses the <tt/article/ document style, appropriate for HOWTOs
+and similar things.  The <tt/report/ style, suitable for Coda manuals, adds
+the <tt/chapt/ command, and the <tt/manpage/ style serves the obvious
+purpose.
+
+The source looks and feels like LaTeX, as you can see. Paragraphs are
+separated by blank lines, except following a section heading; macros are 
+enclosed in angle brackets. It's quite simple. 
+
+Here are several constructs you'll probably be using.  First, let's descend 
+into a subsection.  
+
+
+<sect1>Subsection Heading
+<p>
+Note that you need to use the <tt/p/ command to start the section body
+after each section command, <tt/sect1/, here.  Now go down another level.  
+
+
+<sect2>SubSubsection heading
+<p>
+Right. Five section levels are available: <tt/sect/, <tt/sect1/, <tt/sect2/,
+<tt/sect3/, and <tt/sect4/.  If you think you need that many, you should
+probably think again.  
+
+
+<sect1>Including Example Text
+<p>
+
+All right, you're typing along, and you want to show interaction with a
+program or a code sample, whatever. Use the <tt/verb/ or <tt/code/ 
+environments for this, wrapped in a <tt/tscreen/ environment, so:
+<tscreen><verb>
+This is an example verb environment.
+</verb></tscreen>
+As well as:
+<tscreen><code>
+This is an example code environment.
+</code></tscreen>
+The <tt/tscreen/ environment just sets the font to small type and 
+indents it nicely. It's not required for using <tt/verb/ or <tt/code/,
+but I suggest that you do. 
+
+The <em/Linuxdoc-SGML User's Guide/ explains what special characters you
+can and can't use in the <tt/verb/ and <tt/code/ environments. 
+
+
+<sect1>Cross References					<label id="test-ref">
+<p>
+What about cross-references? This section has been marked with the
+<tt/label/ command; using <tt/ref/ will provide a cross reference,
+as in ``See Section <ref id="test-ref">'' for more. 
+
+Right now cross-references don't work in the <tt/groff/ translation for 
+plain ASCII.  They do work when generating LaTeX or HTML output. [NOT --crt]
+
+
+<sect1>Using fonts
+<p>
+You want fonts, we got fonts. Of course these won't show up in the
+plain ASCII text, but they all map into the various output formats:
+<bf/boldface/, <em/emphasis/, <sf/sans serif/, <sl/slanted/,
+<tt/typewriter/, and <it/italics/.
+
+
+<sect1>Lists
+<p>
+Lists are easy as well. Just use the <tt/itemize/ element with the
+<tt/item/ commands, seen here:
+<itemize>
+<item> This is a list.
+<item> Nothing exciting about that.
+       <itemize> 
+       <item> Multiple levels are supported as well.
+       <item> Again, that's no surprise.
+       </itemize>
+       <enum>
+       <item> Enumerated lists using <tt>enum</> also work.
+       <item> Description environments using <tt>descrip</> along
+	      with <tt>tag</> are also available, as seen here.
+       </enum>
+       <descrip>
+       <tag/First item./ Here's one item.
+       <tag/Second item./ Here's another.
+       <tag/Third item./ Can we go for three?
+       </descrip>
+<item> A final item to top it all off.
+</itemize>
+
+
+<sect>CodaDoc Conventions
+<p>
+Finally, some Coda-specific things.  When the <tt>coda-doc</> style is fully
+operational, the following environments will ensure consistent style throughout
+our Coda documents.  Unfortunately, we're not quite there yet.  Please bear
+with us and, for the interim, use the recommended Linuxdoc pseudo-equivalents
+shown in the <tt/tag/s and examples below.  
+
+<sect1>Body text
+<p>
+Within running text we want command syntax to stand out:  
+<descrip>
+<tag><bf/cmd/</tag> For command names, keywords, and options that the 
+    user must enter verbatim, the <tt/cmd/ environment will typically 
+    generate bold, fixed-width text (not, of course, in ASCII output).  
+
+<tag><bf/[brackets]/</tag> To signal an omittable option, use square 
+    brackets.  
+
+<tag><bf/{braces}/</tag> Where the user must choose one from several 
+    options, surround the comma-separated set with braces.  
+
+<tag><sl/arg/</tag> For arguments and variable names that the user must 
+    replace with a relevant value, the <tt/arg/ environment will typically 
+    generate bold, slanted text.  <bf><em/Avoid/</bf> angle brackets.  
+
+<tag><tt/path/</tag>Paths, file names get fixed-width text
+
+<tag><url url="url"></tag>Uniform resource locators include a <tt/url/ 
+    attribute and an optional <tt/name/ attribute.  Beware the syntax:  
+    the attibutes go <em/within/ the <tt/url/ tag.   
+
+<tag><bf><em/warn/</bf></tag>Cautionary advice deserves special emphasis, 
+    typically bold italic.  
+
+<tag><sf/key/</tag>Named keys (uppercase) get sanserif text.  
+
+<tag>System components</tag>Named parts of the Coda system are simply
+    proper nouns, capitalized initials, or acronyms:  Venus, Vice, RPC, 
+    RVM, etc..  
+</descrip>
+
+
+<sect1>Including System-interaction Examples
+<p>
+
+To give examples of interactive sessions, screen dumps, etc., use the standard
+Linuxdoc <tt/tscreen verb/ combination, which formats its <em/entire/ content
+as fixed-width text.  The Coda-doc DTD will refine some environments to behave
+differently <em/within/ this context, distinguishing what the system generates
+and what the user enters.  The following DO NOT yet work:
+<descrip>
+<tag/cmd/Command and options will get boldface fixed-width
+
+<tag/arg/Arguments and variable names will get slanted fixed-width
+</descrip>
+
+
+<sect1>Coda-style Examples
+<p>
+Herewith, an example that attempts to use all the Coda conventions.  
+<p>
+To frobnicate the current foo, use the <bf/frob/ command with the
+<sl/foo-name/ argument and either or none of the [<bf/{choice-1, choice-2}/]
+options, thus:  
+
+<tscreen><verb>
+% hello from Unix			# Need somethng substantive
+% frob choice-2 bar 
+
+
+</verb></tscreen>
+
+This is just about everything that you need to get started 
+writing SGML docs using the <tt/linuxdoc-sgml/ DTD. Please let me know
+if you think something should be changed or added to this document.
+
+</article>

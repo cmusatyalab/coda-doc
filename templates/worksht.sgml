@@ -1,0 +1,82 @@
+<!doctype linuxdoc SYSTEM  [
+
+<!entity % latex "INCLUDE">
+<!entity % html  "IGNORE">
+<![ %latex; [ <!entity newpage PI "\newpage"> ]]>
+<![ %html; [ <!entity newpage PI "<HR>"> ]]>
+<!entity newpage PI "">
+]>
+<article>
+
+<title> Coda Building
+<author> Who am I again?
+<date> What is the date?  I seem to have hit in the head...
+<P>
+<tscreen><verb>
+This is an example VERB environment.
+</verb></tscreen>
+As well as:
+<tscreen><code>
+This is an example CODE environment
+</code> </tscreen>
+
+The <tt/screen/ environment just sets the 
+FONT to SMALL type and INDENTS it. It is not
+ required for using <tt/verb/ or <tt/code/,
+ but I suggest you do.
+
+The <em/Linuxdoc-SGML User's Guide/ explains
+ what special characters you can and 
+cannot use inthe <tt/verb/ and <tt/code/ environemnts.
+
+<sect1>  <heading><label id="test-ref">Cross references</><P>
+Always place a <P/ after a <sect/.
+
+What about cross-references? This section has been marked 
+with the <tt>label</> command; 
+using <tt>ref</> will provide a cross reference, 
+as in "See Section <ref id="test-ref">" for more.
+
+Right now cross-refs do not work in the <tt/groff/ 
+translation for plain ASCII.
+They do work when generating LATEX or HTML output.
+
+<sect1> USING FONTS
+<P>
+We have fonts, however they will not show up in
+ the plain ASCII text, but they all map into the
+ various output formats:
+<bf/BOLDFACE/; <em/EMPHASIS/; <sf/SANS SERIF/; 
+<sl/SLANTED/, <tt/TYPEWRITER/, and <it/ITALICS/.
+
+<sect1>LISTS
+<P>
+List are easy. Just use the <tt/itemize/ 
+element with the <tt/item/ commands as seen below:
+
+<itemize>
+<item>This is a list
+<item>Not exciting
+   <itemize>
+   <item>Multiple levels are supported.
+   <item> again, no surprise
+   </itemize>
+<enum>
+   <item>Enumerated lists using <tt>enum</> work
+   <item>Description environments using <tt>descrip</> 
+         along with <tt>tag</> are also available.
+</enum>
+<descrip>
+   <tag/first item./ Here is the first item
+   <tag/sec item./ here is the next item
+   <tag/third./ and so on
+</descrip>
+<item> This could be a final item to finish with.
+</itemize>
+
+This is just about everything you need to get 
+started with writing SGML docs using the
+ <TT/LINUXDOC-SGML/ DTD.
+
+Always begin and end doc with: &lt;/article/.
+</article>
