@@ -33,13 +33,13 @@ cfs - Coda File System Interface Program
 <bf>cfs truncatelog</bf><P>
 <bf>cfs waitforever</bf> &lsqb;-on&rsqb; &lsqb;-off&rsqb;<P>
 <bf>cfs whereis</bf> &lt;dir&gt; &lsqb;&lt;dir&gt; &lt;dir&gt; ...&rsqb;<P>
+<bf>cfs disconnect</bf><P>
+<bf>cfs reconnect</bf><P>
 <bf>cfs writedisconnect</bf> &lsqb;-age &lt;secs&gt; -time &lt;secs&gt; &lt;dir&gt; &rsqb;<P>
 <bf>cfs writereconnect</bf> &lsqb;&lt;dir&gt; &lt;dir&gt; ...&rsqb;<P>
 <!--
 <bf>cfs compress</bf> &lt;file&gt; &lsqb;&lt;file&gt; &lt;file&gt; ...&rsqb;<P>
 <bf>cfs uncompress</bf> &lt;file&gt; &lsqb;&lt;file&gt; &lt;file&gt; ...&rsqb;<P>
-<bf>cfs disconnect</bf><P>
-<bf>cfs reconnect</bf><P>
 <bf>cfs slow</bf> &lt;speed (bps)&gt;<P>
 -->
 
@@ -207,6 +207,16 @@ Abbreviation: <bf>wf</bf>
 on.
 <P></descrip> 
 
+<descrip>
+<tag><bf>disconnect</bf></tag>Partition your client from the
+Coda file servers.
+<P></descrip>
+
+<descrip>
+<tag><bf>reconnect</bf></tag>Reconnect to the Coda file
+servers.  <bf>cfs reconnect</bf> will undo the effects of a <em>cfs
+disconnect</em>.
+<P></descrip>
 
 <descrip>
 <tag><bf>writedisconnect</bf></tag>Tell venus to write disconnect on
@@ -237,19 +247,8 @@ can be explicitely uncompressed with the <em>cfs uncompress</em> command.
 <P></descrip>
 
 <descrip>
-<tag><bf>disconnect</bf></tag>Partition your client from the
-Coda file servers.
-<P></descrip>
-
-<descrip>
 <tag><bf>slow</bf></tag>Set network speed to the given speed in bits per
 second.
-<P></descrip>
-
-<descrip>
-<tag><bf>reconnect</bf></tag>Reconnect to the Coda file
-servers.  <bf>cfs reconnect</bf> will undo the effects of a <em>cfs
-disconnect</em>.
 <P></descrip>
 -->
 
