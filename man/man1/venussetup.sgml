@@ -1,5 +1,4 @@
 
-
 <manpage TITLE="venus-setup" SECTNUM=1>
 <mansect>NAME 
  <P> <bf>venus-setup</bf> setup <bf>venus</bf> on a client
@@ -14,7 +13,7 @@ kilobytes.  <em>NOTE</em> At least one server must be specified.  And
 if only one server is specified, it must be the SCM for the Coda Cell.
 <bf>venus-setup</bf> then performs the following operations:
 <itemize>
-<item>creates up the <em>/coda</em> root directory if not present.
+<item>creates the <em>/coda</em> mount point if not present.
 <item>creates <em>/usr/coda</em> if not present.
 <item>creates necessary subdirectories under <em>/usr/coda</em> if not present.
 <item>creates <em>/usr/coda/etc/vstab</em> with parameters given on the 
@@ -46,12 +45,12 @@ number and the number is taken literally to be kilobytes.
 <em>/usr/coda/etc/vstab</em> the VenuS TABle specification file
 
 <mansect>SEE ALSO<P>
-venus (8), vstab (5), services (5)
+venus (8), vstab (5), services (5), servers (5)
 <p> 
 Coda Manual: ``Installing A Coda Client''
 
 
 <mansect>AUTHOR<P>
-1998, Henry M. Pierce
+Henry M. Pierce, 1998, created
 
 </manpage>

@@ -1,0 +1,48 @@
+<manpage TITLE="volmunge" SECTNUM=1>
+
+<mansect>NAME 
+<bf>volmunge</bf> - manipulate objects within Coda.
+
+<mansect>SYNOPSIS
+<bf>volmunge</bf> <-adfmov> dir
+<p>
+
+<descrip>
+
+<tag/<bf>-a</bf>/
+Print out everything but do not cross volume boundaries.
+<tag/<bf>-d</bf>/
+Prints out UNIX directories, but not volume mount points.
+<tag/<bf>-f</bf>/
+print out all objects which are not volume mount points (eg
+UNIX Files and UNIX Directories); this preforms a stat()
+call on all non-volume objects  which is  ideal for forcing resolution 
+on a volume.
+<tag/<bf>-m</bf>/
+Print out those objects which are volume mount points.
+<tag/<bf>-o</bf>/
+Print out those objects which are UNIX files and preform an  open() call 
+on the file.
+<tag/<bf>-v</bf>/
+Print out the volume name of a volume's mount point.
+</descrip>
+
+<mansect>DESCRIPTION<P>
+<p>
+<bf>volmunge</bf> is ideal for identifying Coda Objects versus
+regular UNIX files (including UNIX directories) store within the
+Coda filesystem.  It will work recursively.
+<p>
+Because the <bf>-f</bf> and <bf>-o</bf> call the stat(), and open()
+functions respectively, resolution many be forced with volmunge
+if one is re-constituting a replicated Coda volume or group of volumes
+mounted on top of each other.
+
+<mansect>SEE ALSO<P>
+find (1), perl (1)
+
+
+<mansect>AUTHOR<P>
+Henry M. Pierce, 1998, created
+
+</manpage>

@@ -19,6 +19,9 @@ MANPAGEFILES = cfs.1 \
 	       filcon.1 \
                repair.1 \
                spy.1 \
+               venussetup.1 \
+               vicesetup.1 \
+	       volmunge.1 
 
 include ../../Makerules
 
