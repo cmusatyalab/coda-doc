@@ -24,20 +24,22 @@ documents.
 <sect>Manuals and internals in HTML format <P> 
 
 
-The following will be your primary resource for getting going:
+The following will be your primary resource for getting up and running:
 <itemize>
 <item> <url url="coda-howto.html"  name="The Coda HOWTO">
 <item> <url url="../../ljpaper/lj.html"  name="Introductory Paper about Coda">
 </itemize>
 
-The original design and studies that were done can be found at in 
+The original design and studies that were done can be found at 
 <url url="http://www.cs.cmu.edu/afs/cs/project/coda/Web/docs-coda.html" name="Scientific papers from the Coda project">
 
-We have a few manuals:
+We have a few manuals - these have details for programmers and
+advanced system administration, but are less well organised than the
+coda-howto:
 <itemize>
 <item> <url url="manual.html"  name="The Coda Administration and User Manual">
 <item> <url url="rvm&lowbar;manual.html"  name="The RVM Manual">
-<item> <url url="rpc2&lowbar;manual.html"  name="The RPC2 Manual (preliminary)">
+<item> <url url="rpc2&lowbar;manual.html"  name="The RPC2 Manual">
 </itemize>
 
 Papers are being written about the implementation:
@@ -57,16 +59,17 @@ The easiest way to get manuals, and internals documentation is to
 download the whole package <url url="ftp://ftp.coda.cs.cmu.edu/pub/coda/doc"  name="from our documentation ftp site">
 
 <itemize>
-<item> <url url="../ps/index.ps"  name="This document">
-<item> <url url="../ps/manual.ps"  name="The Coda Administration and User Manual">
-<item> <url url="../ps/rvm&lowbar;manual.ps"  name="The RVM Manual">
-<item> <url url="../ps/rpc2&lowbar;manual.ps"  name="The RPC2 Manual">
-<item> <url url="../ps/admin.ps"  name="Some short scribbles about the volume databases">
-<item> <url url="../ps/kernel-venus-protocol.ps"  name="A detailed document about hthe kernel Venus interaction.">
-<item> <url url="../ps/sec.ps"  name="Notes and explanations about Coda securtiy.">
-<item> <url url="../ps/codadir.ps"  name="A document describing the new directory system we are implementing now.">
-<item> <url url="../ps/server.ps"  name="A few of the server internals, to be extended.">
-<item> <url url="../ps/venus-ds.ps"  name="A document describing the main Venus data structures">
+<item> <url url="../ps/index.ps.gz"  name="This document">
+<item> <url url="../ps/coda-howto.ps.gz"  name="This document">
+<item> <url url="../ps/manual.ps.gz"  name="The Coda Administration and User Manual">
+<item> <url url="../ps/rvm&lowbar;manual.ps.gz"  name="The RVM Manual">
+<item> <url url="../ps/rpc2&lowbar;manual.ps.gz"  name="The RPC2 Manual">
+<item> <url url="../ps/admin.ps.gz"  name="Some short scribbles about the volume databases">
+<item> <url url="../ps/kernel-venus-protocol.ps.gz"  name="A detailed document about hthe kernel Venus interaction.">
+<item> <url url="../ps/sec.ps.gz"  name="Notes and explanations about Coda securtiy.">
+<item> <url url="../ps/codadir.ps.gz"  name="A document describing the new directory system we are implementing now.">
+<item> <url url="../ps/server.ps.gz"  name="A few of the server internals, to be extended.">
+<item> <url url="../ps/venus-ds.ps.gz"  name="A document describing the main Venus data structures">
 </itemize>
 
 <sect>Powerpoint slides of some Coda meeting presentations <P> 
@@ -75,7 +78,7 @@ download the whole package <url url="ftp://ftp.coda.cs.cmu.edu/pub/coda/doc"  na
 <item> <url url="../ppt/sysad1.ppt"  name="Slides about system administration">
 <item> <url url="../ppt/rpc2.ppt"  name="Internals of RPC2 (in progress)">
 <item> <url url="../ppt/rdsseg.ppt"  name="Rds internals">
-<item> <url url="../ppt/server.ppt"  name="Server internals (part one)">
+<item> <url url="../ppt/server.ppt"  name="Server internals">
 <item> <url url="../ppt/directories.ppt"  name="Summary of the new directory system.">
 </itemize>
 

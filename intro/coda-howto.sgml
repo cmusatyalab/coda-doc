@@ -886,20 +886,27 @@ a file type <tt/cfs getfid path/.
 
 <sect1> Adding a user <p>
 
-This is currently slightly involved.  Follow the following steps:
+As of release 5.2 we have a tool to manage the user database.  It is
+basic, but can handle things like hierarchical groups and is a major
+improvement over the old tools. 
+
 <enum>
-<item> add the user to /vice/db/user.coda
-<item> add the user to groups in  /vice/db/group.coda (do not separate 
-users with commas)
-<item> run <tt> cd /vice/db; pwd2pdb -u user.coda -g group.coda >
-vice.pdb </tt>
-<item> run <tt/pcfgen vice.pdb/. 
+<item> Run <bf/pdbtool/ on the SCM.  Type help to see commands, and type the command
+without arguments to get more help. There is also a manpage for
+pdbtool which you may want consult.
+<item> Add the user and her user id with the nui command.
+<item> Add the user to any groups you.
 <item> Give the new user a password by using the <tt/au nu/ program
 (from either a client or a server).    
 </enum> 
 
 The user should now be able to login to Coda just like the first user
 set up at installation time.
+
+<bf/Note:/ Conversion from a pre 5.2 version of the user databases is
+done with the <tt/pwdtopdbtool/ tool.  This script takes no arguments
+and converts old databases to new; it <em/overwrites/ the new
+databases!
 
 <sect1> Exploring ACL's.  <p>
 

@@ -41,6 +41,7 @@ ps-install: $(PSDOCS) $(SUBDIRS)
 	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
 ifdef PSDOCS
 	install  $(PSDOCS) $(DOCDIR)/ps
+	gzip $(DOCDIR)/ps/*.ps
 endif
 
 html-install: $(HTMLDOCS) $(SUBDIRS)

@@ -12,15 +12,24 @@
 <toc>
 
 <sect> Callback management in the server <P>
-This code is in vicecb.cc. 
+
+This code is in <tt/vicecb.cc/. 
+
+The file server keeps a table of hosts that are up, see the section on
+connection handling.  Each time a call back is granted to a client, a
+file entry is entered in the hash table.  When the file is modified,
+all clients holding the callback are notified.
+
 Callback management handles a hash table for FileEntry's and for
 CallBackEntry's.  A CallBackEntry is attached/removed to each
-FileEntry as needed. A CallBackEntry contains a pointer to the host
-HostTable (the host (vicedep/srv.h) so that the host to notify can be
-found back. All structures are managed in VM.  For locality of
-referenence, CallBacks and FileEntry are allocated in blocks. Routines
-are present to delete the callbacks for a Fid, or to remove all
-backbacks for a Venus which has failed.
+FileEntry as needed. 
+
+A CallBackEntry contains a pointer to the host HostTable (the host
+(vicedep/srv.h) so that the host to notify can be found back. All
+structures are managed in VM.  For locality of referenence, CallBacks
+and FileEntry are allocated in blocks. Routines are present to delete
+the callbacks for a Fid, or to remove all backbacks for a Venus which
+has failed.
 
 <sect> Volumes <P>
 
@@ -68,7 +77,8 @@ will describe this in detail.  In VM we have a hash table
 <em/VolumeHashTable/ for <em/Volume/ structures, with hash key the
 <em/VolumeId/.  This is used in conjunction with a doubly linked list
 <em/volumeLRU/ of <em/volHeader/ structures, which was probably
-created to avoid keeping all <em/volHeader/'s in VM. 
+created to avoid keeping all <em/volHeader/'s in VM, since the latter
+are large.
 
 <descrip>
 <tag/Volume:/ defined in <tt/volume.h/. This structure is the
@@ -113,44 +123,61 @@ volumes and vnodes.
 <tag/InitLRU:/ calloc a sequence of (normally 50) volHeader's, then
 call ReleaseVolumeHeader to put it at the head of the volumeLRU.
 
-<tag/InitVolTable:/ sets up a volhash table, hashing volid's to get
-the index in the VolumeList.
+<tag/InitVolTable:/ sets up the <em/VolTable/, hashing volid's to get
+the index in the rvm <em/VolumeList/.
 
-<tag/VolumeHashTable:/ Hash table used to store pointers to the
-Volume structure 
+<tag/VolumeHashTable:/ Hash table used to lookup volumes by id. It
+stores pointers to the Volume structure
+
 <tag/VInitVnodes:/ setup of the vnode VM lru caches for small and
-large vnodes. Store summary
-information in the VnodeClassInfoArray for both small and large
-vnodes. The way to reach allocated vnode arrays is through the
-VnodeClassInfoArray. 
-<tag/InitLogStorage:/ go through the VolumeList and assign
-VM resolution log memory for every volume; store the pointer
-in VolLog&lsqb;i&rsqb;. The number of rlentries assigned is
-VolumeList&lsqb i&rsqb;.data.volumeInfo-&gt;maxlogentries.
+large vnodes. Store smmary information in the VnodeClassInfoArray for
+both small and large vnodes. The way to reach allocated vnode arrays
+is through the VnodeClassInfoArray.
+
+<tag/InitLogStorage:/ go through the VolumeList and assign VM
+resolution log memory for every volume; store the pointer in
+VolLog&lsqb;i&rsqb;. The number of rlentries assigned is stored in:
+<verb>
+VolumeList[i].data.volumeInfo->maxlogentries.
+</verb>
+
+It is not yet clear if RVM resolution is using this.
+
 <tag/CheckVLDB:/ See if there is a VLDB. 
+
 <tag/DP_Init/Find server partitions.
-<tag/S_VolSalvage:/ this goes directly through the directory
-contents, without invoking the buffer cache. 
-<tag/FSYNC_fsInit:/ sets up a thread to watch over volume relocation
-issues. No idea if this still works.
-<tag/Attach volumes/    Now iterate through all volumes and call
-VAttachVolumeById, to instantiate the VM volume information and attach
-the volumes.  When 
-attached, call InitVolLog which initialize pointers in VM for
-resolution. The pointers give olists, whose elements correspond to the
-vnode rec_smolists.  Finally create a VNResLog for each of the olist. 
-entries. 
-Set the RVM log transients for this volume.
-<tag/VListVolumes/ write out the /vice/vol/VolumeList file (VListVolumes).
-<tag/Vinit/ This variable is now set to 1. 
+
+<tag/S_VolSalvage:/ This analyzes all inodes on a Coda server
+partition and matches data against directory contents. After this has
+completed, the volume <em/InUse/ bit and <em/NeedsSalvage/ bit are
+cleared (stored in the disk data).
+
+<tag/FSYNC_fsInit:/ This interface is discussed below. 
+
+<tag/Attach volumes/ Now iterate through all volumes and call
+<em/VAttachVolumeById/. The details a far from clear, but the intent
+is to add the information for each volume to the VM hash tables.
+
+<tag/VListVolumes/ write out the <tt>/vice/vol/VolumeList</tt> file
+(VListVolumes).  
+
+<tag/Vinit/ This variable is now set to 1.
 </descrip>
 
+<sect1> Attaching volumes <p>
+
+This code is sheer madness.
+
 Attaching volumes is the following process. First a <em/VGetVolume/ is
-done.  If it is found in the hash table and is in use, it is detached
-with <em/VDetachVolume/ (error here is ignored).  Next the
-<em/VolumeHeader/ is extracted from RVM.  If the program is running as
-a <em/volumeUtility/ then <em/FSYNC_askfs/ is used to request the
-volume.  We continue to chech the partition and call <em/attach2/. 
+done.  If this return a volume, it has found it in the hash table.  If
+that volume is in use, it is detached with <em/VDetachVolume/ (error
+here is ignored).  Attaching is not supposed to happen with anything
+in the hashtable already.
+
+Next the <em/VolumeHeader/ is extracted from RVM.  If the program is
+running as a <em/volumeUtility/ then <em/FSYNC_askfs/ is used to
+request the volume.  We continue to chech the partition and call
+<em/attach2/.
 
 Attach2 allocated a new <em/Volume/ structure, initializes the locks
 in this structure and fills in the partition information. A
@@ -163,6 +190,51 @@ conditions, such as the volume apparently having crashed.  If it is
 <em/blessed/, <em/in service/ and the <em/salvage/ flag is not set,
 then we are ready to go and put the volume in the hash table. If the
 volume is writable the bitmaps for vnodes are filled in.
+
+<em/DetachVolume/ is also very complicated.  It starts by taking the
+volume out of the hash table (forcefully).  This means that
+<em/VGetVolume/ will no longer find it.
+
+The <em/shuttingDown/ flag is set to one, and <em/VPutVolume/ is
+called. This frees the volume and <em/LWP_signal/s people waiting on
+the <em/VPutVolume/ condition. [It is not clear that any process is
+waiting, since they normally only appear to wait when the
+<em/goingOffline/ flag is set, not when the <em/shuttingDown/ flag is
+set.]
+
+
+<sect1> State of volumes <p>
+
+There are numerous flags indicating the state of volumes:
+
+<descrip>
+
+<tag/inUse/ Cleared by <em/attach2/, but only if volume is
+<em/blessed/, not <em/needsSalvaged/ and <em/inService/.
+
+<tag/inService/ The latter flag has some use in the volume utility
+package, not much else.
+
+
+<tag/goingOffline/ Taking a volume <em/offline/ (as in <em/Voffline/
+means writing the volume header to disk, the <em/inUse/ bit turned
+off.  A copy is kept around in VM.
+
+Set by <em/Voffline/ <tag/shuttingDown/ used in <em/VDetachVolume/.
+
+<tag/goingOffline/ Set by <em/VOffline/. Clear by <em/VPutVolume/,
+<em/VForceOffline/ and <em/attach2/. In this case <em/VPutVolume/ sets
+<em/inUse/ to 0, and <em/VForceOffline/ does that and sets the
+<em/needsSalvaged/ flag.
+
+<tag/blessed/ Heavily manipulated by volume utilities while creating
+volumes, backing them up etc.  Probably indicates that the volume is
+not in an internally consistent state.
+
+<tag/needsSalvage/ This is an error condition. Cleared by
+<em/VolSalvage/, set by <em/VForceOffline/.
+
+</descrip>
 
 <sect1> The FSYNC interface <p>
 
@@ -178,13 +250,23 @@ The FSYNC package allows a volume utility to register itself. The call
 <em/VConnectFS/ is made during <em/VInitVolutil/ and makes available
 an array for the calling thread, named <em/OffLineVolumes/. This array
 is cleaned up during <em/VDisconnectFS/ and contains a list of volumes
-that have been requested to be offline.  The requests that can be made
-are <em/FSYNC_ON/ to get a volume back online.  This calls
-<em/VAttachVolume/ and clears the spot in the OffLineVolumes.
+that have been requested to be offline.  
 
-The other request is <em/FSYNC_OFF/ and <em/FSYNC_NEEDVOLUME/.  If the 
+The requests that can be made are <em/FSYNC_ON/ to get a volume back
+online.  This clears the spot in the OffLineVolumes, calls
+<em/VAttachVolume/ and finally writes out changes by calling
+<em/VPutVolume/.
+
+The other request is <em/FSYNC_OFF/ and <em/FSYNC_NEEDVOLUME/.  If the
 volume is not yet in the threads <em/OffLineVolumes/ then a spot is
-found for the volume. 
+found for the volume.  If this is not for cloning the volume is marked
+as <em/BUSY/ in the <em/specialStatus/ field of the <em/Volume/
+structure.  In <em/VOffline/ the volume header is written to disk,
+with the inUse bit turned off.  A copy of the header is maintained in
+memory, however (which is why this is VOffline, not VDetach).
+
+The FSYNC package can also watch over relocation sites. This is not
+functional anymore, and should probably be removed.
 
 <sect1> Interface to the <em/volumeLRU/ <p>
 
@@ -214,23 +296,13 @@ too. Perhaps the <em/header/ field in the volume structure still
 exists, otherwise a <em/volHeader/ must be found in the LRU, which
 possibly involves writing an old one back to RVM.
 
-
- If
-the <em/header/ field in the volume structure is not null we are ok,
-if it is null we would like to use the first available header in the
-<em/volumeLRU/ list.  This is done by checking the <em/back/ pointer
-in the <em/volHeader/.
+If the <em/header/ field in the volume structure is not null we are
+ok, if it is null we would like to use the first available header in
+the <em/volumeLRU/ list.  This is done by checking the <em/back/
+pointer in the <em/volHeader/.
 
 
-<em/Attaching a volume/ is described in AttachVolumebyId and
-attach2. It means allocating a Volume structure in VM, finding its
-partition, finding its VolHeader on the LRU, locating the
-VolumeDiskData.  If the volume needs salvaging, or appears to be inuse
-already, or not blessed don't attach it. Now insert the Volume
-structure into the hash table, and initialize some vnode information
-in the volume structure.
-
-<sect2> Creating a volume <p>
+<sect1> Creating a volume <p>
 
 The start of this is found in vol-create.cc in the volutil
 directory. 
@@ -270,8 +342,6 @@ information.
 </enum>
 
 
-
-
 <sect> Server RVM layout <p>
 The initial RVM layout of a coda server is simple:
 
@@ -301,54 +371,11 @@ and largeVnodeLists.
 
 <sect1> Resolution Logs for vnode lists. <p>
 
-<sect>The initialization of the volume package <p>
+<sect>VolInfo interface <p>
+
+This should turn into the volume location server.
 
 <verb>
-VInitVolumePackage
-    InitLRU
-    InitVolTable
-    VInitVnodes
-    VInitVnodes
-    InitLogStorage
-    VCheckVLDB: checks header of disk VLDB, reports size
-    check partitions and call: VInitPartition: puts partition in olist
-    S_VolSalvage:
-    FSYNC_fsInit: what are volume relocations????
-    attaches all volumes:
-      GetVolPartition: check consistency of index and volid in RVM, return parti
-tions info.
-      VAttachVolumeById
-          Lookup in hash table
-          if found take out of hash table
-          sanity checks followed by 
-          attach2
-              callocs a volume structure
-              GetVolumeHeader: take lru slot;  the vp header appears to maybe re
-side in hash table 
-              VoldDiskInfoById: link the vp with the RVM information (looks up t
-he header in hashtable)
-                    if this fails the volume is freed up again. 
-              Tests if volume needs to be salvaged: ec set to VSALVAGE
-              more of sanity and destroy
-              AddVolumeToHashTable
-              Set up uniquefier
-              null VM bitmaps, then fill them in.
-          If vp == NULL and other things: FSYNC_askfs else
-          VUpdateVolume
-              WriteVolumeHeader
-              if error VForceOffline
-          if error: VPutVolume
-          VAddToVolumeUpdateList: update time stamps, calls VUpdateVolume (again
-??)
-          VAppenVolume is called to add to VolumeList if system is up and not li
-sted yet.
-      InitVolLog
-      V_VolLog
-    VListVolumes: dump partitions and volumehash table to VolumeList
-
-
-Finding volumes by name:
-
 ViceGetVolumeInfo
         VRDB.find by name
         if not found try to find by id (VRDB.find nasty casts)
@@ -364,16 +391,15 @@ ViceGetVolumeInfo
              elseif RWVOL lookup the volumeinfo for a replicated volume
         return information
 
-
-VgetVolume and VPutVolume are probably like iget iput.
-
 </verb>
+
+<sect> Configuration databases <p>
 
 <itemize>
 <item> Volume databases (text) 
 <item> <tt>/vice/vol/VolumeList</tt> Holds partition and volume
 information for volumes for which this server is custodian.  This is
-file is generated by srv.   
+file is generated by <bf/codasrv/.   
 <item> <tt> /vice/vol/groupid</tt> is maximum replicated volume id
 allocated so far.  
 <item> HOSTS (text) 
@@ -415,7 +441,6 @@ ftp, then rfs, then krcp.
 
 Note this rebuilds the VLDB on the machine where is script is run,
 i.e. the scm. 
-
 
 
 </article>
