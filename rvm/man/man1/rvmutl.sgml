@@ -335,12 +335,14 @@ change_tree_insert: inserting entire range
   modified range 0x200cdcc4, length 16
 </verb>
 
+<!--
 <tag><bf/replay/ &lsqb;<bf/clear/&rsqb; &lsqb;<bf/file/&rsqb; <bf/head/ &verbar; <bf/tail/ &lsqb;<bf/no_update/ &verbar; <bf/update/&rsqb; <em/rec_num/
 <p>
 E.g.
 <verb>
 * replay log tail 40756
 </verb>
+-->
 
 <tag><bf/recover/ &lsqb;<bf/clear/&rsqb; &lsqb;<bf/file/&rsqb; &lsqb;<bf/no_update/ &verbar; <bf/update/&rsqb;
 <p>
@@ -399,11 +401,12 @@ Record number: 40756 assigns specified values
 <tag><bf/next/ next record <p>
 <tag><bf/next_sub_rec/ next subrecord <p>
 <tag><bf/ns/ next subrecord <p>
+<tag><em/num/ by record number <p>
 <tag><bf/prev/ previous record <p>
 <tag><bf/previous/ previous record <p>
 <tag><bf/ps/ previous subrecord <p>
 <tag><bf/prev_sub_rec/ previous subrecord <p>
-<tag><bf/rec_number/ by record number (note: not working) <p>
+<tag><bf/rec_number/ <em/num/ by record number <p>
 <tag><bf/remaining/ all remaining records <p>
 <tag><bf/seg_dict/ segment dictionary <p>
 <tag><bf/seg_dictionary/ segment dictionary <p>
@@ -489,8 +492,7 @@ command itself crashes quite easily.
 
 The use of <bf/seg_dict/ in <bf/set/ is not yet documented.
 
-The command <bf/show rec_number/ crashes the program, and the command
-<bf/show timestamp/ has no effect.
+The command <bf/show timestamp/ has no effect.
 
 <mansect>AUTHOR
 <p>
