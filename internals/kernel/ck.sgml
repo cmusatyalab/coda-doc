@@ -13,11 +13,11 @@
 
 <title> The Venus kernel interface
 <author> Peter J. Braam
-<date>v1.1, Nov 9, 1997
+<date>v1.0, Nov 9, 1997
 
 <abstract> This document describes the communication between Venus and
 kernel level file system code needed for the operation of the Coda
-filesystem 
+filesystem.  This version document is meant to describe the current interface (version 1.0) as well as improvements we envisage.
 </abstract>
 
 <toc>
