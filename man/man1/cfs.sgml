@@ -6,14 +6,13 @@ cfs - Coda File System Interface Program
 
 <mansect>SYNOPSIS
 <P>
-<bf>cfs bandwidth</bf> &lt;speed&gt;<P>
+<bf>cfs &lsqb;adaptive&verbar;strong&rsqb;</bf><P>
+<bf>cfs strong</bf><P>
 <bf>cfs checkpointml</bf><P>
 <bf>cfs checkservers</bf><P>
 <bf>cfs checkvolumes</bf><P>
 <bf>cfs clearpriorities</bf><P>
-<bf>cfs compress</bf> &lt;file&gt; &lsqb;&lt;file&gt; &lt;file&gt; ...&rsqb;<P>
-<bf>cfs [@cpu|@sys]</bf>
-<bf>cfs disconnect</bf><P>
+<bf>cfs &lsqb;@cpu&verbar;@sys&rsqb;</bf>
 <bf>cfs endrepair</bf> &lt;file&gt;<P>
 <bf>cfs examineclosure</bf><P>
 <bf>cfs flushcache</bf><P>
@@ -28,18 +27,21 @@ cfs - Coda File System Interface Program
 <bf>cfs lsmount</bf> &lt;dir&gt; &lsqb;&lt;dir&gt; &lt;dir&gt; ...&rsqb;<P>
 <bf>cfs mkmount</bf> &lt;directory&gt; &lt;volume name&gt; &lsqb;-rw&rsqb;<P>
 <bf>cfs purgeml</bf><P>
-<bf>cfs reconnect</bf><P>
 <bf>cfs replayclosure</bf><P>
 <bf>cfs rmmount</bf> &lt;dir&gt; &lsqb;&lt;dir&gt; &lt;dir&gt; ...&rsqb;<P>
 <bf>cfs setacl</bf> &lsqb;-clear&rsqb; &lsqb;-negative&rsqb; &lt;dir&gt; &lt;id&gt; &lt;rights&gt; &lsqb;&lt;id&gt; &lt;rights&gt; ....&rsqb;  <P>
-<bf>cfs slow</bf> &lt;speed (bps)&gt;<P>
 <bf>cfs truncatelog</bf><P>
-<bf>cfs uncompress</bf> &lt;file&gt; &lsqb;&lt;file&gt; &lt;file&gt; ...&rsqb;<P>
 <bf>cfs waitforever</bf> &lsqb;-on&rsqb; &lsqb;-off&rsqb;<P>
 <bf>cfs whereis</bf> &lt;dir&gt; &lsqb;&lt;dir&gt; &lt;dir&gt; ...&rsqb;<P>
 <bf>cfs writedisconnect</bf> &lsqb;-age &lt;secs&gt; -time &lt;secs&gt; &lt;dir&gt; &rsqb;<P>
 <bf>cfs writereconnect</bf> &lsqb;&lt;dir&gt; &lt;dir&gt; ...&rsqb;<P>
-
+<!--
+<bf>cfs compress</bf> &lt;file&gt; &lsqb;&lt;file&gt; &lt;file&gt; ...&rsqb;<P>
+<bf>cfs uncompress</bf> &lt;file&gt; &lsqb;&lt;file&gt; &lt;file&gt; ...&rsqb;<P>
+<bf>cfs disconnect</bf><P>
+<bf>cfs reconnect</bf><P>
+<bf>cfs slow</bf> &lt;speed (bps)&gt;<P>
+-->
 
 <mansect>DESCRIPTION<P>
 <bf>cfs</bf> allows users to perform operations specific to the Coda File
@@ -50,10 +52,10 @@ their personal directories.  <bf>cfs</bf> will change the protection or
 permissions on individual files, use <em>chmod (1)</em>.
 
 <descrip>
-<tag><bf>bandwidth</bf></tag>Provide a hint about network
-speed.  Use this command to tell venus your networks speed in bits
-per second.<P>
-Abbreviation: <bf>bw</bf>.
+<tag><bf>&lsqb;adaptive&verbar;strong&rsqb;</bf></tag>Use `strong' to override adaptation to
+changing network conditions. Revert to automatic adaptation using `adaptive'.
+This command is useful to force strong connectivity semantics even over slow
+or unreliable links.
 <P></descrip>
 
 <descrip>
@@ -80,22 +82,11 @@ used for cache management.
 <P></descrip>
 
 <descrip>
-<tag><bf>compress</bf></tag>compress given files in the cache.
-these files will be uncompressed automatically if they are touched or
-can be explicitely uncompressed with the <em>cfs uncompress</em> command.
-<p></descrip>
-
-<descrip>
-<tag><bf>@cpu or @sys</bf></tag> When the end of a pathname component is
+<tag><bf>&lsqb;@cpu&verbar;@sys&rsqb;</bf></tag> When the end of a pathname component is
 either @sys or @cpu, the local venus will replace these magic strings with
 a platform dependent string. These cfs commands can be used to check what
 the precise expansion values depending on the current OS/cpu.
 <p></descrip>
-
-<descrip>
-<tag><bf>disconnect</bf></tag>Partition your client from the
-Coda file servers.
-<P></descrip>
 
 <descrip>
 <tag><bf>endrepair</bf></tag>Tell venus to end a repair session
@@ -178,12 +169,6 @@ when using the <bf>cfs purgeml</bf> command, as it may result in loss of data.
 <P></descrip>
 
 <descrip>
-<tag><bf>reconnect</bf></tag>Reconnect to the Coda file
-servers.  <bf>cfs reconnect</bf> will undo the effects of a <em>cfs
-disconnect</em>.
-<P></descrip>
-
-<descrip>
 <tag><bf>replayclosure</bf></tag>Replay reintegration closure.<P>
 Abbreviation: <bf>rc</bf>
 <P></descrip>
@@ -206,18 +191,8 @@ Abbreviation: <bf>sa</bf>
 <P></descrip>
 
 <descrip>
-<tag><bf>slow</bf></tag>Set network speed to the given speed in bits per
-second.
-<P></descrip>
-
-<descrip>
 <tag><bf>truncatelog</bf></tag>Truncate the RVM log at this instant.<P>
 Abbreviation: <bf>tl</bf>
-<P></descrip>
-
-<descrip>
-<tag><bf>uncompress</bf></tag>Uncompress given cached files.
-<em>venus</em> will automatically uncompress any compressed files that it touches in the cache.
 <P></descrip>
 
 <descrip>
@@ -249,6 +224,35 @@ servers.<P>
 Abbreviation: <bf>wr</bf>
 <P></descrip>
 
+<!--
+<descrip>
+<tag><bf>compress</bf></tag>compress given files in the cache.
+these files will be uncompressed automatically if they are touched or
+can be explicitely uncompressed with the <em>cfs uncompress</em> command.
+<p></descrip>
+
+<descrip>
+<tag><bf>uncompress</bf></tag>Uncompress given cached files.
+<em>venus</em> will automatically uncompress any compressed files that it touches in the cache.
+<P></descrip>
+
+<descrip>
+<tag><bf>disconnect</bf></tag>Partition your client from the
+Coda file servers.
+<P></descrip>
+
+<descrip>
+<tag><bf>slow</bf></tag>Set network speed to the given speed in bits per
+second.
+<P></descrip>
+
+<descrip>
+<tag><bf>reconnect</bf></tag>Reconnect to the Coda file
+servers.  <bf>cfs reconnect</bf> will undo the effects of a <em>cfs
+disconnect</em>.
+<P></descrip>
+-->
+
 <mansect>SEE ALSO<P>
 chmod (1)
 
@@ -264,7 +268,5 @@ M. Satyanarayanan, 1992, cfs rewritten from scratch
 Joshua Raiff, 1993, Man page rewritten
 
 Joshua Raiff, 1995, Updated
-
-
 
 </manpage>

@@ -766,7 +766,7 @@ this by typing
 
 <tscreen>
 <verb>
-venus-setup  server-name cache-szie-in-kb
+venus-setup server-name cache-size-in-kb
 </verb>
 </tscreen>
 <bf/NOTE:/ Windows 95 users should type the IP address and not the
