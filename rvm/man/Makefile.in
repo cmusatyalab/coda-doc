@@ -1,0 +1,16 @@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+include ../../Makerules
+
+man:
+	$(MAKE) -C man1 man
+	$(MAKE) -C man3 man
+
+man-install:
+	$(MAKE) -C man1 man-install
+	$(MAKE) -C man3 man-install
+
+

@@ -1,0 +1,64 @@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+
+
+
+
+MANPAGEFILES = addserver.man \
+               au.man \
+               auth2.man \
+               authmon.man \
+               autobackup.man \
+               backup.man \
+               bldvldb.man \
+               camelot.man \
+               clone.man \
+               createvol.man \
+               createvol_rep.man \
+               debug.man \
+               deleteuser.man \
+               file.man \
+               fsck-coda.man \
+               initpw.man \
+               inituser.man \
+               installclient.man \
+               installserver.man \
+               list.man \
+               mdd.man \
+               merge.man \
+               movevol.man \
+               nca.man \
+               norton.man \
+               pcfgen.man \
+               purgevol.man \
+               purgevol_rep.man \
+               pwd2pdb.man \
+               readdump.man \
+               replay.man \
+               salvager.man \
+               shutdown-coda.man \
+               srv.man \
+               startcodav.man \
+               startserver.man \
+               stats.man \
+               updateclnt.man \
+               updatemon.man \
+               updatesrv.man \
+               vdebug.man \
+               venus.man \
+               vfsck.man \
+               vfsvenus.man \
+               vol-create.man \
+               vol-dump.man \
+               vol-purge.man \
+               vol-restore.man \
+               vol-salvage.man \
+               volutil.man \
+               vopcon.man \
+               vutil.man \
+#	       makeftree.man
+
+include ../../Makerules

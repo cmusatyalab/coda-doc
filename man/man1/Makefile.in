@@ -1,0 +1,28 @@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+
+
+SUBDIRS = 
+
+MANPAGEFILES = cfs.man \
+               clearstats.man \
+               clog.man \
+               cmon.man \
+               cpasswd.man \
+               ctokens.man \
+               cunlog.man \
+               dirRepair.man \
+               heal.man \
+               hoard.man \
+               mvdb.man \
+               profoff.man \
+               repair.man \
+               spy.man \
+               ttyfcon.man
+
+include ../../Makerules
+
+

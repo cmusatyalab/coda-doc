@@ -1,0 +1,12 @@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+man:
+	$(MAKE) -C man man
+
+man-install:
+	$(MAKE) -C man man-install
+
+

@@ -62,8 +62,8 @@ clients.
 
 <descrip>
 <tag><bf>insertfilter</bf> 
-
 <em>clientnum side id host color lenmin lenmax probability speed</em></tag>
+
 Inserts a filter into client number <em>clientnum</em>'s table on the
 specified <em>side</em> (one of <em>in out</em>).  The filter will be
 inserted after the existing filter with identifier <em>id</em>. (Inserting

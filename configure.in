@@ -1,0 +1,15 @@
+AC_INIT(man/man1/hoard.sgml)
+
+
+
+AC_OUTPUT( Makerules
+Makefile
+man/Makefile
+man/man1/Makefile
+man/man3/Makefile
+man/man5/Makefile
+man/man8/Makefile
+rvm/Makefile
+rvm/man/Makefile
+rvm/man/man1/Makefile
+rvm/man/man3/Makefile )

@@ -1,0 +1,47 @@
+
+mandir = @mandir@
+prefix = @prefix@
+
+create_container = $(top_srcdir)/scripts/create_container2
+
+all:   FORCE
+	echo "Targets are: man, manual-html, rvm_manual-html, manual-ps, rvm_manual.ps"
+
+printenv: FORCE
+	echo $(MANPAGEFILES)
+
+man: $(MANPAGEFILES)
+
+manual-html: FORCE
+	cd $(top_srcdir)/manual ; sgml2html manual
+
+rvm_manual-html: FORCE
+	cd $(top_srcdir)/rvm ; sgml2html rvm_manual
+
+manual-ps: FORCE
+	cd $(top_srcdir)/manual ; sgml2latex -o ps manual
+
+rvm_manual-ps: FORCE
+	cd $(top_srcdir)/rvm ; sgml2latex -o ps rvm_manual
+
+doc-install: FORCE
+	-mkdir -p $(top_srcdir)/install/html/rvm_manual
+	-mkdir -p $(top_srcdir)/install/html/manual
+	install  $(top_srcdir)/manual/*html $(top_srcdir)/install/html/manual
+	install  $(top_srcdir)/rvm/*html $(top_srcdir)/install/html/rvm_manual
+	install  $(top_srcdir)/manual/manual.ps $(top_srcdir)/install
+	install  $(top_srcdir)/rvm/rvm_manual.ps $(top_srcdir)/install
+
+man-install: man
+	install -m 644 -o root -g bin $(MANPAGEFILES) $(prefix)/man/man1
+
+clean:
+	rm -f *.sgml.cntr *.sgml.cntr.man *.man __tmp.sgml
+
+%.sgml.cntr: %.sgml
+	  $(create_container) $?
+
+%.man: %.sgml.cntr
+	mv $? __tmp.sgml
+	sgml2txt -man __tmp.sgml
+	mv __tmp.man $@
