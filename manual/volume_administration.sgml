@@ -211,16 +211,6 @@ about replicated volumes to client workstations.  Copies of the VRDB reside on a
 </sect1>
 
 <sect1>
-<title>Ensuring Volume Consistency after Server Crashes</>
-
-<para>Coda servers ensure file system consistency after a crash by running <citerefentry><refentrytitle>fsck</><manvolnum>8</></citerefentry>, recovering RVM, and running the Coda salvager.  The <application>fsck</application> used here a CMU has been modified so that it does not require every inode to be referenced, as Coda accesses inode directly.  </para>
-
-<warning><para>The vanilla <application>fsck</application> must not be used on a Coda file system partition as the Coda files will be thrown away.</para></warning>
-
-<para>After the server machine is booted, the <application>codasrv</application> process starts and RVM recovers the servers committed state.  The Coda salvager then reconciles the results from <application>fsck</application> and the salvager.  </para>
-</sect1>
-
-<sect1>
 <title>Getting Volume Information</>
 
 <para>The <application>cfs</application> provides information on volumes. <application>cfs</application> can only be used on a machine which has a running <application>venus</> (such as a client workstation).  <application>cfs</application> is described in <xref linkend="GettingStarted"> as well as in the manual page.  </para>

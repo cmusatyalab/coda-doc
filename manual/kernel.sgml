@@ -1,295 +1,58 @@
-<chapt> Configuring Kernels for use with Coda <p>		
-<label id="KernelsforCoda">
+<chapter id="KernelsforCoda">
+<title>Configuring Kernels for use with Coda clients</>
 
-<p>
-Currently, Coda clients and servers are supported under Linux,
-FreeBSD and NetBSD.  
+<para>The Coda servers may be run on unmodified kernels.  The Coda <application>codasrv</> process is user-level code that uses existing kernel services.  The Venus client, however, requires some Coda-specific changes be made to the kernel.  The kernel specific changes add Coda specific definitions to the <firstterm>vnode</> layer in the kernel which are needed to satisfy the requirements of the Coda file system to the <acronym>VFS</> layer in the kernel.  </para>
 
-<p>
-The Coda servers may be run on unmodified kernels.  The Coda <tt>codasrv</tt> 
-process is user-level code that uses existing kernel services.  The Venus 
-client, however, requires some Coda-specific changes be made to the kernel.   
-The kernel specific changes add Coda specific definitions to
-the Vnode layer in the kernel which are needed to satisfy the 
-requirements of the Coda file system to the VFS layer in the kernel.
+<section>
+<title>VFS Interface</>
 
-<sect>VFS Interface<p>
+<para>In Unix systems, the code which translates user-generated system calls into file system requests is called the <firstterm>VFS Interface</>.  Coda provides a VFS Interface by providing the necessary support for systems calls such as <literal>creat()</>, <literal>open()</>, <literal>stat()</>, etc.  </para>
 
-In Unix systems, the code which translates user-generated system calls
-into file system requests is called the VFS Interface.  
-Coda provides a VFS Interface by providing the necessary
-support for systems calls such as creat(), open(), stat(), etc.
+<para>Communication between Venus and the kernel occurs through a character device <filename>/dev/cfs0</> (part of Coda) which provides the kernel with access to Venus for handling the vsf&lt;-&gt;vnode kernel interface.  Please see <xref linkend="ClientInstall"> for the major and minor device numbers specific to a supported platform.  </para>
 
+<para>The rest of this chapter will focus on integrating the Coda code that satisfies the Vnode interface into the kernels of supported platforms.</para>
+</section>
 
-Communication between Venus and the kernel occurs through a character
-device <tt>/dev/cfs0</tt> (part of Coda) which provides the kernel
-with access to Venus for handling the vsf&lt;-&gt;vnode kernel
-interface.  Please see <ref id="ClientInstall" name="Installing and
-Configuring a Coda Client"> for the major and minor device numbers
-specific to a supported platform.
+<section>
+<title>Configuring a Linux kernel</>
+<para></para>
+</section>
 
-The rest of this chapter will focus on integrating the Coda code
-that satisfies the Vnode interface into the kernels of supported 
-platforms.
+<section>
+<title>Configuring a FreeBSD kernel</>
 
+<para>All modern releases of FreeBSD (3.x and 4.x) already include all necessary to configure kernel for Coda client. Using Coda client under FreeBSD, you have two options: either to use Coda <firstterm>kernel loadable module</> (<acronym>KLD</>), or to build custom kernel with Coda support. First option doesn't require any significant changes to your installation and can be used on systems without source code installed.  </para>
 
-<sect>Configuring a Linux kernel<p>
-Coda may be configured as a module or hard-coded in a ``monolithic'' kernel.
-We have a reasonably flexible method to build kernel modules. You
-can build the module for a kernel which you are not running at the
-time of the build.
-<p>
-To build a custom coda kernel module you need to obtain the tar-ball
-from:
-<p>
-<htmlurl 
-   url="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux/src/linux-coda-4.6.2.tgz"
-   name="ftp://ftp.coda.cs.cmu.edu/pub/coda/linux/src/linux-coda-4.6.2.tgz">
-<p>
-And follow the instructions in the rest of this file.
-<p>
-<em>NOTE:</em> The code here is always newer than or equal to:
-<itemize>
-<item> the kernel 
-<item> the big Coda tar-ball
-</itemize>
+<formalpara>
+<title>Loading Coda kernel module</>
+<para>To experiment with Coda client, you can load Coda KLD using following command: <command>kldload coda</>. To verify that module is loaded run <command>kldstat</>, <filename>coda.ko</> should be listed in its output, which could look similar to this:
+<informalexample>
+<screen>
+Id Refs Address    Size     Name
+ 1    6 0xc0100000 1cda44   kernel
+ 2    1 0xc02ce000 15648    coda.ko
+ 3    1 0xc0e1a000 7000     procfs.ko
+ 4    1 0xc0e28000 7000     ipfw.ko
+ 5    1 0xc0e4a000 15000    linux.ko
+ 6    1 0xc0e80000 2000     green_saver.ko
+</screen>
+</informalexample>
+Coda module can be unloaded with <command>kldunload coda</>. To get FreeBSD load Coda module automaticaly on system startup, you should add <literal>coda_load="YES"</> line to <filename>/boot/loader.conf</>.  </para>
+</formalpara>
 
-<sect1> To Build 2.1 kernels modules<p>
+<formalpara>
+<title>Compiling Coda support into the custom kernel</>
+<para>For guidelines on compiling and installing new FreeBSD kernels, please refer to <ulink url="http://www.freebsd.org/handbook/kernelconfig.html">Configuring the FreeBSD Kernel</ulink> chapter of the FreeBSD Handbook. Coda support requires including following lines into kernel configuration file:
+<literallayout>
+options         CODA                    #CODA filesystem.
+pseudo-device   vcoda   4               #coda minicache &lt;-&gt; venus comm.
+</literallayout>
+This is the only Coda-specific modification requred.  </para>
+</formalpara>
+</section>
 
-<itemize> 
-<item>Patch the kernel:
-
-For 2.1.10? kernels apply the 106patch.  This will go to Linus
-shortly, so this patch may stop working.
-
-You must type the following:
-<tscreen><verb>
-make oldconfig
-make dep
-make your-type-of-image and modules.
-</verb></tscreen>
-
-<item>In this directory build the coda.o module:
-
-type:
-<tscreen><verb>
-make config  --- answer the questions
-make coda.o
-su
-make install
-</verb></tscreen>
-</itemize>
-
-<sect1>To Build 2.0 kernel modules<p>
-
-<itemize>
-<item>Prep the kernel by typing:
-<tscreen><verb>
-cd /usr/src/linux-for-you
-make oldconfig
-make dep
-</verb></tscreen>
-
-<item>In this directory build the coda.o module by typing:
-<tscreen><verb>
-make config  --- answer the questions
-make coda.o
-su
-make install
-</verb></tscreen>
-
-</itemize>
-
-<sect1>NOTES<p>
-<itemize>
-
-<item>If you build for a running kernel, you must still have a source 
-tree for that Linux release, otherwise the headers cannot be found.
-However, that source tree doesn't need modversions.h etc.
-
-<item>We don't actively maintain 2.0 code anymore.  The 2.1 code is
-preferred, but not yet perfect.  
-
-</itemize>
-
-<sect>Configuring a FreeBSD kernel<p>
-
-Currently, Coda works with the 2.2.x-STABLE kernels.  Since a loadable
-module for Coda is not available, Venus support is compiled into the
-kernel.  The Coda Development Group releases a pre-built GENERIC
-FreeBSD kernel with Coda Venus support.  The only differences between
-the GENERIC FreeBSD kernel and the GENERIC Coda kernel is the addition
-of Coda File-system and the enabling of the kernel debugger.
-
-<p>
-For those who wish to compile their own kernel, go to:
-
-<htmlurl 
-  url="ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd" 
-  name="ftp://ftp.coda.cs.cmu.edu/pub/coda/freebsd">/&lt;OS-VERSION&gt;/i386/">
-<p>
-and get the Coda kernel patches:
-<p>
-<tt>
-kernel-patch.cfs-4.4.1.gz
-</tt>.
-<p>
-If you are patching a release earlier than 2.2.6, you will also need:
-<p>
-<tt>
-kernel-patch.FreeBSD-4.4.0-2.2.5.gz
-</tt>.  
-<p>
-You should obtain the FreeBSD 2.x kernel sources and apply the
-<tt>kernel-patch.cfs-4.4.1.gz</tt> kernel patch.  Suppose that the kernel source is in 
-<tt>/home/me/mysrc/sys</tt> and the patch files,
-<tt>kernel-patch.cfs-4.4.1.gz</tt> and <tt>kernel-patch.FreeBSD-4.4.0-2.2.5.gz</tt>, 
-are in <tt>/home/me/mysrc</tt>.  Go to <tt>/home/me/mysrc</tt> and extract the 
-Coda patch by typing:
-
-<tscreen><verb>
-zcat kernel-patch.cfs-4.4.1.gz | patch -p4
-</verb></tscreen>
-
-The -p4 is really necessary.  If you are patching FreeBSD Release
-2.2.5 or earlier, you also need to extract the "glue" code for Coda.  Type:
-
-<tscreen><verb>
-zcat kernel-patch.FreeBSD-4.4.0-2.2.5.gz | patch -p6
-</verb></tscreen>
-
-<p>
-At this point, the easiest thing to do is copy the GENERIC kernel
-configuration and modify it to include Coda: 
-
-<tscreen><verb>
-	cd .../conf
-	cp GENERIC Coda
-</verb></tscreen>
- 
-The two lines that need to be added to the Coda configuration will look something like:  
-
-<tscreen><verb>
-options               CFS     #Coda File System
-pseudo-device vcoda    4       # coda minicache <-> venus comm.
-</verb></tscreen>
-
-Look at the LINT file in the configuration directory to find the most
-current version of these lines and copy them into the Coda
-configuration.
-You should also copy the line
-from LINT that enables the ddb debugger into the Coda configuration.
-
-<p>
-Now, all that you need to do is to <tt>config</tt> Coda and build it.
-
-<tscreen><verb>
-	config Coda
-	make
-</verb></tscreen>
-
-Finally, you should install this new kernel by becoming root and typing:
-
-<tscreen><verb>
-	make install
-</verb></tscreen>
-
-<p>
-<sect1>Epilog<p>
-If you are looking for the above Generic Coda kernel, you can find it in the
-FreeBSD area on the Coda site.  It is named <tt>kernel.gz</tt>
-<p>
-If you do not want to apply the Coda patch (above) and you are at
-FreeBSD release 2.2.6 or better, you can simply copy the <tt>cfs/</tt>
-directory from the Coda source tree to <tt>/home/me/mysrc/sys</tt>
-
-<tscreen><verb>
-cd <coda sources-coda_release>/kernel-src/vfs/bsd44/
-cp -rp cfs /home/me/mysrc/sys
-</verb></tscreen>
-
-<p>
-Don't forget to check <tt>INSTALL</tt> and <tt>README</tt>
-in the Coda FreeBSD ftp area
-for any last minute changes that may not have found their way into the Coda
-manual.  Also, remember you only need a modified kernel for the client
-side of Coda, not the server side.
-
-<sect>Configuring a NetBSD kernel<p>
-
-Currently, Coda only works with the 1.3/1.3.x kernels.  Since
-a loadable module for Coda is not available, Venus support is compiled
-into the kernel.  The Coda Development Group releases a pre-built
-GENERIC NetBSD kernel with Coda Venus support.  The only difference
-between the GENERIC NetBSD kernel and the Coda kernel is the addition
-of Coda File-system.
-
-<p>
-For those who wish to compile their own kernel, go to:
-
-<p>
-<htmlurl 
-  url="ftp://ftp.coda.cs.cmu.edu/pub/coda/NetBSD/" 
-  name="ftp://ftp.coda.cs.cmu.edu/pub/coda/NetBSD">/&lt;OS-VERSION&gt;/i386/">
-<p>
-
-and get the Coda kernel patches:
-
-<tscreen><verb>
-kernel-patch.cfs-4.4.0.gz
-kernel-patch.NetBSD-4.4.0-<OS-VERSION>.gz
-</verb></tscreen>  
-
-You should obtain the NetBSD 1.3/1.32 kernel sources and apply the
-coda patches.  Suppose that the kernel source are in 
-<tt>/home/me/mysrc/sys</tt> and the patch files, <tt>kernel-patch.cfs-4.4.0.gz</tt>
-and <tt>kernel-patch.NetBSD-4.4.0-&lt;OS-VERSION&gt;.gz</tt>, are in 
-<tt>/home/me/mysrc</tt>. Go to <tt>/home/me/mysrc</tt> and extract the 
-Coda patch by typing:
-
-<tscreen><verb>
-	zcat kernel-patch.cfs-4.4.0.gz | patch -p4
-</verb></tscreen>
-
-The -p4 is really necessary.  You also need to extract the "glue" code for Coda.  Type:
-
-<tscreen><verb>
-zcat kernel-patch.NetBSD-4.4.0-<OS-VERSION>.gz | patch -p6
-</verb></tscreen>
-
-<p>
-At this point, the easiest thing to do is to copy the GENERIC kernel
-configuration and modify it to include Coda, i.e. 
-<tscreen><verb>
-cd .../conf
-cp GENERIC Coda
-</verb></tscreen>
-
-The two lines that are need for to the Coda configuration will look something like:  
-
-<tscreen><verb>
-options               CFS     #Coda File System
-pseudo-device vcoda    4       # coda minicache <-> venus comm.
-</verb></tscreen>
-
-These should have been added to the GENERIC file by the above patches.
-Please verify that they went in correctly.
-<p>
-Now, all that you need to do is to <tt>config</tt> Coda and build it.
-
-<tscreen><verb>
-	config Coda
-	make
-</verb></tscreen>
-
-Finally, copy the <tt>netbsd</tt> to <tt>/</tt> and reboot.
-<p>
-<sect1>Epilog<p>
-If you are looking for the above Generic Coda kernel, you can find it in the
-NetBSD area on the Coda site.  It is named <tt>netbsd-&lt;RELEASE&gt;.gz</tt>
-<p>
-Don't forget to check <tt>INSTALL</tt> and <tt>README</tt> in the
-Coda NetBSD ftp site
-for any last minute changes that may not have found their way into the Coda
-manual.  Also, remember you only need a modified kernel for the client
-side of Coda, not the server side.
+<section>
+<title>Configuring a NetBSD kernel</>
+<para></para>
+</section>
+</chapter>

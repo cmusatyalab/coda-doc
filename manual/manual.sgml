@@ -93,9 +93,7 @@
 &sysovr;
 &obtain;
 
-<!--
 &kernel;
--->
 
 &clientin;
 &servin;
