@@ -1,0 +1,226 @@
+
+	Notes for Reinitialization
+
+In the process of reinitializing, there are about a half dozen magic numbers which
+must be specified.  For the SCS Coda 3max servers, you may simply use the numbers
+listed in this document.  Other sites may need to think about it first.
+
+1) Shutdown all files servers by running /vice/bin/volutil -shutdown on each
+server. It's also a good idea to have as many client veni as possible shutdown
+though this isn't strictly necessary. (They will need to reinitialize before
+being able to use these servers if they have cached any information)
+
+2) Run rvmutl to reinitialize RVM.
+	You will need to select a log segment and a data segment. These can
+	either be files or raw devices. Files may be easier to manage,
+	particularly in testing situations, but raw devices are somewhat safer
+	(less prone to human error) and faster.
+
+	a) Reinitialize the logging segment.
+	The size of the log device is based on available space and issues
+	involving truncation. Larger logs provide a longer accessible history
+	of operations, are truncated less frequently, but each truncation will
+	take a longer chunk of time. Shorter logs truncate more often, but each
+	truncation takes less time. We use a seperate partition, /dev/rrz0g,
+	which we've give roughly 9Megs. We use 8Meg of it (We suggest leaving
+	a little space at the end for safety).
+
+	RVM will automatically add about 1 more page to this amount.  If you
+	want to see what the old settings were before reinitializing, you may
+	run rvmutl, specify the o command giving the log device as an argument
+	and then look at the "total log size". Initialize the log as follows.
+	You can use M for Megabytes or K for Kilobytes.
+
+	28 GRIEG# /afs/cs/project/coda/member/mashburn/rvm/src/@pmax_mach.d/rvmutl
+	* i
+	Enter name of log file or device: /dev/rrz0g
+	Enter length of log data area: 8M
+	* q
+
+	b) Reinitialize the data segment.
+	The size of the data segment depends on the amount of disk space for
+	file data, i.e. the size of the /vicep? partitions. We've been
+	figuring you need about 1/20 to 1/30 of the total file data space for
+	recoverable storage. In our systems we put the data segment on /dev/rz0g,
+	and give it 65Meg. By making it smaller, we could avoid the heavy
+	start up cost of mapping in the segment. However, if we ran out of space
+	we would be forced to reinitialize the system, a heavy penalty.
+
+	In the reinitialization, you need to pick several paramaters. The first
+	is the starting address of the recoverable segment in your address space.
+	See figure 1 for details. The second is the amount of space to give
+	the recoverable heap. The heap will obviously grow over use, so plan
+	accordingly. We suggest that for the last parameters you use 1Meg
+	(0x100000) for the static area, use 20 free lists, and a chunksize of
+	128.
+	
+	Figure 1 shows a picture of VM and where the data segment fits into the 
+	overall picture.
+
+Figure 1:	Pmax address space:
+
+	|   Kernel addresses, protected  |
+	----------------------------------	0x7fff0000
+	|  	Stack (grows down)       |
+	|                |               |
+	|                V               |
+	----------------------------------	<- $sp Usually the stack
+	|                                |      won't exceed 0x7e000000
+	|                                |
+	~                                ~	Anywhere in here is good,
+	~				 ~	provided you have at least
+	|                                |	0x5000000 free space. We use
+	|                                |	0x70000000 for the startaddr.
+	|                                |
+	----------------------------------	Shouldn't exceed 0x18000000.
+	|                ^               |
+	|                |               |
+	|             VM Heap		 |
+	----------------------------------	
+	|              Data              |
+	----------------------------------	0x10000000
+	|              Text              |
+	----------------------------------	0x400000
+	|            Reserved            |
+	----------------------------------	0x0
+
+	29 GRIEG# /afs/cs/user/dcs/bin/rdsinit /dev/rrz0g /dev/rrz0h
+	Enter the length of the device /dev/rrz0h: 69206016
+	Going to initialize data file to zero, could take awhile.
+	done.
+	rvm_initialize succeeded.
+	starting address of rvm: 0x70000000
+	heap len: 0x4000000
+	static len: 0x100000
+	nlists: 20
+	chunksize: 128
+	rds_zap_heap completed successfully.
+	rvm_terminate succeeded.
+
+	c) Create a startserver script if you don't already have one.
+	The purpose of this script is to make it easy to start the servers.
+	You may need to edit the default one to correspond with the parameters
+	you have chosen.
+
+3) Start the servers
+
+	30 GRIEG# /vice/bin/startserver &
+
+4) If you want to reset the number such that the first volid is 7f000001, you will
+need to do some additional work.  The reason you want to do this is to get the 
+volid and the repids in sync (e.g. usr.satya.rep = 7f000001 with nonrep volumes
+cc000001, cd000001 and ce000001 on GRIEG, HAYDN and WAGNER respectively).  Note that
+create of the unreplicated root volume is delayed until the replicated volumes are
+created.  This is because creation of the first unreplicated volume will make the volid
+and repids get out of sync again.
+
+	33 GRIEG# rm /vice/vol/maxgroupid
+
+	34 GRIEG# echo 2130706433 >/vice/vol/maxgroupid
+
+	36 GRIEG# mv /vice/vol/VRList /vice/vol/VRList.old
+
+	37 GRIEG# touch /vice/vol/VRList
+
+	38 GRIEG# mv /vice/vol/AllVolumes /vice/vol/AllVolumes.old
+
+	40 GRIEG# touch /vice/vol/AllVolumes
+
+5) Create all of the volumes.
+	Use the createvol_rep script for replicated volumes and createvol for
+	non replicated volumes. Here's an example of each:
+
+	/vice/bin/createvol_rep newvol.rep E0000108 /vicepa
+	/vice/bin/createvol newvol haydn /vicepb
+
+	E0000108 is the VSG number for the server group which will
+	hold the new volume. Haydn is the name of the server on which
+	the non-rep volume will be created. /vicepa is the name of the
+	partition which will hold the file contents of the files in the volume.
+
+Sample output: (grieg is the scm)
+	Servers are (grieg haydn wagner)
+	HexGroupId is 7f00002a
+	creating volume local.tex.rep.0 on grieg
+	V_BindToServer: binding to host GRIEG.CODA.CS.CMU.EDU
+	Volume cc00002a (local.tex.rep.0) created 
+	creating volume local.tex.rep.1 on haydn
+	V_BindToServer: binding to host HAYDN.CODA.CS.CMU.EDU
+	Volume cd00002a (local.tex.rep.1) created
+	creating volume local.tex.rep.2 on wagner
+	V_BindToServer: binding to host WAGNER.CODA.CS.CMU.EDU
+	Volume ce00002a (local.tex.rep.2) created 
+	V_BindToServer: binding to host GRIEG.CODA.CS.CMU.EDU
+	VLDB completed.
+	<echo local.tex.rep 7f00002a 3 cc00002a cd00002a ce00002a 0 0 0 0 0 E0000108 >> /vice/vol/VRList>
+	V_BindToServer: binding to host GRIEG.CODA.CS.CMU.EDU
+	VRDB completed.
+
+Once the volumes have been created, the script sets some log parameters for each 
+volumes.  Below, you see some sample output.  The first sample worked successfully 
+while the second sample failed.
+	/vice/bin/volutil -h grieg setlogparms 7f000001 reson 1 logsize 8192
+	V_BindToServer: binding to host GRIEG.CODA.CS.CMU.EDU
+	Set Log parameters
+	/vice/bin/volutil -h haydn setlogparms 7f000001 reson 1 logsize 8192
+	V_BindToServer: binding to host HAYDN.CODA.CS.CMU.EDU
+	Set Log parameters
+	/vice/bin/volutil -h wagner setlogparms 7f000001 reson 1 logsize 8192
+	V_BindToServer: binding to host WAGNER.CODA.CS.CMU.EDU
+	Set Log parameters
+	...
+	Set Log parameters
+	/vice/bin/volutil -h grieg setlogparms 7f000008 reson 1 logsize 8192
+	V_BindToServer: binding to host GRIEG.CODA.CS.CMU.EDU
+	VolSetLogParms failed with Unknown RPC2 return code 103
+	/vice/bin/volutil -h haydn setlogparms 7f000008 reson 1 logsize 8192
+	V_BindToServer: binding to host HAYDN.CODA.CS.CMU.EDU
+	VolSetLogParms failed with Unknown RPC2 return code 103
+	/vice/bin/volutil -h wagner setlogparms 7f000008 reson 1 logsize 8192
+	V_BindToServer: binding to host WAGNER.CODA.CS.CMU.EDU
+	VolSetLogParms failed with Unknown RPC2 return code 103
+
+6) Now that most of the volumes exist, we need to create the root volume.
+(Remember, we avoided creating the root volume at the beginning because it 
+would have put the volid and the repids out of sync.)
+
+	/vice/bin/volutil create coda_root /vicepb
+
+	Wait 5 minutes for the databases to propagate to all of the servers.
+	To check this, look for the update times of the file /vice/db.UPD:
+
+	ls -ld /../grieg/vice/db
+	ls -l /../{haydn,wagner,debussy}/vice/db.UPD
+
+	Make sure all the files from the second list are dated after the
+	directory on the scm. (Grieg is the scm)
+
+7) Now, we need to mount all of the volumes we created to initialize the file
+system hierarchy.  On a Coda client, perform the following:
+
+	Reinitialize (and start) a client venus:
+	        /usr/coda/etc/venus -init -r coda_root -console /usr/coda/etc/console
+	
+	Set the access rights on /coda correctly.
+		cfs sa /coda system:coda all 		
+		cfs sa /coda system:anyuser rl
+
+	For each volume, mount it in the correct location and set the access
+	rights 	correctly.
+		cd /coda
+		cfs mkmount project coda_root.project.rep
+		cfs sa project system:coda all system:anyuser rl
+	You can look at the reinit.sh script for the volumes or look in 
+	/vice/vol/VolumeList if you prefer.
+
+8) Now, we need to clone the root volume and distribute it to the other servers.
+Look in /vice/vol/VolumeList to find the volid of coda_root.
+
+	/vice/bin/volutil clone <volid of coda_root>
+
+	/vice/bin/volutil dump <volid of clone'd coda_root> </tmp/foo>
+
+	/vice/bin/volutil -h <otherserver> newrestore /tmp/foo /vicepa <volid of clone'd coda_root> coda_root.readonly
+	
+
+9) Instruct all users to reinit their veni.
