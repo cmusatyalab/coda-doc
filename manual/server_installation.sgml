@@ -420,22 +420,28 @@ volumes on this server.
 The root of the Coda file system must reside on the /vicepa partition
 for correct functioning.  Since the SCM probably also acts as a
 server, place the root of the Coda file system in the /vicepa
-partition on the SCM.  Create the root volume by using the command
+partition on the SCM.  Create the root volume by using either one
+of the folloing commands
 
-<tt>% /vice/bin/createvol_rep codaroot &lt;VSG_ENTRY&gt; /vicepa</tt>
+<tt>% /vice/bin/createvol_rep codaroot &lt;VSG_ENTRY&gt; /vicepa</tt> <p>
+<tt>% /vice/bin/createvol codaroot &lt;hostname&gt; /vicepa</tt>
 
-where &lt;VSG_ENTRY&gt; is the entry in the <tt>VSGDB</tt> for the volume 
-storage group for this volume. Since it is likely that the root will be 
-cloned and read-only replicated, you might wish to create this volume as
-singly replicated for simplicity.
+the former is for replicated root volume, where &lt;VSG_ENTRY&gt; is
+the entry in the <tt>VSGDB</tt> for the volume storage group for this
+volume; the later is for non-replicated root volume, where
+&lt;hostname&gt; is the name of the host which hosts the root volume.
+Since it is likely that the root will be cloned and read-only
+replicated, you might wish to create this volume as singly replicated
+for simplicity.
 
-This command will create the <tt>/vice/db/VLDB</tt>, <tt>/vice/db/VRDB</tt>,
+
+These commands will create the <tt>/vice/db/VLDB</tt>, <tt>/vice/db/VRDB</tt>,
 <tt>/vice/vol/VolumeList</tt>, <tt>/vice/vol/BigVolumeList</tt>,
 and the <tt>/vice/vol/AllVolume</tt> files.
 
-Create or modify the file <tt>/vice/ROOTVOLUME</tt> to contain
-the volume id number corresponding to the root volume as listed in the
-file <tt>/vice/vol/VRList</tt>.  
+Create or modify the file <tt>/vice/ROOTVOLUME</tt> to contain the
+volume name (E.g. <tt/codaroot/) corresponding to the root volume as
+listed in the file <tt>/vice/vol/VRList</tt>.
 
 Finally, link /ROOTVOLUME to /vice/ROOTVOLUME
 
