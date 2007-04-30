@@ -28,43 +28,18 @@
 <authorgroup>
       <author>
         <surname>M. Satyanarayanan</surname>
-        <affiliation>
-          <address>
-            <email>satya@cs.cmu.edu</email>
-          </address>
-        </affiliation>
       </author>
       <author>
         <surname>Maria R. Ebling</surname>
-        <affiliation>
-          <address>
-            <email>mre@cs.cmu.edu</email>
-          </address>
-        </affiliation>
       </author>
       <author>
         <surname>Joshua Raiff</surname>
-        <affiliation>
-          <address>
-            <email>jraiff@cs.cmu.edu</email>
-          </address>
-        </affiliation>
       </author>
       <author>
         <surname>Peter J. Braam</surname>
-        <affiliation>
-          <address>
-            <email>braam@cs.cmu.edu</email>
-          </address>
-        </affiliation>
       </author>
        <author>
         <surname>Jan Harkes</surname>
-        <affiliation>
-          <address>
-            <email>jaharkes@cs.cmu.edu</email>
-          </address>
-        </affiliation>
       </author>
     </authorgroup
     <pubdate>August 1997</pubdate>
