@@ -9,8 +9,8 @@ DOCDIR=$(top_src)/install
 create_container = $(top_srcdir)/scripts/create_container2
 
 all:   FORCE
-	echo "Targets are: manpages, psdocs, htmldocs"
-	echo "Install tagets: man-install, ps-install, html-install, ppt-install"
+	@echo "Targets are: manpages, psdocs, htmldocs"
+	@echo "Install targets: man-install, ps-install, html-install, ppt-install"
 
 # debugging aid
 printenv: FORCE

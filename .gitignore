@@ -1,0 +1,14 @@
+/autom4te.cache/
+/config.cache
+/config.log
+/config.status
+/configure
+/Makerules
+Makefile
+__tmp.sgml
+*.1
+*.3
+*.5
+*.8
+*.html
+*.ps
