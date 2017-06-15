@@ -112,6 +112,10 @@ into the following directories: </para>
 </cmdsynopsis> 
 </para>
 
+<note><para>
+Venus-setup is not needed when you install from the Debian/Ubuntu binary packages because it's functionality has been integrated into <application>dpkg-reconfigure</>.
+</para></note>
+
 <para>The <application>venus-setup</> script does all the hard work, it will setup the coda control files, create <filename>/dev/cfs0</> to communicate with the
 kernel, ...  It also initializes a directory for cache files.  In your first Coda run we recommend a small cache, say 20MB. The cache size should be at least 10Meg, typically 60-200Meg is used.  Do not go above 300Meg.  All the files created will be placed under <filename>/usr/coda</>.  You should make sure that there is enough space in the file system on which <filename>/usr/coda</> resides to hold a fully populated cache.  </para
 
