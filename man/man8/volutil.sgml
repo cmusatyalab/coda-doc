@@ -70,8 +70,9 @@ create a replicated volume.
 
 <descrip>
 <tag><bf>dump</bf> &lsqb;-i&rsqb; <em>&lt;volume-ID&gt;</em> 
-<em>&lt;file-name&gt;</em></tag> Dump the entire contents of a volume
-(<em>volume-ID</em> in Hex) to a file  (<em>file-name</em>).  If the -i flag
+<em>&lsqb;file-name&rsqb;</em></tag> Dump the entire contents of a volume
+(<em>volume-ID</em> in Hex) to a file (<em>file-name</em>). If no filename has
+been specified the volume is dumped to stdout. If the -i flag
 is used, the dump will be incremental, it will only include vnodes which have
 been modified since the last dump was taken.  The dump is not machine
 independent, certain fields in the Vnode are not translated to network order.
@@ -80,7 +81,9 @@ similar byte-order.
 <P></descrip>
 
 <descrip>
-<tag><bf>dumpmem</bf> <em>&lt;file-name&gt;</em> <em>&lt;address&gt;</em> <em>&lt;size&gt;</em></tag> Dump <em>&lt;size&gt;</em> bytes starting at <em>&lt;address&gt;</em> into <em>&lt;file-name&gt;</em>.
+<tag><bf>dumpmem</bf> <em>&lt;address&gt;</em> <em>&lt;size&gt;</em>
+<em>&lt;file-name&gt;</em></tag>
+Dump <em>&lt;size&gt;</em> bytes starting at <em>&lt;address&gt;</em> into <em>&lt;file-name&gt;</em>.
 <P></descrip>
 
 <descrip>
@@ -89,23 +92,25 @@ similar byte-order.
 
 <descrip>
 <tag><bf>info</bf> &lsqb;-all&rsqb; <em>&lt;volume-name | 
-volume-number&gt;</em> <em>&lt;file-name&gt;</em></tag> Print in ascii the
-contents of a volume into a file (<em>&lt;file-name&gt;)</em>. The volume can
-be specified by its name, or by the volume-ID, specified in Hex. If -all is
-specified, contents of both large and small vnodes in that volume are also
-printed.  
+volume-number&gt;</em> <em>&lsqb;file-name&rsqb;</em></tag>
+Print in ascii the contents of a volume into a file
+(<em>&lt;file-name&gt;)</em>. The volume can be specified by its name, or by
+the volume-ID, specified in Hex. If -all is specified, contents of both large
+and small vnodes in that volume are also printed.
 <P></descrip>
 
 <descrip>
-<tag><bf>lock</bf> <em>&lt;volume-ID&gt;</em></tag> Lock a volume to prevent write access to the volume. To other users
+<tag><bf>lock</bf> <em>&lt;volume-ID&gt;</em></tag>
+Lock a volume to prevent write access to the volume. To other users
 it will appear as if the operation would time out.
 <P></descrip>
 
 <descrip>
 <tag><bf>lookup</bf> <em>&lt;volume-name | volume-ID&gt;</em> 
-<em>&lt;file-name&gt;</em></tag> Print information about a volume (specified
-by <em>volume-name</em> or <em>volume-ID</em> specified in Hex) in 
-<em>file-name</em>.  Only meta-information, such as replicated group-ID,
+<em>&lsqb;file-name&rsqb;</em></tag>
+Print information about a volume (specified by <em>volume-name</em> or
+<em>volume-ID</em> specified in Hex) in <em>file-name</em> or to stdout if no
+filename was specified.  Only meta-information, such as replicated group-ID,
 location, etc. is printed.
 <P></descrip>
 
@@ -133,15 +138,16 @@ purgevol-rep(8))
 <P></descrip>
 
 <descrip>
-<tag><bf>restore</bf> <em>&lt;file-name&gt;</em> 
+<tag><bf>restore</bf> <em>&lsqb;-f &lt;file-name&gt;&rsqb;</em>
 <em>&lt;partition-path&gt;</em> &lsqb;<em>&lt;volume-name&gt;</em>
 &lsqb;<em>&lt;volume-ID&gt;</em> &rsqb; &rsqb;</tag>
 Create a new volume on the partition
 named by <em>&lt;partition-path&gt;</em> and read in the contents from a dump
-in file <em>&lt;file-name&gt;</em>. The new volume will be given the name and
-ID specified on the command line. If either is unspecified, or if the Volume
-ID is of illegal form, the server will allocate the ID or name based on
-internal rules. The volume-ID should be specified in Hex.  
+in file <em>&lt;file-name&gt;</em>. Reads from stdin if no file was specified.
+The new volume will be given the name and ID specified on the command line. If
+either is unspecified, or if the Volume ID is of illegal form, the server will
+allocate the ID or name based on internal rules. The volume-ID should be
+specified in Hex.
 <P></descrip>
 
 <descrip>
@@ -197,7 +203,8 @@ server.
 <P></descrip>
 
 <descrip>
-<tag><bf>timing</bf> <em>on | off &lt;filename&gt;</em></tag> Turn timing on or off.
+<tag><bf>timing</bf> <em>on | off &lsqb;filename&rsqb;</em></tag>
+ Turn timing on or off.
 <P></descrip>
 
 <descrip>
@@ -219,9 +226,8 @@ at non-scm machines.
 
 
 <mansect>DIAGNOSTICS<P>
-This command must be run as root.  It works only on the machine running
-the server. Also, the token file <em>/vice/db/voutil.tk</em> must be 
-accessible.
+This command works only on the machine running the server. Also, the token
+file <em>/vice/db/volutil.tk</em> must be accessible.
 
 
 <mansect>BUGS<P>
