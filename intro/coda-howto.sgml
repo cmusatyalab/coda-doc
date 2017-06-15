@@ -679,7 +679,7 @@ actually usable:
 <item> 0 and -1 (255) are used in error conditions.
 <item> 127 is used to identify `replicated volumes'.
 </itemize>
-This leaves us with a usable range of 1-126 and 128-245 for server identifiers.
+This leaves us with a usable range of 1-126 and 128-254 for server identifiers.
 
 <tag/secret tokens/two secret tokens of _exactly_ 8 characters (eg
 elephant).
