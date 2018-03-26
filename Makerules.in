@@ -1,12 +1,9 @@
 
-#mandir = @mandir@
-top_src=@top_srcdir@
-prefix = @prefix@
-mandir=$(prefix)/man
+datarootdir = @datarootdir@
+mandir = @mandir@
 
-DOCDIR=$(top_src)/install
-
-create_container = $(top_srcdir)/scripts/create_container2
+create_container = @top_srcdir@/scripts/create_container2
+DOCDIR = @abs_top_builddir@/install
 
 all:   FORCE
 	@echo "Targets are: manpages, psdocs, htmldocs"
@@ -33,14 +30,14 @@ ppt-install: $(PPTDOCS) $(SUBDIRS)
 	-mkdir -p $(DOCDIR)/ppt
 	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
 ifdef PPTDOCS
-	install  $(PPTDOCS) $(DOCDIR)/ppt
+	install $(PPTDOCS) $(DOCDIR)/ppt
 endif
 
 ps-install: $(PSDOCS) $(SUBDIRS)
 	-mkdir -p $(DOCDIR)/ps
 	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
 ifdef PSDOCS
-	install  $(PSDOCS) $(DOCDIR)/ps
+	install $(PSDOCS) $(DOCDIR)/ps
 	gzip -f $(DOCDIR)/ps/*.ps
 endif
 
@@ -48,7 +45,7 @@ html-install: $(HTMLDOCS) $(SUBDIRS)
 	-mkdir -p $(DOCDIR)/html
 	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
 ifdef HTMLDOCS
-	install  *html $(DOCDIR)/html
+	install *.html $(DOCDIR)/html
 endif
 
 man-install: manpages
@@ -79,7 +76,7 @@ distclean:
 	sgml2latex --output=ps $?
 
 %.sgml.cntr: %.sgml
-	  $(create_container) $?
+	$(create_container) $?
 
 %.1 %.2 %.3 %.4 %.5 %.8 %.man: %.sgml.cntr
 	mv $? __tmp.sgml

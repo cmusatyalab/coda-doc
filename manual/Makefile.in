@@ -1,13 +1,10 @@
 
 SHELL = /bin/sh
-srcdir = @srcdir@
 VPATH = @srcdir@
+top_srcdir = @top_srcdir@
+DOCDIR := @abs_top_builddir@/install
 
 SGMLSRC := manual.sgml
-
-
-##include $(srcdir)/Makerules
-
 
 PS    := $(patsubst %.sgml, %.ps, $(SGMLSRC))
 PDF   := $(patsubst %.sgml, %.pdf, $(SGMLSRC))
@@ -17,7 +14,9 @@ all: psdocs htmldocs
 
 psdocs: $(PS)
 htmldocs: $(HTML)
-
+html-install: htmldocs
+	-mkdir -p  $(DOCDIR)/html/manual
+	install -v manual/*.html $(DOCDIR)/html/manual
 
 DVI   := $(patsubst %.sgml, %.dvi, $(SGMLSRC))
 AUX   := $(patsubst %.sgml, %.aux, $(SGMLSRC))

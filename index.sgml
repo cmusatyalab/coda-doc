@@ -38,7 +38,7 @@ We have a few manuals - these have details for programmers and
 advanced system administration, but are less well organised than the
 coda-howto:
 <itemize>
-<item> <url url="manual.html"  name="The Coda Administration and User Manual">
+<item> <url url="manual/index.html"  name="The Coda Administration and User Manual">
 <item> <url url="rvm&lowbar;manual.html"  name="The RVM Manual">
 <item> <url url="rpc2&lowbar;manual.html"  name="The RPC2 Manual">
 </itemize>
