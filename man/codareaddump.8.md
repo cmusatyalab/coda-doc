@@ -33,6 +33,8 @@ The **codareaddump** program supports the following commands:
 
 **skipVnodes** *nVnodes*
 
+**quit**
+
 **codareaddump** uses the *ci* command interface, which allows the use of
 unique prefixes for commands. Unspecified parameters will be prompted
 for, and default values can be used. The **showHeader** command prints out

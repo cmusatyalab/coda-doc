@@ -10,8 +10,8 @@ au - Activate user account
 SYNOPSIS
 ========
 
-**au** \[ **-x** \] \[ **-h ***host* \] \[ **-p ***port* \] **nu \| cp
-\| cu \| du**
+**au** \[ **-x** \] \[ **-h ***host* \] \[ **-p ***port* \] **nu** \| **cp**
+\| **cu** \| **du**
 
 DESCRIPTION
 ===========
@@ -59,7 +59,7 @@ server to perform the requested operation.
 DIAGNOSTICS
 ===========
 
-You must be a Coda system administrator to ru **au**.
+You must be a Coda system administrator to run **au**.
 
 BUGS
 ====

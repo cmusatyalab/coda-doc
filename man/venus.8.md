@@ -104,7 +104,7 @@ The command-line options are:
 
 **-timeout**
 
-:   Sets the RPC2 timeout period to *RPC2* timeout seconds.
+:   Sets the RPC2 timeout period to *RPC2 timeout* seconds.
 
     Default: **15**
 

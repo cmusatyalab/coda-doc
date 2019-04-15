@@ -8,7 +8,7 @@ codamergedump - merge incremental dumps onto full dumps for restore
 SYNOPSIS
 ========
 
-**codamergedump** *output file* *full dump* *incremental dump*
+**codamergedump** *output_file* *full_dump* *incremental_dump*
 
 DESCRIPTION
 ===========

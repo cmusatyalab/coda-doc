@@ -17,12 +17,12 @@ The **coda-client-setup** command takes a default Coda realm name and a
 cache size given in kilobytes. **coda-client-setup** then performs the
 following operations:
 
-Creates any missing directories, for example the */coda* mount point.
+* Creates any missing directories, for example the */coda* mount point.
 
-Creates */etc/coda/venus.conf* and sets the cache size given on the
+* Creates */etc/coda/venus.conf* and sets the cache size given on the
 command line.
 
-Creates */dev/cfs0* if not already present.
+* Creates */dev/cfs0* if not already present.
 
 EXAMPLE
 =======

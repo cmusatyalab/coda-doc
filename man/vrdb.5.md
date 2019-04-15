@@ -35,7 +35,9 @@ VRDB structure can be found in *vrdb.h*.
 FILES
 =====
 
-*/vice/db/VRDB* */vice/vol/VRList*
+*/vice/db/VRDB*
+
+*/vice/vol/VRList*
 
 BUGS
 ====

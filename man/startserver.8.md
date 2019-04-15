@@ -20,7 +20,13 @@ starting the server with the same configuration every time its run.
 FILES
 =====
 
-*codasrv* */vice/srv/SrvErr* */vice/srv/SrvLog\* * */vice/srv/srv.conf*
+*codasrv*
+
+*/vice/srv/SrvErr*
+
+*/vice/srv/SrvLog\* *
+
+*/vice/srv/srv.conf*
 
 SEE ALSO
 ========

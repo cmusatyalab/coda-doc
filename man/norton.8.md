@@ -37,9 +37,9 @@ The available commands are:
     *volid.vnode.uniqifier*. If flag is nonzero the linkcount of the
     directory is reduced by one.
 
-**NOTE: delete name does not do anything to** the vnodes associated with
-*file*, you must remove the vnodes by hand or update their link
-count.
+    **NOTE: delete name does not do anything to the vnodes associated with**
+    *file*, **you must remove the vnodes by hand or update their link
+    count.**
 
 **delete volume** *volid*
 
@@ -72,9 +72,9 @@ count.
 
 :   Display the RVM index of the given volume name or number.
 
-**show vnode** *volid* *vnode* \| *?* *uniqifier*
+**show vnode** *volid* *vnode* \| ? *uniqifier*
 
-:   Show the specified vnode. If an **?** is given rather than a vnode
+:   Show the specified vnode. If a **?** is given rather than a vnode
     number, all of the volumes vnode lists are searched for a vnode with
     a matching uniquifier.
 

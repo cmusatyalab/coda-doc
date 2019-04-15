@@ -54,9 +54,9 @@ file tree.
 BUGS
 ====
 
-* Currently, only the kernel module for Windows supports \'Big Files\'.
+Currently, only the kernel module for Windows supports \'Big Files\'.
 
 AUTHORS
 =======
 
-Philip A.\ Nelson, August 2006
+* Philip A.\ Nelson, August 2006

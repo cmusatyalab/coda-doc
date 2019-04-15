@@ -101,9 +101,10 @@ FILES
 BUGS
 ====
 
-There is no easy way to add to the list of directories checked. The *-r*
-option is now obsolete as **updateclnt** does not update any directory
-other then */vice/db*.
+There is no easy way to add to the list of directories checked.
+
+The *-r* option is now obsolete as **updateclnt** does not update any
+directory other then */vice/db*.
 
 SEE ALSO
 ========

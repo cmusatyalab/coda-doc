@@ -57,7 +57,7 @@ SYNOPSIS
 **cfs rmmount** *dir* \[ *dir \...* \]
 
 **cfs setacl** \[ **-clear** \] \[ **-negative** \] *dir* *id* *rights*
-\[ *id*** ***rights \...* \]
+\[ *id* *rights* *...* \]
 
 **cfs truncatelog**
 
@@ -237,8 +237,8 @@ permissions on individual files, use **chmod**(1).
     switch denies the given permissions, rather than granting them.
     **Rights** are a subset of **rwidlak** which are read, write,
     insert, delete, lookup, administer, and lock respectively. See the
-    section on **File Protection** in the *Coda File* System Users and
-    System Administrators Manual for more detail.
+    section on **File Protection** in the *Coda File System Users and
+    System Administrators Manual* for more detail.
 
     Abbreviation: **sa**
 

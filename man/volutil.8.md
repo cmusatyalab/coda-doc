@@ -20,7 +20,7 @@ functions like creating, cloning, purging, dumping and restoring
 volumes. Each of these functions can be invoked via the *command*
 parameter. Each command has a set of parameters that it expects. These
 are listed below along with a short description of each command. The
-volutil utility may be instructed to perform the operations on a server
+**volutil** utility may be instructed to perform the operations on a server
 at a remote site by specifying the server to which to connect with the
 **-h** option. The default is to connect to a server on the local
 machine.  The **-t** option may be used to specify the timeout (in
@@ -102,7 +102,7 @@ seconds) to be used by RPC2.
 :   Create a new Volume Location Database (**VLDB**). *volumelist* names a
     file containing volume parameters for all volumes in the system. This
     command typically is run on the system control machine. See also
-    **bldvldb**(8) and **volumelist**(5).
+    **bldvldb.sh**(8) and **volumelist**(5).
 
 **makevrdb** *vrlist*
 
@@ -135,7 +135,7 @@ seconds) to be used by RPC2.
 
 :   Set the debug level for the volume and directory packages to *level*. To
     reset it use zero for the *level* argument. The rpc2 debug level is set
-    to *level / 10*.
+    to *level* / 10.
 
 **setlogparms** *volume-id* \[reson 4│0\] \[logsize *size*\]
 
@@ -146,6 +146,7 @@ seconds) to be used by RPC2.
     The **logsize** parameter refers to the number of maximum entries in
     the log.  This should be a multiple of 32. Typically this is set to
     8192.
+
     **NOTE:** You should in all normal cases keep the resolution turned
     **on**, and the argument for **reson** is in that case **4**!
 
@@ -197,18 +198,25 @@ accessible.
 BUGS
 ====
 
-The salvage option to volutil doesn\'t work right. Please don\'t try it.
+The salvage option to **volutil** doesn\'t work right. Please don\'t try it.
 
 FILES
 =====
 
-*/vice/db/VSGDB* */vice/file/SrvLog* */vice/db/VLDB* */vice/db/VRDB*
+*/vice/db/VSGDB*
+
+*/vice/file/SrvLog*
+
+*/vice/db/VLDB*
+
+*/vice/db/VRDB*
+
 */vice/vol/VRList*
 
 SEE ALSO
 ========
 
-**vrdb**(5), **volumelist**(5), **bldvldb**(8), **createvol**(8),
+**vrdb**(5), **volumelist**(5), **bldvldb.sh**(8), **createvol**(8),
 **createvol\_rep**(8), **purgevol**(8), **purgevol\_rep**(8)
 
 AUTHOR

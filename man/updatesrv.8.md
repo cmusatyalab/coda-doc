@@ -40,8 +40,9 @@ EXAMPLES
 ========
 
 The command **updatesrv -s -p /** would invoke the updatesrv process and
-cause the files to be served relative to / on the server machine. The
-command **updatesrv -s -p /vice/bin** would cause the files to be served
+cause the files to be served relative to / on the server machine.
+
+The command **updatesrv -s -p /vice/bin** would cause the files to be served
 relative to /vice/bin on the server machine.
 
 DIAGNOSTICS
@@ -75,7 +76,7 @@ using it to fetch files from servers.
 SEE ALSO
 ========
 
-**checkvenus**(8) **updateclnt**(8)
+**checkvenus**(8), **updateclnt**(8)
 
 AUTHOR
 ======

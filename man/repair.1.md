@@ -43,33 +43,33 @@ A description of the **repair** commands follows:
     messages to indicate whether the current repair session is for
     server-server conflict or local-global conflict.
 
-For a server-server repair session, this command locks the corresponding
-volume and and mounts its individual replicas read-only. It will inform
-the users to only use the **comparedirs**, **dorepair** and
-**removeinc** commands to repair the conflict.
+    For a server-server repair session, this command locks the corresponding
+    volume and and mounts its individual replicas read-only. It will inform
+    the users to only use the **comparedirs**, **dorepair** and
+    **removeinc** commands to repair the conflict.
 
-For a local-global repair session, both local and global replicas of
-*object* are visible at **object/local** (read-only) and
-**object/global** (mutable and serving as the workspace for storing the
-repair result for *object*). You need to iterate through the current
-sessions **local-mutations-list** containing all the local updates to
-*object* and its descendants. Each operation in **local-mutations-list**
-must be accounted for and Venus maintains the **current-mutation** being
-iterated. Use the **checklocal** command to find out the conflict
-between the **current-mutation** and the server state. Note that not all
-local mutations are necessarily in conflict, and you can use the
-**listlocal** command to see all the operations in
-**local-mutations-list**. You can advance the iteration to the next
-operation using either the **preservelocal** or the **discardlocal**
-command with the former replaying the **current-mutation** operation on
-the relevant global replicas. To speed up the iteration, the
-**preservealllocal** command repeats **preservelocal** until the
-**local-mutations-list** is exhausted or the first replay failure.
-Similarly, the **discardalllocal** command repeats **discardlocal**
-until exhausting the **local-mutations-list**. You can use external
-tools such as **emacs**(1) to make direct updates on needed replicas
-under **object/global**. Use the **quit** command to either commit or
-abort the session.
+    For a local-global repair session, both local and global replicas of
+    *object* are visible at **object/local** (read-only) and
+    **object/global** (mutable and serving as the workspace for storing the
+    repair result for *object*). You need to iterate through the current
+    sessions **local-mutations-list** containing all the local updates to
+    *object* and its descendants. Each operation in **local-mutations-list**
+    must be accounted for and Venus maintains the **current-mutation** being
+    iterated. Use the **checklocal** command to find out the conflict
+    between the **current-mutation** and the server state. Note that not all
+    local mutations are necessarily in conflict, and you can use the
+    **listlocal** command to see all the operations in
+    **local-mutations-list**. You can advance the iteration to the next
+    operation using either the **preservelocal** or the **discardlocal**
+    command with the former replaying the **current-mutation** operation on
+    the relevant global replicas. To speed up the iteration, the
+    **preservealllocal** command repeats **preservelocal** until the
+    **local-mutations-list** is exhausted or the first replay failure.
+    Similarly, the **discardalllocal** command repeats **discardlocal**
+    until exhausting the **local-mutations-list**. You can use external
+    tools such as **emacs**(1) to make direct updates on needed replicas
+    under **object/global**. Use the **quit** command to either commit or
+    abort the session.
 
 **quit**
 
@@ -120,7 +120,7 @@ Use the following commands to repair a server-server conflict:
     and so on
 
 Repair commands are given one per line. Blank lines are ok. **id of
-replica1**, **id of** replica2, etc. are numbers that identify each
+replica1**, **id of replica2**, etc. are numbers that identify each
 replica. These are the same as the volume ids of read-write volumes
 corresponding to a replicated volume. The volume ids can be obtained by
 doing an ls on the inconsistent object, after the **beginrepair**

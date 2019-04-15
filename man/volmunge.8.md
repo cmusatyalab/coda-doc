@@ -42,7 +42,9 @@ DESCRIPTION
 
 **volmunge**: is ideal for identifying Coda objects versus regular UNIX
 files (including UNIX directories) stored within the Coda filesystem. It
-will work recursively. Because the, **-f** and **-o**, call the stat(),
+will work recursively.
+
+Because the **-f** and **-o** call the stat()
 and open() functions respectively, resolution many be forced with
 volmunge if one is reconstituting a replicated Coda volume or group of
 volumes mounted on top of each other.

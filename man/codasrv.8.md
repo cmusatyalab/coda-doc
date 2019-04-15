@@ -24,6 +24,7 @@ DESCRIPTION
 
 **codasrv** is the CFS *vice* file server. It services requests from
 client machines **venus** processes and maintains the file system.
+
 **Srv**s command line options are:
 
 **-d** *debug_level*
@@ -134,7 +135,9 @@ client machines **venus** processes and maintains the file system.
 FILES
 =====
 
-*/vice/srv/SrvErr* */vice/srv/SrvLog\* *
+*/vice/srv/SrvErr*
+
+*/vice/srv/SrvLog\* *
 
 SEE ALSO
 ========

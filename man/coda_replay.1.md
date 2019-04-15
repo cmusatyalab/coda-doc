@@ -17,7 +17,7 @@ DESCRIPTION
 
 **coda\_replay** is a tool for manually reintegrating operations done at
 a disconnected client. It provides a superset of the functionality of
-the tape-archive program, tar(1). The **key** argument is a string of
+the tape-archive program, **tar**(1). The **key** argument is a string of
 characters containing exactly one function letter and possibly one or
 more function modifiers. The *filename* argument specifies the
 tar/replay format file containing the operations to be replayed.
