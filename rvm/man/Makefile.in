@@ -3,7 +3,8 @@ SHELL = /bin/sh
 srcdir = @srcdir@
 VPATH = @srcdir@
 
-SUBDIRS=man1 man3
+SUBDIRS=man3
+
+MANPAGEFILES = rdsinit.1 rvmutl.1
 
 include ../../Makerules
-

@@ -7,7 +7,6 @@ VPATH = @srcdir@
 
 SUBDIRS = 
 
-CH=1
 MANPAGEFILES = cfs.1 \
                clog.1 \
                cmon.1 \

@@ -5,7 +5,6 @@ VPATH = @srcdir@
 
 SUBDIRS = 
 
-CH=3
 MANPAGEFILES = rvm_initialize.3 \
 	       rvm_initialize.3 \
                rvm_set_options.3 \

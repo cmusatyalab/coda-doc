@@ -5,7 +5,6 @@ top_srcdir = @top_srcdir@
 VPATH = @srcdir@
 
 SUBDIRS = 
-CH=3
 MANPAGEFILES = histo.3 \
                timing.3
 

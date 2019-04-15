@@ -6,7 +6,6 @@ top_srcdir = @top_srcdir@
 VPATH = @srcdir@
 
 
-CH=5
 MANPAGEFILES = backuplogs.5 \
 	dumpfile.5 \
 	dumplist.5 \

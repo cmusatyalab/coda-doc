@@ -1,6 +1,12 @@
 
+prefix = @prefix@
 datarootdir = @datarootdir@
 mandir = @mandir@
+
+MANPAGEFILES_1 = $(filter %.1, $(MANPAGEFILES))
+MANPAGEFILES_3 = $(filter %.3, $(MANPAGEFILES))
+MANPAGEFILES_5 = $(filter %.5, $(MANPAGEFILES))
+MANPAGEFILES_8 = $(filter %.8, $(MANPAGEFILES))
 
 create_container = @top_srcdir@/scripts/create_container2
 DOCDIR = @abs_top_builddir@/install
@@ -11,7 +17,12 @@ all:   FORCE
 
 # debugging aid
 printenv: FORCE
+	echo mandir: $(mandir)
 	echo MANPAGEFILES: $(MANPAGEFILES)
+	echo MANPAGEFILES_1: $(MANPAGEFILES_1)
+	echo MANPAGEFILES_3: $(MANPAGEFILES_3)
+	echo MANPAGEFILES_5: $(MANPAGEFILES_5)
+	echo MANPAGEFILES_8: $(MANPAGEFILES_8)
 	echo SUBDIRS: $(SUBDIRS)
 	echo DOCDIR: $(DOCDIR)
 
@@ -50,10 +61,21 @@ endif
 
 man-install: manpages
 	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
-ifdef MANPAGEFILES
-	-mkdir -p $(prefix)/man
-	-mkdir -p $(prefix)/man/man$(CH)
-	install -m 644 -o root -g bin $(MANPAGEFILES) $(mandir)/man$(CH)
+ifneq ($(MANPAGEFILES_1),)
+	-mkdir -p $(mandir)/man1
+	install -m 644 $(MANPAGEFILES_1) $(mandir)/man1
+endif
+ifneq ($(MANPAGEFILES_3),)
+	-mkdir -p $(mandir)/man3
+	install -m 644 $(MANPAGEFILES_3) $(mandir)/man3
+endif
+ifneq ($(MANPAGEFILES_5),)
+	-mkdir -p $(mandir)/man5
+	install -m 644 $(MANPAGEFILES_5) $(mandir)/man5
+endif
+ifneq ($(MANPAGEFILES_8),)
+	-mkdir -p $(mandir)/man8
+	install -m 644 $(MANPAGEFILES_8) $(mandir)/man8
 endif
 
 install: ps-install ppt-install html-install man-install
@@ -78,7 +100,12 @@ distclean:
 %.sgml.cntr: %.sgml
 	$(create_container) $?
 
-%.1 %.2 %.3 %.4 %.5 %.8 %.man: %.sgml.cntr
+PANDOC_MAN = pandoc -s -t man $< -o $@
+%.1: %.1.md; $(PANDOC_MAN)
+%.5: %.5.md; $(PANDOC_MAN)
+%.8: %.8.md; $(PANDOC_MAN)
+
+%.3: %.sgml.cntr
 	mv $? __tmp.sgml
 	sgml2txt -man __tmp.sgml
 	mv __tmp.man $@

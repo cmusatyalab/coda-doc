@@ -1,4 +1,4 @@
-AC_INIT(man/man1/hoard.sgml)
+AC_INIT(man/hoard.1.md)
 
 
 

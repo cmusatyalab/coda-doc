@@ -5,8 +5,6 @@ top_srcdir = @top_srcdir@
 VPATH = @srcdir@
 
 
-
-CH=8
 MANPAGEFILES = au.8 \
                pdbtool.8\
                auth2.8 \

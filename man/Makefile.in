@@ -3,7 +3,46 @@ SHELL = /bin/sh
 srcdir = @srcdir@
 VPATH = @srcdir@
 
-SUBDIRS=man1 man3 man5 man8
+MANPAGEFILES =          \
+    au.1                \
+    auth2.8             \
+    bldvldb.sh.8        \
+    cfs.1               \
+    clog.1              \
+    cmon.1              \
+    coda-client-setup.8 \
+    codadumpfile.5      \
+    codamergedump.8     \
+    codareaddump.8      \
+    coda_replay.1       \
+    codasrv.8           \
+    cpasswd.1           \
+    createvol_rep.8     \
+    ctokens.1           \
+    cunlog.1            \
+    hoard.1             \
+    initpw.8            \
+    maxgroupid.5        \
+    mkcodabf.1          \
+    norton.8            \
+    passwd.coda.5       \
+    pdbtool.8           \
+    purgevol_rep.8      \
+    repair.1            \
+    servers.5           \
+    spy.1               \
+    startserver.8       \
+    updateclnt.8        \
+    updatesrv.8         \
+    venus.8             \
+    vice-setup.8        \
+    vicetab.5           \
+    volmunge.8          \
+    volumelist.5        \
+    volutil.8           \
+    vrdb.5              \
+    vutil.8
+
 
 include ../Makerules
 
