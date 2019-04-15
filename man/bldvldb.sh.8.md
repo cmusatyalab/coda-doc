@@ -1,7 +1,4 @@
----
-section: 8
-title: 'bldvldb.sh'
----
+% BLDVLDB.SH(8) Coda Distributed File System
 
 NAME
 ====

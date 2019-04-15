@@ -37,7 +37,7 @@ MANPAGEFILES =          \
     venus.8             \
     vice-setup.8        \
     vicetab.5           \
-    volmunge.8          \
+    volmunge.1          \
     volumelist.5        \
     volutil.8           \
     vrdb.5              \

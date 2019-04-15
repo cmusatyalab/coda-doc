@@ -1,4 +1,4 @@
-% VOLMUNGE(8) Coda Distributed File System
+% VOLMUNGE(1) Coda Distributed File System
 
 NAME
 ====
