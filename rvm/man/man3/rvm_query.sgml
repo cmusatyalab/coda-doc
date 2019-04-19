@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_query" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_query - query RVM options
+<sect1>NAME
+<p>
+rvm_query - query RVM options
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <p>
 <verb>
 #include "rvm.h"
@@ -16,7 +17,7 @@ rvm_region_t   *region;   /* optional pointer to a region descriptor */
 
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_query allows inspection of the RVM options currently set.
 An options record, specified by options, is filled in with the
 values currently in effect.
@@ -70,7 +71,7 @@ the application.  If you do deallocate the array, you <em>must</em> null the
 pointer to avoid a possible internal error due the dangling pointer.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_EREGION/ invalide region descriptor or pointer
@@ -81,12 +82,12 @@ pointer to avoid a possible internal error due the dangling pointer.
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_map (3)</tt>, <tt>rvm_unmap (3)</tt>, <tt>rvm_set_options (3)</tt>, <tt>rvm_abort_transaction (3)</tt>,
 <tt>rvm_end_transaction (3)</tt>, and <tt>rvm_terminate (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

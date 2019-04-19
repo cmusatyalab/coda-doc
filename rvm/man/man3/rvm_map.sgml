@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_map" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_map - map segment region
+<sect1>NAME
+<p>
+rvm_map - map segment region
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <P>
 <verb>
 #include "rvm.h"
@@ -37,7 +38,7 @@ rvm_region_t    *region;  /* pointer to a region descriptor [in/out] */
 rvm_options_t   *options; /* optional pointer to an options record */
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_map moves a copy of all or part of the data in a data file
 to virtual memory.
 Mapping is necessary before any transactions can be made on a segment.
@@ -162,7 +163,7 @@ If these cannot be allocated, RVM_ENO_MEMORY is returned and no
 data mapped.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_EREGION/ invalid region descriptor or pointer
@@ -181,16 +182,16 @@ has code number
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_unmap (3)</tt>, <tt>rvm_set_options (3)</tt>, <tt>rvm_query (3)</tt>,
 <tt>rvm_create_segment</tt>, and <tt>rvm_load_segment</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 
-<mansect>BUGS<P>
+<sect1>BUGS<P>
 There is no provision for extending a mapped region.
 
 

@@ -1,11 +1,12 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_end_transaction" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_end_transaction - commit transaction
+<sect1>NAME
+<p>
+rvm_end_transaction - commit transaction
 
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <p>
 <verb>
 #include "rvm.h"
@@ -16,7 +17,7 @@ rvm_tid_t         *tid;  /* pointer to transaction identifier */
 rvm_trans_mode_t  mode;  /* transaction commit mode */
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_end_transaction commits the changes made since the transaction
 began.
 All transactions can be committed with this function, regardless of
@@ -44,7 +45,7 @@ the no_flush option.
 RVM does not support nested transactions.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_ETID/ invalid transaction identifier or pointer
@@ -53,13 +54,13 @@ RVM does not support nested transactions.
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_begin_transaction (3)</tt>, <tt>rvm_set_range (3)</tt>, <tt>rvm_modify_bytes (3)</tt>, and
 <tt>rvm_flush (3)</tt>
 
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

@@ -11,7 +11,6 @@ man/man5/Makefile
 man/man8/Makefile
 rvm/Makefile
 rvm/man/Makefile
-rvm/man/man1/Makefile
 rvm/man/man3/Makefile
 manual/Makefile
 rpc2/Makefile

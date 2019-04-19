@@ -1,11 +1,12 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_flush" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_flush - flush log records to log file
+<sect1>NAME
+<p>
+rvm_flush - flush log records to log file
 
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <p>
 <verb>
 #include "rvm.h"
@@ -13,7 +14,7 @@
 rvm_return_t rvm_flush ()
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_flush makes visible the log flush operation, which
 moves transaction records
 to the log file and insures the permanence of the changes
@@ -26,7 +27,7 @@ no_flush transactions.
 rvm_flush is synchronous with the calling thread.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_ELOG/ no log file has been specified
@@ -34,11 +35,11 @@ rvm_flush is synchronous with the calling thread.
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_end_transaction (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

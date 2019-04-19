@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_create_segment" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_create_segment - create segment header
+<sect1>NAME
+<p>
+rvm_create_segment - create segment header
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <p>
 <verb>
 #include "rvm_segment.h
@@ -28,7 +29,7 @@ rvm_region_def_t *region_defs; /* pointer to array of region descriptors */
 
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 <tt>rvm_create_segment</tt> is used to initialize the segment header with
 the region load map.
 The name of the file or partition
@@ -86,7 +87,7 @@ An optional RVM options descriptor can be passed to
 RVM must be initialized before <tt>rvm_create_segment</tt> is called.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_ERANGE/ a region length is not page sized
@@ -97,16 +98,16 @@ RVM must be initialized before <tt>rvm_create_segment</tt> is called.
 <tag/RVM_EINIT/ RVM not initialized
 </descrip>
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_load_segment (3)</tt>, <tt>rvm_map (3)</tt>, <tt>rds_zap_heap (3)</tt>,
 <tt>rds_load_heap (3)</tt>, <tt>rdsinit (1)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 David C. Steere
 
 
-<mansect>BUGS<P>
+<sect1>BUGS<P>
 Specification of region allocations with the <tt>offset</tt> field of the
 region descriptors is not allowed.
 

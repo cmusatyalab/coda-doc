@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_terminate" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_terminate - terminate RVM
+<sect1>NAME
+<p>
+rvm_terminate - terminate RVM
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <P>
 <verb>
 #include "rvm.h"
@@ -12,7 +13,7 @@
 rvm_return_t rvm_terminate ()
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_terminate checks for uncommitted transactions and otherwise insures
 a clean exit from RVM.
 If an uncommitted transaction is found, RVM_EUNCOMMIT is returned,
@@ -25,7 +26,7 @@ regions unmapped.
 RVM cannot be reinitialized after termination.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_EUNCOMMIT/ uncommitted transaction(s) pending
@@ -33,11 +34,11 @@ RVM cannot be reinitialized after termination.
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_initialize (3)</tt>, and <tt>rvm_query (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

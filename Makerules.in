@@ -8,7 +8,6 @@ MANPAGEFILES_3 = $(filter %.3, $(MANPAGEFILES))
 MANPAGEFILES_5 = $(filter %.5, $(MANPAGEFILES))
 MANPAGEFILES_8 = $(filter %.8, $(MANPAGEFILES))
 
-create_container = @top_srcdir@/scripts/create_container2
 DOCDIR = @abs_top_builddir@/install
 
 all:   FORCE
@@ -83,7 +82,7 @@ install: ps-install ppt-install html-install man-install
 # clean
 clean:
 	for i in $(SUBDIRS) ; do make -w -C $$i $@ ; done
-	rm -f *.sgml.cntr *.sgml.cntr.man *.man __tmp.sgml *.html *.dvi *.log *.aux *.tex $(MANPAGEFILES) $(PSDOCS)
+	rm -f *.man *.html *.dvi *.log *.aux *.tex $(MANPAGEFILES) $(PSDOCS)
 
 distclean: 
 	make clean
@@ -97,17 +96,13 @@ distclean:
 %.ps: %.sgml
 	sgml2latex --output=ps $?
 
-%.sgml.cntr: %.sgml
-	$(create_container) $?
-
 PANDOC_MAN = pandoc -s -t man $< -o $@
 %.1: %.1.md; $(PANDOC_MAN)
 %.5: %.5.md; $(PANDOC_MAN)
 %.8: %.8.md; $(PANDOC_MAN)
 
-%.3: %.sgml.cntr
-	mv $? __tmp.sgml
-	sgml2txt -man __tmp.sgml
-	mv __tmp.man $@
+%.3: %.sgml
+	linuxdoc -B txt --manpage $?
+	mv $(addsuffix .man,$(basename $?)) $@
 
 FORCE:

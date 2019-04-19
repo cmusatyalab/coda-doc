@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_modify_bytes" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_modify_bytes - recoverable modifications to a segment
+<sect1>NAME
+<p>
+rvm_modify_bytes - recoverable modifications to a segment
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <P>
 <verb>
 #include "rvm.h"
@@ -18,7 +19,7 @@ unsigned long length;  /* number of bytes to modify */
 
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_modify_bytes is used to modify recoverable memory in a transaction.
 The transaction must have been previously initiated with rvm_begin_transaction;
 otherwise RVM_ETID is returned.
@@ -46,7 +47,7 @@ If memory to create an old value record for the range cannot be allocated,
 RVM_ENO_MEMORY is returned.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_ETID/ invalid transaction identifier or pointer
@@ -58,12 +59,12 @@ RVM_ENO_MEMORY is returned.
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_begin_transaction (3)</tt>, <tt>rvm_set_range (3)</tt>,
 <tt>rvm_abort_transaction (3)</tt>, and <tt>rvm_end_transaction (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

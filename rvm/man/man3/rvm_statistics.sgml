@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_statistics" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_statistics - query collected statistics
+<sect1>NAME
+<p>
+rvm_statistics - query collected statistics
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <p>
 <verb>
 #include "rvm_statistics.h"
@@ -23,7 +24,7 @@ rvm_return_t     RVM_STATISTICS (statistics);
 rvm_statistics_t *statistics; /* pointer to a statistics record */
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 <tt>rvm_statistics</tt> copies the statistics collected by RVM to a record
 provided by the application.  The contents of the record can then be
 analyzed by the application, or formated by <tt>rvm_print_statistics</tt>.
@@ -57,7 +58,7 @@ included in the RVM manual.
 
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_ESTAT_VERSION_SKEW/ Statistics version skew
@@ -67,11 +68,11 @@ included in the RVM manual.
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_print_statistics (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

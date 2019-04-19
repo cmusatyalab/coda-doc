@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_set_range" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_set_range - define a modification range
+<sect1>NAME
+<p>
+rvm_set_range - define a modification range
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <P>
 <verb>
 #include "rvm.h"
@@ -17,7 +18,7 @@ unsigned long  length; /* length of range in bytes */
 
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_set_range defines a modification range within a transaction.
 The transaction must have been begun with rvm_begin_transaction, or
 the RVM_ETID exception code is returned.
@@ -63,7 +64,7 @@ If memory to create an old value record for the range cannot be allocated,
 RVM_ENO_MEMORY is returned.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_ETID/ invalid transaction identifier or pointer
@@ -74,16 +75,16 @@ RVM_ENO_MEMORY is returned.
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_begin_transaction (3)</tt>, <tt>rvm_modify_bytes (3)</tt>,
 <tt>rvm_end_transaction (3)</tt>, and <tt>rvm_abort_transaction (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 
-<mansect>BUGS<P>
+<sect1>BUGS<P>
 A range cannot extend across a region boundary even if 
 virtual memory is contiguously mapped.
 

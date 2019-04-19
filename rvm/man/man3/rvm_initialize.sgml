@@ -1,9 +1,12 @@
+<!doctype linuxdoc SYSTEM>
+
 <manpage TITLE="rvm_initialize" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_initialize - RVM initialization
+<sect1>NAME
+<p>
+rvm_initialize - RVM initialization
 
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <P>
 <verb>
 #include "rvm.h"
@@ -27,7 +30,7 @@ rvm_options_t *options;   /* pointer to a RVM options record */
 
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_initialize must be called once to initialize the RVM library, and
 must be called before any other RVM function.
 Without successful initialization, any call to RVM functions except
@@ -62,7 +65,7 @@ RVM_VERSION.
 This is the best way to initialize RVM.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/
 success
@@ -84,11 +87,11 @@ internal portability problem, see system maintainer
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_terminate (3)</tt>, <tt>rvm_set_options (3)</tt>, <tt>rvm_query (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_set_options" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_set_options - set RVM options
+<sect1>NAME
+<p>
+rvm_set_options - set RVM options
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <P>
 <verb>
 #include "rvm.h"
@@ -25,7 +26,7 @@ rvm_return_t rvm_set_options (options)
 rvm_options_t    *options;    /* pointer to a options records */
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_set_options allows RVM options to be changed after
 initialization.
 Only the options permitted to be selected after initialization will be considered.
@@ -59,7 +60,7 @@ level in effect at the beginning of a transaction remains in effect
 for that transaction until it is ended.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_EOPTIONS/ invalid options record or pointer
@@ -68,11 +69,11 @@ for that transaction until it is ended.
 <tag/RVM_EINIT/ RVM not initialized
 </descrip>
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_map (3)</tt>, <tt>rvm_unmap (3)</tt>, and <tt>rvm_query (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

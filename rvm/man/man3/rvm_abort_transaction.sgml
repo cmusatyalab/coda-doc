@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_abort_transaction" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_abort_transaction - abort specified transaction
+<sect1>NAME
+<p>
+rvm_abort_transaction - abort specified transaction
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <p>
 <verb>
 #include "rvm.h"
@@ -14,7 +15,7 @@ rvm_return_t rvm_abort_transaction (tid)
 rvm_tid_t    *tid;   /* pointer to transaction identifier */
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_abort_transaction aborts the specified transaction.
 Transactions begun with any mode can be aborted with this function.
 All modifications to segments made in the course of the transaction are
@@ -25,7 +26,7 @@ The transaction identifier must refer to a previously initiated transaction
 or RVM_ETID is returned.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_ETID/ invalid transaction identifier or pointer
@@ -33,11 +34,11 @@ or RVM_ETID is returned.
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_begin_transaction (3)</tt>, <tt>rvm_end_transaction (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

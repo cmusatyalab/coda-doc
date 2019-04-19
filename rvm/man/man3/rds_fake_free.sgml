@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rds_fake_free" SECTNUM=3>
-<mansect>NAME 
- <P>rds_fake_free - deferred return of blocks to the recoverable heap
+<sect1>NAME
+<p>
+rds_fake_free - deferred return of blocks to the recoverable heap
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <p>
 <verb>
 #include "rds.h"
@@ -25,7 +26,7 @@ rvm_mode_t      mode;  /* transaction commit mode */
 
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 In cases where the application must free recoverable storage without
 knowing whether the transaction will later abort, <tt>rds_free</tt> should
 not be used since the internal free list lock is not held until commit
@@ -66,7 +67,7 @@ These functions return error codes as the
 value of the function rather than in a parameter.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/SUCCESS/ success
 <tag/EFREED_TWICE/ block is already free
@@ -77,11 +78,11 @@ value of the function rather than in a parameter.
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rds_free (3)</tt>, <tt>rds_malloc (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 David C. Steere
 
 

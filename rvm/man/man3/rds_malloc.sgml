@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rds_malloc" SECTNUM=3>
-<mansect>NAME 
- <P>rds_malloc - allocate from recoverable heap
+<sect1>NAME
+<p>
+rds_malloc - allocate from recoverable heap
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <p>
 <verb>
 #include "rds.h"
@@ -17,7 +18,7 @@ int           *err;  /* pointer to error return location */
 
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 <tt>rds_malloc</tt> allocates from the recoverable heap a block large
 enough to hold the request, specified in bytes by the <tt>size</tt> parameter.
 The address of the allocated block is returned as type
@@ -47,7 +48,7 @@ In this case, an explicit <tt>rds_free</tt> must be done if the allocating
 transaction later aborts.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/SUCCESS/ success
 <tag/ENO_ROOM/ RDS heap exhausted
@@ -57,15 +58,15 @@ transaction later aborts.
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rds_free (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 David C. Steere
 
 
-<mansect>BUGS<P>
+<sect1>BUGS<P>
 The internal synchronization is not valid with pre-emptive threads.
 
 

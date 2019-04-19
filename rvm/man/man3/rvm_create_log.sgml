@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_create_log" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_create_log - RVM log file creation
+<sect1>NAME
+<p>
+rvm_create_log - RVM log file creation
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <p>
 <verb>
 #include "rvm.h"
@@ -16,7 +17,7 @@ rvm_offset_t  *length;   /* length of log record area in file to be created */
 long          mode;      /* protection mode of file to be created */
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_create_log provides a mechanism for creating a log file from
 within an application.
 It is intended to allow an application to be self-installing by
@@ -49,7 +50,7 @@ operational log.  This must be done by specifying an options
 descriptor to <tt>rvm_set_options</tt>, <tt>rvm_initialize</tt>, or <tt>rvm_map</tt>.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_ELOG/ no log file has been specified
@@ -62,11 +63,11 @@ descriptor to <tt>rvm_set_options</tt>, <tt>rvm_initialize</tt>, or <tt>rvm_map<
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_set_options (3)</tt>, <tt>rvm_initialize (3)</tt>, <tt>rvm_map (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

@@ -1,11 +1,12 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_unmap" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_unmap - unmap segment region
+<sect1>NAME
+<p>
+rvm_unmap - unmap segment region
 
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <P>
 <verb>
 #include "rvm.h"
@@ -26,7 +27,7 @@ rvm_return_t rvm_unmap (region)
 rvm_region_t *region;   /* pointer to region descriptor */
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_unmap releases mapped buffers.
 The virtual memory space is freed for other uses, but not returned to Unix.
 This is true even if the space was allocated by rvm_map, in which
@@ -59,7 +60,7 @@ If several regions are unmapped, truncation after the last unmapped
 will insure no mapping delay if any are remapped.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_EREGION/ invalid region descriptor or pointer
@@ -71,11 +72,11 @@ region
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_map (3)</tt>, <tt>rvm_set_options (3)</tt>, and <tt>rvm_query (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

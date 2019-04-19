@@ -1,10 +1,11 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_print_statistics" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_print_statistics - format and print statistics
+<sect1>NAME
+<p>
+rvm_print_statistics - format and print statistics
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <p>
 <verb>
 #include "rvm_statistics.h"
@@ -20,7 +21,7 @@ rvm_statistics_t *statistics; /* pointer to a statistics record */
 FILE             *out_stream; /* pointer to stdio stream */
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_print_statistics formats an rvm_statistics_t record
 previously filled in by rvm_statistics.  The formated output is
 set to the specified stream, which must first have been opened with
@@ -34,7 +35,7 @@ This function can also be invoked from <tt>rvmutl</tt> with the
 <tt>statistics</tt> command.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_ESTATISTICS/ Invalid statistics record or pointer
@@ -44,11 +45,11 @@ This function can also be invoked from <tt>rvmutl</tt> with the
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_statistics (3)</tt>, <tt>rvmutl-statistics (1)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 

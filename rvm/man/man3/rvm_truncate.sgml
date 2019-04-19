@@ -1,11 +1,12 @@
-
+<!doctype linuxdoc SYSTEM>
 
 <manpage TITLE="rvm_truncate" SECTNUM=3>
-<mansect>NAME 
- <P>rvm_truncate - truncate the log
+<sect1>NAME
+<p>
+rvm_truncate - truncate the log
 
 
-<mansect>SYNOPSIS
+<sect1>SYNOPSIS
 <p>
 <verb>
 #include "rvm.h"
@@ -13,7 +14,7 @@
 rvm_return_t rvm_truncate ()
 </verb>
 
-<mansect>DESCRIPTION<P>
+<sect1>DESCRIPTION<P>
 rvm_truncate makes visible the log truncation operation.
 When the log is truncated, records for committed changes are used to update the
 committed images of modified segments.
@@ -35,7 +36,7 @@ This can done as many times as necessary.
 If no memory can be freed, this error should be considered fatal.
 
 
-<mansect>DIAGNOSTICS<P>
+<sect1>DIAGNOSTICS<P>
 <descrip>
 <tag/RVM_SUCCESS/ success
 <tag/RVM_ENO_MEMORY/ heap exhausted
@@ -45,11 +46,11 @@ If no memory can be freed, this error should be considered fatal.
 </descrip>
 
 
-<mansect>SEE ALSO<P>
+<sect1>SEE ALSO<P>
 <tt>rvm_flush (3)</tt>
 
 
-<mansect>AUTHOR<P>
+<sect1>AUTHOR<P>
 Hank Mashburn
 
 
