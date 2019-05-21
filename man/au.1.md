@@ -39,7 +39,8 @@ server to perform the requested operation.
 **nu**
 
 :   New user. The **nu** option tells the **auth2** daemon to add a new
-    password entry to the Coda password database.
+    password entry to the Coda password database. Note that the user has
+    to be known to coda in beforehand. This is done via **pdbtool** *new user*.
 
 **cp**
 
@@ -65,6 +66,11 @@ BUGS
 ====
 
 **au** echos new passwords to the terminal as they are typed in.
+
+SEE ALSO
+========
+
+**pdbtool**(8)
 
 AUTHORS
 =======

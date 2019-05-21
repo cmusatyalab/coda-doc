@@ -35,7 +35,7 @@ functionally required by some users. Has hard coded file locations. :)
 SEE ALSO
 ========
 
-**auth2**(8)
+**au**(1), **auth2**(8)
 
 AUTHORS
 =======
