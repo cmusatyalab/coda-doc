@@ -38,7 +38,7 @@ The **codareaddump** program supports the following commands:
 **codareaddump** uses the *ci* command interface, which allows the use of
 unique prefixes for commands. Unspecified parameters will be prompted
 for, and default values can be used. The **showHeader** command prints out
-the header of the dump, which is seperate from the header of the volume
+the header of the dump, which is separate from the header of the volume
 that was dumped. The **showVolumeDiskData** prints out the header of the
 volume.
 

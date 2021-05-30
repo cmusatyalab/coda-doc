@@ -199,7 +199,7 @@ peek [*file*] *offset* / [*csf*]
     
     There are nine different possible
     formats: **c** for character, **d** for decimal, **o** for octal, **x**
-    for hexidecimal, **u** for unsigned, **f** for float, **D** for double,
+    for hexadecimal, **u** for unsigned, **f** for float, **D** for double,
     **O** for offset (two long integers representing the high and low order
     bits respectively) and **t** for time value.
 
@@ -237,7 +237,7 @@ poke [*file*] *offset* / *cs* = *val* [*val* ...]
                512:  97  98  99 100 101   0   0   0
 
     Note that in the second example, the character **x**, which indicates
-    hexidecimal format in peek, is sliently ignored. To enter a hexidecimal
+    hexadecimal format in peek, is sliently ignored. To enter a hexadecimal
     number, you should us prefix \'0x\' as in the third example. Note also
     that how a pattern is repeated by using the argument *c* in first and
     third example.

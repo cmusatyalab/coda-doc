@@ -49,7 +49,7 @@ following hoard commands are currently recognized:
 
 Hoard distinguishes between **children** of a directory, which are
 members of the directory, **descendants** which are either children or
-descendants of childres of the directory.
+descendants of children of the directory.
 
 Commands may be abbreviated by their first letter. Parameters in angle
 brackets are optional, and have default values if unspecified. The

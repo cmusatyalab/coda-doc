@@ -29,7 +29,7 @@ interactively to confirm their choice of parameters before rdsinit goes
 ahead to make any permanent change. These are the preferred modes of
 using rdsinit. Script writers, however, may prefer to supply all the
 parameters on the command line and *no* confirmation required for those
-parameters. This is accomodate in the third mode where an additional
+parameters. This is accommodated in the third mode where an additional
 switch of -f (firm) is supplied on the command line.
 
 In any case, two
@@ -66,13 +66,13 @@ chunk
 
 While entering these six numeric parameters, either on command line on
 via the interactive prompt, users may use numeric number in hexadecimal,
-decimal or even octal notation. Hexadecimal numbers are preceeded by
-`Ox`, decimal numbers are preceeded by nothing and octal numbers are
+decimal or even octal notation. Hexadecimal numbers are preceded by
+`Ox`, decimal numbers are preceded by nothing and octal numbers are
 preceded by `0`.
 
 Special note for long time rdsinit user: the old
 rdsinit automatically assumed `saddr`, `hlen` and `slen` parameters
-supplied on command lines are in hexidecimal and *did not* require the
+supplied on command lines are in hexadecimal and *did not* require the
 prefix `0x`. *This is no longer true with this version of rdsinit.*
 
 Users specify the length of the data segment with the parameter
@@ -121,7 +121,7 @@ free list with chunk size 32 bytes.
 Once all the parameters are chosen,
 rdsinit will ask user for confirmation before it goes ahead and make
 permanent change on the log and data segment. Note in the following
-example that those numerical arguments are presented in both hexidecimal
+example that those numerical arguments are presented in both hexadecimal
 and decimal (in bracket). It is safe to quit at this point and no
 permanent changes will be made.
 

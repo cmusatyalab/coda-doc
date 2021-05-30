@@ -11,7 +11,7 @@ DESCRIPTION
 ===========
 
 **vicetab** is a table of Coda data partitions found on individual
-servers comprising a Coda netowrk server. This includes partition(s)
+servers comprising a Coda network server. This includes partition(s)
 used by the backup coordinator to store dump files to placed on a
 suitable backup media. This file must be shared among all machines
 comprising a Coda hub so edits should be done only on the designated
@@ -35,7 +35,7 @@ gethostbyname().
 
 Column 2 specifies the directory of the Coda data tree which must be a
 local file system partition for optimal performance. **NOTE: if a server
-serves than more than one Coda data** parition, each data partition must
+serves than more than one Coda data** partition, each data partition must
 have a seperate entry in vicetab.
 
 Column 3 specifies the Coda partition type.
@@ -47,7 +47,7 @@ Column 3 specifies the Coda partition type.
     e.g. inode 4711 in base 10 with width 1 and depth 5 would become
     0/4/7/1/1. So, using the above example, a width of 4 and a depth of
     2 would make the file name 4/711. If this storage type is specified,
-    the width and depth must also be given in the 4th column seperated
+    the width and depth must also be given in the 4th column separated
     by a comma.
 
 Column 4 specifies the width and depth of the ftree.

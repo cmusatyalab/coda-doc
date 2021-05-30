@@ -20,7 +20,7 @@ the current list of volumes. It gets the list from the
 */vice/vol/BigVolumeList* and passes the combined list as a parameter to
 the **volutil makevldb** command. This command produces a new **VLDB**
 in */vice/db* and updates the files *AllVolumes* and *partitions* in
-*/vice/vol*. You must have root priveledges to run this command.
+*/vice/vol*. You must have root privileges to run this command.
 
 DIAGNOSTICS
 ===========
